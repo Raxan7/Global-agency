@@ -1,0 +1,165 @@
+{% extends 'student_portal/dashboard_base.html' %}
+
+{% block title %}Work Experience{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-briefcase text-blue-600 mr-3"></i>
+                Work Experience
+            </h1>
+            <p class="text-gray-600 mt-2">Add your professional experience to strengthen your applications</p>
+        </div>
+        <a href="{% url 'student_portal:work_experience_add' %}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center">
+            <i class="fas fa-plus-circle mr-2"></i>
+            Add Experience
+        </a>
+    </div>
+
+    <!-- Total Experience Card -->
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-8 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 mb-2">Total Professional Experience</p>
+                <h2 class="text-4xl font-bold">{{ total_experience }}</h2>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="fas fa-clock text-4xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Experience List -->
+    {% if work_experiences %}
+        <div class="space-y-6">
+            {% for exp in work_experiences %}
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                <div class="flex flex-col md:flex-row md:items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-start mb-3">
+                            <div class="bg-blue-100 rounded-full p-3 mr-4">
+                                <i class="fas fa-briefcase text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800">{{ exp.position }}</h3>
+                                <p class="text-lg text-blue-600">{{ exp.company_name }}</p>
+                                {% if exp.location %}
+                                    <p class="text-gray-500 flex items-center mt-1">
+                                        <i class="fas fa-map-marker-alt mr-2 text-sm"></i>
+                                        {{ exp.location }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="ml-14">
+                            <!-- Duration -->
+                            <div class="flex items-center text-gray-600 mb-3">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                <span>{{ exp.start_date|date:"M Y" }} - 
+                                    {% if exp.currently_working %}
+                                        <span class="text-green-600 font-medium">Present</span>
+                                    {% else %}
+                                        {{ exp.end_date|date:"M Y" }}
+                                    {% endif %}
+                                </span>
+                                <span class="mx-3">•</span>
+                                <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                                    {{ exp.duration }}
+                                </span>
+                            </div>
+                            
+                            <!-- Description -->
+                            {% if exp.description %}
+                            <div class="mb-3">
+                                <p class="text-gray-700">{{ exp.description|linebreaksbr }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Responsibilities -->
+                            {% if exp.responsibilities %}
+                            <div class="mb-3">
+                                <h4 class="font-semibold text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-tasks text-gray-500 mr-2 text-sm"></i>
+                                    Key Responsibilities
+                                </h4>
+                                <p class="text-gray-600 whitespace-pre-line">{{ exp.responsibilities }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Achievements -->
+                            {% if exp.achievements %}
+                            <div class="mb-3">
+                                <h4 class="font-semibold text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-trophy text-yellow-500 mr-2 text-sm"></i>
+                                    Achievements
+                                </h4>
+                                <p class="text-gray-600 whitespace-pre-line">{{ exp.achievements }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2 mt-4 md:mt-0">
+                        <a href="{% url 'student_portal:work_experience_edit' exp.id %}" 
+                           class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition flex items-center justify-center">
+                            <i class="fas fa-edit mr-2"></i>Edit
+                        </a>
+                        <a href="{% url 'student_portal:work_experience_delete' exp.id %}" 
+                           class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg transition flex items-center justify-center"
+                           onclick="return confirm('Are you sure you want to delete this work experience?');">
+                            <i class="fas fa-trash-alt mr-2"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <div class="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-briefcase text-4xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">No Work Experience Added</h3>
+            <p class="text-gray-600 mb-6">Add your professional experience to strengthen your university applications and stand out to admissions committees.</p>
+            <a href="{% url 'student_portal:work_experience_add' %}" 
+               class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                <i class="fas fa-plus-circle mr-2"></i>
+                Add Your First Work Experience
+            </a>
+        </div>
+    {% endif %}
+    
+    <!-- Tips Section -->
+    <div class="mt-8 bg-blue-50 rounded-lg p-6">
+        <h3 class="font-semibold text-blue-800 mb-3 flex items-center">
+            <i class="fas fa-lightbulb mr-2"></i>
+            Tips for Adding Work Experience
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                <span>Include internships, part-time jobs, volunteer work, and full-time positions</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                <span>Use action verbs to describe your responsibilities and achievements</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                <span>Quantify achievements where possible (e.g., "Increased sales by 20%")</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                <span>List experiences in reverse chronological order (most recent first)</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

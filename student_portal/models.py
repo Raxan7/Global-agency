@@ -125,6 +125,63 @@ class StudentProfile(models.Model):
         
         super().save(*args, **kwargs)
 
+
+# ADD THIS WORK EXPERIENCE MODEL
+class WorkExperience(models.Model):
+    """Work experience entries for students"""
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='work_experiences')
+    company_name = models.CharField(max_length=200)
+    position = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, blank=True, null=True)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    currently_working = models.BooleanField(default=False)
+    description = models.TextField(blank=True, null=True)
+    responsibilities = models.TextField(blank=True, null=True)
+    achievements = models.TextField(blank=True, null=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name = 'Work Experience'
+        verbose_name_plural = 'Work Experiences'
+        
+    def __str__(self):
+        return f"{self.position} at {self.company_name} - {self.student.user.get_full_name()}"
+    
+    @property
+    def duration(self):
+        """Calculate duration in years and months"""
+        if not self.start_date:
+            return "Not specified"
+        
+        end = self.end_date
+        if self.currently_working:
+            end = timezone.now().date()
+        
+        if not end:
+            return "Present"
+        
+        years = end.year - self.start_date.year
+        months = end.month - self.start_date.month
+        
+        if months < 0:
+            years -= 1
+            months += 12
+            
+        if years > 0 and months > 0:
+            return f"{years} year{'s' if years > 1 else ''} {months} month{'s' if months > 1 else ''}"
+        elif years > 0:
+            return f"{years} year{'s' if years > 1 else ''}"
+        elif months > 0:
+            return f"{months} month{'s' if months > 1 else ''}"
+        else:
+            return "Less than a month"
+
+
 class Application(models.Model):
     APPLICATION_STATUS = [
         ('pending_payment', 'Pending Payment'),
@@ -171,6 +228,7 @@ class Application(models.Model):
     def __str__(self):
         return f"{self.get_application_type_display()} - {self.student.username}"
 
+
 class Document(models.Model):
     DOCUMENT_TYPES = [
         ('passport', 'Passport'),
@@ -195,6 +253,7 @@ class Document(models.Model):
     def __str__(self):
         return f"{self.get_document_type_display()} - {self.student.username}"
 
+
 class Message(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=255)
@@ -204,6 +263,7 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.subject} - {self.student.username}"
+
 
 # Payment Model with ClickPesa Integration
 class Payment(models.Model):
@@ -280,7 +340,8 @@ class Payment(models.Model):
     def is_completed(self):
         return self.status in ['success', 'settled']
 
-# ADD THIS APPLICATION ASSIGNMENT MODEL
+
+# Application Assignment Model
 class ApplicationAssignment(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='assignments')
     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_applications')

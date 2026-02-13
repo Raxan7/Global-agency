@@ -202,6 +202,15 @@
                         {% endif %}
                     </a>
                     
+                    <!-- ADDED: Work Experience Link -->
+                    <a href="{% url 'student_portal:work_experience' %}" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg {% if request.resolver_match.url_name == 'work_experience' %}active{% endif %}">
+                        <i class="fas fa-briefcase mr-3"></i>
+                        <span>Work Experience</span>
+                        {% if user.studentprofile.work_experiences.exists %}
+                            <i class="fas fa-check-circle text-green-500 ml-auto"></i>
+                        {% endif %}
+                    </a>
+                    
                     <hr class="my-4">
                     
                     <a href="{% url 'student_portal:applications' %}" class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg {% if request.resolver_match.url_name == 'applications' %}active{% endif %}">

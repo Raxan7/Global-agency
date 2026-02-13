@@ -21,6 +21,12 @@ urlpatterns = [
     path('profile/study-preferences/', views.study_preferences, name='study_preferences'),
     path('profile/emergency-contact/', views.emergency_contact, name='emergency_contact'),
     
+    # WORK EXPERIENCE URLS
+    path('work-experience/', views.work_experience_list, name='work_experience'),
+    path('work-experience/add/', views.work_experience_add, name='work_experience_add'),
+    path('work-experience/<int:pk>/edit/', views.work_experience_edit, name='work_experience_edit'),
+    path('work-experience/<int:pk>/delete/', views.work_experience_delete, name='work_experience_delete'),
+    
     # Applications
     path('applications/', views.applications, name='applications'),
     path('applications/<int:application_id>/', views.application_detail, name='application_detail'),

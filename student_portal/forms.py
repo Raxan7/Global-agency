@@ -1,5 +1,5 @@
 from django import forms
-from .models import StudentProfile, Application, Document
+from .models import StudentProfile, Application, Document, WorkExperience
 
 class StudentProfileForm(forms.ModelForm):
     class Meta:
@@ -162,17 +162,107 @@ class EmergencyContactForm(forms.ModelForm):
             'heard_about_other': 'Other (Please Specify)',
         }
 
+
+# ADD THIS WORK EXPERIENCE FORM
+class WorkExperienceForm(forms.ModelForm):
+    class Meta:
+        model = WorkExperience
+        fields = [
+            'company_name', 'position', 'location', 
+            'start_date', 'end_date', 'currently_working',
+            'description', 'responsibilities', 'achievements'
+        ]
+        widgets = {
+            'company_name': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Company/Organization Name'
+            }),
+            'position': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Your Job Title'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'City, Country'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-input'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-input'
+            }),
+            'currently_working': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox h-5 w-5 text-blue-600 rounded',
+                'onclick': 'toggleEndDate()'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 3,
+                'placeholder': 'Brief description of your role and responsibilities...'
+            }),
+            'responsibilities': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 4,
+                'placeholder': '• List your key responsibilities\n• Use bullet points for clarity'
+            }),
+            'achievements': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 3,
+                'placeholder': 'Notable achievements, promotions, awards, or impact you made...'
+            }),
+        }
+        labels = {
+            'company_name': 'Company/Organization',
+            'position': 'Position/Job Title',
+            'location': 'Work Location',
+            'start_date': 'Start Date',
+            'end_date': 'End Date',
+            'currently_working': 'I currently work here',
+            'description': 'Job Description',
+            'responsibilities': 'Key Responsibilities',
+            'achievements': 'Achievements & Impact',
+        }
+        help_texts = {
+            'start_date': 'When did you start this position?',
+            'end_date': 'When did you leave this position? (Leave blank if currently working)',
+            'responsibilities': 'Use bullet points to list your main duties and responsibilities',
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        currently_working = cleaned_data.get('currently_working')
+        
+        if start_date and end_date and not currently_working:
+            if end_date < start_date:
+                raise forms.ValidationError("End date cannot be before start date.")
+        
+        if currently_working:
+            cleaned_data['end_date'] = None
+        
+        return cleaned_data
+
+
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
         fields = ['application_type', 'university_name', 'course', 'country']
         widgets = {
-            'university_name': forms.TextInput(attrs={'placeholder': 'Enter university name'}),
-            'course': forms.TextInput(attrs={'placeholder': 'Enter course/program'}),
-            'country': forms.TextInput(attrs={'placeholder': 'Enter country'}),
+            'application_type': forms.Select(attrs={'class': 'form-input'}),
+            'university_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter university name'}),
+            'course': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter course/program'}),
+            'country': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter country'}),
         }
 
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ['document_type', 'file', 'description']
+        widgets = {
+            'document_type': forms.Select(attrs={'class': 'form-input'}),
+            'file': forms.FileInput(attrs={'class': 'form-input'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3, 'placeholder': 'Optional description'}),
+        }

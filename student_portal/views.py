@@ -10,10 +10,10 @@ from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 import json
 from datetime import datetime
-from .models import StudentProfile, Application, Document, Message, Payment
+from .models import StudentProfile, Application, Document, Message, Payment, WorkExperience
 from .forms import (StudentProfileForm, DocumentForm, ApplicationForm, 
                     PersonalDetailsForm, ParentsDetailsForm, AcademicQualificationsForm,
-                    StudyPreferencesForm, EmergencyContactForm)
+                    StudyPreferencesForm, EmergencyContactForm, WorkExperienceForm)
 from .clickpesa_service import clickpesa_service
 
 # ADD THIS IMPORT
@@ -237,6 +237,123 @@ def emergency_contact(request):
         'profile_completion': profile.get_completion_percentage(),
     }
     return render(request, 'student_portal/emergency_contact.html', context)
+
+
+# ============ WORK EXPERIENCE VIEWS ============
+
+@login_required
+def work_experience_list(request):
+    """Display list of work experiences"""
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    work_experiences = profile.work_experiences.all()
+    
+    # Calculate total experience
+    total_months = 0
+    for exp in work_experiences:
+        if exp.start_date:
+            end = exp.end_date
+            if exp.currently_working:
+                end = timezone.now().date()
+            if end:
+                months = (end.year - exp.start_date.year) * 12 + end.month - exp.start_date.month
+                total_months += months
+    
+    total_years = total_months // 12
+    remaining_months = total_months % 12
+    
+    if total_years > 0 and remaining_months > 0:
+        total_experience = f"{total_years} year{'s' if total_years > 1 else ''} {remaining_months} month{'s' if remaining_months > 1 else ''}"
+    elif total_years > 0:
+        total_experience = f"{total_years} year{'s' if total_years > 1 else ''}"
+    elif remaining_months > 0:
+        total_experience = f"{remaining_months} month{'s' if remaining_months > 1 else ''}"
+    else:
+        total_experience = "No experience added"
+    
+    context = {
+        'work_experiences': work_experiences,
+        'total_experience': total_experience,
+        'total_years': total_years,
+        'total_months': remaining_months,
+        'profile_completion': profile.get_completion_percentage(),
+    }
+    
+    response = render(request, 'student_portal/work_experience.html', context)
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+@login_required
+def work_experience_add(request):
+    """Add new work experience"""
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    
+    if request.method == 'POST':
+        form = WorkExperienceForm(request.POST)
+        if form.is_valid():
+            work_exp = form.save(commit=False)
+            work_exp.student = profile
+            work_exp.save()
+            messages.success(request, 'Work experience added successfully!')
+            return redirect('student_portal:work_experience')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = WorkExperienceForm()
+    
+    context = {
+        'form': form,
+        'title': 'Add Work Experience',
+        'profile_completion': profile.get_completion_percentage(),
+    }
+    return render(request, 'student_portal/work_experience_form.html', context)
+
+@login_required
+def work_experience_edit(request, pk):
+    """Edit work experience"""
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    work_exp = get_object_or_404(WorkExperience, pk=pk, student=profile)
+    
+    if request.method == 'POST':
+        form = WorkExperienceForm(request.POST, instance=work_exp)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Work experience updated successfully!')
+            return redirect('student_portal:work_experience')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = WorkExperienceForm(instance=work_exp)
+    
+    context = {
+        'form': form,
+        'title': 'Edit Work Experience',
+        'work_exp': work_exp,
+        'profile_completion': profile.get_completion_percentage(),
+    }
+    return render(request, 'student_portal/work_experience_form.html', context)
+
+@login_required
+def work_experience_delete(request, pk):
+    """Delete work experience"""
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    work_exp = get_object_or_404(WorkExperience, pk=pk, student=profile)
+    
+    if request.method == 'POST':
+        work_exp.delete()
+        messages.success(request, 'Work experience deleted successfully!')
+        return redirect('student_portal:work_experience')
+    
+    context = {
+        'work_exp': work_exp,
+        'profile_completion': profile.get_completion_percentage(),
+    }
+    return render(request, 'student_portal/work_experience_confirm_delete.html', context)
+
+
+# ============ END WORK EXPERIENCE VIEWS ============
+
 
 @login_required
 def applications(request):
