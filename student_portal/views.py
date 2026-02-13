@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
+from django.utils import timezone
 import json
 from datetime import datetime
 from .models import StudentProfile, Application, Document, Message, Payment, WorkExperience
