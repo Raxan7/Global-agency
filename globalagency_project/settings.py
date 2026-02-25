@@ -96,32 +96,32 @@ WSGI_APPLICATION = 'globalagency_project.wsgi.application'
 # DATABASE
 # =============================================================================
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),  # Database name from .env
-        'USER': config('DB_USER'),  # Database username from .env
-        'PASSWORD': config('DB_PASSWORD'),  # Database password from .env
-        'HOST': config('DB_HOST', default='localhost'),  # Database host from .env
-        'PORT': config('DB_PORT', default='3306'),  # Database port from .env
-        'OPTIONS': {
-            'charset': 'utf8mb4',  # Use utf8mb4 for full UTF-8 support including emojis
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1, NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
-            'use_unicode': True,
-        },
-        'TEST': {
-            'CHARSET': 'utf8mb4',
-            'COLLATION': 'utf8mb4_unicode_ci',
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': config('DB_NAME'),  # Database name from .env
+#         'USER': config('DB_USER'),  # Database username from .env
+#         'PASSWORD': config('DB_PASSWORD'),  # Database password from .env
+#         'HOST': config('DB_HOST', default='localhost'),  # Database host from .env
+#         'PORT': config('DB_PORT', default='3306'),  # Database port from .env
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',  # Use utf8mb4 for full UTF-8 support including emojis
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1, NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+#             'use_unicode': True,
+#         },
+#         'TEST': {
+#             'CHARSET': 'utf8mb4',
+#             'COLLATION': 'utf8mb4_unicode_ci',
+#         }
+#     }
+# }
 
 
 LANGUAGE_CODE = 'en'
@@ -401,3 +401,20 @@ if not DEBUG:
         'https://africawesterneducation.com',
         'https://www.africawesterneducation.com',
     ]
+
+# =============================================================================
+# EMAIL CONFIGURATION FOR PASSWORD RESET & NOTIFICATIONS (ADDED)
+# =============================================================================
+
+# Email backend configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'africawesterneducation.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='support@africawesterneducation.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # Set in .env file
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='African Western Education <support@africawesterneducation.com>')
+
+# Password reset settings
+PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
