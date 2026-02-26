@@ -11,7 +11,7 @@ urlpatterns = [
     
     # Password Reset
     path('forgot-password/', employee_forgot_password, name='forgot_password'),
-    path('reset-password/<uidb64>/<token>/', employee_password_reset_confirm, name='password_reset_confirm'),
+    path('reset-password/<uidb64>/<token>/', employee_password_reset_confirm, name='password_reset_employee_confirm'),
     
     # Africa Western Education applications
     path('applications/<int:pk>/', views.application_detail, name='application_detail'),
