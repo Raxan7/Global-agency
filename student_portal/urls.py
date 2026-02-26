@@ -10,8 +10,8 @@ urlpatterns = [
     path('logout/', views.student_logout, name='logout'),
     
     # Password Reset
-    path('forgot-password/', student_forgot_password, name='forgot_password'),
-    path('reset-password/<uidb64>/<token>/', student_password_reset_confirm, name='password_reset_confirm'),
+    # path('forgot-password/', student_forgot_password, name='forgot_password'),
+    # path('reset-password/<uidb64>/<token>/', student_password_reset_confirm, name='password_reset_confirm'),
     
     # Profile
     path('profile/', views.student_profile, name='profile'),
