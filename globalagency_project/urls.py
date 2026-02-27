@@ -6,7 +6,8 @@ from django.views.i18n import set_language
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic import RedirectView
 from globalagency_project.sitemap import sitemaps
-from django.contrib.auth import views as auth_views  # ADD THIS IMPORT
+from django.contrib.auth import views as auth_views
+from student_portal.forms import SecurePasswordResetForm  # ADD THIS IMPORT
 
 # Non-localized URLs
 urlpatterns = [
@@ -21,13 +22,14 @@ urlpatterns = [
     path('student-portal/', include(('student_portal.urls', 'student_portal'))),
     
     # =============================================================================
-    # PASSWORD RESET URLS FOR STUDENT PORTAL (ADDED)
+    # PASSWORD RESET URLS FOR STUDENT PORTAL
     # =============================================================================
     
     # Password reset request - user enters email
     path('student-portal/password-reset/', 
          auth_views.PasswordResetView.as_view(
              template_name='student_portal/password_reset.html',
+             form_class=SecurePasswordResetForm,  # ADD THIS LINE
              email_template_name='student_portal/password_reset_email.html',
              subject_template_name='student_portal/password_reset_subject.txt',
              success_url='/student-portal/password-reset/done/'

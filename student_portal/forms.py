@@ -1,5 +1,78 @@
 from django import forms
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+import logging
 from .models import StudentProfile, Application, Document, WorkExperience
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
+# =============================================================================
+# SECURE PASSWORD RESET FORM (ADD THIS)
+# =============================================================================
+
+class SecurePasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(
+        label="Email",
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'autocomplete': 'email', 
+            'class': 'reset-input',
+            'placeholder': 'Enter your email address'
+        })
+    )
+    
+    def clean_email(self):
+        # Just validate email format, don't check existence
+        email = self.cleaned_data['email']
+        return email
+    
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        """
+        Override send_mail to log attempts but not reveal if email exists
+        """
+        try:
+            # Check if user exists (but don't reveal this to the user)
+            user_exists = User.objects.filter(email__iexact=to_email).exists()
+            
+            if user_exists:
+                # Send email only if user exists
+                super().send_mail(
+                    subject_template_name, 
+                    email_template_name, 
+                    context, 
+                    from_email, 
+                    to_email, 
+                    html_email_template_name
+                )
+                logger.info(f"Password reset email sent to {to_email}")
+            else:
+                # Log the attempt but don't send email
+                logger.warning(f"Password reset attempted for non-existent email: {to_email}")
+                
+        except Exception as e:
+            # Log any errors but don't reveal them to user
+            logger.error(f"Error in password reset for {to_email}: {str(e)}")
+    
+    def get_users(self, email):
+        """
+        Override get_users to return an empty queryset if email doesn't exist
+        This prevents the parent class from trying to send emails to non-existent users
+        """
+        try:
+            # Case-insensitive lookup
+            active_users = User.objects.filter(email__iexact=email, is_active=True)
+            return active_users
+        except:
+            return User.objects.none()
+
+
+# =============================================================================
+# EXISTING FORMS (YOUR ORIGINAL FORMS - UNCHANGED)
+# =============================================================================
 
 class StudentProfileForm(forms.ModelForm):
     class Meta:
@@ -162,8 +235,6 @@ class EmergencyContactForm(forms.ModelForm):
             'heard_about_other': 'Other (Please Specify)',
         }
 
-
-# ADD THIS WORK EXPERIENCE FORM
 class WorkExperienceForm(forms.ModelForm):
     class Meta:
         model = WorkExperience
@@ -244,7 +315,6 @@ class WorkExperienceForm(forms.ModelForm):
             cleaned_data['end_date'] = None
         
         return cleaned_data
-
 
 class ApplicationForm(forms.ModelForm):
     class Meta:

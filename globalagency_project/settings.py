@@ -401,7 +401,15 @@ if not DEBUG:
         'https://africawesterneducation.com',
         'https://www.africawesterneducation.com',
     ]
+# =============================================================================
+# LOGGING DIRECTORY CREATION
+# =============================================================================
 
+# Ensure logs directory exists
+import os
+LOGS_DIR = BASE_DIR / 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 # =============================================================================
 # EMAIL CONFIGURATION FOR PASSWORD RESET & NOTIFICATIONS (ADDED)
 # =============================================================================
