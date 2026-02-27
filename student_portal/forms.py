@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 import logging
 from .models import StudentProfile, Application, Document, WorkExperience
 
@@ -10,68 +12,160 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 # =============================================================================
-# SECURE PASSWORD RESET FORM (ADD THIS)
+# STRICT STUDENT PASSWORD RESET FORM - EXACT EMAIL MATCHING ONLY
 # =============================================================================
 
-class SecurePasswordResetForm(PasswordResetForm):
+class StrictStudentPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
         label="Email",
         max_length=254,
         widget=forms.EmailInput(attrs={
             'autocomplete': 'email', 
             'class': 'reset-input',
-            'placeholder': 'Enter your email address'
+            'placeholder': 'Enter your account email address'
         })
     )
     
     def clean_email(self):
-        # Just validate email format, don't check existence
+        """
+        Validate email format only - don't reveal if email exists
+        """
         email = self.cleaned_data['email']
+        
+        # Basic email format validation
+        if not email:
+            raise forms.ValidationError("Please enter your email address.")
+        
+        # Email format validation
+        import re
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            raise forms.ValidationError("Please enter a valid email address.")
+        
         return email
+    
+    def get_users(self, email):
+        """
+        Get the EXACT user matching this email who is a student
+        Returns at most ONE user - the exact account owner
+        """
+        try:
+            # Try to get the exact user - case-insensitive but exact match
+            # This ensures we only get users whose email matches exactly
+            user = User.objects.filter(email__iexact=email, is_active=True).first()
+            
+            if not user:
+                logger.warning(f"No active user found with email: {email}")
+                return User.objects.none()
+            
+            # Verify this user is actually a student by checking for StudentProfile
+            try:
+                if hasattr(user, 'studentprofile') and user.studentprofile:
+                    logger.info(f"Exact student match found: {user.email} (ID: {user.id})")
+                    return [user]  # Return as list for compatibility
+                else:
+                    logger.warning(f"User exists but is not a student: {email}")
+                    return User.objects.none()
+            except Exception as e:
+                logger.error(f"Error checking student profile for {email}: {str(e)}")
+                return User.objects.none()
+                
+        except Exception as e:
+            logger.error(f"Error finding exact user for {email}: {str(e)}")
+            return User.objects.none()
     
     def send_mail(self, subject_template_name, email_template_name,
                   context, from_email, to_email, html_email_template_name=None):
         """
-        Override send_mail to log attempts but not reveal if email exists
+        Send email ONLY to the exact email address that was entered
+        This ensures the reset link goes to the account owner's email
         """
         try:
-            # Check if user exists (but don't reveal this to the user)
-            user_exists = User.objects.filter(email__iexact=to_email).exists()
+            # Add student-specific context to email
+            context['user_type'] = 'Student'
+            context['portal_name'] = 'Student Portal'
+            context['security_notice'] = 'This password reset link is valid only for your account and will expire in 24 hours.'
             
-            if user_exists:
-                # Send email only if user exists
-                super().send_mail(
-                    subject_template_name, 
-                    email_template_name, 
-                    context, 
-                    from_email, 
-                    to_email, 
-                    html_email_template_name
-                )
-                logger.info(f"Password reset email sent to {to_email}")
-            else:
-                # Log the attempt but don't send email
-                logger.warning(f"Password reset attempted for non-existent email: {to_email}")
-                
+            # Send to the EXACT email that was entered
+            super().send_mail(
+                subject_template_name, 
+                email_template_name, 
+                context, 
+                from_email, 
+                to_email,  # This is the email that was entered in the form
+                html_email_template_name
+            )
+            
+            logger.info(f"Password reset email sent to account owner: {to_email}")
+            
         except Exception as e:
-            # Log any errors but don't reveal them to user
-            logger.error(f"Error in password reset for {to_email}: {str(e)}")
+            logger.error(f"Error sending password reset email to {to_email}: {str(e)}")
+            # Re-raise to let Django handle it
+            raise
     
-    def get_users(self, email):
+    def save(self, domain_override=None,
+             subject_template_name=None, email_template_name=None,
+             use_https=False, token_generator=None, from_email=None,
+             request=None, html_email_template_name=None, extra_email_context=None):
         """
-        Override get_users to return an empty queryset if email doesn't exist
-        This prevents the parent class from trying to send emails to non-existent users
+        Send reset email ONLY to the exact email that was entered
+        Only proceeds if there's an exact student match
         """
-        try:
-            # Case-insensitive lookup
-            active_users = User.objects.filter(email__iexact=email, is_active=True)
-            return active_users
-        except:
-            return User.objects.none()
+        email = self.cleaned_data["email"]
+        
+        # Log the attempt
+        logger.info(f"Password reset attempt for email: {email}")
+        
+        # Get the exact matching user (at most one)
+        users = self.get_users(email)
+        
+        if not users:
+            # No exact match found - log but don't reveal to user
+            logger.warning(f"Password reset blocked - no exact student match for email: {email}")
+            return  # Silent fail - user will see generic success message
+        
+        # Get the single user (the exact account owner)
+        user = users[0]
+        
+        # Generate reset link
+        if not domain_override:
+            current_site = get_current_site(request)
+            site_name = current_site.name
+            domain = current_site.domain
+        else:
+            site_name = domain = domain_override
+        
+        # Create context with user-specific information
+        context = {
+            'email': email,
+            'domain': domain,
+            'site_name': site_name,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'user': user,
+            'token': token_generator.make_token(user),
+            'protocol': 'https' if use_https else 'http',
+            'student_name': user.get_full_name() or user.username,
+            'expiry_hours': 24,
+        }
+        
+        if extra_email_context:
+            context.update(extra_email_context)
+        
+        # Send to the EXACT email that was entered
+        self.send_mail(
+            subject_template_name, 
+            email_template_name, 
+            context, 
+            from_email,
+            email,  # Send to the entered email (the account owner's email)
+            html_email_template_name=html_email_template_name,
+        )
+        
+        logger.info(f"Password reset email successfully queued for account owner: {user.email}")
 
 
 # =============================================================================
-# EXISTING FORMS (YOUR ORIGINAL FORMS - UNCHANGED)
+# YOUR EXISTING FORMS (COMPLETELY UNCHANGED)
 # =============================================================================
 
 class StudentProfileForm(forms.ModelForm):
@@ -113,24 +207,24 @@ class ParentsDetailsForm(forms.ModelForm):
             'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
         ]
         widgets = {
-            'father_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Father\'s Full Name'}),
+            'father_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': "Father's Full Name"}),
             'father_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'father_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'father@example.com'}),
             'father_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
-            'mother_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mother\'s Full Name'}),
+            'mother_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': "Mother's Full Name"}),
             'mother_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'mother_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'mother@example.com'}),
             'mother_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
         }
         labels = {
-            'father_name': 'Father\'s Full Name',
-            'father_phone': 'Father\'s Phone Number',
-            'father_email': 'Father\'s Email Address',
-            'father_occupation': 'Father\'s Occupation',
-            'mother_name': 'Mother\'s Full Name',
-            'mother_phone': 'Mother\'s Phone Number',
-            'mother_email': 'Mother\'s Email Address',
-            'mother_occupation': 'Mother\'s Occupation',
+            'father_name': "Father's Full Name",
+            'father_phone': "Father's Phone Number",
+            'father_email': "Father's Email Address",
+            'father_occupation': "Father's Occupation",
+            'mother_name': "Mother's Full Name",
+            'mother_phone': "Mother's Phone Number",
+            'mother_email': "Mother's Email Address",
+            'mother_occupation': "Mother's Occupation",
         }
 
 class AcademicQualificationsForm(forms.ModelForm):
