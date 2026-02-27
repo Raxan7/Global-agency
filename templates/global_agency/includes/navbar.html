@@ -163,7 +163,7 @@
       <!-- Mobile Menu Button -->
       <div class="md:hidden flex items-center space-x-2">
         <button id="mobile-menu-button" class="text-primary-blue hover:text-blue-800 focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition duration-200">
-          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg id="menu-icon" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
@@ -173,10 +173,10 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200 shadow-xl absolute left-0 right-0 top-full z-50 rounded-b-2xl">
       <div class="py-2 space-y-0">
-        <a href="{% url 'global_agency:home' %}" class="block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
+        <a href="{% url 'global_agency:home' %}" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
           {% trans "Home" %}
         </a>
-        <a href="#about" class="block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
+        <a href="#about" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
           {% trans "About Us" %}
         </a>
         
@@ -184,11 +184,11 @@
         <div class="border-b border-gray-100">
           <button id="mobile-services-toggle" class="w-full text-left px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent flex justify-between items-center transition duration-150">
             <span>{% trans "Services" %}</span>
-            <svg id="mobile-services-arrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="mobile-services-arrow" class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-          <div id="mobile-services-menu" class="hidden bg-gray-50 transition-all duration-300 overflow-hidden">
+          <div id="mobile-services-menu" class="hidden bg-gray-50 overflow-hidden transition-all duration-300">
             <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
               <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
                 <i class="fas fa-graduation-cap text-green-600"></i>
@@ -219,11 +219,11 @@
         <div class="border-b border-gray-100">
           <button id="mobile-universities-toggle" class="w-full text-left px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent flex justify-between items-center transition duration-150">
             <span>{% trans "Universities" %}</span>
-            <svg id="mobile-arrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="mobile-universities-arrow" class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-          <div id="mobile-universities-menu" class="hidden bg-gray-50 transition-all duration-300 overflow-hidden">
+          <div id="mobile-universities-menu" class="hidden bg-gray-50 overflow-hidden transition-all duration-300">
             <div class="p-4 border-b border-gray-100">
               <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{% trans "Local Universities" %}</h3>
               <a href="{% url 'global_agency:vyuo_ndani' %}" class="block py-2 text-sm text-gray-700 hover:text-primary-blue transition duration-150">
@@ -256,10 +256,10 @@
           </div>
         </div>
 
-        <a href="{% url 'global_agency:tcu_services' %}" class="block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
+        <a href="{% url 'global_agency:tcu_services' %}" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
           {% trans "TCU Services" %}
         </a>
-        <a href="#success" class="block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
+        <a href="#success" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
           {% trans "Success Stories" %}
         </a>
         <div class="p-4">
@@ -274,78 +274,6 @@
 
 <!-- Add Font Awesome for icons -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const universitiesToggle = document.getElementById('mobile-universities-toggle');
-    const universitiesMenu = document.getElementById('mobile-universities-menu');
-    const mobileArrow = document.getElementById('mobile-arrow');
-    const servicesToggle = document.getElementById('mobile-services-toggle');
-    const servicesMenu = document.getElementById('mobile-services-menu');
-    const servicesArrow = document.getElementById('mobile-services-arrow');
-
-    // Toggle main mobile menu
-    if (mobileMenuButton && mobileMenu) {
-      mobileMenuButton.addEventListener('click', function(e) {
-        e.stopPropagation();
-        mobileMenu.classList.toggle('hidden');
-      });
-    }
-
-    // Toggle universities submenu
-    if (universitiesToggle && universitiesMenu && mobileArrow) {
-      universitiesToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        universitiesMenu.classList.toggle('hidden');
-        mobileArrow.classList.toggle('rotate-180');
-      });
-    }
-
-    // Toggle services submenu
-    if (servicesToggle && servicesMenu && servicesArrow) {
-      servicesToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        servicesMenu.classList.toggle('hidden');
-        servicesArrow.classList.toggle('rotate-180');
-      });
-    }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-        if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
-          mobileMenu.classList.add('hidden');
-          if (universitiesMenu && !universitiesMenu.classList.contains('hidden')) {
-            universitiesMenu.classList.add('hidden');
-            if (mobileArrow) mobileArrow.classList.remove('rotate-180');
-          }
-          if (servicesMenu && !servicesMenu.classList.contains('hidden')) {
-            servicesMenu.classList.add('hidden');
-            if (servicesArrow) servicesArrow.classList.remove('rotate-180');
-          }
-        }
-      }
-    });
-
-    // Close mobile menu when clicking on a link
-    const mobileLinks = mobileMenu?.querySelectorAll('a') || [];
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        mobileMenu.classList.add('hidden');
-        if (universitiesMenu && !universitiesMenu.classList.contains('hidden')) {
-          universitiesMenu.classList.add('hidden');
-          if (mobileArrow) mobileArrow.classList.remove('rotate-180');
-        }
-        if (servicesMenu && !servicesMenu.classList.contains('hidden')) {
-          servicesMenu.classList.add('hidden');
-          if (servicesArrow) servicesArrow.classList.remove('rotate-180');
-        }
-      });
-    });
-  });
-</script>
 
 <style>
   /* Smooth transitions for dropdown */
@@ -363,15 +291,12 @@
   }
 
   /* Mobile menu animations */
-  #mobile-universities-menu,
-  #mobile-services-menu {
-    max-height: 0;
-    transition: max-height 0.3s ease-in-out;
+  #mobile-services-menu, #mobile-universities-menu {
+    transition: all 0.3s ease-in-out;
   }
 
-  #mobile-universities-menu:not(.hidden),
-  #mobile-services-menu:not(.hidden) {
-    max-height: 800px;
+  .rotate-180 {
+    transform: rotate(180deg);
   }
 
   @media (max-width: 767px) {
@@ -381,38 +306,140 @@
       right: 0;
       top: 100%;
       z-index: 1000;
+      max-height: 80vh;
+      overflow-y: auto;
     }
   }
 </style>
 
 <script>
-// Handle mobile menu toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
+(function() {
+  'use strict';
   
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function() {
-      mobileMenu.classList.toggle('hidden');
-    });
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    
+    // Services dropdown elements
+    const servicesToggle = document.getElementById('mobile-services-toggle');
+    const servicesMenu = document.getElementById('mobile-services-menu');
+    const servicesArrow = document.getElementById('mobile-services-arrow');
+    
+    // Universities dropdown elements
+    const universitiesToggle = document.getElementById('mobile-universities-toggle');
+    const universitiesMenu = document.getElementById('mobile-universities-menu');
+    const universitiesArrow = document.getElementById('mobile-universities-arrow');
+    
+    // All mobile links
+    const mobileLinks = document.querySelectorAll('.mobile-link');
 
-  // Mobile services dropdown
-  const servicesToggle = document.getElementById('mobile-services-toggle');
-  const servicesMenu = document.getElementById('mobile-services-menu');
-  if (servicesToggle && servicesMenu) {
-    servicesToggle.addEventListener('click', function() {
-      servicesMenu.classList.toggle('hidden');
-    });
-  }
+    // Toggle main mobile menu
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Toggle menu
+        mobileMenu.classList.toggle('hidden');
+        
+        // Change icon between hamburger and X
+        if (mobileMenu.classList.contains('hidden')) {
+          menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+          
+          // Close all submenus when closing main menu
+          if (servicesMenu) servicesMenu.classList.add('hidden');
+          if (universitiesMenu) universitiesMenu.classList.add('hidden');
+          if (servicesArrow) servicesArrow.classList.remove('rotate-180');
+          if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+        } else {
+          menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+        }
+      });
+    }
 
-  // Mobile universities dropdown
-  const universitiesToggle = document.getElementById('mobile-universities-toggle');
-  const universitiesMenu = document.getElementById('mobile-universities-menu');
-  if (universitiesToggle && universitiesMenu) {
-    universitiesToggle.addEventListener('click', function() {
-      universitiesMenu.classList.toggle('hidden');
+    // Toggle services submenu
+    if (servicesToggle && servicesMenu && servicesArrow) {
+      servicesToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        servicesMenu.classList.toggle('hidden');
+        servicesArrow.classList.toggle('rotate-180');
+      });
+    }
+
+    // Toggle universities submenu
+    if (universitiesToggle && universitiesMenu && universitiesArrow) {
+      universitiesToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        universitiesMenu.classList.toggle('hidden');
+        universitiesArrow.classList.toggle('rotate-180');
+      });
+    }
+
+    // Close menu when clicking on any mobile link
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileMenu.classList.add('hidden');
+        menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+        
+        // Reset all submenus
+        if (servicesMenu) servicesMenu.classList.add('hidden');
+        if (universitiesMenu) universitiesMenu.classList.add('hidden');
+        if (servicesArrow) servicesArrow.classList.remove('rotate-180');
+        if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+      });
     });
-  }
-});
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        const isClickInsideMenu = mobileMenu.contains(event.target);
+        const isClickOnButton = mobileMenuButton.contains(event.target);
+        
+        if (!isClickInsideMenu && !isClickOnButton) {
+          mobileMenu.classList.add('hidden');
+          menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+          
+          // Reset all submenus
+          if (servicesMenu) servicesMenu.classList.add('hidden');
+          if (universitiesMenu) universitiesMenu.classList.add('hidden');
+          if (servicesArrow) servicesArrow.classList.remove('rotate-180');
+          if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+        }
+      }
+    });
+
+    // Prevent menu from closing when clicking inside submenus
+    if (servicesMenu) {
+      servicesMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+    
+    if (universitiesMenu) {
+      universitiesMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) {
+        if (mobileMenu) mobileMenu.classList.add('hidden');
+        menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+        
+        // Reset all submenus
+        if (servicesMenu) servicesMenu.classList.add('hidden');
+        if (universitiesMenu) universitiesMenu.classList.add('hidden');
+        if (servicesArrow) servicesArrow.classList.remove('rotate-180');
+        if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+      }
+    });
+  });
+})();
 </script>
