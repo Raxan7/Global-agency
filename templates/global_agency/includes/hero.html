@@ -105,6 +105,628 @@
     </div>
 </header>
 
+<!-- Top Universities Dropdown Menu -->
+<div id="universityMenu" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="toggleUniversityMenu()"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary-blue to-blue-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-university text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">{% trans "Top Universities" %}</h3>
+                            <p class="text-blue-100 text-sm">{% trans "Explore our curated list of top institutions" %}</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleUniversityMenu()" class="text-white hover:text-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menu Options -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Tanzania Universities Option -->
+                    <div class="group cursor-pointer" onclick="openTanzaniaUniversities()">
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-transparent hover:border-green-500 transition-all duration-300 hover:shadow-xl">
+                            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-map-pin text-white text-2xl"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-center text-gray-900 mb-2">{% trans "Tanzania Universities" %}</h4>
+                            <p class="text-sm text-gray-600 text-center">{% trans "Top universities in Tanzania" %}</p>
+                            <div class="mt-4 space-y-2">
+                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                    <span>🏛️ {% trans "Government Universities" %}</span>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Top 10</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                    <span>🏫 {% trans "Private Universities" %}</span>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Top 10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Worldwide Universities Option -->
+                    <div class="group cursor-pointer" onclick="openWorldwideUniversities()">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-transparent hover:border-blue-500 transition-all duration-300 hover:shadow-xl">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-globe-americas text-white text-2xl"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-center text-gray-900 mb-2">{% trans "Worldwide Universities" %}</h4>
+                            <p class="text-sm text-gray-600 text-center">{% trans "Top universities across the globe" %}</p>
+                            <div class="mt-4">
+                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                    <span>🌍 {% trans "International Rankings" %}</span>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Top 10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4">
+                <p class="text-xs text-gray-500 text-center">
+                    {% trans "Click on any category to explore detailed university information and official websites." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tanzania Universities Modal -->
+<div id="tanzaniaModal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeTanzaniaModal()"></div>
+
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-university text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">{% trans "Top Universities in Tanzania" %}</h3>
+                            <p class="text-green-100 text-sm">{% trans "Explore top government and private institutions" %}</p>
+                        </div>
+                    </div>
+                    <button onclick="closeTanzaniaModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-200">
+                <div class="flex">
+                    <button id="govTab" class="flex-1 py-4 px-6 text-center border-b-2 border-green-500 text-green-600 font-semibold" onclick="switchTanzaniaTab('gov')">
+                        {% trans "Government Universities" %}
+                    </button>
+                    <button id="privateTab" class="flex-1 py-4 px-6 text-center text-gray-500 hover:text-gray-700 font-semibold" onclick="switchTanzaniaTab('private')">
+                        {% trans "Private Universities" %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto">
+                <!-- Government Universities -->
+                <div id="govUniversities" class="space-y-3">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#1</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">University of Dar es Salaam</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.udsm.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#2</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Sokoine University of Agriculture</h4>
+                                    <p class="text-sm text-gray-600">Morogoro, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.sua.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#3</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Muhimbili University of Health and Allied Sciences</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.muhas.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#4</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Ardhi University</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.ardhi.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#5</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">University of Dodoma</h4>
+                                    <p class="text-sm text-gray-600">Dodoma, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.udom.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#6</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Open University of Tanzania</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.out.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#7</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Mzumbe University</h4>
+                                    <p class="text-sm text-gray-600">Morogoro, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.mzumbe.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#8</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Nelson Mandela African Institute of Science and Technology</h4>
+                                    <p class="text-sm text-gray-600">Arusha, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.nm-aist.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#9</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">State University of Zanzibar</h4>
+                                    <p class="text-sm text-gray-600">Zanzibar, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.suza.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#10</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Dar es Salaam Institute of Technology</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.dit.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Private Universities -->
+                <div id="privateUniversities" class="space-y-3 hidden">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#1</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Hubert Kairuki Memorial University</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.hkmu.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#2</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">International Medical and Technological University</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.imtu.edu" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#3</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Tumaini University Makumira</h4>
+                                    <p class="text-sm text-gray-600">Arusha, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.makumira.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#4</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">St. Augustine University of Tanzania</h4>
+                                    <p class="text-sm text-gray-600">Mwanza, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.saut.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#5</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Zanzibar University</h4>
+                                    <p class="text-sm text-gray-600">Zanzibar, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.zanvarsity.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#6</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Mount Meru University</h4>
+                                    <p class="text-sm text-gray-600">Arusha, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.mmu.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#7</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Kampala International University - Tanzania</h4>
+                                    <p class="text-sm text-gray-600">Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.kiu.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#8</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Arusha University</h4>
+                                    <p class="text-sm text-gray-600">Arusha, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.arusha.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#9</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Mwenge Catholic University</h4>
+                                    <p class="text-sm text-gray-600">Moshi, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.mwenge.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-2xl font-bold text-green-600 w-8">#10</span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">University of Arusha</h4>
+                                    <p class="text-sm text-gray-600">Arusha, Tanzania</p>
+                                </div>
+                            </div>
+                            <a href="https://www.universityofarusha.ac.tz" target="_blank" rel="noopener noreferrer" 
+                               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                                <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4">
+                <p class="text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    {% trans "Click on any university to visit their official website." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Worldwide Universities Modal -->
+<div id="worldwideModal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeWorldwideModal()"></div>
+
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-globe-americas text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">{% trans "Top 10 Universities Worldwide" %}</h3>
+                            <p class="text-blue-100 text-sm">{% trans "Based on global rankings and academic excellence" %}</p>
+                        </div>
+                    </div>
+                    <button onclick="closeWorldwideModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter by Country -->
+            <div class="border-b border-gray-200 px-6 py-3 bg-gray-50">
+                <div class="flex items-center space-x-4 overflow-x-auto pb-2">
+                    <span class="text-sm font-semibold text-gray-700">{% trans "Filter by:" %}</span>
+                    <button class="px-3 py-1 bg-blue-600 text-white rounded-full text-sm" onclick="filterWorldwide('all', this)">{% trans "All" %}</button>
+                    <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300" onclick="filterWorldwide('usa', this)">🇺🇸 USA</button>
+                    <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300" onclick="filterWorldwide('uk', this)">🇬🇧 UK</button>
+                    <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300" onclick="filterWorldwide('switzerland', this)">🇨🇭 Switzerland</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto" id="worldwideList">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#1</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Massachusetts Institute of Technology (MIT)</h4>
+                                <p class="text-sm text-gray-600">🇺🇸 Cambridge, USA</p>
+                            </div>
+                        </div>
+                        <a href="https://www.mit.edu" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="uk">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#2</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">University of Cambridge</h4>
+                                <p class="text-sm text-gray-600">🇬🇧 Cambridge, UK</p>
+                            </div>
+                        </div>
+                        <a href="https://www.cam.ac.uk" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#3</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Stanford University</h4>
+                                <p class="text-sm text-gray-600">🇺🇸 Stanford, USA</p>
+                            </div>
+                        </div>
+                        <a href="https://www.stanford.edu" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="uk">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#4</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">University of Oxford</h4>
+                                <p class="text-sm text-gray-600">🇬🇧 Oxford, UK</p>
+                            </div>
+                        </div>
+                        <a href="https://www.ox.ac.uk" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#5</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Harvard University</h4>
+                                <p class="text-sm text-gray-600">🇺🇸 Cambridge, USA</p>
+                            </div>
+                        </div>
+                        <a href="https://www.harvard.edu" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#6</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">California Institute of Technology (Caltech)</h4>
+                                <p class="text-sm text-gray-600">🇺🇸 Pasadena, USA</p>
+                            </div>
+                        </div>
+                        <a href="https://www.caltech.edu" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="uk">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#7</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Imperial College London</h4>
+                                <p class="text-sm text-gray-600">🇬🇧 London, UK</p>
+                            </div>
+                        </div>
+                        <a href="https://www.imperial.ac.uk" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="switzerland">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#8</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">ETH Zurich</h4>
+                                <p class="text-sm text-gray-600">🇨🇭 Zurich, Switzerland</p>
+                            </div>
+                        </div>
+                        <a href="https://www.ethz.ch" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#9</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">University of Chicago</h4>
+                                <p class="text-sm text-gray-600">🇺🇸 Chicago, USA</p>
+                            </div>
+                        </div>
+                        <a href="https://www.uchicago.edu" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="uk">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-blue-600 w-8">#10</span>
+                            <div>
+                                <h4 class="font-bold text-gray-900">University College London (UCL)</h4>
+                                <p class="text-sm text-gray-600">🇬🇧 London, UK</p>
+                            </div>
+                        </div>
+                        <a href="https://www.ucl.ac.uk" target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <span>{% trans "Visit Website" %}</span>
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4">
+                <p class="text-xs text-gray-500">
+                    <i class="fas fa-trophy mr-1 text-yellow-500"></i>
+                    {% trans "Rankings based on QS World University Rankings and Times Higher Education." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Recommended By / Trusted Partners Section -->
 <section id="recommended-by" class="py-16 bg-white relative overflow-hidden">
     <!-- Subtle background pattern -->
@@ -331,14 +953,14 @@
         
         <!-- Floating badges -->
         <div class="absolute top-8 right-8 hidden lg:block" data-aos="fade-left" data-aos-delay="400">
-            <div class="glass-dark rounded-2xl p-5 text-white animate-float">
+            <div class="glass-dark rounded-2xl p-5 text-white animate-float cursor-pointer hover:scale-105 transition-transform duration-300" onclick="toggleUniversityMenu()" id="universityBadge">
                 <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-gradient-to-br from-accent-gold to-yellow-500 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-graduation-cap text-white text-xl"></i>
+                        <i class="fas fa-university text-white text-xl"></i>
                     </div>
                     <div>
                         <span class="font-bold text-lg">{% trans "Top Universities" %}</span>
-                        <p class="text-blue-200 text-sm">{% trans "Worldwide" %}</p>
+                        <p class="text-blue-200 text-sm">{% trans "Click to explore" %}</p>
                     </div>
                 </div>
             </div>
@@ -531,7 +1153,7 @@
     </div>
 </section>
 
-<!-- JavaScript for Partner Modal (Updated for Responsive) -->
+<!-- JavaScript for Partner Modal and University Menus -->
 <script>
 // Partner Modal Functionality
 function openPartnerModal(partnerId) {
@@ -693,20 +1315,123 @@ function setPartnerContent(partnerId) {
     studentBenefits.textContent = partner.benefits;
 }
 
-// Close modal when clicking outside
-document.getElementById('partnerModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closePartnerModal();
+// University Menu Functions
+function toggleUniversityMenu() {
+    const menu = document.getElementById('universityMenu');
+    menu.classList.toggle('hidden');
+}
+
+function openTanzaniaUniversities() {
+    toggleUniversityMenu(); // Close main menu
+    document.getElementById('tanzaniaModal').classList.remove('hidden');
+}
+
+function openWorldwideUniversities() {
+    toggleUniversityMenu(); // Close main menu
+    document.getElementById('worldwideModal').classList.remove('hidden');
+}
+
+function closeTanzaniaModal() {
+    document.getElementById('tanzaniaModal').classList.add('hidden');
+}
+
+function closeWorldwideModal() {
+    document.getElementById('worldwideModal').classList.add('hidden');
+}
+
+// Tab switching for Tanzania universities
+function switchTanzaniaTab(tab) {
+    const govUniversities = document.getElementById('govUniversities');
+    const privateUniversities = document.getElementById('privateUniversities');
+    const govTab = document.getElementById('govTab');
+    const privateTab = document.getElementById('privateTab');
+    
+    if (tab === 'gov') {
+        govUniversities.classList.remove('hidden');
+        privateUniversities.classList.add('hidden');
+        govTab.classList.add('border-green-500', 'text-green-600');
+        govTab.classList.remove('text-gray-500');
+        privateTab.classList.remove('border-green-500', 'text-green-600');
+        privateTab.classList.add('text-gray-500');
+    } else {
+        govUniversities.classList.add('hidden');
+        privateUniversities.classList.remove('hidden');
+        privateTab.classList.add('border-green-500', 'text-green-600');
+        privateTab.classList.remove('text-gray-500');
+        govTab.classList.remove('border-green-500', 'text-green-600');
+        govTab.classList.add('text-gray-500');
+    }
+}
+
+// Filter worldwide universities by country
+function filterWorldwide(country, button) {
+    const universities = document.querySelectorAll('#worldwideList [data-country]');
+    const filterButtons = button.parentElement.querySelectorAll('button');
+    
+    // Update active button styling
+    filterButtons.forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+    });
+    button.classList.remove('bg-gray-200', 'text-gray-700');
+    button.classList.add('bg-blue-600', 'text-white');
+    
+    // Filter universities
+    universities.forEach(uni => {
+        if (country === 'all') {
+            uni.style.display = 'flex';
+        } else {
+            if (uni.dataset.country === country) {
+                uni.style.display = 'flex';
+            } else {
+                uni.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    const tanzaniaModal = document.getElementById('tanzaniaModal');
+    const worldwideModal = document.getElementById('worldwideModal');
+    const universityMenu = document.getElementById('universityMenu');
+    
+    if (e.target.classList.contains('bg-gray-900') || e.target.classList.contains('bg-opacity-75')) {
+        if (tanzaniaModal && !tanzaniaModal.classList.contains('hidden')) {
+            closeTanzaniaModal();
+        }
+        if (worldwideModal && !worldwideModal.classList.contains('hidden')) {
+            closeWorldwideModal();
+        }
+        if (universityMenu && !universityMenu.classList.contains('hidden')) {
+            toggleUniversityMenu();
+        }
     }
 });
 
-// Close modal with Escape key
+// Close modals with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        const modal = document.getElementById('partnerModal');
-        if (modal.style.display === 'flex') {
-            closePartnerModal();
+        const tanzaniaModal = document.getElementById('tanzaniaModal');
+        const worldwideModal = document.getElementById('worldwideModal');
+        const universityMenu = document.getElementById('universityMenu');
+        
+        if (tanzaniaModal && !tanzaniaModal.classList.contains('hidden')) {
+            closeTanzaniaModal();
         }
+        if (worldwideModal && !worldwideModal.classList.contains('hidden')) {
+            closeWorldwideModal();
+        }
+        if (universityMenu && !universityMenu.classList.contains('hidden')) {
+            toggleUniversityMenu();
+        }
+    }
+});
+
+// Close partner modal when clicking outside
+document.getElementById('partnerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePartnerModal();
     }
 });
 </script>
@@ -779,21 +1504,29 @@ document.addEventListener('keydown', function(e) {
 }
 
 /* Custom scrollbar for modal */
-#modalContent::-webkit-scrollbar {
+#modalContent::-webkit-scrollbar,
+#tanzaniaModal .overflow-y-auto::-webkit-scrollbar,
+#worldwideModal .overflow-y-auto::-webkit-scrollbar {
     width: 6px;
 }
 
-#modalContent::-webkit-scrollbar-track {
+#modalContent::-webkit-scrollbar-track,
+#tanzaniaModal .overflow-y-auto::-webkit-scrollbar-track,
+#worldwideModal .overflow-y-auto::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 10px;
 }
 
-#modalContent::-webkit-scrollbar-thumb {
+#modalContent::-webkit-scrollbar-thumb,
+#tanzaniaModal .overflow-y-auto::-webkit-scrollbar-thumb,
+#worldwideModal .overflow-y-auto::-webkit-scrollbar-thumb {
     background: #007bff;
     border-radius: 10px;
 }
 
-#modalContent::-webkit-scrollbar-thumb:hover {
+#modalContent::-webkit-scrollbar-thumb:hover,
+#tanzaniaModal .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+#worldwideModal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
     background: #0056b3;
 }
 </style>
