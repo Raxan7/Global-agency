@@ -85,40 +85,25 @@
 
         <!-- Trust Bar / Stats -->
         <div class="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
-            <div class="glass rounded-2xl p-6 shadow-lg card-hover">
+            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover">
                 <p class="text-3xl font-extrabold gradient-text">500+</p>
                 <p class="mt-2 text-sm text-gray-600 font-medium">{% trans "Students Placed Abroad" %}</p>
             </div>
-            <div class="glass rounded-2xl p-6 shadow-lg card-hover">
+            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover">
                 <p class="text-3xl font-extrabold gradient-text">600+</p>
                 <p class="mt-2 text-sm text-gray-600 font-medium">{% trans "Partner Universities" %}</p>
             </div>
-            <div class="glass rounded-2xl p-6 shadow-lg card-hover">
+            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover">
                 <p class="text-3xl font-extrabold gradient-text">300+</p>
                 <p class="mt-2 text-sm text-gray-600 font-medium">{% trans "Visas Assisted" %}</p>
             </div>
-            <div class="glass rounded-2xl p-6 shadow-lg card-hover">
+            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover">
                 <p class="text-3xl font-extrabold gradient-text">5000+</p>
                 <p class="mt-2 text-sm text-gray-600 font-medium">{% trans "Local Students Served" %}</p>
             </div>
         </div>
     </div>
 </header>
-
-<!-- Floating Top Universities Badge - Now visible on all devices and fixed position -->
-<div class="fixed top-20 right-4 z-40 md:top-24 md:right-8" data-aos="fade-left" data-aos-delay="400">
-    <div class="glass-dark rounded-2xl p-4 md:p-5 text-white animate-float cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl" onclick="toggleUniversityMenu()" id="universityBadge">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-accent-gold to-yellow-500 rounded-xl flex items-center justify-center">
-                <i class="fas fa-university text-white text-lg md:text-xl"></i>
-            </div>
-            <div>
-                <span class="font-bold text-base md:text-lg">{% trans "Top Universities" %}</span>
-                <p class="text-blue-200 text-xs md:text-sm">{% trans "Click to explore" %}</p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Top Universities Dropdown Menu -->
 <div id="universityMenu" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -613,10 +598,10 @@
                         <a href="https://www.cam.ac.uk" target="_blank" rel="noopener noreferrer" 
                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
                             <span>{% trans "Visit Website" %}</span>
-                            <i class="fas fa-external-link-alt text-sm"></i>
-                        </a>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
+                                <i class="fas fa-external-link-alt text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all" data-country="usa">
                         <div class="flex items-center space-x-4">
                             <span class="text-2xl font-bold text-blue-600 w-8">#3</span>
                             <div>
@@ -742,6 +727,28 @@
     </div>
 </div>
 
+<!-- Floating Action Button for Top Universities (Mobile & Sticky) -->
+<div class="fixed bottom-6 right-6 z-40 md:hidden" id="mobileUniversityFAB">
+    <button onclick="toggleUniversityMenu()" class="bg-gradient-to-r from-primary-blue to-blue-600 text-white p-4 rounded-full shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-float flex items-center justify-center" style="width: 60px; height: 60px;">
+        <i class="fas fa-university text-2xl"></i>
+    </button>
+</div>
+
+<!-- Sticky Desktop Badge (Solid background - no transparency) -->
+<div class="fixed top-24 right-6 z-40 hidden md:block" id="desktopUniversityBadge">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-4 text-white animate-float cursor-pointer hover:scale-105 transition-transform duration-300 shadow-2xl" onclick="toggleUniversityMenu()">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-accent-gold to-yellow-500 rounded-xl flex items-center justify-center">
+                <i class="fas fa-university text-white text-xl"></i>
+            </div>
+            <div>
+                <span class="font-bold text-lg">{% trans "Top Universities" %}</span>
+                <p class="text-blue-100 text-sm">{% trans "Click to explore" %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Recommended By / Trusted Partners Section -->
 <section id="recommended-by" class="py-16 bg-white relative overflow-hidden">
     <!-- Subtle background pattern -->
@@ -769,7 +776,7 @@
         <!-- Partners Logo Grid (Clickable) -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center" data-aos="fade-up" data-aos-delay="200">
             <!-- UNESCO -->
-            <div class="group glass rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
+            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <span class="text-white font-bold text-lg">UN</span>
@@ -779,7 +786,7 @@
             </div>
 
             <!-- British Council -->
-            <div class="group glass rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
+            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <span class="text-white font-bold text-lg">BC</span>
@@ -789,7 +796,7 @@
             </div>
 
             <!-- NACTE Tanzania -->
-            <div class="group glass rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
+            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <span class="text-white font-bold text-sm">NACTE</span>
@@ -799,7 +806,7 @@
             </div>
 
             <!-- TCU Tanzania -->
-            <div class="group glass rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
+            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <span class="text-white font-bold text-lg">TCU</span>
@@ -809,7 +816,7 @@
             </div>
 
             <!-- HESLB -->
-            <div class="group glass rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
+            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <span class="text-white font-bold text-sm">HESLB</span>
@@ -819,7 +826,7 @@
             </div>
 
             <!-- IIE -->
-            <div class="group glass rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
+            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <span class="text-white font-bold text-lg">IIE</span>
@@ -966,7 +973,6 @@
             </div>
         </div>
         
-        <!-- Floating badges - Already moved to fixed position above -->
         <!-- Scroll Indicator -->
         <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div class="w-8 h-12 border-2 border-white/50 rounded-full flex justify-center">
@@ -996,7 +1002,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             
             <!-- Course 1: Computer Science / IT -->
-            <div class="group glass rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="100">
+            <div class="group bg-white rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="100">
                 <div class="flex items-start mb-6">
                     <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center flex-shrink-0 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %} shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-laptop-code text-white text-2xl"></i>
@@ -1018,7 +1024,7 @@
             </div>
 
             <!-- Course 2: Business & Management -->
-            <div class="group glass rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="200">
+            <div class="group bg-white rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="200">
                 <div class="flex items-start mb-6">
                     <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center flex-shrink-0 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %} shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-briefcase text-white text-2xl"></i>
@@ -1040,7 +1046,7 @@
             </div>
 
             <!-- Course 3: Healthcare & Medicine -->
-            <div class="group glass rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="300">
+            <div class="group bg-white rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="300">
                 <div class="flex items-start mb-6">
                     <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center flex-shrink-0 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %} shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-heartbeat text-white text-2xl"></i>
@@ -1062,7 +1068,7 @@
             </div>
 
             <!-- Course 4: Engineering -->
-            <div class="group glass rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="400">
+            <div class="group bg-white rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="400">
                 <div class="flex items-start mb-6">
                     <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center flex-shrink-0 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %} shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-cogs text-white text-2xl"></i>
@@ -1084,7 +1090,7 @@
             </div>
 
             <!-- Course 5: Data Science & AI -->
-            <div class="group glass rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="500">
+            <div class="group bg-white rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="500">
                 <div class="flex items-start mb-6">
                     <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center flex-shrink-0 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %} shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-brain text-white text-2xl"></i>
@@ -1106,7 +1112,7 @@
             </div>
 
             <!-- Course 6: Law & Legal Studies -->
-            <div class="group glass rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="600">
+            <div class="group bg-white rounded-2xl border border-gray-100 p-8 card-hover" data-aos="fade-up" data-aos-delay="600">
                 <div class="flex items-start mb-6">
                     <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center flex-shrink-0 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %} shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-balance-scale text-white text-2xl"></i>
@@ -1517,15 +1523,30 @@ document.getElementById('partnerModal').addEventListener('click', function(e) {
     background: #0056b3;
 }
 
-/* Ensure fixed badge stays on top */
-.fixed {
-    z-index: 40;
+/* Glass dark effect - only used where needed */
+.glass-dark {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .fixed.top-20 {
-        top: 5rem;
-    }
+/* Card hover effect */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Mobile FAB button */
+#mobileUniversityFAB {
+    z-index: 100;
+}
+
+/* Desktop sticky badge */
+#desktopUniversityBadge {
+    z-index: 100;
 }
 </style>
