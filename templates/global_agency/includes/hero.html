@@ -727,10 +727,14 @@
     </div>
 </div>
 
-<!-- Floating Action Button for Top Universities (Mobile & Sticky) -->
+<!-- Floating Action Button for Top Universities (Mobile) - With text -->
 <div class="fixed bottom-6 right-6 z-40 md:hidden" id="mobileUniversityFAB">
-    <button onclick="toggleUniversityMenu()" class="bg-gradient-to-r from-primary-blue to-blue-600 text-white p-4 rounded-full shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-float flex items-center justify-center" style="width: 60px; height: 60px;">
-        <i class="fas fa-university text-2xl"></i>
+    <button onclick="toggleUniversityMenu()" class="bg-gradient-to-r from-primary-blue to-blue-600 text-white rounded-full shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-float flex items-center justify-center px-4 py-3" style="min-width: 160px;">
+        <i class="fas fa-university text-xl mr-2"></i>
+        <div class="text-left">
+            <span class="font-bold text-sm block">{% trans "Top Universities" %}</span>
+            <span class="text-xs text-blue-100 block">{% trans "Click to explore" %}</span>
+        </div>
     </button>
 </div>
 
