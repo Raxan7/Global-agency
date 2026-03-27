@@ -753,7 +753,7 @@
     </div>
 </div>
 
-<!-- Recommended By / Trusted Partners Section -->
+<!-- Recommended By / Trusted Partners Section with Moving Logos -->
 <section id="recommended-by" class="py-16 bg-white relative overflow-hidden">
     <!-- Subtle background pattern -->
     <div class="absolute inset-0 opacity-5">
@@ -777,65 +777,240 @@
             </p>
         </div>
 
-        <!-- Partners Logo Grid (Clickable) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center" data-aos="fade-up" data-aos-delay="200">
-            <!-- UNESCO -->
-            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-lg">UN</span>
+        <!-- Partners Logo Marquee - Left to Right -->
+        <div class="marquee-container marquee-container-left mb-8">
+            <div class="marquee marquee-left">
+                <div class="marquee-content">
+                    <!-- UNESCO -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/unesco-logo.png' %}" alt="UNESCO" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">UNESCO</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold text-gray-600">UNESCO</span>
+                    <!-- British Council -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/british-council-logo.png' %}" alt="British Council" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">British Council</span>
+                        </div>
+                    </div>
+                    <!-- NACTE Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/nacte-logo.png' %}" alt="NACTE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">NACTE Tanzania</span>
+                        </div>
+                    </div>
+                    <!-- TCU Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/tcu-logo.png' %}" alt="TCU" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">TCU Tanzania</span>
+                        </div>
+                    </div>
+                    <!-- HESLB -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/heslb-logo.png' %}" alt="HESLB" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">HESLB</span>
+                        </div>
+                    </div>
+                    <!-- IIE -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/iie-logo.png' %}" alt="IIE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">IIE</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Duplicate content for seamless loop -->
+                <div class="marquee-content">
+                    <!-- UNESCO -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/unesco-logo.png' %}" alt="UNESCO" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">UNESCO</span>
+                        </div>
+                    </div>
+                    <!-- British Council -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/british-council-logo.png' %}" alt="British Council" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">British Council</span>
+                        </div>
+                    </div>
+                    <!-- NACTE Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/nacte-logo.png' %}" alt="NACTE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">NACTE Tanzania</span>
+                        </div>
+                    </div>
+                    <!-- TCU Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/tcu-logo.png' %}" alt="TCU" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">TCU Tanzania</span>
+                        </div>
+                    </div>
+                    <!-- HESLB -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/heslb-logo.png' %}" alt="HESLB" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">HESLB</span>
+                        </div>
+                    </div>
+                    <!-- IIE -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/iie-logo.png' %}" alt="IIE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">IIE</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- British Council -->
-            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-lg">BC</span>
+        <!-- Partners Logo Marquee - Right to Left -->
+        <div class="marquee-container marquee-container-right">
+            <div class="marquee marquee-right">
+                <div class="marquee-content">
+                    <!-- IIE -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/iie-logo.png' %}" alt="IIE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">IIE</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold text-gray-600">British Council</span>
+                    <!-- HESLB -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/heslb-logo.png' %}" alt="HESLB" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">HESLB</span>
+                        </div>
+                    </div>
+                    <!-- TCU Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/tcu-logo.png' %}" alt="TCU" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">TCU Tanzania</span>
+                        </div>
+                    </div>
+                    <!-- NACTE Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/nacte-logo.png' %}" alt="NACTE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">NACTE Tanzania</span>
+                        </div>
+                    </div>
+                    <!-- British Council -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/british-council-logo.png' %}" alt="British Council" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">British Council</span>
+                        </div>
+                    </div>
+                    <!-- UNESCO -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/unesco-logo.png' %}" alt="UNESCO" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">UNESCO</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- NACTE Tanzania -->
-            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-sm">NACTE</span>
+                <!-- Duplicate content for seamless loop -->
+                <div class="marquee-content">
+                    <!-- IIE -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/iie-logo.png' %}" alt="IIE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">IIE</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold text-gray-600">NACTE Tanzania</span>
-                </div>
-            </div>
-
-            <!-- TCU Tanzania -->
-            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-lg">TCU</span>
+                    <!-- HESLB -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/heslb-logo.png' %}" alt="HESLB" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">HESLB</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold text-gray-600">TCU Tanzania</span>
-                </div>
-            </div>
-
-            <!-- HESLB -->
-            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('heslb')">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-sm">HESLB</span>
+                    <!-- TCU Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('tcu')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/tcu-logo.png' %}" alt="TCU" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">TCU Tanzania</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold text-gray-600">HESLB</span>
-                </div>
-            </div>
-
-            <!-- IIE -->
-            <div class="group bg-white rounded-2xl p-6 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('iie')">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-lg">IIE</span>
+                    <!-- NACTE Tanzania -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('nacte')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/nacte-logo.png' %}" alt="NACTE" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">NACTE Tanzania</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold text-gray-600">IIE</span>
+                    <!-- British Council -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('british-council')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/british-council-logo.png' %}" alt="British Council" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">British Council</span>
+                        </div>
+                    </div>
+                    <!-- UNESCO -->
+                    <div class="group bg-white rounded-2xl p-4 flex items-center justify-center h-28 card-hover cursor-pointer" onclick="openPartnerModal('unesco')">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                <img src="{% static 'global_agency/img/partners/unesco-logo.png' %}" alt="UNESCO" class="max-w-full max-h-full object-contain">
+                            </div>
+                            <span class="text-xs font-semibold text-gray-600">UNESCO</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -935,53 +1110,445 @@
     </div>
 </div>
 
-<!-- Animated International Campus Banner Section -->
-<section class="w-full bg-gray-900 relative overflow-hidden" id="animated-banner">
-    <div class="relative h-96 lg:h-[28rem] overflow-hidden">
-        <!-- Background with overlay -->
-        <div class="absolute inset-0">
-            <img src="{% static 'global_agency/img/international-campus-banner.jpg' %}" 
-                 alt="{% trans 'Students studying at international universities around the world' %}"
-                 class="w-full h-full object-cover opacity-60">
-            <div class="absolute inset-0 bg-gradient-to-r from-primary-blue/90 via-purple-900/70 to-primary-blue/90"></div>
+<!-- University Showcase Section - Moving Logos (Replaces old Animated International Campus Banner) -->
+<section class="w-full bg-gradient-to-r from-blue-900 to-indigo-900 relative overflow-hidden py-16" id="university-showcase">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23FFFFFF" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    </div>
+    
+    <div class="relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">{% trans "Top Universities in Tanzania" %}</h2>
+            <p class="text-blue-200 text-lg">{% trans "Government & Private Institutions" %}</p>
         </div>
-        
-        <!-- Animated particles -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="particle-container">
-                {% for i in "123456789" %}
-                <div class="floating-particle"></div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Content -->
-        <div class="absolute inset-0 flex items-center">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                <div class="lg:w-2/3" data-aos="fade-right">
-                    <h2 class="text-3xl lg:text-5xl font-extrabold text-white mb-6 leading-tight">
-                        {% trans "Study at World-Class Universities Abroad" %}
-                    </h2>
-                    <p class="text-xl text-blue-100 mb-8 leading-relaxed">
-                        {% trans "Join thousands of successful students who have achieved their dreams through our guidance at prestigious institutions worldwide." %}
-                    </p>
-                    <div class="flex flex-wrap gap-3">
-                        <span class="glass-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300 cursor-default">🇺🇸 {% trans "United States" %}</span>
-                        <span class="glass-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300 cursor-default">🇬🇧 {% trans "United Kingdom" %}</span>
-                        <span class="glass-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300 cursor-default">🇨🇦 {% trans "Canada" %}</span>
-                        <span class="glass-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300 cursor-default">🇦🇺 {% trans "Australia" %}</span>
-                        <span class="glass-dark text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300 cursor-default">🇩🇪 {% trans "Germany" %}</span>
-                        <span class="bg-gradient-to-r from-accent-gold to-yellow-500 text-gray-900 px-5 py-2.5 rounded-full text-sm font-bold">+35 {% trans "More" %}</span>
+
+        <!-- Tanzania Government Universities Marquee - Left to Right -->
+        <div class="mb-8">
+            <h3 class="text-xl font-semibold text-yellow-400 text-center mb-4">{% trans "Government Universities" %}</h3>
+            <div class="marquee-container">
+                <div class="marquee marquee-left-slow">
+                    <div class="marquee-content">
+                        <!-- University of Dar es Salaam -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/udsm-logo.png' %}" alt="UDSM" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">UDSM</span>
+                            </div>
+                        </div>
+                        <!-- Sokoine University of Agriculture -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/sua-logo.png' %}" alt="SUA" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">SUA</span>
+                            </div>
+                        </div>
+                        <!-- Muhimbili University -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/muhas-logo.png' %}" alt="MUHAS" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">MUHAS</span>
+                            </div>
+                        </div>
+                        <!-- Ardhi University -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/ardhi-logo.png' %}" alt="Ardhi" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Ardhi</span>
+                            </div>
+                        </div>
+                        <!-- University of Dodoma -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/udom-logo.png' %}" alt="UDOM" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">UDOM</span>
+                            </div>
+                        </div>
+                        <!-- Open University -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/out-logo.png' %}" alt="OUT" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">OUT</span>
+                            </div>
+                        </div>
+                        <!-- Mzumbe University -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/mzumbe-logo.png' %}" alt="Mzumbe" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Mzumbe</span>
+                            </div>
+                        </div>
+                        <!-- NM-AIST -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/nm-aist-logo.png' %}" alt="NM-AIST" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">NM-AIST</span>
+                            </div>
+                        </div>
+                        <!-- SUZA -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/suza-logo.png' %}" alt="SUZA" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">SUZA</span>
+                            </div>
+                        </div>
+                        <!-- DIT -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/dit-logo.png' %}" alt="DIT" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">DIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="marquee-content">
+                        <!-- Duplicate for seamless loop -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/udsm-logo.png' %}" alt="UDSM" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">UDSM</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/sua-logo.png' %}" alt="SUA" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">SUA</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/muhas-logo.png' %}" alt="MUHAS" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">MUHAS</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/ardhi-logo.png' %}" alt="Ardhi" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Ardhi</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/udom-logo.png' %}" alt="UDOM" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">UDOM</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div class="w-8 h-12 border-2 border-white/50 rounded-full flex justify-center">
-                <div class="w-1.5 h-4 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+        <!-- Tanzania Private Universities Marquee - Right to Left -->
+<div class="mb-12">
+    <h3 class="text-xl font-semibold text-yellow-400 text-center mb-4">{% trans "Private Universities" %}</h3>
+    <div class="marquee-container">
+        <div class="marquee marquee-right-slow">
+            <div class="marquee-content">
+                <!-- Hubert Kairuki Memorial University -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/hkmu-logo.png' %}" alt="HKMU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">HKMU</span>
+                    </div>
+                </div>
+                <!-- IMTU -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/imtu-logo.png' %}" alt="IMTU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">IMTU</span>
+                    </div>
+                </div>
+                <!-- Tumaini University Makumira -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/tumaini-logo.png' %}" alt="Tumaini" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">Tumaini</span>
+                    </div>
+                </div>
+                <!-- SAUT -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/saut-logo.png' %}" alt="SAUT" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">SAUT</span>
+                    </div>
+                </div>
+                <!-- The United African University of Tanzania (UAUT) - Now #5 -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/uaut-logo.png' %}" alt="UAUT" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">UAUT</span>
+                    </div>
+                </div>
+                <!-- Zanzibar University -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/zanvarsity-logo.png' %}" alt="Zanvarsity" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">Zanvarsity</span>
+                    </div>
+                </div>
+                <!-- Mount Meru University -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/mmu-logo.png' %}" alt="MMU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">MMU</span>
+                    </div>
+                </div>
+                <!-- KIU Tanzania -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/kiu-logo.png' %}" alt="KIU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">KIU</span>
+                    </div>
+                </div>
+                <!-- Arusha University -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/aru-logo.png' %}" alt="ARU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">ARU</span>
+                    </div>
+                </div>
+                <!-- Mwenge Catholic University -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/mwenge-logo.png' %}" alt="MWECAU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">MWECAU</span>
+                    </div>
+                </div>
             </div>
+            <div class="marquee-content">
+                <!-- Duplicate for seamless loop -->
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/hkmu-logo.png' %}" alt="HKMU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">HKMU</span>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/imtu-logo.png' %}" alt="IMTU" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">IMTU</span>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/tumaini-logo.png' %}" alt="Tumaini" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">Tumaini</span>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/saut-logo.png' %}" alt="SAUT" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">SAUT</span>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openTanzaniaUniversities()">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <img src="{% static 'global_agency/img/universities/uaut-logo.png' %}" alt="UAUT" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="text-xs font-semibold text-white">UAUT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Worldwide Universities Marquee - Left to Right -->
+        <div>
+            <h3 class="text-xl font-semibold text-yellow-400 text-center mb-4">{% trans "Top Worldwide Universities" %}</h3>
+            <div class="marquee-container">
+                <div class="marquee marquee-left-slow">
+                    <div class="marquee-content">
+                        <!-- MIT -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/mit-logo.png' %}" alt="MIT" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">MIT</span>
+                            </div>
+                        </div>
+                        <!-- Cambridge -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/cambridge-logo.png' %}" alt="Cambridge" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Cambridge</span>
+                            </div>
+                        </div>
+                        <!-- Stanford -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/stanford-logo.png' %}" alt="Stanford" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Stanford</span>
+                            </div>
+                        </div>
+                        <!-- Oxford -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/oxford-logo.png' %}" alt="Oxford" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Oxford</span>
+                            </div>
+                        </div>
+                        <!-- Harvard -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/harvard-logo.png' %}" alt="Harvard" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Harvard</span>
+                            </div>
+                        </div>
+                        <!-- Caltech -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/caltech-logo.png' %}" alt="Caltech" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Caltech</span>
+                            </div>
+                        </div>
+                        <!-- Imperial College -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/imperial-logo.png' %}" alt="Imperial" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Imperial</span>
+                            </div>
+                        </div>
+                        <!-- ETH Zurich -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/eth-logo.png' %}" alt="ETH Zurich" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">ETH Zurich</span>
+                            </div>
+                        </div>
+                        <!-- UChicago -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/uchicago-logo.png' %}" alt="UChicago" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">UChicago</span>
+                            </div>
+                        </div>
+                        <!-- UCL -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/ucl-logo.png' %}" alt="UCL" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">UCL</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="marquee-content">
+                        <!-- Duplicate for seamless loop -->
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/mit-logo.png' %}" alt="MIT" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">MIT</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/cambridge-logo.png' %}" alt="Cambridge" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Cambridge</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/stanford-logo.png' %}" alt="Stanford" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Stanford</span>
+                            </div>
+                        </div>
+                        <div class="group bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center justify-center h-28 w-48 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="openWorldwideUniversities()">
+                            <div class="text-center">
+                                <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                                    <img src="{% static 'global_agency/img/universities/oxford-logo.png' %}" alt="Oxford" class="max-w-full max-h-full object-contain">
+                                </div>
+                                <span class="text-xs font-semibold text-white">Oxford</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12">
+            <button onclick="toggleUniversityMenu()" class="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-8 py-3 rounded-full font-semibold hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                {% trans "Explore All Universities" %} <i class="fas fa-arrow-right ml-2"></i>
+            </button>
         </div>
     </div>
 </section>
@@ -1552,5 +2119,70 @@ document.getElementById('partnerModal').addEventListener('click', function(e) {
 /* Desktop sticky badge */
 #desktopUniversityBadge {
     z-index: 100;
+}
+
+/* Marquee Animation Styles */
+.marquee-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.marquee {
+    display: flex;
+    animation: marquee-left 30s linear infinite;
+}
+
+.marquee-left-slow {
+    animation: marquee-left 40s linear infinite;
+}
+
+.marquee-right-slow {
+    animation: marquee-right 40s linear infinite;
+}
+
+.marquee-right {
+    animation: marquee-right 30s linear infinite;
+}
+
+.marquee-content {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0 0.75rem;
+}
+
+@keyframes marquee-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes marquee-right {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Pause animation on hover */
+.marquee:hover {
+    animation-play-state: paused;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .marquee-content {
+        gap: 1rem;
+    }
+    
+    .marquee-left-slow,
+    .marquee-right-slow {
+        animation-duration: 30s;
+    }
 }
 </style>
