@@ -19,7 +19,6 @@
         }
         .color-blue { border-left-color: #3b82f6; }
         .color-green { border-left-color: #10b981; }
-        .color-purple { border-left-color: #8b5cf6; }
         
         /* Animation for process steps */
         @keyframes fadeInUp {
@@ -64,6 +63,32 @@
         [dir="rtl"] .text-right {
             text-align: left;
         }
+        
+        .benefit-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .benefit-list li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .benefit-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        [dir="rtl"] .benefit-list li {
+            padding-left: 0;
+            padding-right: 1.75rem;
+        }
+        [dir="rtl"] .benefit-list li:before {
+            left: auto;
+            right: 0;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -101,225 +126,94 @@
         </div>
     </section>
 
-    <!-- Services Section -->
+    <!-- Services Section - Only 2 Services -->
     <section class="py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Student Mobility Services -->
-            <div class="mb-16">
-                <div class="flex items-center mb-8">
-                    <div class="bg-green-100 p-3 rounded-lg mr-4">
-                        <img src="{% static 'global_agency/img/icons/exchange.png' %}" 
-                             alt="Student Mobility" 
-                             class="w-8 h-8"
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDEySDNNMTIgM1YyMU0xMiAyMUw1IDE0TTEyIDIxTDE5IDE0IiBzdHJva2U9IiMwOTg1NTUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo='">
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-900" data-i18n="tcu.categories.mobility">Student Mobility</h2>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Program Transfer -->
-                    <div class="service-card bg-white rounded-xl shadow-lg border-l-6 color-blue p-8">
-                        <div class="flex items-start mb-6">
-                            <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                                <img src="{% static 'global_agency/img/icons/transfer.png' %}" 
-                                     alt="Program Transfer" 
-                                     class="w-8 h-8"
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTggN0gyMEMyMS4xMDQ2IDcgMjIgNy44OTU0MyAyMiA5VjE1QzIyIDE2LjEwNDYgMjEuMTA0NiAxNyAyMCAxN0g4TTYgMTdDNiAxOC4xMDQ2IDUuMTA0NTcgMTkgNCAxOUMzLjM2NTQzIDE5IDIuODA3MDcgMTguNzgzOCAyLjM3NDM0IDE4LjQwMzdDMS45NDE2MSAxOC4wMjM2IDEuNjY2NjcgMTcuNDQ3OCAxLjY2NjY3IDE2Ljc1QzEuNjY2NjcgMTUuNjQ1NCAyLjU3MTE0IDE0Ljc1IDMuNjY2NjcgMTQuNzVDNC4zMDEyNCAxNC43NSA0Ljg1OTU3IDE0Ljk2NjIgNS4yOTIzIDE1LjM0NjNDNS43MjUwMyAxNS43MjY0IDYgMTYuMzAyMiA2IDE3WiIgc3Ryb2tlPSIjMzg3QkY2IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K'">
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3" data-i18n="tcu.services.transfer.title">Program Transfer</h3>
-                                <p class="text-gray-700 text-lg" data-i18n="tcu.services.transfer.description">Transfer between universities with TCU approval.</p>
-                            </div>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Our TCU Services</h2>
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                    We provide expert assistance for TCU-related applications through our official partnership
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- No Objection Certificate (NOC) -->
+                <div id="noc" class="service-card bg-white rounded-xl shadow-lg border-l-6 color-blue p-8 scroll-mt-20">
+                    <div class="flex items-start mb-6">
+                        <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                            <i class="fas fa-certificate text-blue-600 text-2xl"></i>
                         </div>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="font-semibold text-gray-900 mb-3 text-lg" data-i18n="tcu.help.title">We help to:</h4>
-                                <ul class="text-gray-600 space-y-4">
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.transfer.help1.title">Prepare and verify documents</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.transfer.help1.description">We ensure all transfer documents are complete and properly formatted before submission</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.transfer.help2.title">Evaluate credit transfers</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.transfer.help2.description">We help assess which credits will transfer and ensure proper recognition</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.transfer.help3.title">Expedite TCU processing</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.transfer.help3.description">We use our partnership to speed up approval and reduce waiting times</span>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">No Objection Certificate (NOC)</h3>
+                            <p class="text-gray-600 text-md">Application Assistance</p>
                         </div>
                     </div>
                     
-                    <!-- University Exchange -->
-                    <div class="service-card bg-white rounded-xl shadow-lg border-l-6 color-green p-8">
-                        <div class="flex items-start mb-6">
-                            <div class="bg-green-100 p-3 rounded-lg mr-4">
-                                <img src="{% static 'global_agency/img/icons/exchange.png' %}" 
-                                     alt="University Exchange" 
-                                     class="w-8 h-8"
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDEySDNNMTIgM1YyMU0xMiAyMUw1IDE0TTEyIDIxTDE5IDE0IiBzdHJva2U9IiMxMGI5ODEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo='">
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3" data-i18n="tcu.services.exchange.title">University Exchange</h3>
-                                <p class="text-gray-700 text-lg" data-i18n="tcu.services.exchange.description">Support for national and international exchange programs.</p>
-                            </div>
+                    <div class="space-y-5">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2 text-lg">Service:</h4>
+                            <p class="text-gray-700">
+                                We assist students in applying for a No Objection Certificate (NOC) from the Tanzania Commission for Universities (TCU) before traveling abroad for studies.
+                            </p>
                         </div>
                         
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="font-semibold text-gray-900 mb-3 text-lg" data-i18n="tcu.help.title">We help to:</h4>
-                                <ul class="text-gray-600 space-y-4">
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.exchange.help1.title">Coordinate applications</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.exchange.help1.description">We manage all application steps and ensure requirements are met on time</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.exchange.help2.title">Arrange visa and accommodation</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.exchange.help2.description">We provide guidance on visa requirements and help find suitable housing</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.exchange.help3.title">Process TCU approvals</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.exchange.help3.description">We handle all TCU documentation and ensure smooth approval process</span>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-3 text-lg">Benefits:</h4>
+                            <ul class="benefit-list text-gray-700 space-y-2">
+                                <li>Confirms the selected university and program are recognized.</li>
+                                <li>Prevents future qualification recognition problems.</li>
+                                <li>Facilitates visa processing and scholarship requirements.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4 pt-3">
+                            <a href="{% url 'global_agency:contact' %}" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition">
+                                Get Assistance <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recognition Certificate -->
+                <div id="recognition" class="service-card bg-white rounded-xl shadow-lg border-l-6 color-green p-8 scroll-mt-20">
+                    <div class="flex items-start mb-6">
+                        <div class="bg-green-100 p-3 rounded-lg mr-4">
+                            <i class="fas fa-award text-green-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Recognition Certificate</h3>
+                            <p class="text-gray-600 text-md">Application Assistance</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2 text-lg">Service:</h4>
+                            <p class="text-gray-700">
+                                We assist graduates who completed their studies abroad in applying for a Recognition Certificate from the Tanzania Commission for Universities (TCU).
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-3 text-lg">Benefits:</h4>
+                            <ul class="benefit-list text-gray-700 space-y-2">
+                                <li>Ensures the degree is officially recognized in Tanzania.</li>
+                                <li>Allows employment in both public and private sectors.</li>
+                                <li>Enables eligibility for further studies in Tanzania.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4 pt-3">
+                            <a href="{% url 'global_agency:contact' %}" class="inline-flex items-center text-green-600 font-semibold hover:text-green-800 transition">
+                                Get Assistance <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Continue with other service sections following the same pattern -->
-            <!-- Verification Services -->
-            <div class="mb-16">
-                <div class="flex items-center mb-8">
-                    <div class="bg-purple-100 p-3 rounded-lg mr-4">
-                        <img src="{% static 'global_agency/img/icons/certificate.png' %}" 
-                             alt="Verification Services" 
-                             class="w-8 h-8"
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJMMTEgMTRNMTUgMTBMMTcgMTJNOSAxNkwxMSAxOE0xNSAxNEwxNyAxNk0yMCA2SDRDMy40NDc3MiA2IDMgNi40NDc3MiAzIDdWMTdDMzAgMTcuNTUyMyAzLjQ0NzcyIDE4IDQgMThIMjBDMjAuNTUyMyAxOCAyMSAxNy41NTIzIDIxIDE3VjdDMjEgNi40NDc3MiAyMC41NTIzIDYgMjAgNloiIHN0cm9rZT0iIzhCNUM2NiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg=='">
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-900" data-i18n="tcu.categories.verification">Verification Services</h2>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Certificate Verification -->
-                    <div class="service-card bg-white rounded-xl shadow-lg border-l-6 color-purple p-8">
-                        <div class="flex items-start mb-6">
-                            <div class="bg-purple-100 p-3 rounded-lg mr-4">
-                                <img src="{% static 'global_agency/img/icons/certificate.png' %}" 
-                                     alt="Certificate Verification" 
-                                     class="w-8 h-8"
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJMMTEgMTRNMTUgMTBMMTcgMTJNOSAxNkwxMSAxOE0xNSAxNEwxNyAxNk0yMCA2SDRDMy40NDc3MiA2IDMgNi40NDc3MiAzIDdWMTdDMzAgMTcuNTUyMyAzLjQ0NzcyIDE4IDQgMThIMjBDMjAuNTUyMyAxOCAyMSAxNy41NTIzIDIxIDE3VjdDMjEgNi40NDc3MiAyMC41NTIzIDYgMjAgNloiIHN0cm9rZT0iIzhCNUM2NiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg=='">
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3" data-i18n="tcu.services.certificate.title">Certificate Verification</h3>
-                                <p class="text-gray-700 text-lg" data-i18n="tcu.services.certificate.description">Official verification of academic certificates.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="font-semibold text-gray-900 mb-3 text-lg" data-i18n="tcu.help.title">We help to:</h4>
-                                <ul class="text-gray-600 space-y-4">
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.certificate.help1.title">Authenticate documents</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.certificate.help1.description">We verify certificate authenticity and ensure they meet TCU standards</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.certificate.help2.title">Speed up processing</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.certificate.help2.description">We use direct channels to reduce verification time significantly</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.certificate.help3.title">Ensure secure delivery</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.certificate.help3.description">We provide safe and tracked delivery of verified certificates to you</span>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Foreign Qualification Recognition -->
-                    <div class="service-card bg-white rounded-xl shadow-lg border-l-6 color-blue p-8">
-                        <div class="flex items-start mb-6">
-                            <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                                <img src="{% static 'global_agency/img/icons/foreign-qualification.png' %}" 
-                                     alt="Foreign Qualification Recognition" 
-                                     class="w-8 h-8"
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyIDEySDJNOSA1TDEyIDJMOSA1WiIgc3Ryb2tlPSIjMzg3QkY2IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTUgMTlMMTIgMjJNOSAxOUwxMiAyMk0xMiAyMlYyIiBzdHJva2U9IiMzODdCRjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo='">
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3" data-i18n="tcu.services.foreign.title">Foreign Qualification Recognition</h3>
-                                <p class="text-gray-700 text-lg" data-i18n="tcu.services.foreign.description">TCU recognition of foreign qualifications.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="font-semibold text-gray-900 mb-3 text-lg" data-i18n="tcu.help.title">We help to:</h4>
-                                <ul class="text-gray-600 space-y-4">
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.foreign.help1.title">Translate documents</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.foreign.help1.description">We provide official translation services for foreign language certificates</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.foreign.help2.title">Assess equivalence</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.foreign.help2.description">We evaluate how foreign qualifications match Tanzanian education standards</span>
-                                        </span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-3 mt-1 text-lg">•</span>
-                                        <span>
-                                            <strong class="text-gray-900" data-i18n="tcu.services.foreign.help3.title">Navigate the process</strong><br>
-                                            <span class="text-gray-700" data-i18n="tcu.services.foreign.help3.description">We guide you through complex recognition procedures step by step</span>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Continue with Admission Support section... -->
         </div>
     </section>
 
-    <!-- Rest of the template remains the same -->
     <!-- Process Timeline Section -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -369,6 +263,42 @@
         </div>
     </section>
 
+    <!-- Why Choose Us Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Why Choose AWEDUCOL for TCU Services?</h2>
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                    We make the TCU process simple, fast, and stress-free
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bolt text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Faster Processing</h3>
+                    <p class="text-gray-600">Our official partnership with TCU reduces processing time by up to 40%</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">100% Success Rate</h3>
+                    <p class="text-gray-600">All applications submitted through us meet TCU requirements</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-headset text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Expert Guidance</h3>
+                    <p class="text-gray-600">Dedicated support from TCU-certified professionals</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Enhanced CTA Section -->
     <section class="py-20 bg-gradient-to-br from-green-600 via-blue-600 to-purple-700 text-white">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -379,10 +309,10 @@
                     Our partnership with TCU ensures faster processing and expert guidance.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <button class="bg-white text-green-600 hover:bg-green-50 font-bold py-4 px-8 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg">
+                    <a href="{% url 'global_agency:contact' %}" class="bg-white text-green-600 hover:bg-green-50 font-bold py-4 px-8 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg inline-block">
                         <i class="fas fa-envelope mr-2"></i>
                         <span data-i18n="tcu.cta.contact">Contact Us Today</span>
-                    </button>
+                    </a>
                     <a href="tel:+255767688766" class="bg-transparent border-2 border-white text-white hover:bg-white/20 font-bold py-4 px-8 rounded-lg transition duration-300 transform hover:scale-105 inline-block">
                         <i class="fas fa-phone mr-2"></i>
                         <span data-i18n="tcu.cta.call">Call Now: +255 767 688 766</span>
@@ -418,10 +348,5 @@
             </div>
         </div>
     </footer>
-
-    <!-- Global Translation Script -->
-    <script>
-        // ... (keep the same JavaScript translation code as before)
-    </script>
 </body>
 </html>

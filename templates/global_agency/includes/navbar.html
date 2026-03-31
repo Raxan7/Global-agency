@@ -138,12 +138,48 @@
             </div>
           </li>
 
-          <li>
-            <a href="{% url 'global_agency:tcu_services' %}" 
-               class="hover:text-primary-blue transition duration-150 font-semibold text-xs md:text-base relative group">
-               {% trans "TCU Services" %}
-               <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-blue transition-all duration-300 group-hover:w-full"></span>
-            </a>
+          <!-- TCU Services Dropdown -->
+          <li class="relative group">
+            <button class="hover:text-primary-blue transition duration-150 font-semibold text-xs md:text-base flex items-center focus:outline-none">
+              {% trans "TCU Services" %}
+              <svg class="w-4 h-4 ml-1 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            
+            <!-- TCU Services Dropdown Menu -->
+            <div class="absolute {% if LANGUAGE_CODE == 'ar' %}right-auto left-0{% else %}left-0{% endif %} mt-2 w-80 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 border border-gray-100 z-50 transform origin-top">
+              <div class="p-3">
+                <!-- No Objection Certificate (NOC) -->
+                <a href="{% url 'global_agency:tcu_services' %}#noc" class="flex items-start p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent rounded-lg transition duration-150 group/service">
+                  <div class="w-10 h-10 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-certificate text-teal-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "No Objection Certificate (NOC)" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Application Assistance for studying abroad" %}</p>
+                  </div>
+                </a>
+
+                <!-- Recognition Certificate -->
+                <a href="{% url 'global_agency:tcu_services' %}#recognition" class="flex items-start p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-award text-amber-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Recognition Certificate" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Application Assistance for degree recognition" %}</p>
+                  </div>
+                </a>
+
+                <!-- View All TCU Services -->
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                  <a href="{% url 'global_agency:tcu_services' %}" class="block text-center bg-gradient-to-r from-primary-blue to-blue-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition duration-150 text-xs shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    {% trans "More" %} →
+                  </a>
+                </div>
+              </div>
+            </div>
           </li>
 
           <li>
@@ -256,9 +292,41 @@
           </div>
         </div>
 
-        <a href="{% url 'global_agency:tcu_services' %}" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
-          {% trans "TCU Services" %}
-        </a>
+        <!-- Mobile TCU Services Dropdown -->
+        <div class="border-b border-gray-100">
+          <button id="mobile-tcu-toggle" class="w-full text-left px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent flex justify-between items-center transition duration-150">
+            <span>{% trans "TCU Services" %}</span>
+            <svg id="mobile-tcu-arrow" class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div id="mobile-tcu-menu" class="hidden bg-gray-50 overflow-hidden transition-all duration-300">
+            <a href="{% url 'global_agency:tcu_services' %}#noc" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-certificate text-teal-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "No Objection Certificate (NOC)" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Application Assistance for studying abroad" %}</p>
+              </div>
+            </a>
+            <a href="{% url 'global_agency:tcu_services' %}#recognition" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-award text-amber-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "Recognition Certificate" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Application Assistance for degree recognition" %}</p>
+              </div>
+            </a>
+            <div class="p-4">
+              <a href="{% url 'global_agency:tcu_services' %}" class="block text-center bg-gradient-to-r from-primary-blue to-blue-600 text-white py-2.5 px-4 rounded-lg font-semibold text-sm shadow-md">
+                {% trans "More" %} →
+              </a>
+            </div>
+          </div>
+        </div>
+
         <a href="#success" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
           {% trans "Success Stories" %}
         </a>
@@ -291,7 +359,7 @@
   }
 
   /* Mobile menu animations */
-  #mobile-services-menu, #mobile-universities-menu {
+  #mobile-services-menu, #mobile-universities-menu, #mobile-tcu-menu {
     transition: all 0.3s ease-in-out;
   }
 
@@ -332,6 +400,11 @@
     const universitiesMenu = document.getElementById('mobile-universities-menu');
     const universitiesArrow = document.getElementById('mobile-universities-arrow');
     
+    // TCU Services dropdown elements
+    const tcuToggle = document.getElementById('mobile-tcu-toggle');
+    const tcuMenu = document.getElementById('mobile-tcu-menu');
+    const tcuArrow = document.getElementById('mobile-tcu-arrow');
+    
     // All mobile links
     const mobileLinks = document.querySelectorAll('.mobile-link');
 
@@ -351,8 +424,10 @@
           // Close all submenus when closing main menu
           if (servicesMenu) servicesMenu.classList.add('hidden');
           if (universitiesMenu) universitiesMenu.classList.add('hidden');
+          if (tcuMenu) tcuMenu.classList.add('hidden');
           if (servicesArrow) servicesArrow.classList.remove('rotate-180');
           if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+          if (tcuArrow) tcuArrow.classList.remove('rotate-180');
         } else {
           menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
         }
@@ -381,6 +456,17 @@
       });
     }
 
+    // Toggle TCU services submenu
+    if (tcuToggle && tcuMenu && tcuArrow) {
+      tcuToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        tcuMenu.classList.toggle('hidden');
+        tcuArrow.classList.toggle('rotate-180');
+      });
+    }
+
     // Close menu when clicking on any mobile link
     mobileLinks.forEach(link => {
       link.addEventListener('click', function() {
@@ -390,8 +476,10 @@
         // Reset all submenus
         if (servicesMenu) servicesMenu.classList.add('hidden');
         if (universitiesMenu) universitiesMenu.classList.add('hidden');
+        if (tcuMenu) tcuMenu.classList.add('hidden');
         if (servicesArrow) servicesArrow.classList.remove('rotate-180');
         if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+        if (tcuArrow) tcuArrow.classList.remove('rotate-180');
       });
     });
 
@@ -408,8 +496,10 @@
           // Reset all submenus
           if (servicesMenu) servicesMenu.classList.add('hidden');
           if (universitiesMenu) universitiesMenu.classList.add('hidden');
+          if (tcuMenu) tcuMenu.classList.add('hidden');
           if (servicesArrow) servicesArrow.classList.remove('rotate-180');
           if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+          if (tcuArrow) tcuArrow.classList.remove('rotate-180');
         }
       }
     });
@@ -426,6 +516,12 @@
         e.stopPropagation();
       });
     }
+    
+    if (tcuMenu) {
+      tcuMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
 
     // Handle window resize
     window.addEventListener('resize', function() {
@@ -436,8 +532,10 @@
         // Reset all submenus
         if (servicesMenu) servicesMenu.classList.add('hidden');
         if (universitiesMenu) universitiesMenu.classList.add('hidden');
+        if (tcuMenu) tcuMenu.classList.add('hidden');
         if (servicesArrow) servicesArrow.classList.remove('rotate-180');
         if (universitiesArrow) universitiesArrow.classList.remove('rotate-180');
+        if (tcuArrow) tcuArrow.classList.remove('rotate-180');
       }
     });
   });
