@@ -13,6 +13,25 @@
 
   .text-clamp-2 { -webkit-line-clamp: 2; }
   .text-clamp-3 { -webkit-line-clamp: 3; }
+
+  .update-card-thumb {
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .feature-thumb {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .feature-shell {
+    max-width: 100%;
+    overflow: hidden;
+  }
 </style>
 
 <section class="relative overflow-hidden bg-slate-950 text-white">
@@ -35,11 +54,11 @@
     <div class="flex flex-col gap-8 lg:flex-row">
       <div class="lg:w-2/3">
         {% if featured_story %}
-          <article class="overflow-hidden rounded-[32px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+          <article class="feature-shell overflow-hidden rounded-[32px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
             {% if featured_story.cover_image %}
-              <img src="{{ featured_story.cover_image.url }}" alt="{{ featured_story.image_alt_text|default:featured_story.title }}" class="h-72 w-full object-cover md:h-[26rem]">
+              <img src="{{ featured_story.cover_image.url }}" alt="{{ featured_story.image_alt_text|default:featured_story.title }}" class="feature-thumb max-h-[24rem]">
             {% else %}
-              <div class="h-72 w-full bg-gradient-to-br from-slate-900 via-sky-900 to-teal-700 md:h-[26rem]"></div>
+              <div class="feature-thumb max-h-[24rem] bg-gradient-to-br from-slate-900 via-sky-900 to-teal-700"></div>
             {% endif %}
             <div class="p-8">
               <div class="flex flex-wrap items-center gap-3 text-sm">
@@ -102,9 +121,9 @@
         <article class="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)]">
           <a href="{% url 'global_agency:update_detail' item.slug %}" class="block">
             {% if item.cover_image %}
-              <img src="{{ item.cover_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="h-60 w-full object-cover transition duration-500 group-hover:scale-[1.03]">
+              <img src="{{ item.cover_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="update-card-thumb max-h-56 transition duration-500 group-hover:scale-[1.03]">
             {% else %}
-              <div class="h-60 w-full bg-gradient-to-br from-slate-900 via-sky-800 to-amber-500"></div>
+              <div class="update-card-thumb max-h-56 bg-gradient-to-br from-slate-900 via-sky-800 to-amber-500"></div>
             {% endif %}
           </a>
           <div class="p-6">

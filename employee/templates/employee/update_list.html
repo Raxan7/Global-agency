@@ -61,6 +61,45 @@
         letter-spacing: 0.08em;
     }
 
+    .update-meta {
+        display: grid;
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    .update-thumb {
+        width: 84px;
+        height: 84px;
+        overflow: hidden;
+        border-radius: 18px;
+        border: 1px solid #dbe3f0;
+        background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .update-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .update-thumb-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f4c81;
+    }
+
     .row-title {
         margin: 0 0 6px;
         font-size: 1rem;
@@ -184,6 +223,17 @@
             padding: 8px 0;
             border-bottom: 0;
         }
+
+        .update-meta {
+            grid-template-columns: 64px minmax(0, 1fr);
+            gap: 12px;
+        }
+
+        .update-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+        }
     }
 </style>
 
@@ -258,15 +308,26 @@
                 {% for item in updates %}
                     <tr>
                         <td>
-                            <h3 class="row-title">
-                                {% if item.status == 'published' %}
-                                    <a href="{{ item.get_absolute_url }}" target="_blank" rel="noopener">{{ item.title }}</a>
-                                {% else %}
-                                    {{ item.title }}
-                                {% endif %}
-                            </h3>
-                            <div class="muted">{{ item.excerpt }}</div>
-                            <div class="muted" style="margin-top: 8px;">Updated {{ item.updated_at|date:"M d, Y H:i" }}{% if item.author %} by {{ item.author.get_full_name|default:item.author.username }}{% endif %}</div>
+                            <div class="update-meta">
+                                <div class="update-thumb">
+                                    {% if item.cover_image %}
+                                        <img src="{{ item.cover_image.url }}" alt="{{ item.image_alt_text|default:item.title }}">
+                                    {% else %}
+                                        <div class="update-thumb-fallback">{{ item.get_content_type_display }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h3 class="row-title">
+                                        {% if item.status == 'published' %}
+                                            <a href="{{ item.get_absolute_url }}" target="_blank" rel="noopener">{{ item.title }}</a>
+                                        {% else %}
+                                            {{ item.title }}
+                                        {% endif %}
+                                    </h3>
+                                    <div class="muted">{{ item.excerpt }}</div>
+                                    <div class="muted" style="margin-top: 8px;">Updated {{ item.updated_at|date:"M d, Y H:i" }}{% if item.author %} by {{ item.author.get_full_name|default:item.author.username }}{% endif %}</div>
+                                </div>
+                            </div>
                         </td>
                         <td>
                             <span class="pill pill-{{ item.content_type }}">{{ item.get_content_type_display }}</span>
