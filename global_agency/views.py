@@ -1,16 +1,81 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import Http404
 from django.utils.translation import activate
 from django.conf import settings
+from django.utils import timezone
 from .forms import StudentApplicationForm, ContactMessageForm, SimpleRegistrationForm
+from employee.models import PortalUpdate
 import json
 import os
 from django.core.paginator import Paginator
 from pathlib import Path
 
 def home(request):
-    return render(request, 'global_agency/index.html')
+    featured_updates = list(
+        PortalUpdate.objects.filter(status='published', featured_on_homepage=True)
+        .select_related('author')[:3]
+    )
+    upcoming_event = (
+        PortalUpdate.objects.filter(
+            status='published',
+            content_type='event',
+            event_start__gte=timezone.now(),
+        )
+        .order_by('event_start')
+        .first()
+    )
+
+    context = {
+        'featured_updates': featured_updates,
+        'upcoming_event': upcoming_event,
+    }
+    return render(request, 'global_agency/index.html', context)
+
+
+def updates_list(request):
+    update_type = request.GET.get('type', '').strip()
+    updates = PortalUpdate.objects.filter(status='published').select_related('author')
+
+    if update_type in {'blog', 'image', 'event'}:
+        updates = updates.filter(content_type=update_type)
+
+    paginator = Paginator(updates, 9)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    context = {
+        'page_obj': page_obj,
+        'updates': page_obj.object_list,
+        'update_type': update_type,
+        'featured_story': updates.first(),
+        'upcoming_event': PortalUpdate.objects.filter(
+            status='published',
+            content_type='event',
+            event_start__gte=timezone.now(),
+        )
+        .order_by('event_start')
+        .first(),
+    }
+    return render(request, 'global_agency/updates.html', context)
+
+
+def update_detail(request, slug):
+    update = get_object_or_404(
+        PortalUpdate.objects.select_related('author'),
+        slug=slug,
+        status='published',
+    )
+    related_updates = (
+        PortalUpdate.objects.filter(status='published')
+        .exclude(pk=update.pk)
+        .select_related('author')[:3]
+    )
+
+    context = {
+        'update': update,
+        'related_updates': related_updates,
+    }
+    return render(request, 'global_agency/update_detail.html', context)
 
 def set_language_view(request, language):
     """Switch to a different language and redirect to the same page"""

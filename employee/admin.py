@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django import forms
-from .models import UserProfile, EmployeeProfile, ApplicationAssignment
+from .models import ApplicationAssignment, EmployeeProfile, PortalUpdate, UserProfile
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
@@ -112,6 +112,23 @@ class ApplicationAssignmentAdmin(admin.ModelAdmin):
     search_fields = ('application__student__username', 'employee__username')
     readonly_fields = ('assigned_date',)
     list_editable = ('status',)
+
+
+@admin.register(PortalUpdate)
+class PortalUpdateAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'content_type',
+        'status',
+        'featured_on_homepage',
+        'author',
+        'published_at',
+        'updated_at',
+    )
+    list_filter = ('content_type', 'status', 'featured_on_homepage', 'published_at')
+    search_fields = ('title', 'excerpt', 'content', 'location', 'slug')
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ('created_at', 'updated_at', 'published_at')
 
 # Custom admin site configuration
 admin.site.site_header = "Employee Portal Administration"

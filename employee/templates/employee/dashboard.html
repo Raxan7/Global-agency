@@ -258,6 +258,7 @@
             <nav class="nav-menu">
                 <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
                 <a href="{% url 'employee:student_application_list' %}">Student Applications</a>
+                <a href="{% url 'employee:update_management' %}">Updates</a>
                 <a href="{% url 'employee:document_list' %}">Documents</a>
                 <a href="{% url 'employee:contact_messages' %}">Contact Messages</a>
                 <a href="{% url 'admin:index' %}">Admin</a>
@@ -286,6 +287,61 @@
                 <div class="stat-number">{{ documents_count }}</div>
                 <div class="stat-label">Documents</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ updates_count }}</div>
+                <div class="stat-label">Website Updates</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ upcoming_events_count }}</div>
+                <div class="stat-label">Upcoming Events</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h3>Public Updates Studio</h3>
+                <a href="{% url 'employee:update_management' %}" class="btn btn-success">Manage Updates</a>
+            </div>
+
+            <p style="margin-bottom: 1rem; color: #666;">Publish blogs, image stories, and events for the public website. {{ published_updates_count }} update{{ published_updates_count|pluralize }} {{ published_updates_count|pluralize:"is,are" }} currently live.</p>
+
+            {% if recent_updates %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Homepage</th>
+                        <th>Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_updates %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.title }}</strong><br>
+                            <small>{{ item.excerpt|truncatechars:80 }}</small>
+                        </td>
+                        <td>{{ item.get_content_type_display }}</td>
+                        <td>
+                            <span class="status-badge {% if item.status == 'published' %}status-approved{% else %}status-under_review{% endif %}">
+                                {{ item.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{% if item.featured_on_homepage %}Featured{% else %}Hub only{% endif %}</td>
+                        <td>{{ item.updated_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'employee:update_edit' item.id %}" class="btn btn-primary">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-state">No public updates have been created yet.</p>
+            {% endif %}
         </div>
 
         <!-- Recent Student Portal Applications -->

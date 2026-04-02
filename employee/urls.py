@@ -30,6 +30,12 @@ urlpatterns = [
     
     # Documents
     path('documents/', views.document_list, name='document_list'),
+
+    # Updates content management
+    path('updates/', views.update_management, name='update_management'),
+    path('updates/new/', views.update_create, name='update_create'),
+    path('updates/<int:pk>/edit/', views.update_edit, name='update_edit'),
+    path('updates/<int:pk>/delete/', views.update_delete, name='update_delete'),
     
     # Contact messages
     path('contact-messages/', views.contact_messages, name='contact_messages'),

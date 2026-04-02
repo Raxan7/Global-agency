@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.text import slugify
 from student_portal.models import Application, Document
 
 class UserProfile(models.Model):
@@ -96,3 +99,87 @@ class ApplicationAssignment(models.Model):
             'completed': 'Completed'
         }
         return status_dict.get(self.status, self.status)
+
+
+class PortalUpdate(models.Model):
+    CONTENT_TYPES = [
+        ('blog', 'Blog'),
+        ('image', 'Image Story'),
+        ('event', 'Event'),
+    ]
+
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('published', 'Published'),
+    ]
+
+    title = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPES, default='blog')
+    excerpt = models.CharField(max_length=280)
+    content = models.TextField(
+        help_text="Main body content shown on the public detail page."
+    )
+    cover_image = models.ImageField(
+        upload_to='updates/',
+        blank=True,
+        null=True,
+        help_text="Recommended for homepage previews and image-based updates.",
+    )
+    image_alt_text = models.CharField(max_length=160, blank=True)
+    location = models.CharField(max_length=160, blank=True)
+    event_start = models.DateTimeField(blank=True, null=True)
+    event_end = models.DateTimeField(blank=True, null=True)
+    featured_on_homepage = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    published_at = models.DateTimeField(blank=True, null=True)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name='portal_updates',
+        blank=True,
+        null=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-published_at', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._generate_unique_slug()
+
+        if self.status == 'published' and self.published_at is None:
+            self.published_at = timezone.now()
+
+        super().save(*args, **kwargs)
+
+    def _generate_unique_slug(self):
+        base_slug = slugify(self.title)[:200] or 'update'
+        slug = base_slug
+        counter = 2
+
+        while PortalUpdate.objects.exclude(pk=self.pk).filter(slug=slug).exists():
+            slug = f'{base_slug[:190]}-{counter}'
+            counter += 1
+
+        return slug
+
+    def get_absolute_url(self):
+        return reverse('global_agency:update_detail', args=[self.slug])
+
+    @property
+    def is_published(self):
+        return self.status == 'published'
+
+    @property
+    def has_event_schedule(self):
+        return self.content_type == 'event' and self.event_start is not None
+
+    @property
+    def is_upcoming(self):
+        return self.has_event_schedule and self.event_start >= timezone.now()

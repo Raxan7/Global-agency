@@ -1,0 +1,53 @@
+{% extends 'employee/base.html' %}
+
+{% block title %}Delete Update{% endblock %}
+{% block nav_updates %}active{% endblock %}
+{% block hero_title %}Delete update{% endblock %}
+{% block hero_copy %}This removes the update from the employee portal and, if it was published, from the public website as well.{% endblock %}
+
+{% block content %}
+<style>
+    .delete-card {
+        padding: 28px;
+        max-width: 760px;
+    }
+
+    .warning-box {
+        padding: 18px;
+        border-radius: 18px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        margin: 20px 0;
+    }
+
+    .meta {
+        color: #475569;
+        margin: 10px 0 0;
+    }
+
+    .actions-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+</style>
+
+<section class="card delete-card">
+    <h2 style="margin-top: 0;">Delete "{{ portal_update.title }}"?</h2>
+    <p class="meta">{{ portal_update.get_content_type_display }} · {{ portal_update.get_status_display }}{% if portal_update.published_at %} · Published {{ portal_update.published_at|date:"M d, Y H:i" }}{% endif %}</p>
+    <div class="warning-box">
+        This action cannot be undone. Any homepage preview or public detail page for this update will disappear immediately after deletion.
+    </div>
+    <p>{{ portal_update.excerpt }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions-row">
+            <button type="submit" class="btn btn-danger">Delete permanently</button>
+            <a href="{% url 'employee:update_management' %}" class="btn btn-secondary">Keep update</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

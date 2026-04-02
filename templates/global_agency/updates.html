@@ -1,0 +1,153 @@
+{% extends 'global_agency/base.html' %}
+
+{% block title %}Updates{% endblock %}
+
+{% block content %}
+<style>
+  .text-clamp-2,
+  .text-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .text-clamp-2 { -webkit-line-clamp: 2; }
+  .text-clamp-3 { -webkit-line-clamp: 3; }
+</style>
+
+<section class="relative overflow-hidden bg-slate-950 text-white">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.22),_transparent_32%),radial-gradient(circle_at_80%_20%,_rgba(251,191,36,0.16),_transparent_20%),linear-gradient(135deg,_#020617,_#0f172a_42%,_#0f4c81)]"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+    <div class="max-w-3xl">
+      <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-100">Newsroom</span>
+      <h1 class="mt-6 text-4xl md:text-5xl font-bold leading-tight">Fresh updates, student stories, and important event moments.</h1>
+      <p class="mt-5 text-lg text-slate-200">Explore guidance articles, image-led highlights, and public event announcements published by the Africa Western Education team.</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="{% url 'global_agency:updates' %}" class="rounded-full bg-white px-6 py-3 font-semibold text-slate-900 transition hover:bg-cyan-50">All updates</a>
+        <a href="{% url 'global_agency:contact' %}" class="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10">Talk to our team</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-slate-50 py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-8 lg:flex-row">
+      <div class="lg:w-2/3">
+        {% if featured_story %}
+          <article class="overflow-hidden rounded-[32px] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+            {% if featured_story.cover_image %}
+              <img src="{{ featured_story.cover_image.url }}" alt="{{ featured_story.image_alt_text|default:featured_story.title }}" class="h-72 w-full object-cover md:h-[26rem]">
+            {% else %}
+              <div class="h-72 w-full bg-gradient-to-br from-slate-900 via-sky-900 to-teal-700 md:h-[26rem]"></div>
+            {% endif %}
+            <div class="p-8">
+              <div class="flex flex-wrap items-center gap-3 text-sm">
+                <span class="rounded-full bg-cyan-100 px-3 py-1 font-semibold text-cyan-800">{{ featured_story.get_content_type_display }}</span>
+                {% if featured_story.published_at %}
+                  <span class="text-slate-500">{{ featured_story.published_at|date:"F d, Y" }}</span>
+                {% endif %}
+                {% if featured_story.location %}
+                  <span class="text-slate-500">{{ featured_story.location }}</span>
+                {% endif %}
+              </div>
+              <h2 class="mt-4 text-3xl font-bold text-slate-900">{{ featured_story.title }}</h2>
+              <p class="mt-4 text-lg leading-8 text-slate-600">{{ featured_story.excerpt }}</p>
+              <a href="{% url 'global_agency:update_detail' featured_story.slug %}" class="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 font-semibold text-white transition hover:bg-slate-800">
+                Read full story
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+        {% endif %}
+      </div>
+
+      <aside class="lg:w-1/3">
+        <div class="rounded-[28px] bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+          <h3 class="text-lg font-bold text-slate-900">Browse by focus</h3>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a href="{% url 'global_agency:updates' %}" class="rounded-full px-4 py-2 text-sm font-semibold {% if not update_type %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">All</a>
+            <a href="{% url 'global_agency:updates' %}?type=blog" class="rounded-full px-4 py-2 text-sm font-semibold {% if update_type == 'blog' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">Blogs</a>
+            <a href="{% url 'global_agency:updates' %}?type=image" class="rounded-full px-4 py-2 text-sm font-semibold {% if update_type == 'image' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">Image stories</a>
+            <a href="{% url 'global_agency:updates' %}?type=event" class="rounded-full px-4 py-2 text-sm font-semibold {% if update_type == 'event' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">Events</a>
+          </div>
+
+          {% if upcoming_event %}
+            <div class="mt-8 rounded-[24px] bg-gradient-to-br from-teal-600 via-cyan-700 to-slate-900 p-6 text-white">
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100">Upcoming event</p>
+              <h4 class="mt-3 text-2xl font-bold">{{ upcoming_event.title }}</h4>
+              <p class="mt-3 text-sm text-cyan-50">{{ upcoming_event.event_start|date:"F d, Y · H:i" }}{% if upcoming_event.location %} · {{ upcoming_event.location }}{% endif %}</p>
+              <p class="mt-4 text-sm leading-7 text-slate-100 text-clamp-3">{{ upcoming_event.excerpt }}</p>
+              <a href="{% url 'global_agency:update_detail' upcoming_event.slug %}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">View details <span aria-hidden="true">→</span></a>
+            </div>
+          {% endif %}
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="bg-white py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-end justify-between gap-6">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-700">Latest collection</p>
+        <h2 class="mt-3 text-3xl font-bold text-slate-900">Explore every published update</h2>
+      </div>
+      <p class="max-w-2xl text-sm leading-7 text-slate-500">Designed for fast scanning on the homepage and deeper reading in the full article view.</p>
+    </div>
+
+    <div class="mt-10 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
+      {% for item in updates %}
+        <article class="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)]">
+          <a href="{% url 'global_agency:update_detail' item.slug %}" class="block">
+            {% if item.cover_image %}
+              <img src="{{ item.cover_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="h-60 w-full object-cover transition duration-500 group-hover:scale-[1.03]">
+            {% else %}
+              <div class="h-60 w-full bg-gradient-to-br from-slate-900 via-sky-800 to-amber-500"></div>
+            {% endif %}
+          </a>
+          <div class="p-6">
+            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em]">
+              <span class="text-cyan-700">{{ item.get_content_type_display }}</span>
+              {% if item.published_at %}
+                <span class="text-slate-400">{{ item.published_at|date:"M d, Y" }}</span>
+              {% endif %}
+            </div>
+            <h3 class="mt-4 text-2xl font-bold text-slate-900">
+              <a href="{% url 'global_agency:update_detail' item.slug %}" class="transition group-hover:text-cyan-700">{{ item.title }}</a>
+            </h3>
+            <p class="mt-4 text-base leading-7 text-slate-600 text-clamp-3">{{ item.excerpt }}</p>
+            {% if item.content_type == 'event' and item.event_start %}
+              <div class="mt-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                {{ item.event_start|date:"F d, Y · H:i" }}{% if item.location %} · {{ item.location }}{% endif %}
+              </div>
+            {% endif %}
+            <a href="{% url 'global_agency:update_detail' item.slug %}" class="mt-6 inline-flex items-center gap-2 font-semibold text-slate-900 transition group-hover:text-cyan-700">
+              Learn more
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+      {% empty %}
+        <div class="col-span-full rounded-[28px] border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+          <h3 class="text-2xl font-bold text-slate-900">No updates published yet</h3>
+          <p class="mt-3 text-slate-600">Check back soon for news, event announcements, and fresh guidance from the team.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+      <div class="mt-12 flex items-center justify-center gap-3">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}{% if update_type %}&type={{ update_type }}{% endif %}" class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Previous</a>
+        {% endif %}
+        <span class="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if update_type %}&type={{ update_type }}{% endif %}" class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Next</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

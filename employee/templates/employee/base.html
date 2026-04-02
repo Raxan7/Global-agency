@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Portal{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --surface-soft: #eef4ff;
+            --text: #0f172a;
+            --muted: #475569;
+            --line: #dbe3f0;
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --accent: #f59e0b;
+            --danger: #dc2626;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 32%),
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 28%),
+                linear-gradient(180deg, #f8fbff 0%, #eef3f9 100%);
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .shell {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #0f766e 0%, #0f4c81 100%);
+            color: #fff;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topbar::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.2), transparent 18%),
+                radial-gradient(circle at 20% 100%, rgba(255, 255, 255, 0.14), transparent 28%);
+            pointer-events: none;
+        }
+
+        .topbar-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            font-size: 0.78rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: 0.78;
+            margin-bottom: 10px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            line-height: 1.05;
+        }
+
+        .topbar p {
+            margin: 10px 0 0;
+            max-width: 680px;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .quick-badge {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            font-size: 0.92rem;
+            white-space: nowrap;
+        }
+
+        .nav {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav a {
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-weight: 600;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .messages {
+            margin: 20px 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 1px solid #bde7cf;
+            background: #ecfdf3;
+            color: #166534;
+            box-shadow: 0 8px 25px rgba(22, 101, 52, 0.08);
+        }
+
+        .content {
+            margin-top: 24px;
+        }
+
+        .page-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .page-head h2 {
+            margin: 0 0 6px;
+            font-size: clamp(1.4rem, 2.2vw, 2rem);
+        }
+
+        .page-head p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 760px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(219, 227, 240, 0.9);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #0f4c81 100%);
+            color: #fff;
+            box-shadow: 0 14px 28px rgba(15, 118, 110, 0.24);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: var(--text);
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-field label {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+            font: inherit;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+        }
+
+        .form-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .helptext {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .errorlist {
+            margin: 0;
+            padding-left: 18px;
+            color: #b91c1c;
+        }
+
+        @media (max-width: 900px) {
+            .topbar-row,
+            .page-head {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .shell {
+                padding: 16px;
+            }
+
+            .topbar {
+                border-radius: 22px;
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <div class="topbar-row">
+                <div>
+                    <div class="eyebrow">Employee Portal</div>
+                    <h1>{% block hero_title %}Content & Operations Hub{% endblock %}</h1>
+                    <p>{% block hero_copy %}Manage applications, student support work, and public-facing updates from one place with clear publishing controls.{% endblock %}</p>
+                </div>
+                <div class="quick-badge">{{ request.user.get_full_name|default:request.user.username }}</div>
+            </div>
+            <nav class="nav">
+                <a href="{% url 'employee:employee_dashboard' %}" class="{% block nav_dashboard %}{% endblock %}">Dashboard</a>
+                <a href="{% url 'employee:student_application_list' %}">Applications</a>
+                <a href="{% url 'employee:update_management' %}" class="{% block nav_updates %}{% endblock %}">Updates</a>
+                <a href="{% url 'employee:document_list' %}">Documents</a>
+                <a href="{% url 'employee:contact_messages' %}">Messages</a>
+                <a href="{% url 'admin:index' %}">Admin</a>
+                <a href="{% url 'employee:employee_logout' %}">Logout</a>
+            </nav>
+        </header>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

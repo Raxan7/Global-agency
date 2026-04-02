@@ -1,0 +1,330 @@
+{% extends 'employee/base.html' %}
+
+{% block title %}Manage Updates{% endblock %}
+{% block nav_updates %}active{% endblock %}
+{% block hero_title %}Public Updates Studio{% endblock %}
+{% block hero_copy %}Create and manage blogs, image stories, and events that appear on the public website. Draft when you are still refining. Publish when the story is ready for visitors.{% endblock %}
+
+{% block content %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .stat-card {
+        padding: 22px;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-top: 8px;
+    }
+
+    .filters {
+        padding: 22px;
+        margin-bottom: 22px;
+    }
+
+    .filters form {
+        display: grid;
+        grid-template-columns: 1.4fr 0.8fr 0.8fr auto;
+        gap: 14px;
+        align-items: end;
+    }
+
+    .updates-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .updates-table th,
+    .updates-table td {
+        padding: 16px 18px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .updates-table th {
+        color: #475569;
+        font-size: 0.86rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .row-title {
+        margin: 0 0 6px;
+        font-size: 1rem;
+    }
+
+    .row-title a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .muted {
+        color: #64748b;
+        font-size: 0.94rem;
+    }
+
+    .pill {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .pill-blog {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .pill-image {
+        background: #ede9fe;
+        color: #6d28d9;
+    }
+
+    .pill-event {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .pill-draft {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .pill-published {
+        background: #ccfbf1;
+        color: #0f766e;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .actions a {
+        text-decoration: none;
+    }
+
+    .empty {
+        padding: 40px 24px;
+        text-align: center;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 10px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #0f172a;
+        background: #f1f5f9;
+    }
+
+    .pagination .current {
+        background: linear-gradient(135deg, #0f766e 0%, #0f4c81 100%);
+        color: #fff;
+    }
+
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .filters form {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .stats-grid,
+        .filters form {
+            grid-template-columns: 1fr;
+        }
+
+        .updates-table,
+        .updates-table thead,
+        .updates-table tbody,
+        .updates-table tr,
+        .updates-table th,
+        .updates-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .updates-table thead {
+            display: none;
+        }
+
+        .updates-table tr {
+            padding: 18px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .updates-table td {
+            padding: 8px 0;
+            border-bottom: 0;
+        }
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2>Manage website updates</h2>
+        <p>Everything employees publish here can power the homepage preview cards and the full public update pages.</p>
+    </div>
+    <a href="{% url 'employee:update_create' %}" class="btn btn-primary">Create new update</a>
+</div>
+
+<section class="stats-grid">
+    <div class="card stat-card">
+        <div class="stat-label">All updates</div>
+        <div class="stat-value">{{ total_updates }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Published</div>
+        <div class="stat-value">{{ published_updates }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Homepage featured</div>
+        <div class="stat-value">{{ featured_updates }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Upcoming events</div>
+        <div class="stat-value">{{ upcoming_events }}</div>
+    </div>
+</section>
+
+<section class="card filters">
+    <form method="get">
+        <div class="form-field">
+            <label for="search">Search</label>
+            <input id="search" name="search" class="form-input" type="text" value="{{ search_query }}" placeholder="Search titles, excerpts, content, or locations">
+        </div>
+        <div class="form-field">
+            <label for="type">Type</label>
+            <select id="type" name="type" class="form-select">
+                <option value="">All types</option>
+                <option value="blog" {% if type_filter == 'blog' %}selected{% endif %}>Blog</option>
+                <option value="image" {% if type_filter == 'image' %}selected{% endif %}>Image story</option>
+                <option value="event" {% if type_filter == 'event' %}selected{% endif %}>Event</option>
+            </select>
+        </div>
+        <div class="form-field">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-select">
+                <option value="">All statuses</option>
+                <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="published" {% if status_filter == 'published' %}selected{% endif %}>Published</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Apply filters</button>
+    </form>
+</section>
+
+<section class="card">
+    {% if updates %}
+        <table class="updates-table">
+            <thead>
+                <tr>
+                    <th>Update</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Visibility</th>
+                    <th>Schedule</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in updates %}
+                    <tr>
+                        <td>
+                            <h3 class="row-title">
+                                {% if item.status == 'published' %}
+                                    <a href="{{ item.get_absolute_url }}" target="_blank" rel="noopener">{{ item.title }}</a>
+                                {% else %}
+                                    {{ item.title }}
+                                {% endif %}
+                            </h3>
+                            <div class="muted">{{ item.excerpt }}</div>
+                            <div class="muted" style="margin-top: 8px;">Updated {{ item.updated_at|date:"M d, Y H:i" }}{% if item.author %} by {{ item.author.get_full_name|default:item.author.username }}{% endif %}</div>
+                        </td>
+                        <td>
+                            <span class="pill pill-{{ item.content_type }}">{{ item.get_content_type_display }}</span>
+                        </td>
+                        <td>
+                            <span class="pill pill-{{ item.status }}">{{ item.get_status_display }}</span>
+                        </td>
+                        <td>
+                            {% if item.featured_on_homepage %}
+                                <div class="muted">Featured on homepage</div>
+                            {% else %}
+                                <div class="muted">Shown in updates hub only</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.content_type == 'event' and item.event_start %}
+                                <div>{{ item.event_start|date:"M d, Y H:i" }}</div>
+                                {% if item.event_end %}
+                                    <div class="muted">to {{ item.event_end|date:"M d, Y H:i" }}</div>
+                                {% endif %}
+                                {% if item.location %}
+                                    <div class="muted">{{ item.location }}</div>
+                                {% endif %}
+                            {% else %}
+                                <div class="muted">No event schedule</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <a href="{% url 'employee:update_edit' item.pk %}" class="btn btn-secondary">Edit</a>
+                                {% if item.status == 'published' %}
+                                    <a href="{{ item.get_absolute_url }}" class="btn btn-secondary" target="_blank" rel="noopener">Preview</a>
+                                {% endif %}
+                                <a href="{% url 'employee:update_delete' item.pk %}" class="btn btn-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&type={{ type_filter }}&status={{ status_filter }}">Previous</a>
+                {% endif %}
+                <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&type={{ type_filter }}&status={{ status_filter }}">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="empty">
+            <h3>No updates found</h3>
+            <p class="muted">Create the first blog, image story, or event to start populating the public website.</p>
+            <p style="margin-top: 16px;"><a href="{% url 'employee:update_create' %}" class="btn btn-primary">Create first update</a></p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

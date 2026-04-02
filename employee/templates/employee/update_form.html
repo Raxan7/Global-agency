@@ -1,0 +1,175 @@
+{% extends 'employee/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block nav_updates %}active{% endblock %}
+{% block hero_title %}{{ page_title }}{% endblock %}
+{% block hero_copy %}Shape how the public experiences your latest stories. Use strong headlines, a concise preview, and enough detail for the full page to stand on its own.{% endblock %}
+
+{% block content %}
+<style>
+    .editor-card {
+        padding: 28px;
+    }
+
+    .tips {
+        margin-top: 18px;
+        padding: 20px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(59, 130, 246, 0.08));
+        border: 1px solid rgba(125, 211, 252, 0.35);
+    }
+
+    .tips h3 {
+        margin: 0 0 10px;
+    }
+
+    .tips p {
+        margin: 0;
+        color: #475569;
+    }
+
+    .field-note {
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid #dbe3f0;
+        background: #f8fbff;
+    }
+
+    .actions-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .preview-image {
+        max-width: 220px;
+        border-radius: 18px;
+        border: 1px solid #dbe3f0;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2>{{ page_title }}</h2>
+        <p>Published updates appear on the public updates pages. Homepage visibility is controlled by the featured toggle.</p>
+    </div>
+    <a href="{% url 'employee:update_management' %}" class="btn btn-secondary">Back to updates</a>
+</div>
+
+<section class="card editor-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="message" style="margin-bottom: 18px; border-color: #fecaca; background: #fef2f2; color: #991b1b;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+            <div class="form-field">
+                <label for="{{ form.content_type.id_for_label }}">Content type</label>
+                {{ form.content_type }}
+                <div class="field-note">Choose blog, image story, or event to shape how visitors read the update.</div>
+                {{ form.content_type.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.status.id_for_label }}">Publishing status</label>
+                {{ form.status }}
+                <div class="field-note">Draft keeps the update private. Published makes it visible on the public site.</div>
+                {{ form.status.errors }}
+            </div>
+
+            <div class="form-field full">
+                <label for="{{ form.title.id_for_label }}">Title</label>
+                {{ form.title }}
+                {{ form.title.errors }}
+            </div>
+
+            <div class="form-field full">
+                <label for="{{ form.excerpt.id_for_label }}">Preview summary</label>
+                {{ form.excerpt }}
+                <div class="field-note">This is the short text shown on the homepage preview and updates hub cards.</div>
+                {{ form.excerpt.errors }}
+            </div>
+
+            <div class="form-field full">
+                <label for="{{ form.content.id_for_label }}">Full content</label>
+                {{ form.content }}
+                <div class="field-note">Use short paragraphs and meaningful structure so the public detail page is easy to scan.</div>
+                {{ form.content.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.cover_image.id_for_label }}">Cover image</label>
+                {{ form.cover_image }}
+                <div class="field-note">Recommended for all updates and required for image stories.</div>
+                {{ form.cover_image.errors }}
+                {% if portal_update.cover_image %}
+                    <div style="margin-top: 12px;">
+                        <img src="{{ portal_update.cover_image.url }}" alt="{{ portal_update.image_alt_text|default:portal_update.title }}" class="preview-image">
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.image_alt_text.id_for_label }}">Image alt text</label>
+                {{ form.image_alt_text }}
+                <div class="field-note">Helpful for accessibility and search understanding.</div>
+                {{ form.image_alt_text.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.location.id_for_label }}">Location</label>
+                {{ form.location }}
+                {{ form.location.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.event_start.id_for_label }}">Event start</label>
+                {{ form.event_start }}
+                {{ form.event_start.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.event_end.id_for_label }}">Event end</label>
+                {{ form.event_end }}
+                {{ form.event_end.errors }}
+            </div>
+
+            <div class="form-field full">
+                <label>Homepage placement</label>
+                <div class="checkbox-row">
+                    {{ form.featured_on_homepage }}
+                    <span>Feature this update on the public homepage preview section</span>
+                </div>
+                {{ form.featured_on_homepage.errors }}
+            </div>
+        </div>
+
+        <div class="actions-row">
+            <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+            <a href="{% url 'employee:update_management' %}" class="btn btn-secondary">Cancel</a>
+            {% if portal_update and portal_update.status == 'published' %}
+                <a href="{{ portal_update.get_absolute_url }}" class="btn btn-secondary" target="_blank" rel="noopener">Open public page</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <div class="tips">
+        <h3>Publishing tips</h3>
+        <p>Use event posts for deadlines, consultations, and open-day announcements. Use image stories when the visual itself carries the message. Use blog posts for guidance, insights, or longer updates that deserve a full read.</p>
+    </div>
+</section>
+{% endblock %}

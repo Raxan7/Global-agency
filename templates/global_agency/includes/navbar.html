@@ -188,6 +188,12 @@
               <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-blue transition-all duration-300 group-hover:w-full"></span>
             </a>
           </li>
+          <li>
+            <a href="{% url 'global_agency:updates' %}" class="hover:text-primary-blue transition duration-150 font-semibold text-xs md:text-base relative group">
+              {% trans "Updates" %}
+              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-blue transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </li>
         </ul>
 
         <a href="{% url 'global_agency:contact' %}"
@@ -329,6 +335,9 @@
 
         <a href="#success" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
           {% trans "Success Stories" %}
+        </a>
+        <a href="{% url 'global_agency:updates' %}" class="mobile-link block px-4 py-3 text-gray-700 font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent border-b border-gray-100 transition duration-150">
+          {% trans "Updates" %}
         </a>
         <div class="p-4">
           <a href="{% url 'global_agency:contact' %}" class="block text-white bg-gradient-to-r from-primary-blue to-blue-600 font-semibold hover:from-blue-700 hover:to-blue-800 py-3 rounded-xl text-center transition duration-150 shadow-lg">

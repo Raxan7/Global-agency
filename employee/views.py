@@ -3,12 +3,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
 from django.utils import timezone
 from global_agency.models import ContactMessage, StudentApplication
 from student_portal.models import Application, Document, Payment, StudentProfile
-from .models import UserProfile
+from .forms import PortalUpdateForm
+from .models import PortalUpdate, UserProfile
 from .decorators import employee_required, admin_required
 
 @csrf_protect
@@ -65,6 +67,7 @@ def employee_dashboard(request):
     student_applications = Application.objects.all().order_by('-created_at')  # ALL employees see ALL applications
     contact_messages = ContactMessage.objects.all().order_by('-created_at')
     documents = Document.objects.all().order_by('-uploaded_at')[:10]
+    updates = PortalUpdate.objects.select_related('author').order_by('-updated_at')
 
     # REMOVED: Assignment logic - all employees see all applications
 
@@ -78,6 +81,14 @@ def employee_dashboard(request):
         'messages_count': contact_messages.count(),
         'documents_count': Document.objects.count(),
         'pending_reviews': student_applications.filter(status='submitted').count(),
+        'updates_count': updates.count(),
+        'published_updates_count': updates.filter(status='published').count(),
+        'upcoming_events_count': updates.filter(
+            content_type='event',
+            status='published',
+            event_start__gte=timezone.now(),
+        ).count(),
+        'recent_updates': updates[:4],
         'is_admin': profile.is_admin(),
         'is_regular_employee': profile.is_regular_employee(),
     }
@@ -468,6 +479,131 @@ def update_payment_status(request, payment_id):
         messages.success(request, f'Payment status updated to {"Successful" if new_status else "Failed"}')
     
     return redirect('employee:payment_management')
+
+
+@login_required
+@employee_required
+def update_management(request):
+    """Manage employee-authored public updates."""
+    profile = UserProfile.objects.get(user=request.user)
+    updates = PortalUpdate.objects.select_related('author').order_by('-updated_at')
+
+    type_filter = request.GET.get('type', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    search_query = request.GET.get('search', '').strip()
+
+    if type_filter:
+        updates = updates.filter(content_type=type_filter)
+
+    if status_filter:
+        updates = updates.filter(status=status_filter)
+
+    if search_query:
+        updates = updates.filter(
+            Q(title__icontains=search_query) |
+            Q(excerpt__icontains=search_query) |
+            Q(content__icontains=search_query) |
+            Q(location__icontains=search_query)
+        )
+
+    paginator = Paginator(updates, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    context = {
+        'profile': profile,
+        'page_obj': page_obj,
+        'updates': page_obj.object_list,
+        'type_filter': type_filter,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'total_updates': PortalUpdate.objects.count(),
+        'published_updates': PortalUpdate.objects.filter(status='published').count(),
+        'featured_updates': PortalUpdate.objects.filter(featured_on_homepage=True, status='published').count(),
+        'upcoming_events': PortalUpdate.objects.filter(
+            content_type='event',
+            status='published',
+            event_start__gte=timezone.now(),
+        ).count(),
+        'is_admin': profile.is_admin(),
+    }
+    return render(request, 'employee/update_list.html', context)
+
+
+@login_required
+@employee_required
+@csrf_protect
+def update_create(request):
+    """Create a new public update."""
+    if request.method == 'POST':
+        form = PortalUpdateForm(request.POST, request.FILES)
+        if form.is_valid():
+            portal_update = form.save(commit=False)
+            portal_update.author = request.user
+            portal_update.save()
+            messages.success(request, 'Update created successfully.')
+            return redirect('employee:update_management')
+    else:
+        form = PortalUpdateForm(initial={'featured_on_homepage': True, 'status': 'draft'})
+
+    return render(
+        request,
+        'employee/update_form.html',
+        {
+            'form': form,
+            'page_title': 'Create update',
+            'submit_label': 'Publish update',
+        },
+    )
+
+
+@login_required
+@employee_required
+@csrf_protect
+def update_edit(request, pk):
+    """Edit an existing public update."""
+    portal_update = get_object_or_404(PortalUpdate, pk=pk)
+
+    if request.method == 'POST':
+        form = PortalUpdateForm(request.POST, request.FILES, instance=portal_update)
+        if form.is_valid():
+            edited_update = form.save(commit=False)
+            if edited_update.author is None:
+                edited_update.author = request.user
+            edited_update.save()
+            messages.success(request, 'Update saved successfully.')
+            return redirect('employee:update_management')
+    else:
+        form = PortalUpdateForm(instance=portal_update)
+
+    return render(
+        request,
+        'employee/update_form.html',
+        {
+            'form': form,
+            'portal_update': portal_update,
+            'page_title': 'Edit update',
+            'submit_label': 'Save changes',
+        },
+    )
+
+
+@login_required
+@employee_required
+@csrf_protect
+def update_delete(request, pk):
+    """Delete a public update."""
+    portal_update = get_object_or_404(PortalUpdate, pk=pk)
+
+    if request.method == 'POST':
+        portal_update.delete()
+        messages.success(request, 'Update deleted successfully.')
+        return redirect('employee:update_management')
+
+    return render(
+        request,
+        'employee/update_confirm_delete.html',
+        {'portal_update': portal_update},
+    )
 
 # API endpoints for AJAX requests
 @login_required
