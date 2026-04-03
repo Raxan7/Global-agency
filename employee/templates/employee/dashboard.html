@@ -348,7 +348,10 @@
         <div class="section">
             <div class="section-header">
                 <h3>Recent Student Portal Applications</h3>
-                <a href="{% url 'employee:student_application_list' %}" class="btn btn-success">View All Applications</a>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <a href="{% url 'employee:offline_application_create' %}" class="btn btn-primary">Add Offline Application</a>
+                    <a href="{% url 'employee:student_application_list' %}" class="btn btn-success">View All Applications</a>
+                </div>
             </div>
             
             {% if student_applications %}

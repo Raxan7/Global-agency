@@ -5,7 +5,14 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django import forms
-from .models import ApplicationAssignment, EmployeeProfile, PortalUpdate, UserProfile
+from .models import (
+    ApplicationAssignment,
+    EmployeeProfile,
+    PortalUpdate,
+    PortalUpdateAttachment,
+    PortalUpdateImage,
+    UserProfile,
+)
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
@@ -114,6 +121,16 @@ class ApplicationAssignmentAdmin(admin.ModelAdmin):
     list_editable = ('status',)
 
 
+class PortalUpdateImageInline(admin.TabularInline):
+    model = PortalUpdateImage
+    extra = 0
+
+
+class PortalUpdateAttachmentInline(admin.TabularInline):
+    model = PortalUpdateAttachment
+    extra = 0
+
+
 @admin.register(PortalUpdate)
 class PortalUpdateAdmin(admin.ModelAdmin):
     list_display = (
@@ -129,6 +146,7 @@ class PortalUpdateAdmin(admin.ModelAdmin):
     search_fields = ('title', 'excerpt', 'content', 'location', 'slug')
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ('created_at', 'updated_at', 'published_at')
+    inlines = (PortalUpdateImageInline, PortalUpdateAttachmentInline)
 
 # Custom admin site configuration
 admin.site.site_header = "Employee Portal Administration"

@@ -58,6 +58,34 @@
         border: 1px solid #dbe3f0;
         box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
     }
+
+    .asset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+    .asset-card {
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid #dbe3f0;
+        background: #f8fbff;
+    }
+
+    .asset-card img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 14px;
+        margin-bottom: 10px;
+    }
+
+    .checkbox-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+    }
 </style>
 
 <div class="page-head">
@@ -113,10 +141,17 @@
                 {{ form.content.errors }}
             </div>
 
+            <div class="form-field full">
+                <label for="{{ form.youtube_url.id_for_label }}">YouTube video</label>
+                {{ form.youtube_url }}
+                <div class="field-note">Paste a YouTube watch, short, or share link to embed video on the public page.</div>
+                {{ form.youtube_url.errors }}
+            </div>
+
             <div class="form-field">
                 <label for="{{ form.cover_image.id_for_label }}">Cover image</label>
                 {{ form.cover_image }}
-                <div class="field-note">Recommended for all updates and required for image stories.</div>
+                <div class="field-note">Used for homepage cards and list previews. If you skip it, the first gallery image will be used on the public pages.</div>
                 {{ form.cover_image.errors }}
                 {% if portal_update.cover_image %}
                     <div style="margin-top: 12px;">
@@ -130,6 +165,47 @@
                 {{ form.image_alt_text }}
                 <div class="field-note">Helpful for accessibility and search understanding.</div>
                 {{ form.image_alt_text.errors }}
+            </div>
+
+            <div class="form-field full">
+                <label for="{{ form.gallery_images.id_for_label }}">Gallery images</label>
+                {{ form.gallery_images }}
+                <div class="field-note">Upload multiple supporting photos. These appear in a gallery on the public update page.</div>
+                {{ form.gallery_images.errors }}
+
+                {% if portal_update and portal_update.gallery_images.all %}
+                    <div class="asset-grid">
+                        {% for image in portal_update.gallery_images.all %}
+                            <label class="asset-card">
+                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:portal_update.image_alt_text|default:portal_update.title }}">
+                                <span style="display: inline-flex; gap: 8px; align-items: center;">
+                                    <input type="checkbox" name="remove_gallery_images" value="{{ image.id }}">
+                                    Remove this image
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-field full">
+                <label for="{{ form.attachments.id_for_label }}">Documents and attachments</label>
+                {{ form.attachments }}
+                <div class="field-note">Upload PDFs, Word files, or other supporting documents for visitors to download.</div>
+                {{ form.attachments.errors }}
+
+                {% if portal_update and portal_update.attachments.all %}
+                    <div class="checkbox-list">
+                        {% for attachment in portal_update.attachments.all %}
+                            <label class="asset-card">
+                                <span style="display: inline-flex; gap: 8px; align-items: center;">
+                                    <input type="checkbox" name="remove_attachments" value="{{ attachment.id }}">
+                                    Remove {{ attachment.title|default:attachment.filename }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-field">
@@ -171,7 +247,7 @@
 
     <div class="tips">
         <h3>Publishing tips</h3>
-        <p>Use event posts for deadlines, consultations, and open-day announcements. Use image stories when the visual itself carries the message. Use blog posts for guidance, insights, or longer updates that deserve a full read.</p>
+        <p>Use event posts for deadlines, consultations, and open-day announcements. Use image stories when the visual itself carries the message. Add YouTube links for walkthroughs or recap videos, and upload supporting documents when visitors may need downloadable resources.</p>
     </div>
 </section>
 {% endblock %}

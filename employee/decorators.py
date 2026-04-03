@@ -61,9 +61,8 @@ def student_required(view_func):
         
         try:
             profile = UserProfile.objects.get(user=request.user)
-            # Only allow self-registered students
             if not profile.can_access_student_portal():
-                return HttpResponseForbidden("Access denied. Self-registered student account required. Please use the employee portal for employee access.")
+                return HttpResponseForbidden("Access denied. A student account is required. Please use the employee portal for employee access.")
         except UserProfile.DoesNotExist:
             return HttpResponseForbidden("Access denied. User profile not found. Please contact administrator.")
         

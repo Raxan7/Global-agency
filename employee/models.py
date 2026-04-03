@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
+from urllib.parse import parse_qs, urlparse
 from student_portal.models import Application, Document
 
 class UserProfile(models.Model):
@@ -51,8 +52,8 @@ class UserProfile(models.Model):
         return self.is_employee() and self.registration_method == 'admin'
     
     def can_access_student_portal(self):
-        """Student portal access: must be student AND self-registered"""
-        return self.is_student() and self.registration_method == 'self'
+        """Student portal access: allow all student accounts, including offline entries."""
+        return self.is_student()
     
     def is_regular_employee(self):
         """Check if user is employee (not admin)"""
@@ -120,6 +121,10 @@ class PortalUpdate(models.Model):
     content = models.TextField(
         help_text="Main body content shown on the public detail page."
     )
+    youtube_url = models.URLField(
+        blank=True,
+        help_text="Optional YouTube link to embed on the public update page.",
+    )
     cover_image = models.ImageField(
         upload_to='updates/',
         blank=True,
@@ -183,3 +188,80 @@ class PortalUpdate(models.Model):
     @property
     def is_upcoming(self):
         return self.has_event_schedule and self.event_start >= timezone.now()
+
+    @property
+    def public_author_name(self):
+        return "Marketing Team"
+
+    @property
+    def hero_image(self):
+        if self.cover_image:
+            return self.cover_image
+
+        first_gallery_image = self.gallery_images.order_by('created_at').first()
+        if first_gallery_image:
+            return first_gallery_image.image
+
+        return None
+
+    @property
+    def youtube_embed_url(self):
+        if not self.youtube_url:
+            return ''
+
+        parsed_url = urlparse(self.youtube_url)
+        host = (parsed_url.netloc or '').lower()
+
+        video_id = ''
+        if 'youtu.be' in host:
+            video_id = parsed_url.path.strip('/').split('/')[0]
+        elif 'youtube.com' in host:
+            if parsed_url.path == '/watch':
+                video_id = parse_qs(parsed_url.query).get('v', [''])[0]
+            elif parsed_url.path.startswith('/embed/'):
+                video_id = parsed_url.path.split('/embed/', 1)[1].split('/')[0]
+            elif parsed_url.path.startswith('/shorts/'):
+                video_id = parsed_url.path.split('/shorts/', 1)[1].split('/')[0]
+
+        if not video_id:
+            return ''
+
+        return f'https://www.youtube.com/embed/{video_id}'
+
+
+class PortalUpdateImage(models.Model):
+    update = models.ForeignKey(
+        PortalUpdate,
+        on_delete=models.CASCADE,
+        related_name='gallery_images',
+    )
+    image = models.ImageField(upload_to='updates/gallery/')
+    alt_text = models.CharField(max_length=160, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at', 'id']
+
+    def __str__(self):
+        return f"Gallery image for {self.update.title}"
+
+
+class PortalUpdateAttachment(models.Model):
+    update = models.ForeignKey(
+        PortalUpdate,
+        on_delete=models.CASCADE,
+        related_name='attachments',
+    )
+    file = models.FileField(upload_to='updates/attachments/')
+    title = models.CharField(max_length=180, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at', 'id']
+
+    def __str__(self):
+        return self.title or self.filename
+
+    @property
+    def filename(self):
+        return self.file.name.rsplit('/', 1)[-1]

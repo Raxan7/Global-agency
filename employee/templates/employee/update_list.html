@@ -310,8 +310,8 @@
                         <td>
                             <div class="update-meta">
                                 <div class="update-thumb">
-                                    {% if item.cover_image %}
-                                        <img src="{{ item.cover_image.url }}" alt="{{ item.image_alt_text|default:item.title }}">
+                                    {% if item.hero_image %}
+                                        <img src="{{ item.hero_image.url }}" alt="{{ item.image_alt_text|default:item.title }}">
                                     {% else %}
                                         <div class="update-thumb-fallback">{{ item.get_content_type_display }}</div>
                                     {% endif %}
@@ -325,7 +325,12 @@
                                         {% endif %}
                                     </h3>
                                     <div class="muted">{{ item.excerpt }}</div>
-                                    <div class="muted" style="margin-top: 8px;">Updated {{ item.updated_at|date:"M d, Y H:i" }}{% if item.author %} by {{ item.author.get_full_name|default:item.author.username }}{% endif %}</div>
+                                    <div class="muted" style="margin-top: 8px;">Updated {{ item.updated_at|date:"M d, Y H:i" }} by {{ item.public_author_name }}</div>
+                                    <div class="muted" style="margin-top: 6px;">
+                                        {% if item.gallery_images.count %}{{ item.gallery_images.count }} image{{ item.gallery_images.count|pluralize }}{% endif %}
+                                        {% if item.attachments.count %}{% if item.gallery_images.count %} · {% endif %}{{ item.attachments.count }} attachment{{ item.attachments.count|pluralize }}{% endif %}
+                                        {% if item.youtube_url %}{% if item.gallery_images.count or item.attachments.count %} · {% endif %}YouTube video{% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </td>

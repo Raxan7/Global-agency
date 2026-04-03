@@ -14,7 +14,8 @@ from pathlib import Path
 def home(request):
     featured_updates = list(
         PortalUpdate.objects.filter(status='published', featured_on_homepage=True)
-        .select_related('author')[:3]
+        .select_related('author')
+        .prefetch_related('gallery_images', 'attachments')[:3]
     )
     upcoming_event = (
         PortalUpdate.objects.filter(
@@ -35,7 +36,11 @@ def home(request):
 
 def updates_list(request):
     update_type = request.GET.get('type', '').strip()
-    updates = PortalUpdate.objects.filter(status='published').select_related('author')
+    updates = (
+        PortalUpdate.objects.filter(status='published')
+        .select_related('author')
+        .prefetch_related('gallery_images', 'attachments')
+    )
 
     if update_type in {'blog', 'image', 'event'}:
         updates = updates.filter(content_type=update_type)
@@ -61,14 +66,15 @@ def updates_list(request):
 
 def update_detail(request, slug):
     update = get_object_or_404(
-        PortalUpdate.objects.select_related('author'),
+        PortalUpdate.objects.select_related('author').prefetch_related('gallery_images', 'attachments'),
         slug=slug,
         status='published',
     )
     related_updates = (
         PortalUpdate.objects.filter(status='published')
         .exclude(pk=update.pk)
-        .select_related('author')[:3]
+        .select_related('author')
+        .prefetch_related('gallery_images', 'attachments')[:3]
     )
 
     context = {

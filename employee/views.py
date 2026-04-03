@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
 from django.utils import timezone
-from global_agency.models import ContactMessage, StudentApplication
+from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
 from student_portal.models import Application, Document, Payment, StudentProfile
-from .forms import PortalUpdateForm
+from .forms import OfflineStudentIntakeForm, PortalUpdateForm
 from .models import PortalUpdate, UserProfile
 from .decorators import employee_required, admin_required
 
@@ -67,7 +69,11 @@ def employee_dashboard(request):
     student_applications = Application.objects.all().order_by('-created_at')  # ALL employees see ALL applications
     contact_messages = ContactMessage.objects.all().order_by('-created_at')
     documents = Document.objects.all().order_by('-uploaded_at')[:10]
-    updates = PortalUpdate.objects.select_related('author').order_by('-updated_at')
+    updates = (
+        PortalUpdate.objects.select_related('author')
+        .prefetch_related('gallery_images', 'attachments')
+        .order_by('-updated_at')
+    )
 
     # REMOVED: Assignment logic - all employees see all applications
 
@@ -176,6 +182,9 @@ def student_application_list(request):
         'applications': applications,
         'status_filter': status_filter,
         'search_query': search_query,
+        'total_applications': Application.objects.count(),
+        'pending_reviews': Application.objects.filter(status='submitted').count(),
+        'approved_applications': Application.objects.filter(status='approved').count(),
         'is_admin': profile.is_admin(),
     }
     return render(request, 'employee/student_application_list.html', context)
@@ -230,6 +239,164 @@ def update_student_application_status(request, application_id):
             messages.error(request, 'Invalid status selected.')
     
     return redirect('employee:student_application_detail', application_id=application_id)
+
+
+def _create_or_update_student_portal_records(cleaned_data, created_by):
+    def text_value(key):
+        return cleaned_data.get(key) or ''
+
+    full_name = (cleaned_data.get('full_name') or '').strip()
+    name_parts = full_name.split()
+    first_name = name_parts[0] if name_parts else ''
+    last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+    email = cleaned_data['email']
+    default_password = f"{first_name.upper() or 'STUDENT'}12345"
+
+    user, user_created = User.objects.get_or_create(
+        username=email,
+        defaults={
+            'email': email,
+            'first_name': first_name,
+            'last_name': last_name,
+        },
+    )
+
+    if not user_created:
+        user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+
+    user.set_password(default_password)
+    user.save()
+
+    user_profile, _ = UserProfile.objects.get_or_create(
+        user=user,
+        defaults={
+            'role': 'student',
+            'registration_method': 'admin',
+            'phone_number': text_value('phone'),
+        },
+    )
+    user_profile.role = 'student'
+    user_profile.registration_method = 'admin'
+    user_profile.phone_number = text_value('phone')
+    user_profile.save()
+
+    GlobalStudentProfile.objects.update_or_create(
+        user=user,
+        defaults={
+            'phone': text_value('phone'),
+            'emergency_contact': text_value('emergency_name'),
+            'emergency_phone': text_value('phone'),
+        },
+    )
+
+    student_profile, _ = StudentProfile.objects.update_or_create(
+        user=user,
+        defaults={
+            'phone_number': text_value('phone'),
+            'address': text_value('address'),
+            'nationality': text_value('nationality'),
+            'gender': text_value('gender'),
+            'father_name': text_value('father_name'),
+            'father_phone': text_value('father_phone'),
+            'father_email': text_value('father_email'),
+            'father_occupation': text_value('father_occupation'),
+            'mother_name': text_value('mother_name'),
+            'mother_phone': text_value('mother_phone'),
+            'mother_email': text_value('mother_email'),
+            'mother_occupation': text_value('mother_occupation'),
+            'olevel_school': text_value('olevel_school'),
+            'olevel_country': text_value('olevel_country'),
+            'olevel_address': text_value('olevel_address'),
+            'olevel_region': text_value('olevel_region'),
+            'olevel_year': text_value('olevel_year'),
+            'olevel_candidate_no': text_value('olevel_candidate_no'),
+            'olevel_gpa': text_value('olevel_gpa'),
+            'alevel_school': text_value('alevel_school'),
+            'alevel_country': text_value('alevel_country'),
+            'alevel_address': text_value('alevel_address'),
+            'alevel_region': text_value('alevel_region'),
+            'alevel_year': text_value('alevel_year'),
+            'alevel_candidate_no': text_value('alevel_candidate_no'),
+            'alevel_gpa': text_value('alevel_gpa'),
+            'preferred_country_1': text_value('preferred_country_1'),
+            'preferred_country_2': text_value('preferred_country_2'),
+            'preferred_country_3': text_value('preferred_country_3'),
+            'preferred_country_4': text_value('preferred_country_4'),
+            'preferred_program_1': text_value('preferred_program_1'),
+            'preferred_program_2': text_value('preferred_program_2'),
+            'preferred_program_3': text_value('preferred_program_3'),
+            'preferred_program_4': text_value('preferred_program_4'),
+            'emergency_contact': text_value('emergency_name'),
+            'emergency_address': text_value('emergency_address'),
+            'emergency_occupation': text_value('emergency_occupation'),
+            'emergency_gender': text_value('emergency_gender'),
+            'emergency_relation': text_value('emergency_relation'),
+            'heard_about_us': text_value('heard_about_us'),
+            'heard_about_other': text_value('heard_about_other'),
+        },
+    )
+
+    portal_application = Application.objects.create(
+        student=user,
+        application_type='university',
+        university_name='',
+        course=text_value('preferred_program_1'),
+        country=text_value('preferred_country_1'),
+        status='submitted',
+        is_paid=True,
+        payment_amount=0,
+        payment_status='paid',
+        payment_verified_by=created_by,
+        payment_verified_at=timezone.now(),
+        payment_notes='Created by employee from an offline application form.',
+    )
+
+    return user, student_profile, portal_application, default_password
+
+
+@login_required
+@employee_required
+@csrf_protect
+def offline_application_create(request):
+    """Capture an offline application on behalf of a student."""
+    if request.method == 'POST':
+        form = OfflineStudentIntakeForm(request.POST)
+        if form.is_valid():
+            with transaction.atomic():
+                offline_application = form.save(commit=False)
+                (
+                    student_user,
+                    _student_profile,
+                    portal_application,
+                    default_password,
+                ) = _create_or_update_student_portal_records(form.cleaned_data, request.user)
+
+                offline_application.student_user = student_user
+                offline_application.account_created = True
+                offline_application.username = student_user.username
+                offline_application.temporary_password = default_password
+                offline_application.save()
+
+            messages.success(
+                request,
+                f'Offline application saved for {student_user.get_full_name() or student_user.username}. '
+                f'Login username: {student_user.username} | Default password: {default_password}',
+            )
+            return redirect('employee:student_application_detail', application_id=portal_application.id)
+    else:
+        form = OfflineStudentIntakeForm()
+
+    return render(
+        request,
+        'employee/offline_application_form.html',
+        {
+            'form': form,
+            'page_title': 'Add offline application',
+            'submit_label': 'Save student and create account',
+        },
+    )
 
 @login_required
 @employee_required
@@ -486,7 +653,11 @@ def update_payment_status(request, payment_id):
 def update_management(request):
     """Manage employee-authored public updates."""
     profile = UserProfile.objects.get(user=request.user)
-    updates = PortalUpdate.objects.select_related('author').order_by('-updated_at')
+    updates = (
+        PortalUpdate.objects.select_related('author')
+        .prefetch_related('gallery_images', 'attachments')
+        .order_by('-updated_at')
+    )
 
     type_filter = request.GET.get('type', '').strip()
     status_filter = request.GET.get('status', '').strip()
@@ -540,6 +711,7 @@ def update_create(request):
             portal_update = form.save(commit=False)
             portal_update.author = request.user
             portal_update.save()
+            form.save_related_files(portal_update)
             messages.success(request, 'Update created successfully.')
             return redirect('employee:update_management')
     else:
@@ -570,6 +742,7 @@ def update_edit(request, pk):
             if edited_update.author is None:
                 edited_update.author = request.user
             edited_update.save()
+            form.save_related_files(edited_update)
             messages.success(request, 'Update saved successfully.')
             return redirect('employee:update_management')
     else:

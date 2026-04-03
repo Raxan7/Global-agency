@@ -1,0 +1,335 @@
+{% extends 'employee/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block hero_title %}Offline Student Intake{% endblock %}
+{% block hero_copy %}Enter paper-form applications here so offline students are created in the system immediately, with a working student account and their full details ready in the portal.{% endblock %}
+
+{% block content %}
+<style>
+    .intake-card {
+        padding: 28px;
+    }
+
+    .section-grid {
+        display: grid;
+        gap: 18px;
+    }
+
+    .section-block {
+        padding: 22px;
+        border-radius: 22px;
+        border: 1px solid #dbe3f0;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .section-block h3 {
+        margin: 0 0 14px;
+        font-size: 1.08rem;
+    }
+
+    .section-note {
+        color: #64748b;
+        margin: 0 0 18px;
+    }
+
+    .helper-card {
+        margin-top: 18px;
+        padding: 18px 20px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(59, 130, 246, 0.08));
+        border: 1px solid rgba(125, 211, 252, 0.35);
+        color: #334155;
+    }
+
+    .actions-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2>{{ page_title }}</h2>
+        <p>When you submit this form, the student account is created immediately with the default password format <strong>FIRSTNAME12345</strong>.</p>
+    </div>
+    <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">Back to applications</a>
+</div>
+
+<section class="card intake-card">
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="message" style="margin-bottom: 18px; border-color: #fecaca; background: #fef2f2; color: #991b1b;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="section-grid">
+            <section class="section-block">
+                <h3>Personal Information</h3>
+                <p class="section-note">Use the same student details written on the offline application form.</p>
+                <div class="form-grid">
+                    <div class="form-field full">
+                        <label for="{{ form.full_name.id_for_label }}">Full name</label>
+                        {{ form.full_name }}
+                        {{ form.full_name.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.gender.id_for_label }}">Gender</label>
+                        {{ form.gender }}
+                        {{ form.gender.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.nationality.id_for_label }}">Nationality</label>
+                        {{ form.nationality }}
+                        {{ form.nationality.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.phone.id_for_label }}">Phone</label>
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+                    <div class="form-field full">
+                        <label for="{{ form.address.id_for_label }}">Address</label>
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <h3>Parents Details</h3>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="{{ form.father_name.id_for_label }}">Father's name</label>
+                        {{ form.father_name }}
+                        {{ form.father_name.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.father_phone.id_for_label }}">Father's phone</label>
+                        {{ form.father_phone }}
+                        {{ form.father_phone.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.father_email.id_for_label }}">Father's email</label>
+                        {{ form.father_email }}
+                        {{ form.father_email.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.father_occupation.id_for_label }}">Father's occupation</label>
+                        {{ form.father_occupation }}
+                        {{ form.father_occupation.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.mother_name.id_for_label }}">Mother's name</label>
+                        {{ form.mother_name }}
+                        {{ form.mother_name.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.mother_phone.id_for_label }}">Mother's phone</label>
+                        {{ form.mother_phone }}
+                        {{ form.mother_phone.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.mother_email.id_for_label }}">Mother's email</label>
+                        {{ form.mother_email }}
+                        {{ form.mother_email.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.mother_occupation.id_for_label }}">Mother's occupation</label>
+                        {{ form.mother_occupation }}
+                        {{ form.mother_occupation.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <h3>O-Level Education</h3>
+                <div class="form-grid">
+                    <div class="form-field full">
+                        <label for="{{ form.olevel_school.id_for_label }}">School</label>
+                        {{ form.olevel_school }}
+                        {{ form.olevel_school.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.olevel_country.id_for_label }}">Country</label>
+                        {{ form.olevel_country }}
+                        {{ form.olevel_country.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.olevel_region.id_for_label }}">Region</label>
+                        {{ form.olevel_region }}
+                        {{ form.olevel_region.errors }}
+                    </div>
+                    <div class="form-field full">
+                        <label for="{{ form.olevel_address.id_for_label }}">Address</label>
+                        {{ form.olevel_address }}
+                        {{ form.olevel_address.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.olevel_year.id_for_label }}">Year completed</label>
+                        {{ form.olevel_year }}
+                        {{ form.olevel_year.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.olevel_candidate_no.id_for_label }}">Candidate number</label>
+                        {{ form.olevel_candidate_no }}
+                        {{ form.olevel_candidate_no.errors }}
+                    </div>
+                    <div class="form-field full">
+                        <label for="{{ form.olevel_gpa.id_for_label }}">GPA / division</label>
+                        {{ form.olevel_gpa }}
+                        {{ form.olevel_gpa.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <h3>A-Level Education</h3>
+                <div class="form-grid">
+                    <div class="form-field full">
+                        <label for="{{ form.alevel_school.id_for_label }}">School</label>
+                        {{ form.alevel_school }}
+                        {{ form.alevel_school.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.alevel_country.id_for_label }}">Country</label>
+                        {{ form.alevel_country }}
+                        {{ form.alevel_country.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.alevel_region.id_for_label }}">Region</label>
+                        {{ form.alevel_region }}
+                        {{ form.alevel_region.errors }}
+                    </div>
+                    <div class="form-field full">
+                        <label for="{{ form.alevel_address.id_for_label }}">Address</label>
+                        {{ form.alevel_address }}
+                        {{ form.alevel_address.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.alevel_year.id_for_label }}">Year completed</label>
+                        {{ form.alevel_year }}
+                        {{ form.alevel_year.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.alevel_candidate_no.id_for_label }}">Candidate number</label>
+                        {{ form.alevel_candidate_no }}
+                        {{ form.alevel_candidate_no.errors }}
+                    </div>
+                    <div class="form-field full">
+                        <label for="{{ form.alevel_gpa.id_for_label }}">GPA / division</label>
+                        {{ form.alevel_gpa }}
+                        {{ form.alevel_gpa.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <h3>Study Preferences</h3>
+                <p class="section-note">The first preferred country and program are also copied into the student portal application record.</p>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="{{ form.preferred_country_1.id_for_label }}">Preferred country 1</label>
+                        {{ form.preferred_country_1 }}
+                        {{ form.preferred_country_1.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_program_1.id_for_label }}">Preferred program 1</label>
+                        {{ form.preferred_program_1 }}
+                        {{ form.preferred_program_1.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_country_2.id_for_label }}">Preferred country 2</label>
+                        {{ form.preferred_country_2 }}
+                        {{ form.preferred_country_2.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_program_2.id_for_label }}">Preferred program 2</label>
+                        {{ form.preferred_program_2 }}
+                        {{ form.preferred_program_2.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_country_3.id_for_label }}">Preferred country 3</label>
+                        {{ form.preferred_country_3 }}
+                        {{ form.preferred_country_3.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_program_3.id_for_label }}">Preferred program 3</label>
+                        {{ form.preferred_program_3 }}
+                        {{ form.preferred_program_3.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_country_4.id_for_label }}">Preferred country 4</label>
+                        {{ form.preferred_country_4 }}
+                        {{ form.preferred_country_4.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.preferred_program_4.id_for_label }}">Preferred program 4</label>
+                        {{ form.preferred_program_4 }}
+                        {{ form.preferred_program_4.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <h3>Emergency Contact</h3>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="{{ form.emergency_name.id_for_label }}">Contact name</label>
+                        {{ form.emergency_name }}
+                        {{ form.emergency_name.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.emergency_gender.id_for_label }}">Gender</label>
+                        {{ form.emergency_gender }}
+                        {{ form.emergency_gender.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.emergency_occupation.id_for_label }}">Occupation</label>
+                        {{ form.emergency_occupation }}
+                        {{ form.emergency_occupation.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.emergency_relation.id_for_label }}">Relation</label>
+                        {{ form.emergency_relation }}
+                        {{ form.emergency_relation.errors }}
+                    </div>
+                    <div class="form-field full">
+                        <label for="{{ form.emergency_address.id_for_label }}">Address</label>
+                        {{ form.emergency_address }}
+                        {{ form.emergency_address.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.heard_about_us.id_for_label }}">Heard about us from</label>
+                        {{ form.heard_about_us }}
+                        {{ form.heard_about_us.errors }}
+                    </div>
+                    <div class="form-field">
+                        <label for="{{ form.heard_about_other.id_for_label }}">Other source</label>
+                        {{ form.heard_about_other }}
+                        {{ form.heard_about_other.errors }}
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="actions-row">
+            <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+            <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+
+    <div class="helper-card">
+        The student account uses the email as the username. Example: if the student is <strong>Asha</strong>, the default password becomes <strong>ASHA12345</strong>.
+    </div>
+</section>
+{% endblock %}
