@@ -11,15 +11,30 @@ class MultiFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
 
+class MultiFileField(forms.FileField):
+    widget = MultiFileInput
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+
+        if not data:
+            return []
+
+        if isinstance(data, (list, tuple)):
+            return [single_file_clean(item, initial) for item in data if item]
+
+        return [single_file_clean(data, initial)]
+
+
 class PortalUpdateForm(forms.ModelForm):
-    gallery_images = forms.FileField(
+    gallery_images = MultiFileField(
         required=False,
-        widget=MultiFileInput(attrs={'class': 'form-input', 'accept': 'image/*'}),
+        widget=MultiFileInput(attrs={'class': 'form-input', 'accept': 'image/*', 'multiple': True}),
         help_text='Upload one or more extra images for the public gallery.',
     )
-    attachments = forms.FileField(
+    attachments = MultiFileField(
         required=False,
-        widget=MultiFileInput(attrs={'class': 'form-input'}),
+        widget=MultiFileInput(attrs={'class': 'form-input', 'multiple': True}),
         help_text='Upload supporting PDFs, documents, or other attachments.',
     )
     remove_gallery_images = forms.ModelMultipleChoiceField(
@@ -143,7 +158,7 @@ class PortalUpdateForm(forms.ModelForm):
         cover_image = cleaned_data.get('cover_image') or getattr(self.instance, 'cover_image', None)
         event_start = cleaned_data.get('event_start')
         event_end = cleaned_data.get('event_end')
-        gallery_images = self.files.getlist('gallery_images')
+        gallery_images = cleaned_data.get('gallery_images', [])
         existing_gallery_images = self.instance.pk and self.instance.gallery_images.exists()
 
         if content_type == 'image' and not cover_image and not gallery_images and not existing_gallery_images:
@@ -164,14 +179,14 @@ class PortalUpdateForm(forms.ModelForm):
         for attachment in self.cleaned_data.get('remove_attachments', []):
             attachment.delete()
 
-        for image_file in self.files.getlist('gallery_images'):
+        for image_file in self.cleaned_data.get('gallery_images', []):
             PortalUpdateImage.objects.create(
                 update=portal_update,
                 image=image_file,
                 alt_text=portal_update.image_alt_text,
             )
 
-        for attachment_file in self.files.getlist('attachments'):
+        for attachment_file in self.cleaned_data.get('attachments', []):
             PortalUpdateAttachment.objects.create(
                 update=portal_update,
                 file=attachment_file,

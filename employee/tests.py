@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -8,7 +9,8 @@ from django.utils.http import urlsafe_base64_encode
 from pathlib import Path
 
 from global_agency.models import StudentApplication
-from employee.models import UserProfile
+from employee.forms import PortalUpdateForm
+from employee.models import PortalUpdate, UserProfile
 from student_portal.models import Application, StudentProfile
 
 
@@ -175,3 +177,34 @@ class OfflineStudentIntakeTests(TestCase):
         self.assertEqual(offline_application.temporary_password, 'ASHA12345')
         self.assertTrue(offline_application.account_created)
         self.assertEqual(student_user.userprofile.registration_method, 'admin')
+
+
+class PortalUpdateMultiUploadTests(TestCase):
+    def test_gallery_images_and_attachments_accept_multiple_files(self):
+        form = PortalUpdateForm(
+            data={
+                'content_type': 'blog',
+                'title': 'Campus Update',
+                'excerpt': 'Short summary',
+                'content': 'Full content',
+                'status': 'draft',
+            },
+            files={
+                'gallery_images': [
+                    SimpleUploadedFile('photo1.jpg', b'filecontent1', content_type='image/jpeg'),
+                    SimpleUploadedFile('photo2.jpg', b'filecontent2', content_type='image/jpeg'),
+                ],
+                'attachments': [
+                    SimpleUploadedFile('file1.pdf', b'pdfcontent1', content_type='application/pdf'),
+                    SimpleUploadedFile('file2.pdf', b'pdfcontent2', content_type='application/pdf'),
+                ],
+            },
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        update = form.save()
+        form.save_related_files(update)
+
+        self.assertEqual(PortalUpdate.objects.count(), 1)
+        self.assertEqual(update.gallery_images.count(), 2)
+        self.assertEqual(update.attachments.count(), 2)
