@@ -4,15 +4,100 @@
 
 {% block content %}
 <style>
-  .update-copy p {
-    margin: 0 0 1.5rem;
+  .rich-content {
     color: #334155;
     font-size: 1.05rem;
     line-height: 1.95;
   }
 
+  .rich-content h1,
+  .rich-content h2,
+  .rich-content h3,
+  .rich-content h4,
+  .rich-content h5,
+  .rich-content h6 {
+    color: #0f172a;
+    line-height: 1.25;
+    margin: 1.5rem 0 0.75rem;
+    font-weight: 800;
+  }
+
+  .rich-content h1 { font-size: 2.25rem; }
+  .rich-content h2 { font-size: 1.85rem; }
+  .rich-content h3 { font-size: 1.45rem; }
+  .rich-content h4 { font-size: 1.2rem; }
+
+  .update-copy p {
+    margin: 0 0 1.5rem;
+  }
+
   .update-copy p:last-child {
     margin-bottom: 0;
+  }
+
+  .rich-content p {
+    margin: 0 0 1rem;
+  }
+
+  .rich-content ul,
+  .rich-content ol {
+    margin: 0 0 1.2rem;
+    padding-left: 1.5rem;
+  }
+
+  .rich-content li {
+    margin: 0.35rem 0;
+  }
+
+  .rich-content blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #0f766e;
+    background: #f0fdfa;
+    border-radius: 18px;
+    color: #0f172a;
+    font-style: italic;
+  }
+
+  .rich-content a {
+    color: #0f766e;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .rich-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+    margin: 1.5rem 0;
+  }
+
+  .rich-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    overflow: hidden;
+    border-radius: 18px;
+  }
+
+  .rich-content table th,
+  .rich-content table td {
+    border: 1px solid #e2e8f0;
+    padding: 0.8rem 1rem;
+    text-align: left;
+  }
+
+  .rich-content table th {
+    background: #f8fafc;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .rich-content hr {
+    border: 0;
+    height: 1px;
+    background: #e2e8f0;
+    margin: 1.75rem 0;
   }
 
   .detail-hero-image {
@@ -112,8 +197,8 @@
 
     <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
       <article class="rounded-[32px] bg-white p-8 md:p-10 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
-        <div class="update-copy">
-          {{ update.content|linebreaks }}
+        <div class="update-copy rich-content">
+          {{ update.content|safe }}
         </div>
 
         {% if update.youtube_embed_url %}
