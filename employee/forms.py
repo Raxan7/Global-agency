@@ -81,7 +81,7 @@ class PortalUpdateForm(forms.ModelForm):
             ),
             'content': forms.Textarea(
                 attrs={
-                    'class': 'form-input form-textarea',
+                    'class': 'form-input form-textarea rich-editor',
                     'rows': 10,
                     'placeholder': 'Add the full story, event details, or image context here',
                 }

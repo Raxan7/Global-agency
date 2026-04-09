@@ -7,6 +7,31 @@
 
 {% block content %}
 <style>
+    .editor-card .form-textarea.rich-editor {
+        min-height: 420px;
+    }
+
+    .tox-tinymce {
+        border-radius: 18px !important;
+        overflow: hidden;
+        border: 1px solid #dbe3f0 !important;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    .tox .tox-editor-header {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+    }
+
+    .tox .tox-toolbar__primary,
+    .tox .tox-toolbar-overlord,
+    .tox .tox-statusbar {
+        background: transparent !important;
+    }
+
+    .tox .tox-edit-area__iframe {
+        background: #ffffff !important;
+    }
+
     .editor-card {
         padding: 28px;
     }
@@ -26,6 +51,16 @@
     .tips p {
         margin: 0;
         color: #475569;
+    }
+
+    .tips a {
+        color: #0f766e;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .tips a:hover {
+        text-decoration: underline;
     }
 
     .field-note {
@@ -86,6 +121,14 @@
         gap: 8px;
         margin-top: 12px;
     }
+
+    .editor-note {
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f8fbff;
+        border: 1px solid #dbe3f0;
+        color: #475569;
+    }
 </style>
 
 <div class="page-head">
@@ -137,7 +180,7 @@
             <div class="form-field full">
                 <label for="{{ form.content.id_for_label }}">Full content</label>
                 {{ form.content }}
-                <div class="field-note">Use short paragraphs and meaningful structure so the public detail page is easy to scan.</div>
+                <div class="field-note">Use headings, lists, links, and emphasis where needed. The editor will keep the public detail page readable and polished.</div>
                 {{ form.content.errors }}
             </div>
 
@@ -247,7 +290,51 @@
 
     <div class="tips">
         <h3>Publishing tips</h3>
-        <p>Use event posts for deadlines, consultations, and open-day announcements. Use image stories when the visual itself carries the message. Add YouTube links for walkthroughs or recap videos, and upload supporting documents when visitors may need downloadable resources.</p>
+        <p>Use event posts for deadlines, consultations, and open-day announcements. Use image stories when the visual itself carries the message. Add YouTube links for walkthroughs or recap videos, and upload supporting documents when visitors may need downloadable resources. Published content is shown on the public <a href="{% url 'global_agency:updates' %}">updates page</a>.</p>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.tinymce) {
+            tinymce.init({
+                selector: 'textarea.rich-editor',
+                height: 520,
+                promotion: false,
+                menubar: false,
+                branding: false,
+                plugins: 'lists link image table code help wordcount autoresize',
+                toolbar: 'undo redo | blocks | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | link image table | removeformat | code | help',
+                content_style: `
+                    body {
+                        font-family: Inter, Segoe UI, Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.7;
+                        color: #0f172a;
+                        padding: 12px;
+                    }
+                    h1, h2, h3, h4 {
+                        line-height: 1.25;
+                        margin: 1.1em 0 0.5em;
+                    }
+                    p {
+                        margin: 0 0 0.9em;
+                    }
+                    ul, ol {
+                        padding-left: 1.4rem;
+                    }
+                    a {
+                        color: #0f766e;
+                    }
+                `,
+                setup: function(editor) {
+                    editor.on('init', function() {
+                        editor.getContainer().style.borderRadius = '18px';
+                    });
+                },
+            });
+        }
+    });
+</script>
 {% endblock %}

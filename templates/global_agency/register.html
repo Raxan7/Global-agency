@@ -75,10 +75,23 @@
           </button>
         </div>
 
+        <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+          <div class="flex items-start gap-3">
+            {{ form.terms_accepted }}
+            <label for="{{ form.terms_accepted.id_for_label }}" class="leading-6">
+              I agree to the <a href="{% url 'global_agency:terms_and_conditions' %}" class="font-semibold text-primary-600 hover:text-primary-500">Terms and Conditions</a> and <a href="{% url 'global_agency:privacy_policy' %}" class="font-semibold text-primary-600 hover:text-primary-500">Privacy Policy</a>.
+            </label>
+          </div>
+          {% if form.terms_accepted.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ form.terms_accepted.errors.0 }}</p>
+          {% endif %}
+        </div>
+
         <div class="text-center mt-4">
           <p class="text-xs text-gray-600">
             By creating an account, you'll be able to complete your profile, upload documents, 
-            and track your application progress in your personal dashboard.
+            and track your application progress in your personal dashboard. Your information is handled according to our
+            <a href="{% url 'global_agency:privacy_policy' %}" class="font-medium text-primary-600 hover:text-primary-500">privacy practices</a>.
           </p>
         </div>
       </form>

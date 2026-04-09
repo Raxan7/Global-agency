@@ -655,10 +655,18 @@
         </div>
 
         <div class="declaration-box">
-          <label>
-            <input type="checkbox" id="declaration_check">
-            <span>I hereby declare that all information provided in this application is true and accurate to the best of my knowledge.</span>
+          <label for="{{ form.privacy_acknowledged.id_for_label }}">
+            {{ form.privacy_acknowledged }}
+            <span>
+              I hereby declare that all information provided in this application is true and accurate to the best of my knowledge. I also agree to the
+              <a href="{% url 'global_agency:terms_and_conditions' %}" style="color:#1a56db; font-weight:600;">Terms and Conditions</a>
+              and acknowledge the
+              <a href="{% url 'global_agency:privacy_policy' %}" style="color:#1a56db; font-weight:600;">Privacy Policy</a>.
+            </span>
           </label>
+          {% if form.privacy_acknowledged.errors %}
+            <div class="field-error" style="display:block; margin-top:0.75rem;">{{ form.privacy_acknowledged.errors.0 }}</div>
+          {% endif %}
         </div>
 
         <div style="margin-top:1.5rem;">

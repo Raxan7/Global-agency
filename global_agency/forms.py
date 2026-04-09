@@ -22,6 +22,11 @@ class SimpleRegistrationForm(forms.Form):
         required=True,
         widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Confirm your password'})
     )
+    terms_accepted = forms.BooleanField(
+        required=True,
+        error_messages={'required': 'Please agree to the Terms and Conditions and Privacy Policy.'},
+        widget=forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+    )
     
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -49,6 +54,12 @@ class ContactMessageForm(forms.ModelForm):
 
 
 class StudentApplicationForm(forms.ModelForm):
+    privacy_acknowledged = forms.BooleanField(
+        required=True,
+        error_messages={'required': 'Please confirm that you have read and agreed to the Terms and Privacy Policy.'},
+        widget=forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'declaration_check'}),
+    )
+
     class Meta:
         model = StudentApplication
         fields = '__all__'

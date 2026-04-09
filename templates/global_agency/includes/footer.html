@@ -121,9 +121,9 @@
                     {% trans "&copy; 2026 AFRICA WESTERN EDUCATION COMPANY LTD. All rights reserved." %}
                 </p>
                 <div class="flex flex-wrap justify-center gap-4 text-sm">
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-200">{% trans "Privacy Policy" %}</a>
+                    <a href="{% url 'global_agency:privacy_policy' %}" class="text-gray-400 hover:text-white transition duration-200">{% trans "Privacy Policy" %}</a>
                     <span class="text-gray-600">|</span>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-200">{% trans "Terms of Service" %}</a>
+                    <a href="{% url 'global_agency:terms_and_conditions' %}" class="text-gray-400 hover:text-white transition duration-200">{% trans "Terms and Conditions" %}</a>
                     <span class="text-gray-600">|</span>
                     <a href="{% url 'employee:employee_login' %}" class="text-gray-400 hover:text-white transition duration-200">{% trans "Employee Login" %}</a>
                 </div>

@@ -200,6 +200,18 @@ def application_success(request):
     """Display success page after application submission"""
     return render(request, 'global_agency/application_success.html')
 
+
+def terms_and_conditions(request):
+    return render(request, 'global_agency/terms_and_conditions.html', {
+        'page_title': 'Terms and Conditions',
+    })
+
+
+def privacy_policy(request):
+    return render(request, 'global_agency/privacy_policy.html', {
+        'page_title': 'Privacy Policy',
+    })
+
 def load_universities_data():
     """Load universities data from JSON file"""
     BASE_DIR = Path(__file__).resolve().parent.parent
