@@ -12,6 +12,10 @@ SECRET_KEY = config('SECRET_KEY', default='final')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = ["*"]
 
+CLOUDINARY_URL = config('CLOUDINARY_URL', default='')
+if CLOUDINARY_URL:
+    os.environ['CLOUDINARY_URL'] = CLOUDINARY_URL
+
 # =============================================================================
 # AUTHENTICATION & LOGIN SETTINGS
 # =============================================================================
@@ -44,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
     'crispy_forms',
+    'cloudinary_storage',
+    'cloudinary',
     'global_agency',
     'employee',
     'student_portal',
@@ -161,7 +167,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STORAGES = {
     'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
     },
     'staticfiles': {
         'BACKEND': 'globalagency_project.storage.ResilientCompressedManifestStaticFilesStorage',

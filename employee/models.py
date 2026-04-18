@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import IntegrityError, models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
@@ -155,13 +155,24 @@ class PortalUpdate(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = self._generate_unique_slug()
-
         if self.status == 'published' and self.published_at is None:
             self.published_at = timezone.now()
 
-        super().save(*args, **kwargs)
+        # Retry a few times to protect against concurrent inserts using the same title slug.
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            if not self.slug:
+                self.slug = self._generate_unique_slug()
+
+            try:
+                super().save(*args, **kwargs)
+                return
+            except IntegrityError as exc:
+                is_slug_conflict = 'employee_portalupdate.slug' in str(exc)
+                if not is_slug_conflict or attempt == max_attempts - 1:
+                    raise
+
+                self.slug = ''
 
     def _generate_unique_slug(self):
         base_slug = slugify(self.title)[:200] or 'update'
