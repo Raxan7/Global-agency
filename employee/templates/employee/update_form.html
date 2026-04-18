@@ -140,7 +140,7 @@
 </div>
 
 <section class="card editor-card">
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -297,6 +297,18 @@
 <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        var form = document.querySelector('.editor-card form');
+        var contentField = document.getElementById('id_content');
+
+        function getEditorText(editor) {
+            var text = editor.getContent({ format: 'text' }) || '';
+            return text.replace(/\u00a0/g, ' ').trim();
+        }
+
+        if (contentField) {
+            contentField.required = false;
+        }
+
         if (window.tinymce) {
             tinymce.init({
                 selector: 'textarea.rich-editor',
@@ -333,6 +345,26 @@
                         editor.getContainer().style.borderRadius = '18px';
                     });
                 },
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                if (!window.tinymce) {
+                    return;
+                }
+
+                window.tinymce.triggerSave();
+                var editor = window.tinymce.get('id_content');
+                if (!editor) {
+                    return;
+                }
+
+                if (!getEditorText(editor)) {
+                    event.preventDefault();
+                    editor.focus();
+                    alert('Please add content before publishing the update.');
+                }
             });
         }
     });

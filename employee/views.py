@@ -715,7 +715,7 @@ def update_create(request):
             messages.success(request, 'Update created successfully.')
             return redirect('employee:update_management')
     else:
-        form = PortalUpdateForm(initial={'featured_on_homepage': True, 'status': 'draft'})
+        form = PortalUpdateForm(initial={'featured_on_homepage': True, 'status': 'published'})
 
     return render(
         request,

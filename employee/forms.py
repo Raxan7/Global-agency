@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags
 from urllib.parse import urlparse
 
 from global_agency.models import StudentApplication
@@ -151,6 +152,13 @@ class PortalUpdateForm(forms.ModelForm):
             raise ValidationError('Please provide a valid YouTube link.')
 
         return youtube_url
+
+    def clean_content(self):
+        content = (self.cleaned_data.get('content') or '').strip()
+        plain_text = strip_tags(content).replace('\xa0', ' ').strip()
+        if not plain_text:
+            raise ValidationError('Please add content for this update.')
+        return content
 
     def clean(self):
         cleaned_data = super().clean()
