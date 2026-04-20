@@ -40,50 +40,50 @@
                 </ul>
             </div>
 
-            <!-- Services - UPDATED with new service list -->
+            <!-- Services - Updated with clickable links that scroll to services -->
             <div>
                 <h3 class="text-white font-bold text-xs mb-3">{% trans "Our Services" %}</h3>
                 <ul class="space-y-0.5 text-xs">
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans " Career guidance and counseling assistance" %}</span>
+                        <a href="#" onclick="scrollToService('career-guidance'); return false;" class="hover:text-white transition duration-200">{% trans "Career guidance and counseling assistance" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "Applications and Admissions Services" %}</span>
+                        <a href="#" onclick="scrollToService('applications-admissions'); return false;" class="hover:text-white transition duration-200">{% trans "Applications and Admissions Services" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "TCU and HESLB services" %}</span>
+                        <a href="#" onclick="scrollToService('tcu-heslb'); return false;" class="hover:text-white transition duration-200">{% trans "TCU and HESLB services" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "Visas and Jobs assistance" %}</span>
+                        <a href="#" onclick="scrollToService('visas-jobs'); return false;" class="hover:text-white transition duration-200">{% trans "Visas and Jobs assistance" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "Travel Passport and pre-departure assistance" %}</span>
+                        <a href="#" onclick="scrollToService('travel-passport'); return false;" class="hover:text-white transition duration-200">{% trans "Travel Passport and pre-departure assistance" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "TESTS Preparation (IELTS, TOEFL, DUOLINGO etc.)" %}</span>
+                        <a href="#" onclick="scrollToService('test-preparation'); return false;" class="hover:text-white transition duration-200">{% trans "TESTS Preparation (IELTS, TOEFL, DUOLINGO etc.)" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans " Diaspora assistance" %}</span>
+                        <a href="#" onclick="scrollToService('diaspora'); return false;" class="hover:text-white transition duration-200">{% trans "Diaspora assistance" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "Abroad and Local universities assistance" %}</span>
+                        <a href="#" onclick="scrollToService('abroad-local'); return false;" class="hover:text-white transition duration-200">{% trans "Abroad and Local universities assistance" %}</a>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check text-accent-gold mr-2 mt-1 text-xs"></i>
-                        <span>{% trans "Scholarships and sponsorships assistance" %}</span>
+                        <a href="#" onclick="scrollToService('scholarships'); return false;" class="hover:text-white transition duration-200">{% trans "Scholarships and sponsorships assistance" %}</a>
                     </li>
                 </ul>
             </div>
 
-            <!-- Contact Info - UPDATED with new contact details -->
+            <!-- Contact Info -->
             <div>
                 <h3 class="text-white font-bold text-xs mb-3">{% trans "Contact Us" %}</h3>
                 <ul class="space-y-3 text-sm">
@@ -94,7 +94,7 @@
                     <li class="flex items-center">
                         <i class="fas fa-phone text-accent-gold mr-3"></i>
                         <div class="flex flex-col">
-                            <a href="tel:+255780606044" class="hover:text-white transition duration-200 text-xs">+255 780 606 044</a>
+                            <a href="tel:+255767688766" class="hover:text-white transition duration-200 text-xs">+255 767 688 766</a>
                             <a href="tel:+255746177230" class="hover:text-white transition duration-200 text-xs">+255 746 177 230</a>
                         </div>
                     </li>
@@ -131,6 +131,104 @@
         </div>
     </div>
 </footer>
+
+<!-- Add this JavaScript to enable smooth scrolling to services -->
+<script>
+function scrollToService(serviceId) {
+    // Map service IDs to their respective sections
+    const serviceMap = {
+        'career-guidance': 'Career Guidance and Counseling Assistance',
+        'applications-admissions': 'Applications and Admissions Services',
+        'tcu-heslb': 'TCU and HESLB Services',
+        'visas-jobs': 'Visas and Jobs Assistance',
+        'travel-passport': 'Travel, Passport and Pre-Departure Assistance',
+        'test-preparation': 'Test Preparation',
+        'diaspora': 'Diaspora Assistance',
+        'abroad-local': 'Abroad and Local Universities Assistance',
+        'scholarships': 'Scholarships and Sponsorships Assistance'
+    };
+    
+    const serviceTitle = serviceMap[serviceId];
+    if (!serviceTitle) return;
+    
+    // Find the service card by its title
+    const serviceCards = document.querySelectorAll('.service-card');
+    let targetCard = null;
+    
+    for (let card of serviceCards) {
+        const titleElement = card.querySelector('h3');
+        if (titleElement && titleElement.textContent.trim() === serviceTitle) {
+            targetCard = card;
+            break;
+        }
+    }
+    
+    if (targetCard) {
+        // Smooth scroll to the target card
+        targetCard.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+        });
+        
+        // Add a highlight effect to the target card
+        targetCard.style.transition = 'all 0.3s ease';
+        targetCard.style.boxShadow = '0 0 0 3px #3b82f6, 0 10px 25px -5px rgba(0, 0, 0, 0.1)';
+        
+        // Remove highlight after 2 seconds
+        setTimeout(() => {
+            targetCard.style.boxShadow = '';
+        }, 2000);
+        
+        // Close mobile menu if open (optional)
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+            const menuButton = document.getElementById('mobile-menu-button');
+            if (menuButton) menuButton.click();
+        }
+    } else {
+        // If card not found, scroll to services section
+        const servicesSection = document.getElementById('services');
+        if (servicesSection) {
+            servicesSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+}
+
+// Add IDs to service cards in the services section
+function addServiceCardIds() {
+    const serviceMap = {
+        'Career Guidance and Counseling Assistance': 'career-guidance',
+        'Applications and Admissions Services': 'applications-admissions',
+        'TCU and HESLB Services': 'tcu-heslb',
+        'Visas and Jobs Assistance': 'visas-jobs',
+        'Travel, Passport and Pre-Departure Assistance': 'travel-passport',
+        'Test Preparation': 'test-preparation',
+        'Diaspora Assistance': 'diaspora',
+        'Abroad and Local Universities Assistance': 'abroad-local',
+        'Scholarships and Sponsorships Assistance': 'scholarships'
+    };
+    
+    const serviceCards = document.querySelectorAll('.service-card');
+    serviceCards.forEach(card => {
+        const titleElement = card.querySelector('h3');
+        if (titleElement) {
+            const title = titleElement.textContent.trim();
+            if (serviceMap[title]) {
+                card.id = serviceMap[title];
+            }
+        }
+    });
+}
+
+// Run the function when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    addServiceCardIds();
+});
+</script>
 
 <!-- Font Awesome -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -221,8 +319,6 @@
         telLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 // Allow default tel: behavior on mobile devices
-                // Only prevent default if we want to do something custom
-                // For now, let the browser handle tel: links naturally
             });
         });
 
@@ -230,7 +326,6 @@
         const actionButtons = document.querySelectorAll('.quick-action-buttons a, #contact-toggle');
         actionButtons.forEach(button => {
             button.addEventListener('click', function() {
-                // You can add Google Analytics or other tracking here
                 console.log('Contact action clicked:', this.textContent.trim());
             });
         });

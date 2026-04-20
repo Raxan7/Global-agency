@@ -39,38 +39,104 @@
             </button>
             
             <!-- Services Dropdown Menu -->
-            <div class="absolute {% if LANGUAGE_CODE == 'ar' %}right-auto left-0{% else %}left-0{% endif %} mt-2 w-72 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 border border-gray-100 z-50 transform origin-top">
-              <div class="p-3">
-                <!-- Guidance & Selection -->
-                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-green-50 hover:to-transparent rounded-lg transition duration-150 group/service">
-                  <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
-                    <i class="fas fa-graduation-cap text-green-600 text-sm"></i>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Guidance & Selection" %}</h4>
-                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Strategic university and course selection" %}</p>
-                  </div>
-                </a>
-
-                <!-- Visa & Passport -->
-                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+            <div class="absolute {% if LANGUAGE_CODE == 'ar' %}right-auto left-0{% else %}left-0{% endif %} mt-2 w-80 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 border border-gray-100 z-50 transform origin-top">
+              <div class="p-3 max-h-96 overflow-y-auto">
+                <!-- Career guidance and counseling assistance -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent rounded-lg transition duration-150 group/service">
                   <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
-                    <i class="fas fa-passport text-blue-600 text-sm"></i>
+                    <i class="fas fa-chalkboard-user text-blue-600 text-sm"></i>
                   </div>
                   <div>
-                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Visa & Passport" %}</h4>
-                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Complete visa processing support" %}</p>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Career guidance and counseling assistance" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Expert career advice and path planning" %}</p>
                   </div>
                 </a>
 
-                <!-- Scholarship Assistance -->
-                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-purple-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
-                  <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
-                    <i class="fas fa-hand-holding-usd text-purple-600 text-sm"></i>
+                <!-- Applications and Admissions Services -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-green-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-file-alt text-green-600 text-sm"></i>
                   </div>
                   <div>
-                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Scholarship Assistance" %}</h4>
-                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Financial aid and scholarship guidance" %}</p>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Applications and Admissions Services" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Complete application and admission support" %}</p>
+                  </div>
+                </a>
+
+                <!-- TCU and HESLB services -->
+                <a href="{% url 'global_agency:tcu_services' %}" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-purple-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-building-columns text-purple-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "TCU and HESLB services" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "TCU certification and HESLB loan assistance" %}</p>
+                  </div>
+                </a>
+
+                <!-- Visas and Jobs assistance -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-amber-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-passport text-amber-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Visas and Jobs assistance" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Visa processing and job placement support" %}</p>
+                  </div>
+                </a>
+
+                <!-- Travel Passport and pre-departure assistance -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-teal-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-plane-departure text-teal-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Travel Passport and pre-departure assistance" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Passport help and pre-departure guidance" %}</p>
+                  </div>
+                </a>
+
+                <!-- TESTS Preparation (IELTS, TOEFL, DUOLINGO etc.) -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-language text-indigo-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "TESTS Preparation (IELTS, TOEFL, DUOLINGO etc.)" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Exam preparation for international tests" %}</p>
+                  </div>
+                </a>
+
+                <!-- Diaspora assistance -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-pink-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-globe-africa text-pink-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Diaspora assistance" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Support for Tanzanians abroad" %}</p>
+                  </div>
+                </a>
+
+                <!-- Abroad and Local universities assistance -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-university text-cyan-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Abroad and Local universities assistance" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "University selection and application help" %}</p>
+                  </div>
+                </a>
+
+                <!-- Scholarships and sponsorships assistance -->
+                <a href="#services" class="flex items-center p-3 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-transparent rounded-lg transition duration-150 group/service mt-1">
+                  <div class="w-10 h-10 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} flex-shrink-0 shadow-sm">
+                    <i class="fas fa-hand-holding-heart text-yellow-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 group-hover/service:text-primary-blue">{% trans "Scholarships and sponsorships assistance" %}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{% trans "Scholarship search and application help" %}</p>
                   </div>
                 </a>
 
@@ -232,21 +298,84 @@
           </button>
           <div id="mobile-services-menu" class="hidden bg-gray-50 overflow-hidden transition-all duration-300">
             <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
-              <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
-                <i class="fas fa-graduation-cap text-green-600"></i>
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-chalkboard-user text-blue-600"></i>
               </div>
               <div>
-                <h4 class="font-semibold">{% trans "Guidance & Selection" %}</h4>
-                <p class="text-xs text-gray-500">{% trans "University and course selection" %}</p>
+                <h4 class="font-semibold">{% trans "Career guidance and counseling assistance" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Expert career advice and path planning" %}</p>
               </div>
             </a>
             <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
-                <i class="fas fa-passport text-blue-600"></i>
+              <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-file-alt text-green-600"></i>
               </div>
               <div>
-                <h4 class="font-semibold">{% trans "Visa & Passport" %}</h4>
-                <p class="text-xs text-gray-500">{% trans "Complete visa processing" %}</p>
+                <h4 class="font-semibold">{% trans "Applications and Admissions Services" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Complete application and admission support" %}</p>
+              </div>
+            </a>
+            <a href="{% url 'global_agency:tcu_services' %}" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-building-columns text-purple-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "TCU and HESLB services" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "TCU certification and HESLB loan assistance" %}</p>
+              </div>
+            </a>
+            <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-passport text-amber-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "Visas and Jobs assistance" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Visa processing and job placement support" %}</p>
+              </div>
+            </a>
+            <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-plane-departure text-teal-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "Travel Passport and pre-departure assistance" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Passport help and pre-departure guidance" %}</p>
+              </div>
+            </a>
+            <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-language text-indigo-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "TESTS Preparation (IELTS, TOEFL, DUOLINGO etc.)" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Exam preparation for international tests" %}</p>
+              </div>
+            </a>
+            <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-globe-africa text-pink-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "Diaspora assistance" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Support for Tanzanians abroad" %}</p>
+              </div>
+            </a>
+            <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-university text-cyan-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "Abroad and Local universities assistance" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "University selection and application help" %}</p>
+              </div>
+            </a>
+            <a href="#services" class="flex items-center p-4 text-sm text-gray-700 hover:bg-white transition duration-150 border-b border-gray-100">
+              <div class="w-10 h-10 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} shadow-sm">
+                <i class="fas fa-hand-holding-heart text-yellow-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold">{% trans "Scholarships and sponsorships assistance" %}</h4>
+                <p class="text-xs text-gray-500">{% trans "Scholarship search and application help" %}</p>
               </div>
             </a>
             <div class="p-4">
