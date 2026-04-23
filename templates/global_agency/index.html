@@ -8,11 +8,15 @@
 <style>
 /* Default button responsiveness */
 #studentPortalBtn,
-#startApplicationBtn,
-#whatsappContactBtn {
+#startApplicationBtn {
     max-width: 90%;
     font-size: 0.9rem;
     padding: 10px 16px;
+}
+
+#whatsappContactBtn {
+    width: 3.5rem;
+    height: 3.5rem;
 }
 
 .text-clamp-3 {
@@ -26,8 +30,7 @@
 /* Mobile Optimization */
 @media (max-width: 480px) {
     #studentPortalBtn,
-    #startApplicationBtn,
-    #whatsappContactBtn {
+    #startApplicationBtn {
         bottom: 1rem !important;
         width: calc(100% - 2rem);
         left: 1rem !important;
@@ -42,7 +45,10 @@
     }
 
     #whatsappContactBtn {
-      margin-bottom: 120px;
+      bottom: 7.5rem !important;
+      right: 1rem !important;
+      width: 3.5rem;
+      height: 3.5rem;
     }
 
     #startApplicationBtn {
@@ -75,13 +81,14 @@
 </a>
 
 <!-- Floating WhatsApp Contact Button - Above Create Account -->
-<a href="https://wa.me/255780606044?text=Hello%20Africa%20Western%20Education%2C%20I%20need%20help%20with%20registration%20and%20admissions."
+<a href="https://wa.me/255767688766?text=Hello%20Africa%20Western%20Education%2C%20I%20need%20help%20with%20registration%20and%20admissions."
   id="whatsappContactBtn"
   target="_blank"
   rel="noopener noreferrer"
-  class="fixed bottom-24 right-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg z-50 transition-all duration-300 transform flex items-center gap-2">
-  <i class="fab fa-whatsapp text-lg"></i>
-  {% trans "Contact Us on WhatsApp" %}
+  aria-label="{% trans 'Contact Us on WhatsApp' %}"
+  title="{% trans 'Contact Us on WhatsApp' %}"
+  class="fixed bottom-24 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg z-50 transition-all duration-300 transform flex items-center justify-center">
+  <i class="fab fa-whatsapp text-2xl" aria-hidden="true"></i>
 </a>
 
 <script>
