@@ -2,365 +2,344 @@
 <section id="services" class="py-16 sm:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-            <h2 class="text-base font-semibold text-green-600 tracking-wide uppercase">{% trans "Our Comprehensive Services" %}</h2>
+            <h2 class="text-base font-semibold text-green-600 tracking-wide uppercase">{% trans "Our Professional Services" %}</h2>
             <p class="mt-2 text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                {% trans "End-to-End Study Abroad Support" %}
+                {% trans "Africa Western Education" %}
             </p>
             <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-                {% trans "From initial guidance to post-arrival support, we handle every aspect of your study abroad journey with expert care." %}
+                {% trans "Comprehensive support for your educational journey from start to success" %}
             </p>
         </div>
 
-        <!-- Services Grid -->
-        <div class="mt-16 grid gap-8 lg:grid-cols-3 md:grid-cols-2">
+        <!-- Services Grid - Responsive 1/2/3 columns -->
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <!-- Guidance & Selection -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-green-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-green-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-graduation-cap text-green-600 text-xl"></i>
+            <!-- 1. Career Guidance and Counseling Assistance -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-blue-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-chalkboard-user text-blue-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">{% trans "Guidance & Selection" %}</h3>
-                        <p class="text-gray-700 mt-2">{% trans "Strategic university and course selection based on your profile" %}</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Career Guidance and Counseling Assistance" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">{% trans "How We Help:" %}</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Personalized Profile Analysis:" %}</strong> {% trans "Comprehensive assessment of academic background, interests, and career goals" %}</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "University Shortlisting:" %}</strong> {% trans "Curated list of universities matching your profile and budget" %}</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Course Selection:" %}</strong> {% trans "Expert guidance on program choices with best career prospects" %}</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Career Pathway Planning:" %}</strong> {% trans "Long-term career strategy aligned with your chosen course" %}</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Professional career guidance designed to help students make informed academic decisions.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span> Assessment of strengths and interests</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span> Analysis of academic results</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span> Guidance on marketable programs</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">✓</span> Career pathway planning</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Visa & Passport -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-blue-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-passport text-blue-600 text-xl"></i>
+            <!-- 2. Applications and Admissions Services -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-green-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-green-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-file-alt text-green-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">{% trans "Visa & Passport" %}</h3>
-                        <p class="text-gray-700 mt-2">{% trans "Complete visa processing and documentation support" %}</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Applications and Admissions Services" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">{% trans "How We Help:" %}</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Document Preparation:" %}</strong> {% trans "Complete visa application package preparation" %}</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Financial Documentation:" %}</strong> {% trans "Guidance on fund proofs and financial statements" %}</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Interview Coaching:" %}</strong> {% trans "Mock visa interviews with detailed feedback" %}</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>{% trans "Application Tracking:" %}</strong> {% trans "Continuous monitoring of visa application status" %}</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Comprehensive support for university applications locally and internationally.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span> University and program identification</li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span> Application form completion</li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span> Document preparation</li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span> Application follow-up</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Study Loan Support -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-purple-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-purple-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-hand-holding-usd text-purple-600 text-xl"></i>
+            <!-- 3. TCU and HESLB Services -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-purple-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-purple-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-building-columns text-purple-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">{% trans "Study Loan Support" %}</h3>
-                        <p class="text-gray-700 mt-2">{% trans "Financial assistance and loan processing guidance" %}</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "TCU and HESLB Services" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">How We Help:</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Loan Eligibility Assessment:</strong> Evaluation of loan qualification criteria</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Bank Partnerships:</strong> Access to preferred education loan providers</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Documentation Support:</strong> Assistance with loan application paperwork</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Financial Planning:</strong> Budget management and repayment strategy</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Professional assistance for TCU and HESLB matters.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span> TCU application guidance</li>
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span> Eligibility verification</li>
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span> Student loan assistance</li>
+                        <li class="flex items-start"><span class="text-purple-500 mr-2">✓</span> Loan status tracking</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- University Selection -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-yellow-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-yellow-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-university text-yellow-600 text-xl"></i>
+            <!-- 4. Visas and Jobs Assistance -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-amber-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-amber-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-passport text-amber-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">University Selection</h3>
-                        <p class="text-gray-700 mt-2">Strategic institution matching and application strategy</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Visas and Jobs Assistance" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">How We Help:</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Comprehensive Database:</strong> Access to 1000+ universities worldwide</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Admission Probability:</strong> Realistic assessment of acceptance chances</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Application Strategy:</strong> Balanced mix of dream, target, and safety schools</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Deadline Management:</strong> Timeline planning for all applications</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Structured visa processing and job placement support.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Student visa guidance</li>
+                        <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Embassy documentation</li>
+                        <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Visa interview preparation</li>
+                        <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Part-time job guidance</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Travel Support -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-red-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-red-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-plane text-red-600 text-xl"></i>
+            <!-- 5. Travel, Passport and Pre-Departure Assistance -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-teal-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-teal-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-plane-departure text-teal-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">Travel Support</h3>
-                        <p class="text-gray-700 mt-2">Complete travel arrangement and logistics management</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Travel, Passport & Pre-Departure" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">How We Help:</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Flight Booking:</strong> Best deals on student-friendly airlines</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Airport Transfers:</strong> Arrival pickup and drop-off services</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Travel Insurance:</strong> Comprehensive coverage for international students</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Pre-departure Briefing:</strong> Complete travel and country orientation</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Complete pre-departure preparation and travel support.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span> Passport application guidance</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span> Flight booking advisory</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span> Health insurance guidance</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span> Pre-departure orientation</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Accommodation Support -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-indigo-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-indigo-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-home text-indigo-600 text-xl"></i>
+            <!-- 6. Test Preparation -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-indigo-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-indigo-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-language text-indigo-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">Accommodation Support</h3>
-                        <p class="text-gray-700 mt-2">Safe and comfortable housing solutions abroad</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Test Preparation" %}</h3>
+                        <p class="text-xs text-gray-500">IELTS, TOEFL, Duolingo</p>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">How We Help:</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>On-campus Housing:</strong> University dormitory applications</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Off-campus Options:</strong> Verified apartments and shared housing</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Homestay Arrangements:</strong> Cultural immersion with local families</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Rental Guidance:</strong> Lease agreement review and negotiation</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Structured preparation for English proficiency tests.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Intensive training modules</li>
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Mock examinations</li>
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Exam strategies</li>
+                        <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Performance evaluation</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Language Support -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-pink-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-pink-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-language text-pink-600 text-xl"></i>
+            <!-- 7. Diaspora Assistance -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-pink-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-pink-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-globe-africa text-pink-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">Language Support</h3>
-                        <p class="text-gray-700 mt-2">Language proficiency development and testing</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Diaspora Assistance" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">How We Help:</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Test Preparation:</strong> IELTS, TOEFL, PTE coaching programs</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Language Courses:</strong> Intensive language training programs</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Test Registration:</strong> Assistance with exam booking and scheduling</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Score Improvement:</strong> Strategies to enhance language test scores</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Comprehensive support for African students abroad.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span> Residence permit & immigration</li>
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span> Job & internship placement</li>
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span> Emergency crisis support</li>
+                        <li class="flex items-start"><span class="text-pink-500 mr-2">✓</span> Legal compliance advisory</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Direct Admission -->
-            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-teal-500 p-8 hover:shadow-xl">
-                <div class="flex items-start mb-6">
-                    <div class="bg-teal-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-user-graduate text-teal-600 text-xl"></i>
+            <!-- 8. Abroad and Local Universities Assistance -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-cyan-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-cyan-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-university text-cyan-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">Direct Admission</h3>
-                        <p class="text-gray-700 mt-2">Expedited admission through university partnerships</p>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Abroad & Local Universities" %}</h3>
                     </div>
                 </div>
                 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-gray-900 text-lg">How We Help:</h4>
-                    <ul class="text-gray-600 space-y-3">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Partner Universities:</strong> Direct access to 200+ affiliated institutions</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Fast-track Processing:</strong> Reduced application processing time</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Fee Waivers:</strong> Special discounts and scholarship access</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-2 mt-1">•</span>
-                            <span><strong>Guaranteed Admission:</strong> Higher acceptance rates through partnerships</span>
-                        </li>
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Collaboration with accredited institutions worldwide.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-cyan-500 mr-2">✓</span> Program information</li>
+                        <li class="flex items-start"><span class="text-cyan-500 mr-2">✓</span> Admission facilitation</li>
+                        <li class="flex items-start"><span class="text-cyan-500 mr-2">✓</span> Accreditation verification</li>
+                        <li class="flex items-start"><span class="text-cyan-500 mr-2">✓</span> Student-institution matching</li>
                     </ul>
                 </div>
             </div>
 
+            <!-- 9. Scholarships and Sponsorships Assistance -->
+            <div class="service-card bg-white rounded-xl shadow-lg border-l-6 border-yellow-500 p-6 hover:shadow-xl flex flex-col h-full">
+                <div class="flex items-start mb-4">
+                    <div class="bg-yellow-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                        <i class="fas fa-hand-holding-heart text-yellow-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">{% trans "Scholarships & Sponsorships" %}</h3>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 flex-grow">
+                    <p class="text-gray-700 text-sm">Helping students access funding opportunities.</p>
+                    
+                    <h4 class="font-semibold text-gray-900 text-sm">{% trans "Services:" %}</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li class="flex items-start"><span class="text-yellow-600 mr-2">✓</span> Funding opportunity identification</li>
+                        <li class="flex items-start"><span class="text-yellow-600 mr-2">✓</span> Application preparation</li>
+                        <li class="flex items-start"><span class="text-yellow-600 mr-2">✓</span> Personal statement writing</li>
+                        <li class="flex items-start"><span class="text-yellow-600 mr-2">✓</span> Interview preparation</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 10. Support the Education and Development of Talented Children and Youth - Full Width Card -->
+        <div class="mt-8">
+            <div class="service-card bg-gradient-to-r from-red-50 to-orange-50 rounded-xl shadow-lg border-l-6 border-red-500 p-6 hover:shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-start gap-4">
+                    <div class="bg-red-100 p-3 rounded-lg flex-shrink-0 self-start">
+                        <i class="fas fa-children text-red-600 text-2xl"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">{% trans "Support the Education and Development of Talented Children and Youth" %}</h3>
+                        <p class="text-gray-700 text-sm mb-3">At Africa Western Education Company Ltd, we believe education is the most powerful tool for transforming lives.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                            <div class="bg-white rounded-lg p-2 text-center">
+                                <i class="fas fa-book text-red-500 text-lg"></i>
+                                <p class="text-xs font-semibold mt-1">Tuition & Materials</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 text-center">
+                                <i class="fas fa-tools text-red-500 text-lg"></i>
+                                <p class="text-xs font-semibold mt-1">Skills Development</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 text-center">
+                                <i class="fas fa-graduation-cap text-red-500 text-lg"></i>
+                                <p class="text-xs font-semibold mt-1">Scholarships</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 text-center">
+                                <i class="fas fa-chalkboard-user text-red-500 text-lg"></i>
+                                <p class="text-xs font-semibold mt-1">Mentorship</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-700 text-sm italic">Join us in transforming lives through education. Every contribution helps talented youth overcome barriers and realize their dreams.</p>
+                        
+                        <div class="mt-4">
+                            <a href="{% url 'global_agency:contact' %}" class="inline-flex items-center bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition">
+                                <i class="fas fa-handshake mr-2"></i> Become a Sponsor
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- How Africa Western Education Works Section -->
-        <div class="mt-20 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 md:p-12">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900">How Africa Western Education Works</h2>
-                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-                    Our proven 5-step process ensures your study abroad journey is smooth, successful, and stress-free
+        <div class="mt-16 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 md:p-10">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900">How Africa Western Education Works</h2>
+                <p class="mt-2 text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
+                    Our proven 5-step process ensures your study abroad journey is smooth and successful
                 </p>
             </div>
 
-            <div class="grid gap-8 md:grid-cols-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <!-- Step 1 -->
                 <div class="text-center">
-                    <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-xl font-bold shadow-lg">1</div>
-                    <h3 class="font-semibold text-gray-900 mb-3">Initial Consultation</h3>
-                    <p class="text-gray-600 text-sm">Free comprehensive assessment of your profile, goals, and preferences</p>
+                    <div class="bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 text-lg font-bold shadow-lg">1</div>
+                    <h3 class="font-semibold text-gray-900 text-sm">Consultation</h3>
+                    <p class="text-gray-600 text-xs">Free profile assessment</p>
                 </div>
 
                 <!-- Step 2 -->
                 <div class="text-center">
-                    <div class="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-xl font-bold shadow-lg">2</div>
-                    <h3 class="font-semibold text-gray-900 mb-3">University Shortlisting</h3>
-                    <p class="text-gray-600 text-sm">Strategic selection of 8-12 universities matching your criteria</p>
+                    <div class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 text-lg font-bold shadow-lg">2</div>
+                    <h3 class="font-semibold text-gray-900 text-sm">University Selection</h3>
+                    <p class="text-gray-600 text-xs">Strategic shortlisting</p>
                 </div>
 
                 <!-- Step 3 -->
                 <div class="text-center">
-                    <div class="bg-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-xl font-bold shadow-lg">3</div>
-                    <h3 class="font-semibold text-gray-900 mb-3">Application Processing</h3>
-                    <p class="text-gray-600 text-sm">Complete documentation and submission with expert review</p>
+                    <div class="bg-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 text-lg font-bold shadow-lg">3</div>
+                    <h3 class="font-semibold text-gray-900 text-sm">Application</h3>
+                    <p class="text-gray-600 text-xs">Documentation & submission</p>
                 </div>
 
                 <!-- Step 4 -->
                 <div class="text-center">
-                    <div class="bg-yellow-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-xl font-bold shadow-lg">4</div>
-                    <h3 class="font-semibold text-gray-900 mb-3">Visa & Pre-departure</h3>
-                    <p class="text-gray-600 text-sm">Visa processing, accommodation, and travel arrangements</p>
+                    <div class="bg-yellow-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 text-lg font-bold shadow-lg">4</div>
+                    <h3 class="font-semibold text-gray-900 text-sm">Visa & Travel</h3>
+                    <p class="text-gray-600 text-xs">Visa & pre-departure</p>
                 </div>
 
                 <!-- Step 5 -->
                 <div class="text-center">
-                    <div class="bg-red-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-xl font-bold shadow-lg">5</div>
-                    <h3 class="font-semibold text-gray-900 mb-3">Post-arrival Support</h3>
-                    <p class="text-gray-600 text-sm">Airport pickup, orientation, and ongoing student support</p>
+                    <div class="bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 text-lg font-bold shadow-lg">5</div>
+                    <h3 class="font-semibold text-gray-900 text-sm">Post-arrival</h3>
+                    <p class="text-gray-600 text-xs">Ongoing support</p>
                 </div>
             </div>
 
-            <div class="mt-12 text-center">
-                <div class="bg-white rounded-lg p-6 shadow-lg inline-block">
-                    <h4 class="text-xl font-bold text-gray-900 mb-4">Our Impact</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="mt-8 text-center">
+                <div class="bg-white rounded-lg p-4 shadow-lg inline-block w-full max-w-2xl mx-auto">
+                    <h4 class="text-lg font-bold text-gray-900 mb-3">Our Impact</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-purple-600">500+</div>
-                            <div class="text-gray-600 text-sm">Students Placed Abroad</div>
+                            <div class="text-2xl font-bold text-purple-600">500+</div>
+                            <div class="text-gray-600 text-xs">Students Placed</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-blue-600">600+</div>
-                            <div class="text-gray-600 text-sm">Partner Universities</div>
+                            <div class="text-2xl font-bold text-blue-600">600+</div>
+                            <div class="text-gray-600 text-xs">Partner Universities</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-green-600">300+</div>
-                            <div class="text-gray-600 text-sm">Visas Assisted</div>
+                            <div class="text-2xl font-bold text-green-600">300+</div>
+                            <div class="text-gray-600 text-xs">Visas Assisted</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-yellow-600">8+</div>
-                            <div class="text-gray-600 text-sm">Core Countries Covered</div>
+                            <div class="text-2xl font-bold text-yellow-600">8+</div>
+                            <div class="text-gray-600 text-xs">Countries</div>
                         </div>
                     </div>
                 </div>
@@ -393,5 +372,15 @@
 
 .service-card {
     animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .service-card {
+        padding: 1rem;
+    }
+    .service-card .text-xl {
+        font-size: 1.125rem;
+    }
 }
 </style>
