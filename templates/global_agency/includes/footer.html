@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n static %}
 <footer class="bg-gray-900 text-gray-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <!-- Main Footer Content -->
@@ -11,17 +11,20 @@
                     {% trans "Empowering African students and professionals through reliable, transparent, and high-quality educational consultancy services." %}
                 </p>
                 <div class="flex space-x-3">
-                    <a href="https://facebook.com/AFRICA WESTERN EDUCATION COMPANY LTD" class="text-gray-400 hover:text-white transition duration-200" aria-label="Facebook">
+                    <a href="https://www.facebook.com/share/18n3dKtkxL/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition duration-200" aria-label="Facebook Page 1">
                         <i class="fab fa-facebook-f text-sm"></i>
                     </a>
-                    <a href="https://x.com/AfricaWesternEdu" class="text-gray-400 hover:text-white transition duration-200" aria-label="Twitter">
-                        <i class="fab fa-twitter text-sm"></i>
+                    <a href="https://www.facebook.com/share/1CHkc6nEeU/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition duration-200" aria-label="Facebook Page 2">
+                        <i class="fab fa-facebook text-sm"></i>
                     </a>
-                    <a href="https://instagram.com/africawesterneducation" class="text-gray-400 hover:text-white transition duration-200" aria-label="Instagram">
+                    <a href="https://www.instagram.com/africa_western_education?igsh=MXdqeGJ2OGRtYmhxcw==" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition duration-200" aria-label="Instagram">
                         <i class="fab fa-instagram text-sm"></i>
                     </a>
-                    <a href="https://linkedin.com/company/AFRICA WESTERN EDUCATION COMPANY LTD" class="text-gray-400 hover:text-white transition duration-200" aria-label="LinkedIn">
-                        <i class="fab fa-linkedin-in text-sm"></i>
+                    <a href="https://www.youtube.com/@AfricaWesternEducation-tz" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition duration-200" aria-label="YouTube">
+                        <i class="fab fa-youtube text-sm"></i>
+                    </a>
+                    <a href="https://wa.me/255780606044" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition duration-200" aria-label="WhatsApp">
+                        <i class="fab fa-whatsapp text-sm"></i>
                     </a>
                 </div>
             </div>
@@ -111,6 +114,17 @@
                         <span class="text-xs">{% trans "Mon - Fri: 8AM - 5PM EAT" %}</span>
                     </li>
                 </ul>
+
+                <div class="mt-4 rounded-lg bg-gray-800/60 p-3 border border-gray-700">
+                    <p class="text-xs text-gray-300 mb-2">{% trans "Scan to follow us on Instagram" %}</p>
+                    <a href="https://www.instagram.com/africa_western_education?igsh=MXdqeGJ2OGRtYmhxcw==" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <img
+                            src="{% static 'global_agency/img/instagram-share-qr.jpg' %}"
+                            alt="Instagram QR Code"
+                            class="w-32 h-32 rounded-md object-cover"
+                        >
+                    </a>
+                </div>
             </div>
         </div>
 

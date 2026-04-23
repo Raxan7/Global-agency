@@ -8,7 +8,8 @@
 <style>
 /* Default button responsiveness */
 #studentPortalBtn,
-#startApplicationBtn {
+#startApplicationBtn,
+#whatsappContactBtn {
     max-width: 90%;
     font-size: 0.9rem;
     padding: 10px 16px;
@@ -17,6 +18,7 @@
 .text-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+  line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -24,7 +26,8 @@
 /* Mobile Optimization */
 @media (max-width: 480px) {
     #studentPortalBtn,
-    #startApplicationBtn {
+    #startApplicationBtn,
+    #whatsappContactBtn {
         bottom: 1rem !important;
         width: calc(100% - 2rem);
         left: 1rem !important;
@@ -36,6 +39,14 @@
 
     #studentPortalBtn {
         margin-bottom: 60px;
+    }
+
+    #whatsappContactBtn {
+      margin-bottom: 120px;
+    }
+
+    #startApplicationBtn {
+      margin-bottom: 60px;
     }
 }
 </style>
@@ -63,11 +74,22 @@
    {% trans "Create Account Now" %}
 </a>
 
+<!-- Floating WhatsApp Contact Button - Above Create Account -->
+<a href="https://wa.me/255780606044?text=Hello%20Africa%20Western%20Education%2C%20I%20need%20help%20with%20registration%20and%20admissions."
+  id="whatsappContactBtn"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="fixed bottom-24 right-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg z-50 transition-all duration-300 transform flex items-center gap-2">
+  <i class="fab fa-whatsapp text-lg"></i>
+  {% trans "Contact Us on WhatsApp" %}
+</a>
+
 <script>
   // Handle scroll behavior for both buttons
   document.addEventListener('DOMContentLoaded', function() {
     const studentBtn = document.getElementById('studentPortalBtn');
     const applicationBtn = document.getElementById('startApplicationBtn');
+   const whatsappBtn = document.getElementById('whatsappContactBtn');
     
     let lastScrollTop = 0;
     let buttonsVisible = true;
@@ -80,6 +102,7 @@
         if (buttonsVisible) {
           studentBtn.style.transform = 'translateY(100px)';
           applicationBtn.style.transform = 'translateY(100px)';
+          whatsappBtn.style.transform = 'translateY(100px)';
           buttonsVisible = false;
         }
       } else if (st < lastScrollTop) {
@@ -87,6 +110,7 @@
         if (!buttonsVisible) {
           studentBtn.style.transform = 'translateY(0) scale(1)';
           applicationBtn.style.transform = 'translateY(0) scale(1)';
+          whatsappBtn.style.transform = 'translateY(0) scale(1)';
           buttonsVisible = true;
         }
       }
@@ -94,7 +118,7 @@
     });
 
     // Hover scaling effect
-    [studentBtn, applicationBtn].forEach(btn => {
+    [studentBtn, applicationBtn, whatsappBtn].forEach(btn => {
       btn.addEventListener('mouseenter', function() {
         if (buttonsVisible) this.style.transform = 'translateY(0) scale(1.05)';
       });

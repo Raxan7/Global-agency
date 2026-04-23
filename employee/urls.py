@@ -41,4 +41,5 @@ urlpatterns = [
     # Contact messages
     path('contact-messages/', views.contact_messages, name='contact_messages'),
     path('contact-messages/<int:message_id>/update-status/', views.update_message_status, name='update_message_status'),
+    path('contact-messages/<int:message_id>/reply/<str:channel>/', views.reply_to_message, name='reply_to_message'),
 ]

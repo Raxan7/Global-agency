@@ -3,479 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Messages & Consultations - Employee Portal</title>
+    <title>Contact Messages - Employee Portal</title>
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #f8f9fa; 
-            line-height: 1.6; 
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+            line-height: 1.5;
         }
-        
-        .header { 
-            background: linear-gradient(135deg, #28a745, #20c997); 
-            color: white; 
-            padding: 1rem; 
+
+        .header {
+            background: linear-gradient(135deg, #0f766e, #0284c7);
+            color: #fff;
+            padding: 16px;
         }
-        
+
         .header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 22px;
+            margin-bottom: 8px;
         }
-        
-        .nav-menu { 
-            display: flex; 
-            gap: 1rem; 
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .nav-menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 0.5rem; 
-            border-radius: 4px; 
-            font-size: 0.9rem;
-        }
-        
-        .nav-menu a:hover { 
-            background-color: rgba(255,255,255,0.2); 
-        }
-        
-        .user-info {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .container { 
-            max-width: 1400px; 
-            margin: 1rem auto; 
-            padding: 0 1rem; 
-        }
-        
-        .container h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        
-        .filters { 
-            background: white; 
-            padding: 1rem; 
-            border-radius: 8px; 
-            margin-bottom: 1.5rem; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-        }
-        
-        .search-box { 
-            display: flex; 
-            gap: 0.5rem; 
-            margin-bottom: 1rem;
-            flex-direction: column;
-        }
-        
-        .search-box input { 
-            flex: 1; 
-            padding: 0.75rem; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            font-size: 1rem;
-        }
-        
-        .status-filters { 
-            display: flex; 
-            gap: 0.5rem; 
-            flex-wrap: wrap; 
-        }
-        
-        .status-filters strong {
-            font-size: 0.9rem;
-            color: #666;
-            margin-right: 0.5rem;
-        }
-        
-        .filter-btn { 
-            padding: 0.5rem 0.75rem; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            background: white; 
-            cursor: pointer; 
-            text-decoration: none; 
-            color: #333; 
-            font-size: 0.85rem;
-        }
-        
-        .filter-btn.active { 
-            background: #28a745; 
-            color: white; 
-            border-color: #28a745; 
-        }
-        
-        .filter-btn:hover { 
-            background: #e9ecef; 
-        }
-        
-        .message-card { 
-            background: white; 
-            padding: 1rem; 
-            border-radius: 8px; 
-            margin-bottom: 1rem; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        }
-        
-        .consultation-card { 
-            border-left: 4px solid #007bff; 
-        }
-        
-        .contact-card { 
-            border-left: 4px solid #28a745; 
-        }
-        
-        .message-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start; 
-            margin-bottom: 1rem;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .message-meta { 
-            color: #666; 
-            font-size: 0.875rem; 
-            line-height: 1.4;
-        }
-        
-        .message-content { 
-            background: #f8f9fa; 
-            padding: 1rem; 
-            border-radius: 6px; 
-            margin: 1rem 0; 
-            font-size: 0.95rem;
-        }
-        
-        .consultation-details { 
-            display: grid; 
-            grid-template-columns: 1fr;
-            gap: 0.75rem; 
-            margin: 1rem 0; 
-        }
-        
-        .detail-item { 
-            background: #e9ecef; 
-            padding: 0.75rem; 
-            border-radius: 4px; 
-            font-size: 0.9rem;
-        }
-        
-        .empty-state { 
-            text-align: center; 
-            padding: 2rem; 
-            color: #666; 
-        }
-        
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            font-size: 1.25rem;
-        }
-        
-        .btn { 
-            padding: 0.5rem 0.75rem; 
-            border-radius: 4px; 
-            text-decoration: none; 
-            display: inline-block; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 0.875rem; 
-            text-align: center;
-        }
-        
-        .btn-secondary { 
-            background: #6c757d; 
-            color: white; 
-        }
-        
-        .btn-primary { 
-            background: #007bff; 
-            color: white; 
-        }
-        
-        .btn-success { 
-            background: #28a745; 
-            color: white; 
-        }
-        
-        .btn-warning { 
-            background: #ffc107; 
-            color: black; 
-        }
-        
-        .btn-danger { 
-            background: #dc3545; 
-            color: white; 
-        }
-        
-        .new-badge { 
-            background: #dc3545; 
-            color: white; 
-            padding: 0.25rem 0.5rem; 
-            border-radius: 12px; 
-            font-size: 0.75rem; 
-            margin-left: 0.5rem; 
-        }
-        
-        .status-badge { 
-            padding: 0.25rem 0.75rem; 
-            border-radius: 20px; 
-            font-size: 0.75rem; 
-            font-weight: bold; 
-        }
-        
-        .status-new { 
-            background: #dc3545; 
-            color: white; 
-        }
-        
-        .status-read { 
-            background: #6c757d; 
-            color: white; 
-        }
-        
-        .status-replied { 
-            background: #28a745; 
-            color: white; 
-        }
-        
-        .status-archived { 
-            background: #6c757d; 
-            color: white; 
-        }
-        
-        .tabs { 
-            display: flex; 
-            gap: 0; 
-            margin-bottom: 1.5rem; 
-            border-bottom: 1px solid #dee2e6;
-            flex-wrap: wrap;
-        }
-        
-        .tab { 
-            padding: 0.75rem 1rem; 
-            background: white; 
-            border: 1px solid #dee2e6; 
-            border-bottom: none; 
-            border-radius: 8px 8px 0 0; 
-            text-decoration: none; 
-            color: #495057; 
-            font-size: 0.9rem;
-            flex: 1;
-            text-align: center;
-            min-width: 120px;
-        }
-        
-        .tab.active { 
-            background: #28a745; 
-            color: white; 
-            border-color: #28a745; 
-        }
-        
-        .tab-content { 
-            display: none; 
-        }
-        
-        .tab-content.active { 
-            display: block; 
-        }
-        
-        .messages-alert { 
-            padding: 1rem; 
-            margin-bottom: 1rem; 
-            border-radius: 4px; 
-            font-size: 0.95rem;
-        }
-        
-        .alert-success { 
-            background: #d4edda; 
-            color: #155724; 
-            border: 1px solid #c3e6cb; 
-        }
-        
-        .alert-error { 
-            background: #f8d7da; 
-            color: #721c24; 
-            border: 1px solid #f5c6cb; 
-        }
-        
-        .action-buttons {
+
+        .nav-menu {
             display: flex;
-            gap: 0.5rem;
+            gap: 10px;
             flex-wrap: wrap;
+            margin-bottom: 8px;
         }
-        
-        .action-buttons form {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .action-buttons select {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-        
-        .stats-grid {
-            margin-top: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 1rem;
+
+        .nav-menu a {
+            color: #fff;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 8px 10px;
             border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .nav-menu a.active,
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.24);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        .panel {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            margin-bottom: 14px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-row input {
+            flex: 1;
+            min-width: 220px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 9px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-secondary { background: #6b7280; color: #fff; }
+        .btn-success { background: #16a34a; color: #fff; }
+        .btn-whatsapp { background: #059669; color: #fff; }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chip {
+            border: 1px solid #d1d5db;
+            border-radius: 999px;
+            padding: 6px 12px;
+            text-decoration: none;
+            color: #111827;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .chip.active {
+            background: #111827;
+            border-color: #111827;
+            color: #fff;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .tab-btn {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 999px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .tab-btn.active {
+            border-color: #0284c7;
+            color: #0284c7;
+            font-weight: 700;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .message-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            border-left: 4px solid #94a3b8;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .message-card.consultation {
+            border-left-color: #0284c7;
+        }
+
+        .message-card.contact {
+            border-left-color: #16a34a;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .meta {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .status {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status.new { background: #fee2e2; color: #991b1b; }
+        .status.replied { background: #dcfce7; color: #166534; }
+
+        .message-body {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+
+        .details {
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .actions form {
+            display: inline-block;
+        }
+
+        .messages-alert {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .empty {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #6b7280;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
         }
-        
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-total { color: #17a2b8; }
-        .stat-consultations { color: #dc3545; }
-        .stat-contacts { color: #28a745; }
-        
-        /* Mobile-specific styles */
+
         @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-            }
-            
-            .nav-menu {
-                gap: 0.5rem;
-            }
-            
-            .nav-menu a {
-                padding: 0.5rem;
-                font-size: 0.85rem;
-            }
-            
-            .container {
-                padding: 0 0.5rem;
-                margin: 0.5rem auto;
-            }
-            
-            .search-box {
-                flex-direction: column;
-            }
-            
-            .search-box input {
-                width: 100%;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab {
-                border-radius: 4px;
-                margin-bottom: 0.25rem;
-            }
-            
-            .message-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .action-buttons form {
-                flex-direction: column;
-            }
-            
-            .consultation-details {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.25rem;
-            }
-            
-            .nav-menu {
-                flex-direction: column;
-            }
-            
-            .nav-menu a {
-                text-align: center;
-            }
-            
-            .status-filters {
-                justify-content: center;
-            }
-            
-            .filter-btn {
-                flex: 1;
-                text-align: center;
-                min-width: 60px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .search-box {
-                flex-direction: row;
-            }
-            
-            .message-header {
-                flex-direction: row;
-                align-items: flex-start;
-            }
-            
-            .consultation-details {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
-            
-            .action-buttons form {
-                flex-direction: row;
-                align-items: center;
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            .header {
-                padding: 1rem 2rem;
-            }
-            
-            .container {
-                padding: 0 2rem;
-                margin: 2rem auto;
-            }
-            
-            .nav-menu {
-                gap: 2rem;
-            }
-            
-            .nav-menu a {
-                padding: 0.5rem 1rem;
-                font-size: 1rem;
-            }
+            .container { margin: 12px auto; }
+            .nav-menu a { font-size: 12px; }
+            .btn { width: 100%; text-align: center; }
+            .actions { flex-direction: column; align-items: stretch; }
+            .actions form { width: 100%; }
+            .actions form .btn { width: 100%; }
         }
     </style>
 </head>
@@ -486,355 +258,191 @@
             <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
             <a href="{% url 'employee:student_application_list' %}">Student Applications</a>
             <a href="{% url 'employee:document_list' %}">Documents</a>
-            <a href="{% url 'employee:contact_messages' %}" style="background: rgba(255,255,255,0.2);">Contact Messages</a>
+            <a href="{% url 'employee:contact_messages' %}" class="active">Contact Messages</a>
             <a href="{% url 'admin:index' %}">Admin</a>
             <a href="{% url 'employee:employee_logout' %}">Logout</a>
         </nav>
-        <div class="user-info">Welcome, {{ user.get_full_name|default:user.username }}</div>
+        <div>Welcome, {{ user.get_full_name|default:user.username }}</div>
     </div>
 
     <div class="container">
-        <h2>Contact Messages & Consultations</h2>
-        
-        <!-- Display Django messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="messages-alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-success{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-        
-        <!-- Tabs -->
-        <div class="tabs">
-            <a href="#all-messages" class="tab active" onclick="showTab('all-messages')">All Messages</a>
-            <a href="#consultations" class="tab" onclick="showTab('consultations')">Consultations</a>
-            <a href="#contact-forms" class="tab" onclick="showTab('contact-forms')">Contact Forms</a>
-        </div>
+        <div class="panel">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="messages-alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-        <!-- Filters -->
-        <div class="filters">
-            <form method="get" class="search-box">
-                <input type="text" name="search" placeholder="Search by name, email, destination, or message..." value="{{ search_query|default:'' }}">
-                <div style="display: flex; gap: 0.5rem;">
-                    <button type="submit" class="btn btn-success" style="flex: 1;">Search</button>
-                    {% if search_query or status_filter %}
+            <form method="get" class="search-row">
+                <input type="text" name="search" placeholder="Search by name, email, phone, destination, or message" value="{{ search_query|default:'' }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+                {% if search_query or status_filter %}
                     <a href="{% url 'employee:contact_messages' %}" class="btn btn-secondary">Clear</a>
-                    {% endif %}
-                </div>
+                {% endif %}
             </form>
-            
-            <div class="status-filters">
-                <strong>Filter by Status:</strong>
-                <a href="{% url 'employee:contact_messages' %}" class="filter-btn {% if not status_filter %}active{% endif %}">All</a>
-                <a href="?status=new" class="filter-btn {% if status_filter == 'new' %}active{% endif %}">New</a>
-                <a href="?status=read" class="filter-btn {% if status_filter == 'read' %}active{% endif %}">Read</a>
-                <a href="?status=replied" class="filter-btn {% if status_filter == 'replied' %}active{% endif %}">Replied</a>
-                <a href="?status=archived" class="filter-btn {% if status_filter == 'archived' %}active{% endif %}">Archived</a>
+
+            <div class="filters">
+                <strong>Status:</strong>
+                <a href="{% url 'employee:contact_messages' %}" class="chip {% if not status_filter %}active{% endif %}">All</a>
+                <a href="?status=new{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="chip {% if status_filter == 'new' %}active{% endif %}">New/Pending</a>
+                <a href="?status=replied{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="chip {% if status_filter == 'replied' %}active{% endif %}">Replied/Handled</a>
             </div>
         </div>
 
-        <!-- All Messages Tab -->
-        <div id="all-messages" class="tab-content active">
-            {% if contact_messages or consultations %}
-                <!-- Consultations -->
+        <div class="tabs">
+            <button class="tab-btn active" type="button" data-tab="all">All</button>
+            <button class="tab-btn" type="button" data-tab="consultations">Consultations</button>
+            <button class="tab-btn" type="button" data-tab="contacts">Contact Forms</button>
+        </div>
+
+        <div id="tab-all" class="tab-content active">
+            {% if consultations or contact_messages %}
                 {% for consultation in consultations %}
-                <div class="message-card consultation-card">
-                    <div class="message-header">
-                        <div>
-                            <h4 style="margin: 0;">📅 Free Consultation Request</h4>
-                            <div class="message-meta">
-                                From: <strong>{{ consultation.name }}</strong> ({{ consultation.email }}) | 
-                                Phone: {{ consultation.phone|default:"Not provided" }} |
-                                {{ consultation.created_at|date:"M d, Y H:i" }}
+                    <div class="message-card consultation">
+                        <div class="message-header">
+                            <div>
+                                <h3>Consultation Request</h3>
+                                <div class="meta">
+                                    {{ consultation.name }} ({{ consultation.email }})
+                                    {% if consultation.phone %} | {{ consultation.phone }}{% endif %}
+                                    | {{ consultation.created_at|date:"M d, Y H:i" }}
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <span class="status-badge status-{{ consultation.status|default:'new' }}">
-                                {{ consultation.status|default:"new"|title }}
+                            <span class="status {% if consultation.handled %}replied{% else %}new{% endif %}">
+                                {% if consultation.handled %}Replied{% else %}New{% endif %}
                             </span>
-                            {% if consultation.status == 'new' or not consultation.status %}
-                            <span class="new-badge">NEW</span>
+                        </div>
+
+                        <div class="details">
+                            Preferred Destination: {{ consultation.destination|default:"Not specified" }}
+                        </div>
+                        <div class="message-body">{{ consultation.message|default:"No additional message provided." }}</div>
+
+                        <div class="actions">
+                            <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="handled" value="{% if consultation.handled %}0{% else %}1{% endif %}">
+                                <button type="submit" class="btn btn-secondary">
+                                    {% if consultation.handled %}Mark as New{% else %}Mark as Replied{% endif %}
+                                </button>
+                            </form>
+
+                            <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'email' %}" target="_blank">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Reply via Email</button>
+                            </form>
+
+                            {% if consultation.phone %}
+                                <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'whatsapp' %}" target="_blank">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-whatsapp">Reply via WhatsApp</button>
+                                </form>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <div class="consultation-details">
-                        <div class="detail-item">
-                            <strong>Preferred Destination:</strong><br>
-                            {{ consultation.destination|default:"Not specified" }}
-                        </div>
-                        <div class="detail-item">
-                            <strong>Contact Method:</strong><br>
-                            {% if consultation.phone %}Phone/WhatsApp{% else %}Email{% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="message-content">
-                        <strong>Message:</strong><br>
-                        {{ consultation.message|default:"No additional message provided." }}
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
-                            {% csrf_token %}
-                            <select name="status">
-                                <option value="new" {% if consultation.status == 'new' %}selected{% endif %}>New</option>
-                                <option value="read" {% if consultation.status == 'read' %}selected{% endif %}>Read</option>
-                                <option value="replied" {% if consultation.status == 'replied' %}selected{% endif %}>Replied</option>
-                                <option value="archived" {% if consultation.status == 'archived' %}selected{% endif %}>Archived</option>
-                            </select>
-                            <button type="submit" class="btn btn-primary">Update Status</button>
-                        </form>
-                        <a href="mailto:{{ consultation.email }}?subject=Re: Your Consultation Request - Africa Western Education&body=Dear {{ consultation.name }}," class="btn btn-success">Reply via Email</a>
-                        {% if consultation.phone %}
-                        <a href="https://wa.me/{{ consultation.phone|cut:' '|cut:'+'|cut:'-' }}?text=Hello%20{{ consultation.name|urlencode }}%2C%20regarding%20your%20consultation%20request%20with%20Global%20Agency" 
-                           target="_blank" class="btn btn-success">Reply via WhatsApp</a>
-                        {% endif %}
-                    </div>
-                </div>
                 {% endfor %}
 
-                <!-- Regular Contact Messages -->
                 {% for message in contact_messages %}
-                <div class="message-card contact-card">
-                    <div class="message-header">
-                        <div>
-                            <h4 style="margin: 0;"><i class="fas fa-envelope"></i> {{ message.subject|default:"Contact Form Message" }}</h4>
-                            <div class="message-meta">
-                                From: <strong>{{ message.name }}</strong> ({{ message.email }}) | 
-                                {{ message.created_at|date:"M d, Y H:i" }}
+                    <div class="message-card contact">
+                        <div class="message-header">
+                            <div>
+                                <h3>Contact Form Message</h3>
+                                <div class="meta">
+                                    {{ message.name }} ({{ message.email }})
+                                    {% if message.phone %} | {{ message.phone }}{% endif %}
+                                    | {{ message.created_at|date:"M d, Y H:i" }}
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <span class="status-badge status-{{ message.status|default:'new' }}">
-                                {{ message.status|default:"new"|title }}
+                            <span class="status {% if message.handled %}replied{% else %}new{% endif %}">
+                                {% if message.handled %}Replied{% else %}New{% endif %}
                             </span>
-                            {% if message.status == 'new' or not message.status %}
-                            <span class="new-badge">NEW</span>
+                        </div>
+
+                        <div class="message-body">{{ message.message|default:"No message content." }}</div>
+
+                        <div class="actions">
+                            <form method="post" action="{% url 'employee:update_message_status' message.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="handled" value="{% if message.handled %}0{% else %}1{% endif %}">
+                                <button type="submit" class="btn btn-secondary">
+                                    {% if message.handled %}Mark as New{% else %}Mark as Replied{% endif %}
+                                </button>
+                            </form>
+
+                            <form method="post" action="{% url 'employee:reply_to_message' message.id 'email' %}" target="_blank">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Reply via Email</button>
+                            </form>
+
+                            {% if message.phone %}
+                                <form method="post" action="{% url 'employee:reply_to_message' message.id 'whatsapp' %}" target="_blank">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-whatsapp">Reply via WhatsApp</button>
+                                </form>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <div class="message-content">
-                        {{ message.message }}
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <form method="post" action="{% url 'employee:update_message_status' message.id %}">
-                            {% csrf_token %}
-                            <select name="status">
-                                <option value="new" {% if message.status == 'new' %}selected{% endif %}>New</option>
-                                <option value="read" {% if message.status == 'read' %}selected{% endif %}>Read</option>
-                                <option value="replied" {% if message.status == 'replied' %}selected{% endif %}>Replied</option>
-                                <option value="archived" {% if message.status == 'archived' %}selected{% endif %}>Archived</option>
-                            </select>
-                            <button type="submit" class="btn btn-primary">Update Status</button>
-                        </form>
-                        <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject|default:'Your Message'|urlencode }}" class="btn btn-success">Reply via Email</a>
-                        <button class="btn btn-warning">Add Note</button>
-                    </div>
-                </div>
                 {% endfor %}
             {% else %}
-            <div class="empty-state">
-                <h3>No Messages Found</h3>
-                <p>{% if search_query or status_filter %}Try adjusting your search criteria{% else %}No contact messages or consultations have been received yet.{% endif %}</p>
-            </div>
+                <div class="empty">No messages found for the selected filters.</div>
             {% endif %}
         </div>
 
-        <!-- Consultations Only Tab -->
-        <div id="consultations" class="tab-content">
+        <div id="tab-consultations" class="tab-content">
             {% if consultations %}
                 {% for consultation in consultations %}
-                <div class="message-card consultation-card">
-                    <div class="message-header">
-                        <div>
-                            <h4 style="margin: 0;">📅 Free Consultation Request</h4>
-                            <div class="message-meta">
-                                From: <strong>{{ consultation.name }}</strong> ({{ consultation.email }}) | 
-                                Phone: {{ consultation.phone|default:"Not provided" }} |
-                                {{ consultation.created_at|date:"M d, Y H:i" }}
+                    <div class="message-card consultation">
+                        <div class="message-header">
+                            <div>
+                                <h3>Consultation Request</h3>
+                                <div class="meta">{{ consultation.name }} ({{ consultation.email }}) | {{ consultation.created_at|date:"M d, Y H:i" }}</div>
                             </div>
+                            <span class="status {% if consultation.handled %}replied{% else %}new{% endif %}">{% if consultation.handled %}Replied{% else %}New{% endif %}</span>
                         </div>
-                        <div>
-                            <span class="status-badge status-{{ consultation.status|default:'new' }}">
-                                {{ consultation.status|default:"new"|title }}
-                            </span>
-                            {% if consultation.status == 'new' or not consultation.status %}
-                            <span class="new-badge">NEW</span>
-                            {% endif %}
-                        </div>
+                        <div class="details">Preferred Destination: {{ consultation.destination|default:"Not specified" }}</div>
+                        <div class="message-body">{{ consultation.message|default:"No additional message provided." }}</div>
                     </div>
-                    
-                    <div class="consultation-details">
-                        <div class="detail-item">
-                            <strong>Preferred Destination:</strong><br>
-                            {{ consultation.destination|default:"Not specified" }}
-                        </div>
-                        <div class="detail-item">
-                            <strong>Contact Method:</strong><br>
-                            {% if consultation.phone %}Phone/WhatsApp{% else %}Email{% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="message-content">
-                        <strong>Message:</strong><br>
-                        {{ consultation.message|default:"No additional message provided." }}
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
-                            {% csrf_token %}
-                            <select name="status">
-                                <option value="new" {% if consultation.status == 'new' %}selected{% endif %}>New</option>
-                                <option value="read" {% if consultation.status == 'read' %}selected{% endif %}>Read</option>
-                                <option value="replied" {% if consultation.status == 'replied' %}selected{% endif %}>Replied</option>
-                                <option value="archived" {% if consultation.status == 'archived' %}selected{% endif %}>Archived</option>
-                            </select>
-                            <button type="submit" class="btn btn-primary">Update Status</button>
-                        </form>
-                        <a href="mailto:{{ consultation.email }}?subject=Re: Your Consultation Request - Africa Western Education&body=Dear {{ consultation.name }}," class="btn btn-success">Reply via Email</a>
-                        {% if consultation.phone %}
-                        <a href="https://wa.me/{{ consultation.phone|cut:' '|cut:'+'|cut:'-' }}?text=Hello%20{{ consultation.name|urlencode }}%2C%20regarding%20your%20consultation%20request%20with%20Global%20Agency" 
-                           target="_blank" class="btn btn-success">Reply via WhatsApp</a>
-                        {% endif %}
-                    </div>
-                </div>
                 {% endfor %}
             {% else %}
-            <div class="empty-state">
-                <h3>No Consultations Found</h3>
-                <p>{% if search_query or status_filter %}Try adjusting your search criteria{% else %}No consultation requests have been received yet.{% endif %}</p>
-            </div>
+                <div class="empty">No consultation requests found.</div>
             {% endif %}
         </div>
 
-        <!-- Contact Forms Only Tab -->
-        <div id="contact-forms" class="tab-content">
+        <div id="tab-contacts" class="tab-content">
             {% if contact_messages %}
                 {% for message in contact_messages %}
-                <div class="message-card contact-card">
-                    <div class="message-header">
-                        <div>
-                            <h4 style="margin: 0;"><i class="fas fa-envelope"></i> {{ message.subject|default:"Contact Form Message" }}</h4>
-                            <div class="message-meta">
-                                From: <strong>{{ message.name }}</strong> ({{ message.email }}) | 
-                                {{ message.created_at|date:"M d, Y H:i" }}
+                    <div class="message-card contact">
+                        <div class="message-header">
+                            <div>
+                                <h3>Contact Form Message</h3>
+                                <div class="meta">{{ message.name }} ({{ message.email }}) | {{ message.created_at|date:"M d, Y H:i" }}</div>
                             </div>
+                            <span class="status {% if message.handled %}replied{% else %}new{% endif %}">{% if message.handled %}Replied{% else %}New{% endif %}</span>
                         </div>
-                        <div>
-                            <span class="status-badge status-{{ message.status|default:'new' }}">
-                                {{ message.status|default:"new"|title }}
-                            </span>
-                            {% if message.status == 'new' or not message.status %}
-                            <span class="new-badge">NEW</span>
-                            {% endif %}
-                        </div>
+                        <div class="message-body">{{ message.message|default:"No message content." }}</div>
                     </div>
-                    
-                    <div class="message-content">
-                        {{ message.message }}
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <form method="post" action="{% url 'employee:update_message_status' message.id %}">
-                            {% csrf_token %}
-                            <select name="status">
-                                <option value="new" {% if message.status == 'new' %}selected{% endif %}>New</option>
-                                <option value="read" {% if message.status == 'read' %}selected{% endif %}>Read</option>
-                                <option value="replied" {% if message.status == 'replied' %}selected{% endif %}>Replied</option>
-                                <option value="archived" {% if message.status == 'archived' %}selected{% endif %}>Archived</option>
-                            </select>
-                            <button type="submit" class="btn btn-primary">Update Status</button>
-                        </form>
-                        <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject|default:'Your Message'|urlencode }}" class="btn btn-success">Reply via Email</a>
-                        <button class="btn btn-warning">Add Note</button>
-                    </div>
-                </div>
                 {% endfor %}
             {% else %}
-            <div class="empty-state">
-                <h3>No Contact Form Messages</h3>
-                <p>{% if search_query or status_filter %}Try adjusting your search criteria{% else %}No contact form messages have been received yet.{% endif %}</p>
-            </div>
+                <div class="empty">No contact form messages found.</div>
             {% endif %}
-        </div>
-
-        <!-- Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number stat-total">{{ contact_messages.count|add:consultations.count }}</div>
-                <div>Total Messages</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number stat-consultations">{{ consultations.count }}</div>
-                <div>Consultation Requests</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number stat-contacts">{{ contact_messages.count }}</div>
-                <div>Contact Forms</div>
-            </div>
         </div>
     </div>
 
     <script>
-        function showTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabName).classList.add('active');
-            
-            // Add active class to clicked tab
-            event.currentTarget.classList.add('active');
-        }
-        
-        // Add responsive behavior for form elements
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle form responsiveness
-            const forms = document.querySelectorAll('.action-buttons form');
-            forms.forEach(form => {
-                const select = form.querySelector('select');
-                const button = form.querySelector('button[type="submit"]');
-                
-                if (select && button) {
-                    // Ensure proper spacing on mobile
-                    if (window.innerWidth < 768) {
-                        select.style.marginBottom = '0.5rem';
-                        select.style.width = '100%';
-                        button.style.width = '100%';
-                    }
-                }
-            });
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const forms = document.querySelectorAll('.action-buttons form');
-            forms.forEach(form => {
-                const select = form.querySelector('select');
-                const button = form.querySelector('button[type="submit"]');
-                
-                if (select && button) {
-                    if (window.innerWidth < 768) {
-                        select.style.marginBottom = '0.5rem';
-                        select.style.width = '100%';
-                        button.style.width = '100%';
-                    } else {
-                        select.style.marginBottom = '';
-                        select.style.width = '';
-                        button.style.width = '';
-                    }
-                }
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+
+                tabButtons.forEach((btn) => btn.classList.remove('active'));
+                tabContents.forEach((content) => content.classList.remove('active'));
+
+                button.classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
             });
         });
     </script>

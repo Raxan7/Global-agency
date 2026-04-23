@@ -7,8 +7,10 @@ from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.utils import timezone
+from urllib.parse import quote
+import re
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
 from student_portal.models import Application, Document, Payment, StudentProfile
 from .forms import OfflineStudentIntakeForm, PortalUpdateForm
@@ -435,31 +437,29 @@ def document_list(request):
 def contact_messages(request):
     """View all contact messages and consultations"""
     profile = UserProfile.objects.get(user=request.user)
-    
-    contact_messages = ContactMessage.objects.all().order_by('-created_at')
-    consultations = ContactMessage.objects.all().order_by('-created_at')
-    
-    # Filter by status if provided
+
+    all_messages = ContactMessage.objects.all().order_by('-created_at')
+
+    # Filter by handled status if provided
     status_filter = request.GET.get('status')
-    if status_filter:
-        contact_messages = contact_messages.filter(status=status_filter)
-        consultations = consultations.filter(status=status_filter)
-    
+    if status_filter == 'new':
+        all_messages = all_messages.filter(handled=False)
+    elif status_filter == 'replied':
+        all_messages = all_messages.filter(handled=True)
+
     # Search functionality
     search_query = request.GET.get('search')
     if search_query:
-        contact_messages = contact_messages.filter(
+        all_messages = all_messages.filter(
             Q(name__icontains=search_query) |
             Q(email__icontains=search_query) |
-            Q(subject__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(destination__icontains=search_query) |
             Q(message__icontains=search_query)
         )
-        consultations = consultations.filter(
-            Q(name__icontains=search_query) |
-            Q(email__icontains=search_query) |
-            Q(message__icontains=search_query) |
-            Q(destination__icontains=search_query)
-        )
+
+    consultations = all_messages.exclude(destination__isnull=True).exclude(destination__exact='')
+    contact_messages = all_messages.filter(Q(destination__isnull=True) | Q(destination__exact=''))
     
     context = {
         'contact_messages': contact_messages,
@@ -475,19 +475,78 @@ def contact_messages(request):
 @csrf_protect
 def update_message_status(request, message_id):
     """Update contact message status"""
-    profile = UserProfile.objects.get(user=request.user)
-    
     message = get_object_or_404(ContactMessage, id=message_id)
-    
+
     if request.method == 'POST':
-        new_status = request.POST.get('status')
-        if new_status in ['new', 'read', 'replied', 'archived']:
-            message.status = new_status
-            message.save()
-            messages.success(request, f'Message status updated to {new_status.title()}')
+        handled_value = request.POST.get('handled')
+        if handled_value in ['0', '1']:
+            message.handled = handled_value == '1'
+            message.save(update_fields=['handled'])
+            label = 'Replied/Handled' if message.handled else 'New/Pending'
+            messages.success(request, f'Message status updated to {label}.')
         else:
             messages.error(request, 'Invalid status selected.')
-    
+
+    return redirect('employee:contact_messages')
+
+
+def _build_email_reply_url(contact_message):
+    is_consultation = bool((contact_message.destination or '').strip())
+    if is_consultation:
+        subject = 'Re: Your Consultation Request - Africa Western Education'
+    else:
+        subject = 'Re: Your Message - Africa Western Education'
+
+    body = f"Dear {contact_message.name},\n\n"
+    body += "Thank you for contacting Africa Western Education.\n\n"
+
+    return f"mailto:{contact_message.email}?subject={quote(subject)}&body={quote(body)}"
+
+
+def _build_whatsapp_reply_url(contact_message):
+    raw_phone = (contact_message.phone or '').strip()
+    digits = re.sub(r'\D', '', raw_phone)
+
+    if digits.startswith('00'):
+        digits = digits[2:]
+    elif digits.startswith('0'):
+        digits = '255' + digits[1:]
+    elif not digits.startswith('255') and len(digits) >= 9:
+        digits = '255' + digits[-9:]
+
+    if not digits:
+        return ''
+
+    text = quote(f"Hello {contact_message.name}, regarding your request with Africa Western Education.")
+    return f"https://wa.me/{digits}?text={text}"
+
+
+@login_required
+@employee_required
+@csrf_protect
+def reply_to_message(request, message_id, channel):
+    """Mark message as handled and redirect employee to reply channel."""
+    contact_message = get_object_or_404(ContactMessage, id=message_id)
+
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method for reply action.')
+        return redirect('employee:contact_messages')
+
+    if not contact_message.handled:
+        contact_message.handled = True
+        contact_message.save(update_fields=['handled'])
+
+    if channel == 'email':
+        return HttpResponseRedirect(_build_email_reply_url(contact_message))
+
+    if channel == 'whatsapp':
+        whatsapp_url = _build_whatsapp_reply_url(contact_message)
+        if not whatsapp_url:
+            messages.error(request, 'WhatsApp reply is unavailable because this message has no valid phone number.')
+            return redirect('employee:contact_messages')
+        return HttpResponseRedirect(whatsapp_url)
+
+    messages.error(request, 'Invalid reply channel selected.')
     return redirect('employee:contact_messages')
 
 @login_required
