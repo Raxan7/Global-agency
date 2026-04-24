@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Dashboard | Africa Western Education</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_38%),linear-gradient(135deg,_#020617,_#0f172a,_#111827)] px-4 py-8 md:px-8">
+        <div class="mx-auto max-w-7xl space-y-8">
+            <div class="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 md:p-8 shadow-2xl">
+                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <p class="text-emerald-300 uppercase tracking-[0.3em] text-xs font-semibold mb-3">Partner Portal</p>
+                        <h1 class="text-3xl md:text-4xl font-extrabold">Welcome, {{ profile.user.get_full_name|default:profile.user.username }}</h1>
+                        <p class="mt-2 text-slate-300">You can create, edit, and delete only the student records you entered.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{% url 'employee:partner_application_create' %}" class="rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-400">Add Student</a>
+                        <a href="{% url 'employee:partner_logout' %}" class="rounded-xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="space-y-3">
+                {% for message in messages %}
+                <div class="rounded-2xl border border-white/10 px-4 py-3 {% if message.tags == 'error' %}bg-rose-500/20 text-rose-100{% else %}bg-emerald-500/20 text-emerald-100{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="grid gap-4 md:grid-cols-3">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p class="text-sm text-slate-400">Records Created</p>
+                    <p class="mt-2 text-3xl font-bold">{{ applications_count }}</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5 md:col-span-2">
+                    <p class="text-sm text-slate-400">Portal Access</p>
+                    <p class="mt-2 text-sm text-slate-200">Your account is restricted to partner-owned student records and the student creation workflow only.</p>
+                </div>
+            </div>
+
+            <div class="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-2xl">
+                <div class="mb-5 flex items-center justify-between gap-3">
+                    <h2 class="text-xl font-bold">Your Student Records</h2>
+                    <span class="text-sm text-slate-300">Only records you created appear here.</span>
+                </div>
+
+                {% if applications %}
+                <div class="grid gap-4 lg:grid-cols-2">
+                    {% for application in applications %}
+                    <div class="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">{{ application.full_name }}</h3>
+                                <p class="text-sm text-slate-400">{{ application.email }}</p>
+                            </div>
+                            <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">{{ application.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-300">
+                            <div><span class="text-slate-500">Phone:</span> {{ application.phone }}</div>
+                            <div><span class="text-slate-500">Country:</span> {{ application.nationality }}</div>
+                            <div><span class="text-slate-500">Student Login:</span> {{ application.username|default:"Pending" }}</div>
+                            <div><span class="text-slate-500">Record ID:</span> {{ application.id }}</div>
+                        </div>
+                        <div class="mt-5 flex flex-wrap gap-3">
+                            <a href="{% url 'employee:partner_application_edit' application.pk %}" class="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-400">Edit</a>
+                            <a href="{% url 'employee:partner_application_delete' application.pk %}" class="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Delete</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="rounded-2xl border border-dashed border-white/15 bg-slate-900/60 p-8 text-center text-slate-300">
+                    No student records yet. Start by creating your first student entry.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

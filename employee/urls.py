@@ -6,6 +6,11 @@ app_name = 'employee'
 
 urlpatterns = [
     path('login/', views.employee_login, name='employee_login'),
+    path('partners/login/', views.partner_login, name='partner_login'),
+    path('partners/register/', views.partner_register, name='partner_register'),
+    path('partners/activate/<uidb64>/<token>/', views.partner_activate, name='partner_activate'),
+    path('partners/dashboard/', views.partner_dashboard, name='partner_dashboard'),
+    path('partners/logout/', views.partner_logout, name='partner_logout'),
     path('dashboard/', views.employee_dashboard, name='employee_dashboard'),
     path('logout/', views.employee_logout, name='employee_logout'),
     
@@ -37,6 +42,11 @@ urlpatterns = [
     path('updates/new/', views.update_create, name='update_create'),
     path('updates/<int:pk>/edit/', views.update_edit, name='update_edit'),
     path('updates/<int:pk>/delete/', views.update_delete, name='update_delete'),
+    
+    # Partner student records
+    path('partners/students/new/', views.partner_application_create, name='partner_application_create'),
+    path('partners/students/<int:pk>/edit/', views.partner_application_edit, name='partner_application_edit'),
+    path('partners/students/<int:pk>/delete/', views.partner_application_delete, name='partner_application_delete'),
     
     # Contact messages
     path('contact-messages/', views.contact_messages, name='contact_messages'),

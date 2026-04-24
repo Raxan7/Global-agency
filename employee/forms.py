@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from django.utils.html import strip_tags
 from urllib.parse import urlparse
 
@@ -200,6 +201,48 @@ class PortalUpdateForm(forms.ModelForm):
                 file=attachment_file,
                 title=attachment_file.name.rsplit('/', 1)[-1],
             )
+
+
+class PartnerRegistrationForm(forms.Form):
+    full_name = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your full name'}),
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'your.email@example.com'}),
+    )
+    password = forms.CharField(
+        min_length=8,
+        required=True,
+        widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Create a strong password'}),
+    )
+    confirm_password = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Confirm your password'}),
+    )
+    terms_accepted = forms.BooleanField(
+        required=True,
+        error_messages={'required': 'Please agree to the Terms and Conditions and Privacy Policy.'},
+        widget=forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+    )
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if User.objects.filter(email__iexact=email).exists() or User.objects.filter(username__iexact=email).exists():
+            raise ValidationError('This email is already registered. Please login or use a different email.')
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if password and confirm_password and password != confirm_password:
+            raise ValidationError('Passwords do not match. Please try again.')
+
+        return cleaned_data
 
 
 class OfflineStudentIntakeForm(forms.ModelForm):

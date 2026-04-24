@@ -1,21 +1,27 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseRedirect, JsonResponse
+from django.conf import settings
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
 from urllib.parse import quote
 import re
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
 from student_portal.models import Application, Document, Payment, StudentProfile
-from .forms import OfflineStudentIntakeForm, PortalUpdateForm
+from .forms import OfflineStudentIntakeForm, PartnerRegistrationForm, PortalUpdateForm
 from .models import PortalUpdate, UserProfile
-from .decorators import employee_required, admin_required
+from .decorators import employee_required, admin_required, partner_required
 
 @csrf_protect
 def employee_login(request):
@@ -25,10 +31,12 @@ def employee_login(request):
             profile = UserProfile.objects.get(user=request.user)
             if profile.can_access_employee_portal():
                 return redirect('employee:employee_dashboard')
+            if profile.can_access_partner_portal():
+                return redirect('employee:partner_dashboard')
             else:
                 # Logout if user cannot access employee portal
                 logout(request)
-                messages.error(request, "Access denied. Please use the student portal.")
+                messages.error(request, "Access denied. Please use the student or partner portal.")
                 return redirect('employee:employee_login')
         except UserProfile.DoesNotExist:
             pass
@@ -51,6 +59,8 @@ def employee_login(request):
                         return redirect('employee:admin_dashboard')
                     else:
                         return redirect('employee:employee_dashboard')
+                elif profile.can_access_partner_portal():
+                    messages.error(request, "This login page is for employees. Please use the partner portal instead.")
                 else:
                     messages.error(request, "Access denied. This portal is for admin-created employees only. Students should use the student portal.")
             except UserProfile.DoesNotExist:
@@ -239,11 +249,7 @@ def update_student_application_status(request, application_id):
             messages.success(request, f'Application status updated to {application.get_status_display()}')
         else:
             messages.error(request, 'Invalid status selected.')
-    
-    return redirect('employee:student_application_detail', application_id=application_id)
-
-
-def _create_or_update_student_portal_records(cleaned_data, created_by):
+def _create_or_update_student_portal_records(cleaned_data, created_by, existing_user=None, portal_application=None, reset_password=True):
     def text_value(key):
         return cleaned_data.get(key) or ''
 
@@ -254,21 +260,26 @@ def _create_or_update_student_portal_records(cleaned_data, created_by):
     email = cleaned_data['email']
     default_password = f"{first_name.upper() or 'STUDENT'}12345"
 
-    user, user_created = User.objects.get_or_create(
-        username=email,
-        defaults={
-            'email': email,
-            'first_name': first_name,
-            'last_name': last_name,
-        },
-    )
+    if existing_user is not None:
+        user = existing_user
+        user_created = False
+    else:
+        user, user_created = User.objects.get_or_create(
+            username=email,
+            defaults={
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+            },
+        )
 
-    if not user_created:
-        user.email = email
-        user.first_name = first_name
-        user.last_name = last_name
+    user.username = email
+    user.email = email
+    user.first_name = first_name
+    user.last_name = last_name
 
-    user.set_password(default_password)
+    if reset_password or user_created:
+        user.set_password(default_password)
     user.save()
 
     user_profile, _ = UserProfile.objects.get_or_create(
@@ -340,20 +351,27 @@ def _create_or_update_student_portal_records(cleaned_data, created_by):
         },
     )
 
-    portal_application = Application.objects.create(
-        student=user,
-        application_type='university',
-        university_name='',
-        course=text_value('preferred_program_1'),
-        country=text_value('preferred_country_1'),
-        status='submitted',
-        is_paid=True,
-        payment_amount=0,
-        payment_status='paid',
-        payment_verified_by=created_by,
-        payment_verified_at=timezone.now(),
-        payment_notes='Created by employee from an offline application form.',
-    )
+    portal_defaults = {
+        'student': user,
+        'application_type': 'university',
+        'university_name': '',
+        'course': text_value('preferred_program_1'),
+        'country': text_value('preferred_country_1'),
+        'status': 'submitted',
+        'is_paid': True,
+        'payment_amount': 0,
+        'payment_status': 'paid',
+        'payment_verified_by': created_by,
+        'payment_verified_at': timezone.now(),
+        'payment_notes': 'Created by staff from an offline application form.',
+    }
+
+    if portal_application is not None:
+        for field_name, value in portal_defaults.items():
+            setattr(portal_application, field_name, value)
+        portal_application.save()
+    else:
+        portal_application = Application.objects.create(**portal_defaults)
 
     return user, student_profile, portal_application, default_password
 
@@ -399,6 +417,280 @@ def offline_application_create(request):
             'submit_label': 'Save student and create account',
         },
     )
+
+
+@csrf_protect
+def partner_register(request):
+    if request.user.is_authenticated:
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            if profile.can_access_partner_portal():
+                return redirect('employee:partner_dashboard')
+        except UserProfile.DoesNotExist:
+            pass
+
+    if request.method == 'POST':
+        form = PartnerRegistrationForm(request.POST)
+        if form.is_valid():
+            full_name = form.cleaned_data['full_name'].strip()
+            name_parts = full_name.split()
+            first_name = name_parts[0] if name_parts else ''
+            last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+            )
+            user.is_active = False
+            user.save()
+
+            UserProfile.objects.create(
+                user=user,
+                role='partner',
+                registration_method='partner',
+            )
+
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            activation_link = request.build_absolute_uri(
+                reverse('employee:partner_activate', kwargs={'uidb64': uid, 'token': token})
+            )
+
+            subject = 'Activate your Partner Portal account'
+            message = (
+                f"Hello {user.get_full_name() or user.username},\n\n"
+                "Your partner account has been created. Click the link below to verify your email and activate your account:\n"
+                f"{activation_link}\n\n"
+                "If you did not request this account, you can safely ignore this email.\n\n"
+                "Best regards,\n"
+                "Africa Western Education Team"
+            )
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@africawesternedu.com'),
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, 'Your partner account has been created. Check your email to activate it.')
+            except Exception as exc:
+                print(f'Partner verification email failed: {exc}')
+                print(f'Activation link: {activation_link}')
+                messages.success(request, 'Your partner account has been created. Check the server logs for the activation link while email is configured.')
+
+            return redirect('employee:partner_login')
+    else:
+        form = PartnerRegistrationForm()
+
+    return render(request, 'partner/register.html', {'form': form})
+
+
+def partner_activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        try:
+            profile = UserProfile.objects.get(user=user)
+        except UserProfile.DoesNotExist:
+            profile = UserProfile.objects.create(user=user, role='partner', registration_method='partner')
+
+        profile.role = 'partner'
+        profile.registration_method = 'partner'
+        profile.save()
+
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        login(request, user)
+        messages.success(request, 'Your partner account has been activated successfully.')
+        return redirect('employee:partner_dashboard')
+
+    messages.error(request, 'The activation link is invalid or has expired.')
+    return redirect('employee:partner_login')
+
+
+@csrf_protect
+def partner_login(request):
+    if request.user.is_authenticated:
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            if profile.can_access_partner_portal():
+                return redirect('employee:partner_dashboard')
+        except UserProfile.DoesNotExist:
+            pass
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            try:
+                profile = UserProfile.objects.get(user=user)
+                if profile.can_access_partner_portal():
+                    login(request, user)
+                    messages.success(request, f'Welcome back, {user.get_full_name()}!')
+                    return redirect('employee:partner_dashboard')
+                messages.error(request, 'Access denied. This login is only for verified partners.')
+            except UserProfile.DoesNotExist:
+                messages.error(request, 'Access denied. Partner profile not found.')
+        else:
+            inactive_user = User.objects.filter(username__iexact=username).first()
+            if inactive_user and not inactive_user.is_active:
+                messages.error(request, 'Your account is not active yet. Please check your email for the activation link.')
+            else:
+                messages.error(request, 'Invalid username or password')
+
+    return render(request, 'partner/login.html')
+
+
+@login_required
+@partner_required
+def partner_dashboard(request):
+    profile = UserProfile.objects.get(user=request.user)
+    applications = (
+        StudentApplication.objects.filter(created_by=request.user)
+        .select_related('student_user', 'portal_application')
+        .order_by('-created_at')
+    )
+
+    context = {
+        'profile': profile,
+        'applications': applications,
+        'applications_count': applications.count(),
+        'recent_applications': applications[:6],
+    }
+    return render(request, 'partner/dashboard.html', context)
+
+
+@login_required
+@partner_required
+@csrf_protect
+def partner_application_create(request):
+    if request.method == 'POST':
+        form = OfflineStudentIntakeForm(request.POST)
+        if form.is_valid():
+            with transaction.atomic():
+                offline_application = form.save(commit=False)
+                (
+                    student_user,
+                    _student_profile,
+                    portal_application,
+                    default_password,
+                ) = _create_or_update_student_portal_records(form.cleaned_data, request.user)
+
+                offline_application.student_user = student_user
+                offline_application.portal_application = portal_application
+                offline_application.created_by = request.user
+                offline_application.account_created = True
+                offline_application.username = student_user.username
+                offline_application.temporary_password = default_password
+                offline_application.save()
+
+            messages.success(request, f'Student record created for {student_user.get_full_name() or student_user.username}.')
+            return redirect('employee:partner_dashboard')
+    else:
+        form = OfflineStudentIntakeForm()
+
+    return render(
+        request,
+        'partner/student_form.html',
+        {
+            'form': form,
+            'page_title': 'Add student record',
+            'submit_label': 'Save student record',
+        },
+    )
+
+
+@login_required
+@partner_required
+@csrf_protect
+def partner_application_edit(request, pk):
+    application = get_object_or_404(StudentApplication, pk=pk, created_by=request.user)
+
+    if request.method == 'POST':
+        form = OfflineStudentIntakeForm(request.POST, instance=application)
+        if form.is_valid():
+            with transaction.atomic():
+                offline_application = form.save(commit=False)
+                (
+                    student_user,
+                    _student_profile,
+                    portal_application,
+                    _default_password,
+                ) = _create_or_update_student_portal_records(
+                    form.cleaned_data,
+                    request.user,
+                    existing_user=application.student_user,
+                    portal_application=application.portal_application,
+                    reset_password=False,
+                )
+
+                offline_application.student_user = student_user
+                offline_application.portal_application = portal_application
+                offline_application.created_by = request.user
+                offline_application.account_created = True
+                offline_application.username = student_user.username
+                offline_application.temporary_password = application.temporary_password
+                offline_application.save()
+
+            messages.success(request, 'Student record updated successfully.')
+            return redirect('employee:partner_dashboard')
+    else:
+        form = OfflineStudentIntakeForm(instance=application)
+
+    return render(
+        request,
+        'partner/student_form.html',
+        {
+            'form': form,
+            'page_title': 'Edit student record',
+            'submit_label': 'Update student record',
+            'application': application,
+        },
+    )
+
+
+@login_required
+@partner_required
+@csrf_protect
+def partner_application_delete(request, pk):
+    application = get_object_or_404(StudentApplication, pk=pk, created_by=request.user)
+
+    if request.method == 'POST':
+        if application.portal_application:
+            application.portal_application.delete()
+        application.delete()
+        messages.success(request, 'Student record deleted successfully.')
+        return redirect('employee:partner_dashboard')
+
+    return render(
+        request,
+        'partner/student_confirm_delete.html',
+        {
+            'application': application,
+        },
+    )
+
+
+@login_required
+@csrf_protect
+def partner_logout(request):
+    logout(request)
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('employee:partner_login')
+
 
 @login_required
 @employee_required

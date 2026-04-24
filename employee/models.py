@@ -10,12 +10,14 @@ class UserProfile(models.Model):
     USER_ROLES = [
         ('student', 'Student'),
         ('employee', 'Employee'),
+        ('partner', 'Partner'),
         ('admin', 'Administrator'),
     ]
     
     REGISTRATION_METHODS = [
         ('self', 'Self Registration'),
         ('admin', 'Admin Created'),
+        ('partner', 'Partner Registration'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -38,6 +40,10 @@ class UserProfile(models.Model):
     def is_student(self):
         """Check if user is student"""
         return self.role == 'student'
+
+    def is_partner(self):
+        """Check if user is a partner"""
+        return self.role == 'partner'
     
     def is_admin(self):
         """Check if user is admin"""
@@ -50,6 +56,10 @@ class UserProfile(models.Model):
     def can_access_employee_portal(self):
         """Employee portal access: must be employee/admin AND created by admin"""
         return self.is_employee() and self.registration_method == 'admin'
+
+    def can_access_partner_portal(self):
+        """Partner portal access: must be a verified partner account"""
+        return self.is_partner() and self.registration_method == 'partner' and self.user.is_active
     
     def can_access_student_portal(self):
         """Student portal access: allow all student accounts, including offline entries."""

@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Student Record | Africa Western Education</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(244,63,94,0.18),_transparent_40%),linear-gradient(135deg,_#020617,_#111827,_#1f2937)] flex items-center justify-center px-4 py-10">
+        <div class="w-full max-w-xl rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl shadow-2xl p-8 md:p-10 text-center">
+            <p class="text-rose-300 uppercase tracking-[0.3em] text-xs font-semibold mb-3">Danger Zone</p>
+            <h1 class="text-3xl font-extrabold">Delete Student Record</h1>
+            <p class="mt-4 text-slate-300">Are you sure you want to delete <strong class="text-white">{{ application.full_name }}</strong>? This removes the partner record from your dashboard.</p>
+
+            <form method="post" class="mt-8 flex flex-wrap justify-center gap-3">
+                {% csrf_token %}
+                <button type="submit" class="rounded-xl bg-rose-500 px-5 py-3 font-semibold text-white transition hover:bg-rose-400">Yes, Delete</button>
+                <a href="{% url 'employee:partner_dashboard' %}" class="rounded-xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Cancel</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

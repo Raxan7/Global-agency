@@ -20,6 +20,22 @@ def employee_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
+def partner_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('employee:partner_login')
+
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            if not profile.can_access_partner_portal():
+                return HttpResponseForbidden("Access denied. Verified partner account required.")
+        except UserProfile.DoesNotExist:
+            return HttpResponseForbidden("Access denied. User profile not found. Please contact administrator.")
+
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
 def admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):

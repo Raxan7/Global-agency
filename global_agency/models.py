@@ -147,6 +147,8 @@ class StudentApplication(models.Model):
 
     # System fields
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_student_applications')
+    portal_application = models.ForeignKey('student_portal.Application', on_delete=models.SET_NULL, null=True, blank=True, related_name='offline_intakes')
     
     # Account creation fields
     account_created = models.BooleanField(default=False)

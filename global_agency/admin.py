@@ -14,6 +14,7 @@ class StudentProfileInline(admin.StackedInline):
 # Student Applications Inline
 class StudentApplicationInline(admin.TabularInline):
     model = StudentApplication
+    fk_name = 'student_user'
     extra = 0
     max_num = 5
     fields = ('full_name', 'email', 'nationality', 'created_at', 'account_created')
