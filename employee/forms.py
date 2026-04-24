@@ -135,6 +135,33 @@ DOCUMENT_FLAG_FIELD_MAP = {
     'financial_document': 'has_other_attachments',
 }
 
+SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
+    'agency_name',
+    'highest_education_institute',
+    'highest_education_field_of_study',
+    'highest_education_qualification',
+    'other_education_1_institute',
+    'other_education_1_field_of_study',
+    'other_education_1_qualification',
+    'other_education_2_institute',
+    'other_education_2_field_of_study',
+    'other_education_2_qualification',
+    'employer',
+    'work_engaged',
+    'title_position',
+    'institute_preference_1',
+    'discipline_1',
+    'major_1',
+    'institute_preference_2',
+    'discipline_2',
+    'major_2',
+    'institute_preference_3',
+    'discipline_3',
+    'major_3',
+    'china_institute_or_employer',
+    'previous_csc_institute_name',
+}
+
 
 class MultiFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
@@ -492,6 +519,8 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             elif model_field.get_internal_type() == 'DateField':
                 widget = forms.DateInput(attrs={'class': 'form-input', 'type': 'date'})
                 form_field.widget = widget
+            elif model_field.get_internal_type() in {'TextField'} and field_name in SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS:
+                form_field.widget = forms.TextInput(attrs={'class': 'form-input'})
             elif model_field.get_internal_type() in {'TextField'}:
                 form_field.widget = forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3})
             elif model_field.get_internal_type() in {'PositiveIntegerField', 'IntegerField'}:
