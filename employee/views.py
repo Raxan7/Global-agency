@@ -17,12 +17,24 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
 from urllib.parse import quote
+import logging
 import re
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
-from student_portal.models import Application, Document, Payment, StudentProfile
-from .forms import OfflineStudentIntakeForm, PartnerRegistrationForm, PortalUpdateForm
+from student_portal.models import Application, ApplicationSupplementalProfile, Document, Payment, StudentProfile
+from .forms import (
+    DOCUMENT_FLAG_FIELD_MAP,
+    DOCUMENT_UPLOAD_FIELD_MAP,
+    SUPPLEMENTAL_FIELD_GROUPS,
+    SUPPLEMENTAL_FIELD_NAMES,
+    OfflineStudentIntakeForm,
+    PartnerRegistrationForm,
+    PortalUpdateForm,
+)
 from .models import PortalUpdate, UserProfile
 from .decorators import employee_required, admin_required, partner_required
+from .pdf_exports import build_csc_style_application_pdf
+
+logger = logging.getLogger(__name__)
 
 @csrf_protect
 def employee_login(request):
@@ -34,52 +46,46 @@ def employee_login(request):
                 return redirect('employee:employee_dashboard')
             if profile.can_access_partner_portal():
                 return redirect('employee:partner_dashboard')
-            else:
-                # Logout if user cannot access employee portal
-                logout(request)
-                messages.error(request, "Access denied. Please use the student or partner portal.")
-                return redirect('employee:employee_login')
+            # Logout if user cannot access employee portal
+            logout(request)
+            messages.error(request, 'Access denied. Please use the student or partner portal.')
+            return redirect('employee:employee_login')
         except UserProfile.DoesNotExist:
             pass
-    
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
-            # Check if user can access employee portal
             try:
                 profile = UserProfile.objects.get(user=user)
                 if profile.can_access_employee_portal():
                     login(request, user)
-                    messages.success(request, f"Welcome back, {user.get_full_name()}!")
-                    
-                    # Redirect admins to admin dashboard if needed
+                    messages.success(request, f'Welcome back, {user.get_full_name()}!')
                     if profile.is_admin():
                         return redirect('employee:admin_dashboard')
-                    else:
-                        return redirect('employee:employee_dashboard')
-                elif profile.can_access_partner_portal():
-                    messages.error(request, "This login page is for employees. Please use the partner portal instead.")
+                    return redirect('employee:employee_dashboard')
+                if profile.can_access_partner_portal():
+                    messages.error(request, 'This login page is for employees. Please use the partner portal instead.')
                 else:
-                    messages.error(request, "Access denied. This portal is for admin-created employees only. Students should use the student portal.")
+                    messages.error(request, 'Access denied. This portal is for admin-created employees only. Students should use the student portal.')
             except UserProfile.DoesNotExist:
-                messages.error(request, "Access denied. User profile not found. Please contact administrator.")
+                messages.error(request, 'Access denied. User profile not found. Please contact administrator.')
         else:
-            messages.error(request, "Invalid username or password")
-    
-    return render(request, "employee/login.html")
+            messages.error(request, 'Invalid username or password')
+
+    return render(request, 'employee/login.html')
+
 
 @login_required
 @employee_required
 def employee_dashboard(request):
-    # Get user profile for role-based access
     profile = UserProfile.objects.get(user=request.user)
-    
-    # Get data from both global_agency and student_portal
+
     applications = StudentApplication.objects.all().order_by('-created_at')
-    student_applications = Application.objects.all().order_by('-created_at')  # ALL employees see ALL applications
+    student_applications = Application.objects.all().order_by('-created_at')
     contact_messages = ContactMessage.objects.all().order_by('-created_at')
     documents = Document.objects.all().order_by('-uploaded_at')[:10]
     updates = (
@@ -87,8 +93,11 @@ def employee_dashboard(request):
         .prefetch_related('gallery_images', 'attachments')
         .order_by('-updated_at')
     )
-
-    # REMOVED: Assignment logic - all employees see all applications
+    pending_partner_profiles = (
+        UserProfile.objects.select_related('user', 'partner_approved_by')
+        .filter(role='partner', registration_method='partner', is_partner_approved=False)
+        .order_by('-created_at')
+    )
 
     context = {
         'profile': profile,
@@ -107,31 +116,55 @@ def employee_dashboard(request):
             status='published',
             event_start__gte=timezone.now(),
         ).count(),
+        'pending_partner_profiles': pending_partner_profiles,
+        'pending_partner_count': pending_partner_profiles.count(),
         'recent_updates': updates[:4],
         'is_admin': profile.is_admin(),
         'is_regular_employee': profile.is_regular_employee(),
     }
     return render(request, 'employee/dashboard.html', context)
 
+
+@login_required
+@employee_required
+@csrf_protect
+def approve_partner_account(request, profile_id):
+    partner_profile = get_object_or_404(
+        UserProfile.objects.select_related('user'),
+        pk=profile_id,
+        role='partner',
+        registration_method='partner',
+    )
+
+    if request.method == 'POST':
+        partner_profile.is_partner_approved = True
+        partner_profile.partner_approved_at = timezone.now()
+        partner_profile.partner_approved_by = request.user
+        partner_profile.save(update_fields=['is_partner_approved', 'partner_approved_at', 'partner_approved_by', 'updated_at'])
+        messages.success(
+            request,
+            f'Partner account approved for {partner_profile.user.get_full_name() or partner_profile.user.username}.',
+        )
+
+    return redirect('employee:employee_dashboard')
+
+
 @login_required
 @admin_required
 def admin_dashboard(request):
-    """Admin-only dashboard with advanced features"""
+    """Admin-only dashboard with advanced features."""
     profile = UserProfile.objects.get(user=request.user)
-    
-    # Admin-specific data
+
     total_students = UserProfile.objects.filter(role='student').count()
     total_employees = UserProfile.objects.filter(role='employee').count()
     total_admins = UserProfile.objects.filter(role='admin').count()
-    
-    # Recent activity
+
     recent_applications = Application.objects.all().order_by('-created_at')[:5]
     recent_messages = ContactMessage.objects.all().order_by('-created_at')[:5]
-    
-    # Payment statistics
+
     total_payments = Payment.objects.filter(is_successful=True)
     total_revenue = sum(payment.amount for payment in total_payments)
-    
+
     context = {
         'profile': profile,
         'total_students': total_students,
@@ -146,32 +179,42 @@ def admin_dashboard(request):
     }
     return render(request, 'employee/admin_dashboard.html', context)
 
+
 @login_required
 @csrf_protect
 def employee_logout(request):
     logout(request)
-    messages.success(request, "You have been successfully logged out.")
-    return redirect("employee:employee_login")
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('employee:employee_login')
+
 
 @login_required
 @employee_required
 def application_detail(request, pk):
     application = get_object_or_404(StudentApplication, pk=pk)
     profile = UserProfile.objects.get(user=request.user)
-    
+    document_owner = application.student_user
+    if document_owner is None and application.portal_application:
+        document_owner = application.portal_application.student
+    documents = (
+        Document.objects.filter(student=document_owner).order_by('-uploaded_at')
+        if document_owner is not None else Document.objects.none()
+    )
+
     context = {
         'application': application,
+        'documents': documents,
         'is_admin': profile.is_admin(),
     }
     return render(request, 'employee/application_detail.html', context)
 
+
 @login_required
 @employee_required
 def student_application_list(request):
-    """View all student portal applications"""
+    """View all student portal applications."""
     profile = UserProfile.objects.get(user=request.user)
-    
-    # ALL employees see ALL applications (removed admin/employee distinction)
+
     applications_qs = (
         Application.objects.select_related('student')
         .prefetch_related(
@@ -182,22 +225,20 @@ def student_application_list(request):
         )
         .order_by('-created_at')
     )
-    
-    # Filter by status if provided
+
     status_filter = request.GET.get('status')
     if status_filter:
         applications_qs = applications_qs.filter(status=status_filter)
-    
-    # Search functionality
+
     search_query = request.GET.get('search')
     if search_query:
         applications_qs = applications_qs.filter(
-            Q(student__username__icontains=search_query) |
-            Q(student__first_name__icontains=search_query) |
-            Q(student__last_name__icontains=search_query) |
-            Q(university_name__icontains=search_query) |
-            Q(course__icontains=search_query) |
-            Q(country__icontains=search_query)
+            Q(student__username__icontains=search_query)
+            | Q(student__first_name__icontains=search_query)
+            | Q(student__last_name__icontains=search_query)
+            | Q(university_name__icontains=search_query)
+            | Q(course__icontains=search_query)
+            | Q(country__icontains=search_query)
         )
 
     applications = list(applications_qs)
@@ -214,7 +255,7 @@ def student_application_list(request):
                 partner_submitted_count += 1
                 break
         app.partner_intake = partner_intake
-    
+
     context = {
         'applications': applications,
         'status_filter': status_filter,
@@ -228,13 +269,13 @@ def student_application_list(request):
     }
     return render(request, 'employee/student_application_list.html', context)
 
+
 @login_required
 @employee_required
 def student_application_detail(request, application_id):
-    """View detailed student portal application"""
+    """View detailed student portal application."""
     profile = UserProfile.objects.get(user=request.user)
-    
-    # ALL employees can see ANY application
+
     application = get_object_or_404(Application, id=application_id)
 
     partner_intake = (
@@ -243,141 +284,72 @@ def student_application_detail(request, application_id):
         .order_by('-created_at')
         .first()
     )
-    
+
     documents = Document.objects.filter(student=application.student)
     payments = Payment.objects.filter(application=application)
-    
-    # Fetch student profile data if it exists
+
     try:
         student_profile = StudentProfile.objects.get(user=application.student)
     except StudentProfile.DoesNotExist:
         student_profile = None
-    
+
+    completion_summary = student_profile.get_completion_status() if student_profile else None
+
     context = {
         'application': application,
         'student_profile': student_profile,
         'documents': documents,
         'payments': payments,
         'partner_intake': partner_intake,
+        'completion_summary': completion_summary,
         'is_admin': profile.is_admin(),
     }
     return render(request, 'employee/student_application_detail.html', context)
 
 
-def _build_partner_form_sections(form):
-    section_specs = [
-        {
-            'key': 'student_identity',
-            'title': 'Student Identity',
-            'description': 'Basic profile and contact details for the student.',
-            'icon': 'fa-user-graduate',
-            'fields': ['full_name', 'gender', 'nationality', 'email', 'phone', 'address'],
-        },
-        {
-            'key': 'family_selector',
-            'title': 'Family Contact Mode',
-            'description': 'Choose whether parent details are available or guardian-only details should be used.',
-            'icon': 'fa-sliders',
-            'fields': ['parent_entry_mode'],
-        },
-        {
-            'key': 'parents',
-            'title': 'Parent Details',
-            'description': 'Enter one or both parents when available.',
-            'icon': 'fa-people-roof',
-            'fields': [
-                'father_name', 'father_phone', 'father_email', 'father_occupation',
-                'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
-            ],
-        },
-        {
-            'key': 'guardian',
-            'title': 'Guardian Details',
-            'description': 'Required when no parent details are available.',
-            'icon': 'fa-user-shield',
-            'fields': ['emergency_name', 'emergency_relation', 'emergency_gender', 'emergency_occupation', 'emergency_address'],
-        },
-        {
-            'key': 'olevel',
-            'title': 'O-Level Background',
-            'description': 'Add O-Level school and performance information.',
-            'icon': 'fa-school',
-            'fields': ['olevel_school', 'olevel_country', 'olevel_address', 'olevel_region', 'olevel_year', 'olevel_candidate_no', 'olevel_gpa'],
-        },
-        {
-            'key': 'alevel',
-            'title': 'A-Level Background',
-            'description': 'Add A-Level school details when available.',
-            'icon': 'fa-building-columns',
-            'fields': ['alevel_school', 'alevel_country', 'alevel_address', 'alevel_region', 'alevel_year', 'alevel_candidate_no', 'alevel_gpa'],
-        },
-        {
-            'key': 'study_preferences',
-            'title': 'Study Preferences',
-            'description': 'Capture destination countries and programs of interest.',
-            'icon': 'fa-compass-drafting',
-            'fields': [
-                'preferred_country_1', 'preferred_program_1',
-                'preferred_country_2', 'preferred_program_2',
-                'preferred_country_3', 'preferred_program_3',
-                'preferred_country_4', 'preferred_program_4',
-            ],
-        },
-        {
-            'key': 'referral',
-            'title': 'Referral Information',
-            'description': 'Track how the student heard about Africa Western Education.',
-            'icon': 'fa-bullhorn',
-            'fields': ['heard_about_us', 'heard_about_other'],
-        },
-    ]
-
-    sections = []
-    for spec in section_specs:
-        available_fields = [field_name for field_name in spec['fields'] if field_name in form.fields]
-        if not available_fields:
-            continue
-        bound_fields = [form[field_name] for field_name in available_fields]
-        sections.append({
-            'key': spec['key'],
-            'title': spec['title'],
-            'description': spec['description'],
-            'icon': spec['icon'],
-            'bound_fields': bound_fields,
-        })
-    return sections
-
 @login_required
 @employee_required
 @csrf_protect
 def update_student_application_status(request, application_id):
-    """Update student portal application status"""
-    profile = UserProfile.objects.get(user=request.user)
-    
-    # ALL employees can update ANY application
+    """Update student portal application status."""
     application = get_object_or_404(Application, id=application_id)
-    
+
     if request.method == 'POST':
         new_status = request.POST.get('status')
-        notes = request.POST.get('notes', '')
-        
         if new_status in dict(Application.APPLICATION_STATUS):
             application.status = new_status
-            application.notes = notes
-            application.save()
-            messages.success(request, f'Application status updated to {application.get_status_display()}')
+            application.save(update_fields=['status', 'updated_at'])
+            messages.success(request, f'Application status updated to {application.get_status_display()}.')
         else:
             messages.error(request, 'Invalid status selected.')
-def _create_or_update_student_portal_records(cleaned_data, created_by, existing_user=None, portal_application=None, reset_password=True):
+
+    return redirect('employee:student_application_detail', application_id=application_id)
+
+
+def _create_or_update_student_portal_records(
+    cleaned_data,
+    created_by,
+    existing_user=None,
+    portal_application=None,
+    reset_password=True,
+    uploaded_files=None,
+):
     def text_value(key):
         return cleaned_data.get(key) or ''
+
+    def persist_field_file(field_file, uploaded_file, fallback_prefix):
+        original_name = getattr(uploaded_file, 'name', '') or f'{fallback_prefix}'
+        file_name = original_name.rsplit('/', 1)[-1].rsplit('\\', 1)[-1]
+        if hasattr(uploaded_file, 'seek'):
+            uploaded_file.seek(0)
+        field_file.save(file_name, uploaded_file, save=False)
 
     full_name = (cleaned_data.get('full_name') or '').strip()
     name_parts = full_name.split()
     first_name = name_parts[0] if name_parts else ''
     last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
     email = cleaned_data['email']
-    default_password = f"{first_name.upper() or 'STUDENT'}12345"
+    default_password = f"{(first_name.upper() or 'STUDENT')}12345"
 
     if existing_user is not None:
         user = existing_user
@@ -396,7 +368,6 @@ def _create_or_update_student_portal_records(cleaned_data, created_by, existing_
     user.email = email
     user.first_name = first_name
     user.last_name = last_name
-
     if reset_password or user_created:
         user.set_password(default_password)
     user.save()
@@ -470,6 +441,20 @@ def _create_or_update_student_portal_records(cleaned_data, created_by, existing_
         },
     )
 
+    profile_picture = (uploaded_files or {}).get('profile_picture_upload')
+    if profile_picture:
+        persist_field_file(student_profile.profile_picture, profile_picture, f'profiles/{email}_profile')
+        student_profile.save(update_fields=['profile_picture', 'personal_details_complete', 'parents_details_complete', 'academic_qualifications_complete', 'study_preferences_complete', 'emergency_contact_complete'])
+        logger.info(
+            'Saved profile picture via %s for %s as %s',
+            student_profile.profile_picture.storage.__class__.__name__,
+            email,
+            student_profile.profile_picture.name,
+        )
+
+    uploader_role = getattr(getattr(created_by, 'userprofile', None), 'role', '')
+    uploader_label = 'partner' if uploader_role == 'partner' else 'employee'
+
     portal_defaults = {
         'student': user,
         'application_type': 'university',
@@ -492,6 +477,82 @@ def _create_or_update_student_portal_records(cleaned_data, created_by, existing_
     else:
         portal_application = Application.objects.create(**portal_defaults)
 
+    supplemental_profile, _ = ApplicationSupplementalProfile.objects.get_or_create(
+        application=portal_application
+    )
+    for field_name in SUPPLEMENTAL_FIELD_NAMES:
+        setattr(supplemental_profile, field_name, cleaned_data.get(field_name))
+
+    if not supplemental_profile.surname:
+        supplemental_profile.surname = last_name
+    if not supplemental_profile.given_name:
+        supplemental_profile.given_name = first_name
+    if not supplemental_profile.personal_phone:
+        supplemental_profile.personal_phone = text_value('phone')
+    if not supplemental_profile.personal_email:
+        supplemental_profile.personal_email = email
+    if not supplemental_profile.correspondence_address:
+        supplemental_profile.correspondence_address = text_value('address')
+    if not supplemental_profile.emergency_contact_name:
+        supplemental_profile.emergency_contact_name = text_value('emergency_name')
+    if not supplemental_profile.emergency_contact_gender:
+        supplemental_profile.emergency_contact_gender = text_value('emergency_gender')
+    if not supplemental_profile.emergency_contact_relation:
+        supplemental_profile.emergency_contact_relation = text_value('emergency_relation')
+    if not supplemental_profile.emergency_contact_phone:
+        supplemental_profile.emergency_contact_phone = text_value('phone')
+    if not supplemental_profile.emergency_contact_email:
+        supplemental_profile.emergency_contact_email = text_value('father_email') or text_value('mother_email')
+    if not supplemental_profile.emergency_contact_address:
+        supplemental_profile.emergency_contact_address = text_value('emergency_address')
+    if not supplemental_profile.father_name:
+        supplemental_profile.father_name = text_value('father_name')
+    if not supplemental_profile.father_occupation:
+        supplemental_profile.father_occupation = text_value('father_occupation')
+    if not supplemental_profile.mother_name:
+        supplemental_profile.mother_name = text_value('mother_name')
+    if not supplemental_profile.mother_occupation:
+        supplemental_profile.mother_occupation = text_value('mother_occupation')
+    if not supplemental_profile.serial_number:
+        supplemental_profile.serial_number = f'AWECO/Tz/DSM/{portal_application.id:03d}'
+
+    if profile_picture:
+        supplemental_profile.has_passport_photo = True
+
+    for field_name, document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP:
+        uploaded_document = (uploaded_files or {}).get(field_name)
+        if uploaded_document:
+            existing_documents = Document.objects.filter(student=user, document_type=document_type).order_by('-uploaded_at')
+            existing_document = existing_documents.first()
+            if existing_document:
+                existing_documents.exclude(pk=existing_document.pk).delete()
+                persist_field_file(existing_document.file, uploaded_document, f'documents/{document_type}')
+                existing_document.description = f'Uploaded through the {uploader_label} intake workflow.'
+                existing_document.is_verified = False
+                existing_document.save(update_fields=['file', 'description', 'is_verified'])
+            else:
+                document = Document(
+                    student=user,
+                    document_type=document_type,
+                    description=f'Uploaded through the {uploader_label} intake workflow.',
+                )
+                persist_field_file(document.file, uploaded_document, f'documents/{document_type}')
+                document.save()
+            document_record = existing_document if existing_document else document
+            logger.info(
+                'Saved document via %s for %s: type=%s name=%s url=%s',
+                document_record.file.storage.__class__.__name__,
+                email,
+                document_type,
+                document_record.file.name,
+                document_record.file.url,
+            )
+            supplemental_flag = DOCUMENT_FLAG_FIELD_MAP.get(field_name)
+            if supplemental_flag:
+                setattr(supplemental_profile, supplemental_flag, True)
+
+    supplemental_profile.save()
+
     return user, student_profile, portal_application, default_password
 
 
@@ -500,42 +561,181 @@ def _create_or_update_student_portal_records(cleaned_data, created_by, existing_
 @csrf_protect
 def offline_application_create(request):
     """Capture an offline application on behalf of a student."""
+    supplemental_instance = None
+    student_profile_instance = None
+    existing_documents = []
     if request.method == 'POST':
-        form = OfflineStudentIntakeForm(request.POST)
+        form = OfflineStudentIntakeForm(
+            request.POST,
+            request.FILES,
+            supplemental_instance=supplemental_instance,
+            student_profile_instance=student_profile_instance,
+            existing_documents=existing_documents,
+        )
         if form.is_valid():
-            with transaction.atomic():
-                offline_application = form.save(commit=False)
-                (
-                    student_user,
-                    _student_profile,
-                    portal_application,
-                    default_password,
-                ) = _create_or_update_student_portal_records(form.cleaned_data, request.user)
+            try:
+                with transaction.atomic():
+                    offline_application = form.save(commit=False)
+                    (
+                        student_user,
+                        _student_profile,
+                        portal_application,
+                        default_password,
+                    ) = _create_or_update_student_portal_records(
+                        form.cleaned_data,
+                        request.user,
+                        uploaded_files=request.FILES,
+                    )
 
-                offline_application.student_user = student_user
-                offline_application.account_created = True
-                offline_application.username = student_user.username
-                offline_application.temporary_password = default_password
-                offline_application.save()
-
-            messages.success(
-                request,
-                f'Offline application saved for {student_user.get_full_name() or student_user.username}. '
-                f'Login username: {student_user.username} | Default password: {default_password}',
+                    offline_application.student_user = student_user
+                    offline_application.portal_application = portal_application
+                    offline_application.created_by = request.user
+                    offline_application.account_created = True
+                    offline_application.username = student_user.username
+                    offline_application.temporary_password = default_password
+                    offline_application.save()
+            except Exception:
+                logger.exception(
+                    'Offline intake upload failed for %s. Files=%s',
+                    form.cleaned_data.get('email'),
+                    list(request.FILES.keys()),
+                )
+                messages.error(request, 'The upload failed while saving to Cloudinary. Please try again with a valid file.')
+            else:
+                messages.success(
+                    request,
+                    f'Offline application saved for {student_user.get_full_name() or student_user.username}. '
+                    f'Login username: {student_user.username} | Default password: {default_password}',
+                )
+                return redirect('employee:student_application_detail', application_id=portal_application.id)
+        else:
+            logger.warning(
+                'Offline intake form invalid for %s. Errors=%s Files=%s',
+                request.POST.get('email'),
+                form.errors.as_json(),
+                list(request.FILES.keys()),
             )
-            return redirect('employee:student_application_detail', application_id=portal_application.id)
     else:
-        form = OfflineStudentIntakeForm()
+        form = OfflineStudentIntakeForm(
+            supplemental_instance=supplemental_instance,
+            student_profile_instance=student_profile_instance,
+            existing_documents=existing_documents,
+        )
 
     return render(
         request,
         'employee/offline_application_form.html',
         {
             'form': form,
+            'form_sections': _build_intake_form_sections(form),
             'page_title': 'Add offline application',
             'submit_label': 'Save student and create account',
+            'current_profile_picture': getattr(form, 'current_profile_picture', None),
+            'existing_documents': form.existing_documents_by_type,
         },
     )
+
+
+def _build_intake_form_sections(form):
+    section_specs = [
+        {
+            'key': 'student_identity',
+            'title': 'Student Identity',
+            'description': 'Basic profile and contact details for the student.',
+            'icon': 'fa-user-graduate',
+            'fields': ['full_name', 'gender', 'nationality', 'email', 'phone', 'address'],
+        },
+        {
+            'key': 'family_selector',
+            'title': 'Family Contact Mode',
+            'description': 'Choose whether parent details are available or guardian-only details should be used.',
+            'icon': 'fa-sliders',
+            'fields': ['parent_entry_mode'],
+        },
+        {
+            'key': 'parents',
+            'title': 'Parent Details',
+            'description': 'Enter one or both parents when available.',
+            'icon': 'fa-people-roof',
+            'fields': [
+                'father_name', 'father_phone', 'father_email', 'father_occupation',
+                'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
+            ],
+        },
+        {
+            'key': 'guardian',
+            'title': 'Guardian Details',
+            'description': 'Required when no parent details are available.',
+            'icon': 'fa-user-shield',
+            'fields': ['emergency_name', 'emergency_relation', 'emergency_gender', 'emergency_occupation', 'emergency_address'],
+        },
+        {
+            'key': 'olevel',
+            'title': 'O-Level Background',
+            'description': 'Add O-Level school and performance information.',
+            'icon': 'fa-school',
+            'fields': ['olevel_school', 'olevel_country', 'olevel_address', 'olevel_region', 'olevel_year', 'olevel_candidate_no', 'olevel_gpa'],
+        },
+        {
+            'key': 'alevel',
+            'title': 'A-Level Background',
+            'description': 'Add A-Level school details when available.',
+            'icon': 'fa-building-columns',
+            'fields': ['alevel_school', 'alevel_country', 'alevel_address', 'alevel_region', 'alevel_year', 'alevel_candidate_no', 'alevel_gpa'],
+        },
+        {
+            'key': 'study_preferences',
+            'title': 'Study Preferences',
+            'description': 'Capture destination countries and programs of interest.',
+            'icon': 'fa-compass-drafting',
+            'fields': [
+                'preferred_country_1', 'preferred_program_1',
+                'preferred_country_2', 'preferred_program_2',
+                'preferred_country_3', 'preferred_program_3',
+                'preferred_country_4', 'preferred_program_4',
+            ],
+        },
+        {
+            'key': 'referral',
+            'title': 'Referral Information',
+            'description': 'Track how the student heard about Africa Western Education.',
+            'icon': 'fa-bullhorn',
+            'fields': ['heard_about_us', 'heard_about_other'],
+        },
+        {
+            'key': 'student_assets',
+            'title': 'Student Image and Uploads',
+            'description': 'Attach the student image and the main supporting documents directly during intake.',
+            'icon': 'fa-file-arrow-up',
+            'fields': ['profile_picture_upload'] + [field_name for field_name, _document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP],
+        },
+    ]
+
+    for key, title, description, icon, fields in SUPPLEMENTAL_FIELD_GROUPS:
+        section_specs.append(
+            {
+                'key': key,
+                'title': title,
+                'description': description,
+                'icon': icon,
+                'fields': fields,
+            }
+        )
+
+    sections = []
+    for spec in section_specs:
+        available_fields = [field_name for field_name in spec['fields'] if field_name in form.fields]
+        if not available_fields:
+            continue
+        bound_fields = [form[field_name] for field_name in available_fields]
+        sections.append({
+            'key': spec['key'],
+            'title': spec['title'],
+            'description': spec['description'],
+            'icon': spec['icon'],
+            'bound_fields': bound_fields,
+        })
+    return sections
 
 
 @csrf_protect
@@ -630,9 +830,8 @@ def partner_activate(request, uidb64, token):
 
         user.is_active = True
         user.save(update_fields=['is_active'])
-        login(request, user)
-        messages.success(request, 'Your partner account has been activated successfully.')
-        return redirect('employee:partner_dashboard')
+        messages.success(request, 'Your email has been verified. Your partner account now awaits employee approval before you can access the portal.')
+        return redirect('employee:partner_login')
 
     messages.error(request, 'The activation link is invalid or has expired.')
     return redirect('employee:partner_login')
@@ -660,7 +859,10 @@ def partner_login(request):
                     login(request, user)
                     messages.success(request, f'Welcome back, {user.get_full_name()}!')
                     return redirect('employee:partner_dashboard')
-                messages.error(request, 'Access denied. This login is only for verified partners.')
+                if profile.is_partner() and profile.registration_method == 'partner' and user.is_active and not profile.is_partner_approved:
+                    messages.error(request, 'Your email is verified, but your partner account is still waiting for employee approval.')
+                else:
+                    messages.error(request, 'Access denied. This login is only for approved partner accounts.')
             except UserProfile.DoesNotExist:
                 messages.error(request, 'Access denied. Partner profile not found.')
         else:
@@ -697,27 +899,48 @@ def partner_dashboard(request):
 @csrf_protect
 def partner_application_create(request):
     if request.method == 'POST':
-        form = OfflineStudentIntakeForm(request.POST)
+        form = OfflineStudentIntakeForm(request.POST, request.FILES)
         if form.is_valid():
-            with transaction.atomic():
-                offline_application = form.save(commit=False)
-                (
-                    student_user,
-                    _student_profile,
-                    portal_application,
-                    default_password,
-                ) = _create_or_update_student_portal_records(form.cleaned_data, request.user)
+            try:
+                with transaction.atomic():
+                    offline_application = form.save(commit=False)
+                    (
+                        student_user,
+                        _student_profile,
+                        portal_application,
+                        default_password,
+                    ) = _create_or_update_student_portal_records(
+                        form.cleaned_data,
+                        request.user,
+                        uploaded_files=request.FILES,
+                    )
 
-                offline_application.student_user = student_user
-                offline_application.portal_application = portal_application
-                offline_application.created_by = request.user
-                offline_application.account_created = True
-                offline_application.username = student_user.username
-                offline_application.temporary_password = default_password
-                offline_application.save()
-
-            messages.success(request, f'Student record created for {student_user.get_full_name() or student_user.username}.')
-            return redirect('employee:partner_dashboard')
+                    offline_application.student_user = student_user
+                    offline_application.portal_application = portal_application
+                    offline_application.created_by = request.user
+                    offline_application.account_created = True
+                    offline_application.username = student_user.username
+                    offline_application.temporary_password = default_password
+                    offline_application.save()
+            except Exception:
+                logger.exception(
+                    'Partner create upload failed for %s. Partner=%s Files=%s',
+                    form.cleaned_data.get('email'),
+                    request.user.username,
+                    list(request.FILES.keys()),
+                )
+                messages.error(request, 'The upload failed while saving to Cloudinary. Please use a valid PDF/image file and try again.')
+            else:
+                messages.success(request, f'Student record created for {student_user.get_full_name() or student_user.username}.')
+                return redirect('employee:partner_dashboard')
+        else:
+            logger.warning(
+                'Partner create form invalid for %s. Partner=%s Errors=%s Files=%s',
+                request.POST.get('email'),
+                request.user.username,
+                form.errors.as_json(),
+                list(request.FILES.keys()),
+            )
     else:
         form = OfflineStudentIntakeForm()
 
@@ -726,9 +949,11 @@ def partner_application_create(request):
         'partner/student_form.html',
         {
             'form': form,
-            'form_sections': _build_partner_form_sections(form),
+            'form_sections': _build_intake_form_sections(form),
             'page_title': 'Add student record',
             'submit_label': 'Save student record',
+            'current_profile_picture': getattr(form, 'current_profile_picture', None),
+            'existing_documents': form.existing_documents_by_type,
         },
     )
 
@@ -738,47 +963,91 @@ def partner_application_create(request):
 @csrf_protect
 def partner_application_edit(request, pk):
     application = get_object_or_404(StudentApplication, pk=pk, created_by=request.user)
+    supplemental_instance = (
+        ApplicationSupplementalProfile.objects.filter(application=application.portal_application).first()
+        if application.portal_application else None
+    )
+    student_profile_instance = (
+        StudentProfile.objects.filter(user=application.student_user).first()
+        if application.student_user else None
+    )
+    existing_documents = (
+        Document.objects.filter(student=application.student_user).order_by('-uploaded_at')
+        if application.student_user else Document.objects.none()
+    )
 
     if request.method == 'POST':
-        form = OfflineStudentIntakeForm(request.POST, instance=application)
+        form = OfflineStudentIntakeForm(
+            request.POST,
+            request.FILES,
+            instance=application,
+            supplemental_instance=supplemental_instance,
+            student_profile_instance=student_profile_instance,
+            existing_documents=existing_documents,
+        )
         if form.is_valid():
-            with transaction.atomic():
-                offline_application = form.save(commit=False)
-                (
-                    student_user,
-                    _student_profile,
-                    portal_application,
-                    _default_password,
-                ) = _create_or_update_student_portal_records(
-                    form.cleaned_data,
-                    request.user,
-                    existing_user=application.student_user,
-                    portal_application=application.portal_application,
-                    reset_password=False,
+            try:
+                with transaction.atomic():
+                    offline_application = form.save(commit=False)
+                    (
+                        student_user,
+                        _student_profile,
+                        portal_application,
+                        _default_password,
+                    ) = _create_or_update_student_portal_records(
+                        form.cleaned_data,
+                        request.user,
+                        existing_user=application.student_user,
+                        portal_application=application.portal_application,
+                        reset_password=False,
+                        uploaded_files=request.FILES,
+                    )
+
+                    offline_application.student_user = student_user
+                    offline_application.portal_application = portal_application
+                    offline_application.created_by = request.user
+                    offline_application.account_created = True
+                    offline_application.username = student_user.username
+                    offline_application.temporary_password = application.temporary_password
+                    offline_application.save()
+            except Exception:
+                logger.exception(
+                    'Partner edit upload failed for application=%s partner=%s files=%s',
+                    application.pk,
+                    request.user.username,
+                    list(request.FILES.keys()),
                 )
-
-                offline_application.student_user = student_user
-                offline_application.portal_application = portal_application
-                offline_application.created_by = request.user
-                offline_application.account_created = True
-                offline_application.username = student_user.username
-                offline_application.temporary_password = application.temporary_password
-                offline_application.save()
-
-            messages.success(request, 'Student record updated successfully.')
-            return redirect('employee:partner_dashboard')
+                messages.error(request, 'The upload failed while saving to Cloudinary. Please use a valid PDF/image file and try again.')
+            else:
+                messages.success(request, 'Student record updated successfully.')
+                return redirect('employee:partner_dashboard')
+        else:
+            logger.warning(
+                'Partner edit form invalid for application=%s partner=%s errors=%s files=%s',
+                application.pk,
+                request.user.username,
+                form.errors.as_json(),
+                list(request.FILES.keys()),
+            )
     else:
-        form = OfflineStudentIntakeForm(instance=application)
+        form = OfflineStudentIntakeForm(
+            instance=application,
+            supplemental_instance=supplemental_instance,
+            student_profile_instance=student_profile_instance,
+            existing_documents=existing_documents,
+        )
 
     return render(
         request,
         'partner/student_form.html',
         {
             'form': form,
-            'form_sections': _build_partner_form_sections(form),
+            'form_sections': _build_intake_form_sections(form),
             'page_title': 'Edit student record',
             'submit_label': 'Update student record',
             'application': application,
+            'current_profile_picture': getattr(form, 'current_profile_picture', None),
+            'existing_documents': form.existing_documents_by_type,
         },
     )
 
@@ -1596,360 +1865,18 @@ def verify_payment(request, application_id):
 @login_required
 @employee_required
 def export_single_application_pdf(request, application_id):
-    """Export a single application to PDF"""
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import letter, A4
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import inch
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-    from io import BytesIO
-    from django.http import HttpResponse
-    
+    """Export a single application to CSC-style PDF using shared export builder."""
     application = get_object_or_404(Application, id=application_id)
-    
-    # Fetch student profile if it exists
+
     try:
         student_profile = StudentProfile.objects.get(user=application.student)
     except StudentProfile.DoesNotExist:
         student_profile = None
-    
-    # Create the HttpResponse object with PDF headers
-    response = HttpResponse(content_type='application/pdf')
-    filename = f'Application_{application.id}_{application.student.get_full_name().replace(" ", "_")}.pdf'
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    
-    # Create the PDF object
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
-    
-    # Container for PDF elements
-    elements = []
-    
-    # Styles
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=24,
-        textColor=colors.HexColor('#1e40af'),
-        spaceAfter=30,
-        alignment=TA_CENTER
+
+    supplemental_profile = ApplicationSupplementalProfile.objects.filter(application=application).first()
+
+    return build_csc_style_application_pdf(
+        application=application,
+        student_profile=student_profile,
+        supplemental_profile=supplemental_profile,
     )
-    
-    heading_style = ParagraphStyle(
-        'CustomHeading',
-        parent=styles['Heading2'],
-        fontSize=14,
-        textColor=colors.HexColor('#1e40af'),
-        spaceAfter=12,
-        spaceBefore=12
-    )
-    
-    # Title
-    elements.append(Paragraph("AFRICA WESTERN EDUCATION COMPANY LTD", title_style))
-    elements.append(Paragraph("Student Application Details", styles['Heading2']))
-    elements.append(Spacer(1, 0.3*inch))
-    
-    # Application Information
-    elements.append(Paragraph("Application Information", heading_style))
-    app_data = [
-        ['Application ID:', str(application.id)],
-        ['Application Type:', application.get_application_type_display()],
-        ['Status:', application.get_status_display()],
-        ['Submission Date:', application.created_at.strftime('%B %d, %Y at %I:%M %p')],
-        ['Last Updated:', application.updated_at.strftime('%B %d, %Y at %I:%M %p')],
-    ]
-    
-    app_table = Table(app_data, colWidths=[2*inch, 4*inch])
-    app_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e0e7ff')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-    ]))
-    elements.append(app_table)
-    elements.append(Spacer(1, 0.3*inch))
-    
-    # Student Profile Picture (if available)
-    if student_profile and student_profile.profile_picture:
-        try:
-            # Add profile picture
-            img_path = student_profile.profile_picture.path
-            img = Image(img_path, width=1.5*inch, height=1.5*inch)
-            img.hAlign = 'LEFT'
-            elements.append(img)
-            elements.append(Spacer(1, 0.2*inch))
-        except:
-            # If image can't be loaded, continue without it
-            pass
-    
-    # Student Information
-    elements.append(Paragraph("Student Information", heading_style))
-    student_data = [
-        ['Full Name:', application.student.get_full_name()],
-        ['Email:', application.student.email],
-        ['Username:', application.student.username],
-    ]
-    
-    # Add all StudentProfile fields if profile exists
-    if student_profile:
-        student_data.extend([
-            ['Phone:', student_profile.phone_number or 'N/A'],
-            ['Date of Birth:', str(student_profile.date_of_birth) if student_profile.date_of_birth else 'N/A'],
-            ['Gender:', student_profile.get_gender_display() if student_profile.gender else 'N/A'],
-            ['Nationality:', student_profile.nationality or 'N/A'],
-            ['Address:', student_profile.address or 'N/A'],
-        ])
-    
-    student_table = Table(student_data, colWidths=[2*inch, 4*inch])
-    student_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e0e7ff')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-    ]))
-    elements.append(student_table)
-    elements.append(Spacer(1, 0.3*inch))
-    
-    # Parents Information (if available)
-    if student_profile and (student_profile.father_name or student_profile.mother_name):
-        elements.append(Paragraph("Parents/Guardian Information", heading_style))
-        parents_data = []
-        
-        if student_profile.father_name:
-            parents_data.extend([
-                ['Father Name:', student_profile.father_name],
-                ['Father Phone:', student_profile.father_phone or 'N/A'],
-                ['Father Email:', student_profile.father_email or 'N/A'],
-                ['Father Occupation:', student_profile.father_occupation or 'N/A'],
-            ])
-        
-        if student_profile.mother_name:
-            parents_data.extend([
-                ['Mother Name:', student_profile.mother_name],
-                ['Mother Phone:', student_profile.mother_phone or 'N/A'],
-                ['Mother Email:', student_profile.mother_email or 'N/A'],
-                ['Mother Occupation:', student_profile.mother_occupation or 'N/A'],
-            ])
-        
-        if parents_data:
-            parents_table = Table(parents_data, colWidths=[2*inch, 4*inch])
-            parents_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f0f9ff')),
-                ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-            ]))
-            elements.append(parents_table)
-            elements.append(Spacer(1, 0.3*inch))
-    
-    # Emergency Contact Information (if available)
-    if student_profile and student_profile.emergency_contact:
-        elements.append(Paragraph("Emergency Contact Information", heading_style))
-        emergency_data = [
-            ['Contact Name:', student_profile.emergency_contact],
-            ['Relation:', student_profile.emergency_relation or 'N/A'],
-            ['Phone/Gender:', f"{student_profile.emergency_occupation or 'N/A'} / {student_profile.get_emergency_gender_display() if student_profile.emergency_gender else 'N/A'}"],
-            ['Address:', student_profile.emergency_address or 'N/A'],
-        ]
-        
-        emergency_table = Table(emergency_data, colWidths=[2*inch, 4*inch])
-        emergency_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#fef3c7')),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-        ]))
-        elements.append(emergency_table)
-        elements.append(Spacer(1, 0.3*inch))
-    
-    # Profile Completion Status
-    if student_profile:
-        elements.append(Paragraph("Profile Completion Status", heading_style))
-        completion_data = [
-            ['Personal Details:', 'Complete' if student_profile.personal_details_complete else 'Incomplete'],
-            ['Parents Details:', 'Complete' if student_profile.parents_details_complete else 'Incomplete'],
-            ['Academic Qualifications:', 'Complete' if student_profile.academic_qualifications_complete else 'Incomplete'],
-            ['Study Preferences:', 'Complete' if student_profile.study_preferences_complete else 'Incomplete'],
-            ['Emergency Contact:', 'Complete' if student_profile.emergency_contact_complete else 'Incomplete'],
-            ['Overall Completion:', f"{student_profile.get_completion_percentage()}%"],
-        ]
-        
-        completion_table = Table(completion_data, colWidths=[2*inch, 4*inch])
-        completion_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#ecfdf5')),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-        ]))
-        elements.append(completion_table)
-        elements.append(Spacer(1, 0.3*inch))
-    
-    # Academic Information
-    elements.append(Paragraph("Academic & Educational Information", heading_style))
-    academic_data = [
-        ['University/Institution:', application.university_name or 'N/A'],
-        ['Course/Program:', application.course or 'N/A'],
-        ['Country:', application.country or 'N/A'],
-    ]
-    
-    # Add comprehensive student profile academic information if available
-    if student_profile:
-        # O-Level Education Details
-        if student_profile.olevel_school or student_profile.olevel_year or student_profile.olevel_gpa:
-            academic_data.extend([
-                ['O-Level School:', student_profile.olevel_school or 'N/A'],
-                ['O-Level Country:', student_profile.olevel_country or 'N/A'],
-                ['O-Level Address:', student_profile.olevel_address or 'N/A'],
-                ['O-Level Region:', student_profile.olevel_region or 'N/A'],
-                ['O-Level Year:', student_profile.olevel_year or 'N/A'],
-                ['O-Level Candidate No:', student_profile.olevel_candidate_no or 'N/A'],
-                ['O-Level GPA:', student_profile.olevel_gpa or 'N/A'],
-            ])
-        
-        # A-Level Education Details
-        if student_profile.alevel_school or student_profile.alevel_year or student_profile.alevel_gpa:
-            academic_data.extend([
-                ['A-Level School:', student_profile.alevel_school or 'N/A'],
-                ['A-Level Country:', student_profile.alevel_country or 'N/A'],
-                ['A-Level Address:', student_profile.alevel_address or 'N/A'],
-                ['A-Level Region:', student_profile.alevel_region or 'N/A'],
-                ['A-Level Year:', student_profile.alevel_year or 'N/A'],
-                ['A-Level Candidate No:', student_profile.alevel_candidate_no or 'N/A'],
-                ['A-Level GPA:', student_profile.alevel_gpa or 'N/A'],
-            ])
-        
-        # Study Preferences (all 4 options)
-        if student_profile.preferred_country_1 or student_profile.preferred_program_1:
-            academic_data.extend([
-                ['Preferred Country 1:', student_profile.preferred_country_1 or 'N/A'],
-                ['Preferred Program 1:', student_profile.preferred_program_1 or 'N/A'],
-            ])
-        
-        if student_profile.preferred_country_2 or student_profile.preferred_program_2:
-            academic_data.extend([
-                ['Preferred Country 2:', student_profile.preferred_country_2 or 'N/A'],
-                ['Preferred Program 2:', student_profile.preferred_program_2 or 'N/A'],
-            ])
-        
-        if student_profile.preferred_country_3 or student_profile.preferred_program_3:
-            academic_data.extend([
-                ['Preferred Country 3:', student_profile.preferred_country_3 or 'N/A'],
-                ['Preferred Program 3:', student_profile.preferred_program_3 or 'N/A'],
-            ])
-        
-        if student_profile.preferred_country_4 or student_profile.preferred_program_4:
-            academic_data.extend([
-                ['Preferred Country 4:', student_profile.preferred_country_4 or 'N/A'],
-                ['Preferred Program 4:', student_profile.preferred_program_4 or 'N/A'],
-            ])
-        
-        # Additional information
-        if student_profile.heard_about_us:
-            academic_data.append(['Heard About Us:', student_profile.heard_about_us])
-        if student_profile.heard_about_other:
-            academic_data.append(['Heard About Us (Other):', student_profile.heard_about_other])
-    
-    academic_table = Table(academic_data, colWidths=[2*inch, 4*inch])
-    academic_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e0e7ff')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-    ]))
-    elements.append(academic_table)
-    elements.append(Spacer(1, 0.3*inch))
-    
-    # Payment Information
-    elements.append(Paragraph("Payment Information", heading_style))
-    payment_data = [
-        ['Payment Status:', application.get_payment_status_display()],
-        ['Payment Amount:', f'{application.payment_amount:,.0f} TZS' if application.payment_amount else 'N/A'],
-        ['Is Paid:', 'Yes' if application.is_paid else 'No'],
-    ]
-    
-    if application.mpesa_account_name:
-        payment_data.append(['M-PESA Account Name:', application.mpesa_account_name])
-    
-    if application.payment_verified_at:
-        payment_data.append(['Verified At:', application.payment_verified_at.strftime('%B %d, %Y at %I:%M %p')])
-        if application.payment_verified_by:
-            payment_data.append(['Verified By:', application.payment_verified_by.get_full_name()])
-    
-    payment_table = Table(payment_data, colWidths=[2*inch, 4*inch])
-    payment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e0e7ff')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-    ]))
-    elements.append(payment_table)
-    elements.append(Spacer(1, 0.3*inch))
-    
-    # Documents
-    documents = Document.objects.filter(student=application.student)
-    if documents.exists():
-        elements.append(Paragraph("Uploaded Documents", heading_style))
-        doc_data = [['Document Type', 'Uploaded Date']]
-        for document in documents:
-            doc_data.append([
-                document.get_document_type_display(),
-                document.uploaded_at.strftime('%B %d, %Y')
-            ])
-        
-        doc_table = Table(doc_data, colWidths=[3*inch, 3*inch])
-        doc_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e40af')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ]))
-        elements.append(doc_table)
-    
-    # Footer
-    elements.append(Spacer(1, 0.5*inch))
-    footer_style = ParagraphStyle(
-        'Footer',
-        parent=styles['Normal'],
-        fontSize=8,
-        textColor=colors.grey,
-        alignment=TA_CENTER
-    )
-    elements.append(Paragraph(f"Generated on {timezone.now().strftime('%B %d, %Y at %I:%M %p')}", footer_style))
-    elements.append(Paragraph("AFRICA WESTERN EDUCATION COMPANY LTD - Confidential", footer_style))
-    
-    # Build PDF
-    doc.build(elements)
-    
-    # Get the value of the BytesIO buffer and write it to the response
-    pdf = buffer.getvalue()
-    buffer.close()
-    response.write(pdf)
-    
-    return response

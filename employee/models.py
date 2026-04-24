@@ -27,6 +27,15 @@ class UserProfile(models.Model):
     phone_number = models.CharField(max_length=15, blank=True)
     employee_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     position = models.CharField(max_length=100, blank=True)
+    is_partner_approved = models.BooleanField(default=False)
+    partner_approved_at = models.DateTimeField(null=True, blank=True)
+    partner_approved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approved_partner_accounts',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -58,8 +67,13 @@ class UserProfile(models.Model):
         return self.is_employee() and self.registration_method == 'admin'
 
     def can_access_partner_portal(self):
-        """Partner portal access: must be a verified partner account"""
-        return self.is_partner() and self.registration_method == 'partner' and self.user.is_active
+        """Partner portal access: email-verified and employee-approved partner account."""
+        return (
+            self.is_partner()
+            and self.registration_method == 'partner'
+            and self.user.is_active
+            and self.is_partner_approved
+        )
     
     def can_access_student_portal(self):
         """Student portal access: allow all student accounts, including offline entries."""

@@ -295,6 +295,55 @@
                 <div class="stat-number">{{ upcoming_events_count }}</div>
                 <div class="stat-label">Upcoming Events</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ pending_partner_count }}</div>
+                <div class="stat-label">Pending Partners</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h3>Pending Partner Approvals</h3>
+            </div>
+
+            {% if pending_partner_profiles %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Partner</th>
+                        <th>Email Status</th>
+                        <th>Registered</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for partner in pending_partner_profiles %}
+                    <tr>
+                        <td>
+                            <strong>{{ partner.user.get_full_name|default:partner.user.username }}</strong><br>
+                            <small>{{ partner.user.email }}</small>
+                        </td>
+                        <td>
+                            {% if partner.user.is_active %}
+                            <span class="status-badge status-approved">Email Verified</span>
+                            {% else %}
+                            <span class="status-badge status-under_review">Waiting for Email Verification</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ partner.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'employee:approve_partner_account' partner.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Approve</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-state">No partner accounts are waiting for approval.</p>
+            {% endif %}
         </div>
 
         <div class="section">

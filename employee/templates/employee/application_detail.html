@@ -269,6 +269,37 @@
             </div>
         </section>
 
+        <section class="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-6 mobile-card">
+            <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-blue-800 border-b border-gray-200 pb-2">Uploaded Documents</h2>
+            {% if documents %}
+            <div class="space-y-3">
+                {% for doc in documents %}
+                <div class="flex flex-col gap-3 rounded-lg border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="font-semibold text-gray-900">{{ doc.get_document_type_display }}</p>
+                        <p class="text-sm text-gray-600">Uploaded: {{ doc.uploaded_at|date:"M d, Y H:i" }}</p>
+                        {% if doc.description %}
+                        <p class="text-sm text-gray-600">{{ doc.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        {% if doc.is_verified %}
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Verified</span>
+                        {% else %}
+                        <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Pending Verification</span>
+                        {% endif %}
+                        <a href="{{ doc.file.url }}" target="_blank" class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
+                            View
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500">No documents uploaded for this application yet.</p>
+            {% endif %}
+        </section>
+
         <!-- Bottom Navigation -->
         <div class="no-print flex justify-center mt-8">
             <a href="{% url 'employee:employee_dashboard' %}" 

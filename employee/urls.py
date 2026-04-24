@@ -10,6 +10,7 @@ urlpatterns = [
     path('partners/register/', views.partner_register, name='partner_register'),
     path('partners/activate/<uidb64>/<token>/', views.partner_activate, name='partner_activate'),
     path('partners/dashboard/', views.partner_dashboard, name='partner_dashboard'),
+    path('partners/<int:profile_id>/approve/', views.approve_partner_account, name='approve_partner_account'),
     path('partners/logout/', views.partner_logout, name='partner_logout'),
     path('dashboard/', views.employee_dashboard, name='employee_dashboard'),
     path('logout/', views.employee_logout, name='employee_logout'),

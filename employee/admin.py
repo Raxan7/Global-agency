@@ -16,6 +16,7 @@ from .models import (
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
+    fk_name = 'user'
     can_delete = False
     verbose_name_plural = 'User Profile'
     fields = ('role', 'registration_method', 'department', 'position', 'employee_id', 'phone_number')

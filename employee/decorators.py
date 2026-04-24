@@ -29,7 +29,7 @@ def partner_required(view_func):
         try:
             profile = UserProfile.objects.get(user=request.user)
             if not profile.can_access_partner_portal():
-                return HttpResponseForbidden("Access denied. Verified partner account required.")
+                return HttpResponseForbidden("Access denied. Employee-approved partner account required.")
         except UserProfile.DoesNotExist:
             return HttpResponseForbidden("Access denied. User profile not found. Please contact administrator.")
 

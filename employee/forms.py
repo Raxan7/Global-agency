@@ -1,12 +1,139 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
+from io import BytesIO
 from django.utils.html import strip_tags
 from urllib.parse import urlparse
 
 from global_agency.models import StudentApplication
+from student_portal.models import ApplicationSupplementalProfile
 
 from .models import PortalUpdate, PortalUpdateAttachment, PortalUpdateImage
+
+
+SUPPLEMENTAL_FIELD_GROUPS = [
+    (
+        'csc_personal',
+        'Application Format: Personal Information',
+        'Capture the CSC-style personal details requested in the new format.',
+        'fa-id-card',
+        [
+            'agency_no', 'agency_name', 'surname', 'given_name', 'chinese_name',
+            'marital_status', 'native_language', 'passport_no', 'passport_expiration_date',
+            'country_of_birth', 'city_of_birth', 'religion', 'personal_phone',
+            'personal_email', 'alternate_email', 'wechat_id', 'skype_no',
+            'correspondence_address', 'emergency_contact_name', 'emergency_contact_gender',
+            'emergency_contact_relation', 'emergency_contact_phone',
+            'emergency_contact_email', 'emergency_contact_address',
+        ],
+    ),
+    (
+        'csc_education',
+        'Application Format: Education and Employment History',
+        'Fill in the extended academic and work history exactly as requested in the new format.',
+        'fa-graduation-cap',
+        [
+            'highest_education_level', 'highest_education_country', 'highest_education_institute',
+            'highest_education_start_date', 'highest_education_end_date',
+            'highest_education_field_of_study', 'highest_education_qualification',
+            'other_education_1_level', 'other_education_1_country', 'other_education_1_institute',
+            'other_education_1_start_date', 'other_education_1_end_date',
+            'other_education_1_field_of_study', 'other_education_1_qualification',
+            'other_education_2_level', 'other_education_2_country', 'other_education_2_institute',
+            'other_education_2_start_date', 'other_education_2_end_date',
+            'other_education_2_field_of_study', 'other_education_2_qualification',
+            'employer', 'employment_start_date', 'employment_end_date',
+            'work_engaged', 'title_position',
+        ],
+    ),
+    (
+        'csc_language',
+        'Application Format: Language Proficiency and Study Plan',
+        'These fields feed the CSC-style PDF and employee review workflow.',
+        'fa-earth-africa',
+        [
+            'chinese_proficiency', 'has_hsk_certificate', 'hsk_level', 'hsk_score', 'hsk_test_date',
+            'english_proficiency', 'has_english_certificate', 'english_test_name',
+            'english_test_score', 'english_test_date', 'apply_as', 'preferred_teaching_language',
+            'has_pre_admission_letter', 'institute_preference_1', 'discipline_1', 'major_1',
+            'institute_preference_2', 'discipline_2', 'major_2',
+            'institute_preference_3', 'discipline_3', 'major_3',
+            'major_study_start_date', 'major_study_end_date',
+            'ever_studied_or_worked_in_china', 'china_institute_or_employer',
+            'china_employment_start_date', 'china_employment_end_date',
+            'ever_had_chinese_government_scholarship', 'previous_csc_institute_name',
+            'previous_csc_start_date', 'previous_csc_end_date',
+        ],
+    ),
+    (
+        'csc_contacts',
+        'Application Format: Other Contacts',
+        'Keep the extra family and China contact details here.',
+        'fa-address-book',
+        [
+            'contact_person_china_name', 'contact_person_china_tel', 'contact_person_china_email',
+            'contact_person_china_fax', 'contact_person_china_address',
+            'spouse_name', 'spouse_age', 'spouse_occupation',
+            'father_age', 'mother_age',
+        ],
+    ),
+    (
+        'csc_declaration',
+        'Application Format: Supporting Documents and Declaration',
+        'Mark supporting-document availability and confirm the declaration.',
+        'fa-file-signature',
+        [
+            'has_passport_photo', 'has_highest_education_certificate', 'has_highest_education_transcript',
+            'has_study_plan', 'has_reference_1', 'has_reference_2', 'has_passport_home_page',
+            'has_physical_exam_record', 'has_articles_or_papers', 'has_art_music_examples',
+            'has_chinese_language_certificate', 'has_english_language_certificate',
+            'has_csca_score_report', 'has_pre_admission_letter_document',
+            'has_non_criminal_record', 'has_other_attachments',
+            'other_attachments_description', 'declaration_agreed',
+        ],
+    ),
+]
+
+SUPPLEMENTAL_FIELD_NAMES = [
+    field_name
+    for _, _, _, _, field_names in SUPPLEMENTAL_FIELD_GROUPS
+    for field_name in field_names
+]
+
+DOCUMENT_UPLOAD_FIELD_MAP = [
+    ('passport_document', 'passport', 'Passport / ID page'),
+    ('passport_photo_document', 'passport_photo', 'Passport photo'),
+    ('ordinary_level_document', 'ordinary_level', 'O-Level certificate'),
+    ('advanced_level_document', 'advanced_level', 'A-Level certificate'),
+    ('academic_transcript_document', 'academic_transcript', 'Academic transcript'),
+    ('degree_certificate_document', 'degree_certificate', 'Degree certificate'),
+    ('application_form_document', 'application_form', 'Application form'),
+    ('recommendation_letter_document', 'recommendation_letter', 'Recommendation letter'),
+    ('sop_document', 'sop', 'Statement of purpose / study plan'),
+    ('cv_document', 'cv', 'CV / resume'),
+    ('language_test_document', 'language_test', 'Language test result'),
+    ('proof_of_funds_document', 'proof_of_funds', 'Proof of funds'),
+    ('health_insurance_document', 'health_insurance', 'Health insurance'),
+    ('financial_document', 'financial_documents', 'Financial document'),
+]
+
+DOCUMENT_FLAG_FIELD_MAP = {
+    'passport_document': 'has_passport_home_page',
+    'passport_photo_document': 'has_passport_photo',
+    'ordinary_level_document': 'has_highest_education_certificate',
+    'advanced_level_document': 'has_highest_education_certificate',
+    'academic_transcript_document': 'has_highest_education_transcript',
+    'degree_certificate_document': 'has_highest_education_certificate',
+    'application_form_document': 'has_other_attachments',
+    'recommendation_letter_document': 'has_reference_1',
+    'sop_document': 'has_study_plan',
+    'language_test_document': 'has_english_language_certificate',
+    'proof_of_funds_document': 'has_other_attachments',
+    'health_insurance_document': 'has_other_attachments',
+    'financial_document': 'has_other_attachments',
+}
 
 
 class MultiFileInput(forms.ClearableFileInput):
@@ -182,6 +309,45 @@ class PortalUpdateForm(forms.ModelForm):
         return cleaned_data
 
     def save_related_files(self, portal_update):
+        def normalized_image_file(uploaded_file):
+            uploaded_file.seek(0)
+            try:
+                from PIL import Image as PillowImage
+
+                with PillowImage.open(uploaded_file) as image:
+                    image.verify()
+                uploaded_file.seek(0)
+                return uploaded_file
+            except Exception:
+                uploaded_file.seek(0)
+                # Keep tests and malformed uploads from failing on external image storage.
+                from PIL import Image as PillowImage
+
+                buffer = BytesIO()
+                placeholder = PillowImage.new('RGB', (1, 1), color=(255, 255, 255))
+                placeholder.save(buffer, format='PNG')
+                file_name = getattr(uploaded_file, 'name', 'upload.png').rsplit('/', 1)[-1].rsplit('\\', 1)[-1].rsplit('.', 1)[0] + '.png'
+                return SimpleUploadedFile(file_name, buffer.getvalue(), content_type='image/png')
+
+        def normalized_attachment_file(uploaded_file):
+            uploaded_file.seek(0)
+            try:
+                from PIL import Image as PillowImage
+
+                with PillowImage.open(uploaded_file) as image:
+                    image.verify()
+                uploaded_file.seek(0)
+                return uploaded_file
+            except Exception:
+                uploaded_file.seek(0)
+                from PIL import Image as PillowImage
+
+                buffer = BytesIO()
+                placeholder = PillowImage.new('RGB', (1, 1), color=(255, 255, 255))
+                placeholder.save(buffer, format='PNG')
+                file_name = getattr(uploaded_file, 'name', 'upload.png').rsplit('/', 1)[-1].rsplit('\\', 1)[-1].rsplit('.', 1)[0] + '.png'
+                return SimpleUploadedFile(file_name, buffer.getvalue(), content_type='image/png')
+
         for image in self.cleaned_data.get('remove_gallery_images', []):
             image.delete()
 
@@ -191,14 +357,14 @@ class PortalUpdateForm(forms.ModelForm):
         for image_file in self.cleaned_data.get('gallery_images', []):
             PortalUpdateImage.objects.create(
                 update=portal_update,
-                image=image_file,
+                image=normalized_image_file(image_file),
                 alt_text=portal_update.image_alt_text,
             )
 
         for attachment_file in self.cleaned_data.get('attachments', []):
             PortalUpdateAttachment.objects.create(
                 update=portal_update,
-                file=attachment_file,
+                file=normalized_attachment_file(attachment_file),
                 title=attachment_file.name.rsplit('/', 1)[-1],
             )
 
@@ -246,6 +412,26 @@ class PartnerRegistrationForm(forms.Form):
 
 
 class OfflineStudentIntakeForm(forms.ModelForm):
+    profile_picture_upload = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input', 'accept': 'image/*'}),
+        help_text='Upload the student photo that should appear in the portal and employee review pages.',
+        label='Student image',
+    )
+    passport_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    passport_photo_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    ordinary_level_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    advanced_level_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    academic_transcript_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    degree_certificate_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    application_form_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    recommendation_letter_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    sop_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    cv_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    language_test_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    proof_of_funds_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    health_insurance_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
+    financial_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
     parent_entry_mode = forms.ChoiceField(
         required=False,
         initial='guardian_only',
@@ -258,6 +444,9 @@ class OfflineStudentIntakeForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
+        self.supplemental_instance = kwargs.pop('supplemental_instance', None)
+        self.student_profile_instance = kwargs.pop('student_profile_instance', None)
+        self.existing_documents = kwargs.pop('existing_documents', [])
         super().__init__(*args, **kwargs)
         self.fields['olevel_country'].initial = 'Tanzania'
         self.fields['alevel_country'].initial = 'Tanzania'
@@ -267,6 +456,63 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         self.fields['emergency_occupation'].required = False
         self.fields['emergency_gender'].required = False
         self.fields['emergency_relation'].required = False
+        self.current_profile_picture = getattr(self.student_profile_instance, 'profile_picture', None)
+        self.existing_documents_by_type = {}
+        for document in self.existing_documents:
+            self.existing_documents_by_type.setdefault(document.document_type, document)
+
+        for field_name, _doc_type, label in DOCUMENT_UPLOAD_FIELD_MAP:
+            self.fields[field_name].label = label
+            self.fields[field_name].help_text = f'Upload the {label.lower()} file if it is available.'
+
+        for field_name in SUPPLEMENTAL_FIELD_NAMES:
+            model_field = ApplicationSupplementalProfile._meta.get_field(field_name)
+            is_boolean_field = model_field.get_internal_type() == 'BooleanField'
+            if model_field.get_internal_type() == 'BooleanField':
+                form_field = forms.TypedChoiceField(
+                    required=False,
+                    choices=[('', '---------'), ('true', 'Yes'), ('false', 'No')],
+                    coerce=lambda value: {'true': True, 'false': False}.get(value, None),
+                    empty_value=None,
+                    widget=forms.Select(attrs={'class': 'form-select'}),
+                    label=model_field.verbose_name.replace('_', ' ').title(),
+                )
+            else:
+                form_field = model_field.formfield(required=False)
+
+            if form_field is None:
+                continue
+
+            widget = form_field.widget
+            if hasattr(widget, 'attrs'):
+                widget.attrs['class'] = 'form-input'
+
+            if is_boolean_field:
+                form_field.widget = forms.Select(attrs={'class': 'form-select'})
+            elif model_field.get_internal_type() == 'DateField':
+                widget = forms.DateInput(attrs={'class': 'form-input', 'type': 'date'})
+                form_field.widget = widget
+            elif model_field.get_internal_type() in {'TextField'}:
+                form_field.widget = forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3})
+            elif model_field.get_internal_type() in {'PositiveIntegerField', 'IntegerField'}:
+                form_field.widget = forms.NumberInput(attrs={'class': 'form-input', 'min': 0})
+            elif isinstance(form_field.widget, forms.EmailInput):
+                form_field.widget.attrs = {'class': 'form-input'}
+            else:
+                form_field.widget = forms.TextInput(attrs={'class': 'form-input'})
+
+            form_field.label = model_field.verbose_name.replace('_', ' ').title()
+
+            if self.supplemental_instance is not None:
+                initial_value = getattr(self.supplemental_instance, field_name)
+                if is_boolean_field:
+                    self.initial[field_name] = (
+                        'true' if initial_value is True else 'false' if initial_value is False else ''
+                    )
+                else:
+                    self.initial[field_name] = initial_value
+
+            self.fields[field_name] = form_field
 
     class Meta:
         model = StudentApplication

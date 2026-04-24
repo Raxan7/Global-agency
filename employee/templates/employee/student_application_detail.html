@@ -945,14 +945,14 @@
                     <div class="info-item">
                         <div class="info-label">Completion Percentage</div>
                         <div style="font-size: 1.8rem; color: #28a745; font-weight: bold;">
-                            {{ student_profile.get_completion_percentage }}%
+                            {{ completion_summary.percentage }}%
                         </div>
                     </div>
                     
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-check-circle"></i> Personal Details</div>
                         <div>
-                            {% if student_profile.personal_details_complete %}
+                            {% if completion_summary.personal_details_complete %}
                             <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
                             {% else %}
                             <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
@@ -963,7 +963,7 @@
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-check-circle"></i> Parents Details</div>
                         <div>
-                            {% if student_profile.parents_details_complete %}
+                            {% if completion_summary.parents_details_complete %}
                             <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
                             {% else %}
                             <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
@@ -974,7 +974,7 @@
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-check-circle"></i> Academic Qualifications</div>
                         <div>
-                            {% if student_profile.academic_qualifications_complete %}
+                            {% if completion_summary.academic_qualifications_complete %}
                             <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
                             {% else %}
                             <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
@@ -985,7 +985,7 @@
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-check-circle"></i> Study Preferences</div>
                         <div>
-                            {% if student_profile.study_preferences_complete %}
+                            {% if completion_summary.study_preferences_complete %}
                             <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
                             {% else %}
                             <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
@@ -996,7 +996,7 @@
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-check-circle"></i> Emergency Contact</div>
                         <div>
-                            {% if student_profile.emergency_contact_complete %}
+                            {% if completion_summary.emergency_contact_complete %}
                             <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
                             {% else %}
                             <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>

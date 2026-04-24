@@ -4,12 +4,25 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def env_bool(name, default=False):
+    value = config(name, default=default)
+    if isinstance(value, bool):
+        return value
+
+    normalized = str(value).strip().lower()
+    if normalized in {'1', 'true', 'yes', 'on', 'debug', 'development', 'dev'}:
+        return True
+    if normalized in {'0', 'false', 'no', 'off', 'release', 'production', 'prod', 'live'}:
+        return False
+    return bool(default)
+
 # =============================================================================
 # CORE SETTINGS
 # =============================================================================
 
 SECRET_KEY = config('SECRET_KEY', default='final')
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = env_bool('DEBUG', default=True)
 ALLOWED_HOSTS = ["*"]
 
 CLOUDINARY_URL = config('CLOUDINARY_URL', default='')

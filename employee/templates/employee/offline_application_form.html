@@ -47,6 +47,25 @@
         flex-wrap: wrap;
         margin-top: 24px;
     }
+
+    .existing-file-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .existing-file-grid a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid #dbe3f0;
+        background: #fff;
+        color: #1e3a5f;
+        text-decoration: none;
+        font-weight: 600;
+    }
 </style>
 
 <div class="page-head">
@@ -58,7 +77,7 @@
 </div>
 
 <section class="card intake-card">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -67,259 +86,48 @@
             </div>
         {% endif %}
 
+        {% if current_profile_picture or existing_documents %}
+            <section class="section-block" style="margin-bottom: 18px;">
+                <h3>Current Uploaded Files</h3>
+                <p class="section-note">Use the intake form below to add or replace student uploads.</p>
+                {% if current_profile_picture %}
+                    <div style="margin-bottom: 14px;">
+                        <p style="font-weight: 600; margin-bottom: 8px;">Current student image</p>
+                        <img src="{{ current_profile_picture.url }}" alt="Current student image" style="width: 120px; height: 120px; object-fit: cover; border-radius: 18px; border: 1px solid #dbe3f0;">
+                    </div>
+                {% endif %}
+                {% if existing_documents %}
+                    <div class="existing-file-grid">
+                        {% for document_type, document in existing_documents.items %}
+                            <a href="{{ document.file.url }}" target="_blank" rel="noopener noreferrer">
+                                <span>View</span>
+                                <span>{{ document.get_document_type_display }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+        {% endif %}
+
         <div class="section-grid">
-            <section class="section-block">
-                <h3>Personal Information</h3>
-                <p class="section-note">Use the same student details written on the offline application form.</p>
-                <div class="form-grid">
-                    <div class="form-field full">
-                        <label for="{{ form.full_name.id_for_label }}">Full name</label>
-                        {{ form.full_name }}
-                        {{ form.full_name.errors }}
+            {% for section in form_sections %}
+                <section class="section-block">
+                    <h3>{{ section.title }}</h3>
+                    <p class="section-note">{{ section.description }}</p>
+                    <div class="form-grid">
+                        {% for field in section.bound_fields %}
+                            <div class="form-field {% if field.name == 'address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' or field.name == 'correspondence_address' or field.name == 'emergency_contact_address' or field.name == 'contact_person_china_address' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' %}full{% endif %}">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="section-note" style="margin: 8px 0 0;">{{ field.help_text }}</p>
+                                {% endif %}
+                                {{ field.errors }}
+                            </div>
+                        {% endfor %}
                     </div>
-                    <div class="form-field">
-                        <label for="{{ form.gender.id_for_label }}">Gender</label>
-                        {{ form.gender }}
-                        {{ form.gender.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.nationality.id_for_label }}">Nationality</label>
-                        {{ form.nationality }}
-                        {{ form.nationality.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.email.id_for_label }}">Email</label>
-                        {{ form.email }}
-                        {{ form.email.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.phone.id_for_label }}">Phone</label>
-                        {{ form.phone }}
-                        {{ form.phone.errors }}
-                    </div>
-                    <div class="form-field full">
-                        <label for="{{ form.address.id_for_label }}">Address</label>
-                        {{ form.address }}
-                        {{ form.address.errors }}
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <h3>Parents Details</h3>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label for="{{ form.father_name.id_for_label }}">Father's name</label>
-                        {{ form.father_name }}
-                        {{ form.father_name.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.father_phone.id_for_label }}">Father's phone</label>
-                        {{ form.father_phone }}
-                        {{ form.father_phone.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.father_email.id_for_label }}">Father's email</label>
-                        {{ form.father_email }}
-                        {{ form.father_email.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.father_occupation.id_for_label }}">Father's occupation</label>
-                        {{ form.father_occupation }}
-                        {{ form.father_occupation.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.mother_name.id_for_label }}">Mother's name</label>
-                        {{ form.mother_name }}
-                        {{ form.mother_name.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.mother_phone.id_for_label }}">Mother's phone</label>
-                        {{ form.mother_phone }}
-                        {{ form.mother_phone.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.mother_email.id_for_label }}">Mother's email</label>
-                        {{ form.mother_email }}
-                        {{ form.mother_email.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.mother_occupation.id_for_label }}">Mother's occupation</label>
-                        {{ form.mother_occupation }}
-                        {{ form.mother_occupation.errors }}
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <h3>O-Level Education</h3>
-                <div class="form-grid">
-                    <div class="form-field full">
-                        <label for="{{ form.olevel_school.id_for_label }}">School</label>
-                        {{ form.olevel_school }}
-                        {{ form.olevel_school.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.olevel_country.id_for_label }}">Country</label>
-                        {{ form.olevel_country }}
-                        {{ form.olevel_country.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.olevel_region.id_for_label }}">Region</label>
-                        {{ form.olevel_region }}
-                        {{ form.olevel_region.errors }}
-                    </div>
-                    <div class="form-field full">
-                        <label for="{{ form.olevel_address.id_for_label }}">Address</label>
-                        {{ form.olevel_address }}
-                        {{ form.olevel_address.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.olevel_year.id_for_label }}">Year completed</label>
-                        {{ form.olevel_year }}
-                        {{ form.olevel_year.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.olevel_candidate_no.id_for_label }}">Candidate number</label>
-                        {{ form.olevel_candidate_no }}
-                        {{ form.olevel_candidate_no.errors }}
-                    </div>
-                    <div class="form-field full">
-                        <label for="{{ form.olevel_gpa.id_for_label }}">GPA / division</label>
-                        {{ form.olevel_gpa }}
-                        {{ form.olevel_gpa.errors }}
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <h3>A-Level Education</h3>
-                <div class="form-grid">
-                    <div class="form-field full">
-                        <label for="{{ form.alevel_school.id_for_label }}">School</label>
-                        {{ form.alevel_school }}
-                        {{ form.alevel_school.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.alevel_country.id_for_label }}">Country</label>
-                        {{ form.alevel_country }}
-                        {{ form.alevel_country.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.alevel_region.id_for_label }}">Region</label>
-                        {{ form.alevel_region }}
-                        {{ form.alevel_region.errors }}
-                    </div>
-                    <div class="form-field full">
-                        <label for="{{ form.alevel_address.id_for_label }}">Address</label>
-                        {{ form.alevel_address }}
-                        {{ form.alevel_address.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.alevel_year.id_for_label }}">Year completed</label>
-                        {{ form.alevel_year }}
-                        {{ form.alevel_year.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.alevel_candidate_no.id_for_label }}">Candidate number</label>
-                        {{ form.alevel_candidate_no }}
-                        {{ form.alevel_candidate_no.errors }}
-                    </div>
-                    <div class="form-field full">
-                        <label for="{{ form.alevel_gpa.id_for_label }}">GPA / division</label>
-                        {{ form.alevel_gpa }}
-                        {{ form.alevel_gpa.errors }}
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <h3>Study Preferences</h3>
-                <p class="section-note">The first preferred country and program are also copied into the student portal application record.</p>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label for="{{ form.preferred_country_1.id_for_label }}">Preferred country 1</label>
-                        {{ form.preferred_country_1 }}
-                        {{ form.preferred_country_1.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_program_1.id_for_label }}">Preferred program 1</label>
-                        {{ form.preferred_program_1 }}
-                        {{ form.preferred_program_1.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_country_2.id_for_label }}">Preferred country 2</label>
-                        {{ form.preferred_country_2 }}
-                        {{ form.preferred_country_2.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_program_2.id_for_label }}">Preferred program 2</label>
-                        {{ form.preferred_program_2 }}
-                        {{ form.preferred_program_2.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_country_3.id_for_label }}">Preferred country 3</label>
-                        {{ form.preferred_country_3 }}
-                        {{ form.preferred_country_3.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_program_3.id_for_label }}">Preferred program 3</label>
-                        {{ form.preferred_program_3 }}
-                        {{ form.preferred_program_3.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_country_4.id_for_label }}">Preferred country 4</label>
-                        {{ form.preferred_country_4 }}
-                        {{ form.preferred_country_4.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.preferred_program_4.id_for_label }}">Preferred program 4</label>
-                        {{ form.preferred_program_4 }}
-                        {{ form.preferred_program_4.errors }}
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <h3>Emergency Contact</h3>
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label for="{{ form.emergency_name.id_for_label }}">Contact name</label>
-                        {{ form.emergency_name }}
-                        {{ form.emergency_name.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.emergency_gender.id_for_label }}">Gender</label>
-                        {{ form.emergency_gender }}
-                        {{ form.emergency_gender.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.emergency_occupation.id_for_label }}">Occupation</label>
-                        {{ form.emergency_occupation }}
-                        {{ form.emergency_occupation.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.emergency_relation.id_for_label }}">Relation</label>
-                        {{ form.emergency_relation }}
-                        {{ form.emergency_relation.errors }}
-                    </div>
-                    <div class="form-field full">
-                        <label for="{{ form.emergency_address.id_for_label }}">Address</label>
-                        {{ form.emergency_address }}
-                        {{ form.emergency_address.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.heard_about_us.id_for_label }}">Heard about us from</label>
-                        {{ form.heard_about_us }}
-                        {{ form.heard_about_us.errors }}
-                    </div>
-                    <div class="form-field">
-                        <label for="{{ form.heard_about_other.id_for_label }}">Other source</label>
-                        {{ form.heard_about_other }}
-                        {{ form.heard_about_other.errors }}
-                    </div>
-                </div>
-            </section>
+                </section>
+            {% endfor %}
         </div>
 
         <div class="actions-row">

@@ -416,10 +416,14 @@
                 <strong>Filter by Document Type:</strong>
                 <a href="{% url 'employee:document_list' %}" class="filter-btn {% if not doc_type_filter %}active{% endif %}">All</a>
                 <a href="?doc_type=passport" class="filter-btn {% if doc_type_filter == 'passport' %}active{% endif %}">Passport</a>
+                <a href="?doc_type=passport_photo" class="filter-btn {% if doc_type_filter == 'passport_photo' %}active{% endif %}">Passport Photos</a>
                 <a href="?doc_type=academic_transcript" class="filter-btn {% if doc_type_filter == 'academic_transcript' %}active{% endif %}">Transcripts</a>
                 <a href="?doc_type=degree_certificate" class="filter-btn {% if doc_type_filter == 'degree_certificate' %}active{% endif %}">Degree Certificates</a>
+                <a href="?doc_type=application_form" class="filter-btn {% if doc_type_filter == 'application_form' %}active{% endif %}">Application Forms</a>
                 <a href="?doc_type=recommendation_letter" class="filter-btn {% if doc_type_filter == 'recommendation_letter' %}active{% endif %}">Recommendation Letters</a>
-                <a href="?doc_type=financial_documents" class="filter-btn {% if doc_type_filter == 'financial_documents' %}active{% endif %}">Financial Documents</a>
+                <a href="?doc_type=proof_of_funds" class="filter-btn {% if doc_type_filter == 'proof_of_funds' %}active{% endif %}">Proof of Funds</a>
+                <a href="?doc_type=health_insurance" class="filter-btn {% if doc_type_filter == 'health_insurance' %}active{% endif %}">Health Insurance</a>
+                <a href="?doc_type=financial_documents" class="filter-btn {% if doc_type_filter == 'financial_documents' %}active{% endif %}">Legacy Financial Docs</a>
             </div>
         </div>
 
@@ -449,9 +453,13 @@
                             <div style="display: flex; align-items: center;">
                                 <span class="doc-type-icon">
                                     {% if doc.document_type == 'passport' %}P
+                                    {% elif doc.document_type == 'passport_photo' %}PP
                                     {% elif doc.document_type == 'academic_transcript' %}T
                                     {% elif doc.document_type == 'degree_certificate' %}D
+                                    {% elif doc.document_type == 'application_form' %}AF
                                     {% elif doc.document_type == 'recommendation_letter' %}R
+                                    {% elif doc.document_type == 'proof_of_funds' %}PF
+                                    {% elif doc.document_type == 'health_insurance' %}HI
                                     {% elif doc.document_type == 'financial_documents' %}F
                                     {% else %}D{% endif %}
                                 </span>
