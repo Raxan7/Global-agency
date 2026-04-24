@@ -5,84 +5,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partner Dashboard | Africa Western Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --awe-navy: #0b2c48;
+            --awe-green: #0f7b4f;
+            --awe-gold: #f5b400;
+            --awe-text: #13324a;
+            --awe-card: #ffffff;
+            --awe-soft: #f5f9fc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--awe-text);
+            min-height: 100vh;
+            background:
+                radial-gradient(1100px 650px at 85% -20%, rgba(15, 123, 79, 0.25), transparent 60%),
+                radial-gradient(950px 550px at 10% 105%, rgba(245, 180, 0, 0.2), transparent 55%),
+                linear-gradient(140deg, #eff5fb, #f7fbff 55%, #eef7f2);
+        }
+
+        .shell {
+            background: rgba(255, 255, 255, 0.93);
+            border: 1px solid rgba(11, 44, 72, 0.1);
+            box-shadow: 0 24px 50px rgba(11, 44, 72, 0.12);
+            backdrop-filter: blur(9px);
+        }
+
+        .hero {
+            background:
+                linear-gradient(135deg, rgba(11, 44, 72, 0.96), rgba(13, 72, 52, 0.94)),
+                url("{% static 'global_agency/img/hero_students.jpg' %}") center/cover no-repeat;
+            color: #f8fdff;
+        }
+
+        .kpi-card {
+            border: 1px solid #d7e3ee;
+            background: var(--awe-card);
+            box-shadow: 0 8px 18px rgba(11, 44, 72, 0.07);
+        }
+
+        .record-card {
+            border: 1px solid #d5e3ef;
+            background: linear-gradient(180deg, #ffffff, #f8fbff);
+            box-shadow: 0 10px 20px rgba(11, 44, 72, 0.06);
+        }
+
+        .btn-primary {
+            background: linear-gradient(92deg, var(--awe-green), #0c6944);
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.04);
+        }
+
+        .btn-outline {
+            border: 1px solid #b7cadb;
+            color: #1f4460;
+            background: #ffffff;
+        }
+
+        .btn-outline:hover {
+            background: var(--awe-soft);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-950 text-white">
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_38%),linear-gradient(135deg,_#020617,_#0f172a,_#111827)] px-4 py-8 md:px-8">
-        <div class="mx-auto max-w-7xl space-y-8">
-            <div class="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 md:p-8 shadow-2xl">
-                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+<body class="min-h-screen px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <div class="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+        <section class="hero overflow-hidden rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex items-start gap-4">
+                    <img src="{% static 'global_agency/img/logo.png' %}" alt="Africa Western Education Logo" class="h-14 w-14 rounded-full border border-white/30 bg-white p-2 shadow-lg sm:h-16 sm:w-16">
                     <div>
-                        <p class="text-emerald-300 uppercase tracking-[0.3em] text-xs font-semibold mb-3">Partner Portal</p>
-                        <h1 class="text-3xl md:text-4xl font-extrabold">Welcome, {{ profile.user.get_full_name|default:profile.user.username }}</h1>
-                        <p class="mt-2 text-slate-300">You can create, edit, and delete only the student records you entered.</p>
+                        <p class="text-xs uppercase tracking-[0.22em] text-amber-100">Africa Western Education</p>
+                        <h1 class="mt-1 text-2xl font-extrabold leading-tight sm:text-3xl">Partner Dashboard</h1>
+                        <p class="mt-2 text-sm text-slate-100 sm:text-base">
+                            Welcome, {{ profile.user.get_full_name|default:profile.user.username }}. You can create, edit, and delete only student records submitted by your partner account.
+                        </p>
                     </div>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{% url 'employee:partner_application_create' %}" class="rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-400">Add Student</a>
-                        <a href="{% url 'employee:partner_logout' %}" class="rounded-xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Logout</a>
-                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{% url 'employee:partner_application_create' %}" class="btn-primary rounded-xl px-5 py-3 text-sm sm:text-base">
+                        <i class="fa-solid fa-user-plus mr-2"></i>
+                        Add Student
+                    </a>
+                    <a href="{% url 'employee:partner_logout' %}" class="btn-outline rounded-xl px-5 py-3 text-sm font-semibold sm:text-base">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i>
+                        Logout
+                    </a>
                 </div>
             </div>
+        </section>
 
-            {% if messages %}
-            <div class="space-y-3">
-                {% for message in messages %}
-                <div class="rounded-2xl border border-white/10 px-4 py-3 {% if message.tags == 'error' %}bg-rose-500/20 text-rose-100{% else %}bg-emerald-500/20 text-emerald-100{% endif %}">
-                    {{ message }}
-                </div>
+        {% if messages %}
+        <section class="space-y-3">
+            {% for message in messages %}
+            <div class="rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800{% else %}border-emerald-200 bg-emerald-50 text-emerald-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        <section class="grid gap-4 md:grid-cols-3">
+            <article class="kpi-card rounded-2xl p-5 sm:p-6">
+                <p class="text-sm font-medium text-slate-600">Records Created</p>
+                <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ applications_count }}</p>
+            </article>
+            <article class="kpi-card rounded-2xl p-5 sm:p-6 md:col-span-2">
+                <p class="text-sm font-medium text-slate-600">Portal Access Scope</p>
+                <p class="mt-2 text-sm text-slate-700 sm:text-base">
+                    Your account is restricted to partner-owned student records and the student creation workflow only.
+                </p>
+            </article>
+        </section>
+
+        <section class="shell rounded-3xl p-5 sm:p-7 lg:p-8">
+            <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-extrabold text-slate-900">Your Student Records</h2>
+                <span class="text-sm text-slate-600">Only records you created appear here.</span>
+            </div>
+
+            {% if applications %}
+            <div class="grid gap-4 lg:grid-cols-2">
+                {% for application in applications %}
+                <article class="record-card rounded-2xl p-5">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">{{ application.full_name }}</h3>
+                            <p class="text-sm text-slate-600">{{ application.email }}</p>
+                        </div>
+                        <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                            {{ application.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 gap-2 text-sm text-slate-700 sm:grid-cols-2">
+                        <div><span class="font-semibold text-slate-500">Phone:</span> {{ application.phone }}</div>
+                        <div><span class="font-semibold text-slate-500">Country:</span> {{ application.nationality }}</div>
+                        <div><span class="font-semibold text-slate-500">Student Login:</span> {{ application.username|default:"Pending" }}</div>
+                        <div><span class="font-semibold text-slate-500">Record ID:</span> {{ application.id }}</div>
+                    </div>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <a href="{% url 'employee:partner_application_edit' application.pk %}" class="btn-primary rounded-xl px-4 py-2 text-sm">Edit</a>
+                        <a href="{% url 'employee:partner_application_delete' application.pk %}" class="btn-outline rounded-xl px-4 py-2 text-sm font-semibold">Delete</a>
+                    </div>
+                </article>
                 {% endfor %}
             </div>
+            {% else %}
+            <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600">
+                No student records yet. Start by creating your first student entry.
+            </div>
             {% endif %}
-
-            <div class="grid gap-4 md:grid-cols-3">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <p class="text-sm text-slate-400">Records Created</p>
-                    <p class="mt-2 text-3xl font-bold">{{ applications_count }}</p>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-5 md:col-span-2">
-                    <p class="text-sm text-slate-400">Portal Access</p>
-                    <p class="mt-2 text-sm text-slate-200">Your account is restricted to partner-owned student records and the student creation workflow only.</p>
-                </div>
-            </div>
-
-            <div class="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-2xl">
-                <div class="mb-5 flex items-center justify-between gap-3">
-                    <h2 class="text-xl font-bold">Your Student Records</h2>
-                    <span class="text-sm text-slate-300">Only records you created appear here.</span>
-                </div>
-
-                {% if applications %}
-                <div class="grid gap-4 lg:grid-cols-2">
-                    {% for application in applications %}
-                    <div class="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <h3 class="text-lg font-semibold text-white">{{ application.full_name }}</h3>
-                                <p class="text-sm text-slate-400">{{ application.email }}</p>
-                            </div>
-                            <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">{{ application.created_at|date:"M d, Y" }}</span>
-                        </div>
-                        <div class="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-300">
-                            <div><span class="text-slate-500">Phone:</span> {{ application.phone }}</div>
-                            <div><span class="text-slate-500">Country:</span> {{ application.nationality }}</div>
-                            <div><span class="text-slate-500">Student Login:</span> {{ application.username|default:"Pending" }}</div>
-                            <div><span class="text-slate-500">Record ID:</span> {{ application.id }}</div>
-                        </div>
-                        <div class="mt-5 flex flex-wrap gap-3">
-                            <a href="{% url 'employee:partner_application_edit' application.pk %}" class="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-400">Edit</a>
-                            <a href="{% url 'employee:partner_application_delete' application.pk %}" class="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Delete</a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="rounded-2xl border border-dashed border-white/15 bg-slate-900/60 p-8 text-center text-slate-300">
-                    No student records yet. Start by creating your first student entry.
-                </div>
-                {% endif %}
-            </div>
-        </div>
+        </section>
     </div>
 </body>
 </html>

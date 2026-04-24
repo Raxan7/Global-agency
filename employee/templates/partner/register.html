@@ -5,61 +5,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partner Registration | Africa Western Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --awe-navy: #0b2c48;
+            --awe-green: #0f7b4f;
+            --awe-gold: #f5b400;
+            --awe-ice: #f4f8fb;
+            --awe-text: #13324a;
+            --awe-danger: #c1121f;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--awe-text);
+            min-height: 100vh;
+            background:
+                radial-gradient(1100px 650px at 85% -20%, rgba(15, 123, 79, 0.25), transparent 60%),
+                radial-gradient(950px 550px at 10% 105%, rgba(245, 180, 0, 0.2), transparent 55%),
+                linear-gradient(140deg, #eff5fb, #f7fbff 55%, #eef7f2);
+        }
+
+        .registration-shell {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(11, 44, 72, 0.1);
+            box-shadow: 0 28px 60px rgba(11, 44, 72, 0.14);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-panel {
+            background:
+                linear-gradient(165deg, rgba(11, 44, 72, 0.95), rgba(13, 72, 52, 0.95)),
+                url("{% static 'global_agency/img/hero_students.jpg' %}") center/cover no-repeat;
+            color: #f9fdff;
+        }
+
+        .input-label {
+            color: #194362;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.45rem;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            border-radius: 0.85rem;
+            border: 1px solid #c8d8e6;
+            background: #ffffff;
+            color: #123550;
+            padding: 0.8rem 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .form-input::placeholder {
+            color: #7a90a3;
+        }
+
+        .form-input:focus {
+            border-color: var(--awe-green);
+            box-shadow: 0 0 0 4px rgba(15, 123, 79, 0.16);
+            outline: none;
+            transform: translateY(-1px);
+        }
+
+        .form-checkbox {
+            width: 1rem;
+            height: 1rem;
+            margin-top: 0.15rem;
+            accent-color: var(--awe-green);
+        }
+
+        .submit-btn {
+            background: linear-gradient(92deg, var(--awe-green), #0c6944);
+            color: #ffffff;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            filter: brightness(1.04);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 25px rgba(12, 105, 68, 0.25);
+        }
+
+        .awe-badge {
+            border: 1px solid rgba(245, 180, 0, 0.45);
+            background: rgba(245, 180, 0, 0.14);
+            color: #ffedba;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-950 text-white">
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.22),_transparent_40%),linear-gradient(135deg,_#0f172a,_#111827,_#1f2937)] flex items-center justify-center px-4 py-10">
-        <div class="w-full max-w-2xl rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl shadow-2xl p-8 md:p-10">
-            <div class="mb-8 text-center">
-                <p class="text-emerald-300 uppercase tracking-[0.3em] text-xs font-semibold mb-3">Partner Portal</p>
-                <h1 class="text-3xl md:text-4xl font-extrabold">Register as a Partner</h1>
-                <p class="mt-3 text-slate-300">Create your account, verify your email, and access the restricted partner workspace.</p>
-            </div>
+<body class="min-h-screen px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
+    <main class="mx-auto w-full max-w-6xl overflow-hidden rounded-3xl registration-shell">
+        <div class="grid min-h-[740px] lg:grid-cols-2">
+            <section class="brand-panel p-7 sm:p-10 lg:p-12 flex flex-col justify-between">
+                <div>
+                    <div class="inline-flex items-center gap-3 rounded-full awe-badge px-4 py-2 text-xs font-semibold tracking-[0.17em] uppercase">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        Africa Western Education
+                    </div>
 
-            {% if messages %}
-            <div class="mb-6 space-y-3">
-                {% for message in messages %}
-                <div class="rounded-xl border border-white/10 px-4 py-3 {% if message.tags == 'error' %}bg-rose-500/20 text-rose-100{% else %}bg-emerald-500/20 text-emerald-100{% endif %}">
-                    {{ message }}
+                    <div class="mt-7 flex items-center gap-4">
+                        <img src="{% static 'global_agency/img/logo.png' %}" alt="Africa Western Education Logo" class="h-16 w-16 rounded-full border border-white/30 bg-white p-2 shadow-lg sm:h-20 sm:w-20">
+                        <div>
+                            <p class="text-sm uppercase tracking-[0.2em] text-white/70">Official Partner Access</p>
+                            <h1 class="text-2xl font-extrabold leading-tight sm:text-3xl">Africa Western Education Partner Portal</h1>
+                        </div>
+                    </div>
+
+                    <p class="mt-6 max-w-md text-sm leading-7 text-slate-100 sm:text-base">
+                        Register your partner account to submit and manage student applications under the official Africa Western Education workflow.
+                    </p>
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
 
-            <form method="post" class="space-y-5">
-                {% csrf_token %}
-                {% if form.non_field_errors %}
-                <div class="rounded-xl border border-rose-400/40 bg-rose-500/15 px-4 py-3 text-rose-100">
-                    {{ form.non_field_errors }}
+                <div class="mt-10 grid gap-3 text-sm">
+                    <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
+                        <i class="fa-solid fa-envelope-open-text mr-2 text-amber-300"></i>
+                        Secure email verification before account activation
+                    </div>
+                    <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
+                        <i class="fa-solid fa-user-lock mr-2 text-amber-300"></i>
+                        Restricted partner-only dashboard and student records
+                    </div>
+                    <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
+                        <i class="fa-solid fa-building-shield mr-2 text-amber-300"></i>
+                        Branded experience aligned with AWE identity
+                    </div>
                 </div>
-                {% endif %}
+            </section>
 
-                <div class="grid gap-5 md:grid-cols-2">
-                    {% for field in form.visible_fields %}
-                    <div class="{% if field.name == 'terms_accepted' %}md:col-span-2{% endif %}">
-                        <label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-medium text-slate-200">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}
-                        <p class="mt-1 text-xs text-slate-400">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% for error in field.errors %}
-                        <p class="mt-1 text-sm text-rose-300">{{ error }}</p>
+            <section class="bg-white p-6 sm:p-10 lg:p-12">
+                <div class="mx-auto w-full max-w-md">
+                    <p class="text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">Partner Registration</p>
+                    <h2 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Create your account</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">Use your official email so we can verify and activate your account quickly.</p>
+
+                    {% if messages %}
+                    <div class="mt-6 space-y-3">
+                        {% for message in messages %}
+                        <div class="rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800{% else %}border-emerald-200 bg-emerald-50 text-emerald-800{% endif %}">
+                            {{ message }}
+                        </div>
                         {% endfor %}
                     </div>
-                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="mt-7 space-y-5">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <label for="{{ form.full_name.id_for_label }}" class="input-label">Full Name</label>
+                            {{ form.full_name }}
+                            {% for error in form.full_name.errors %}
+                            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="input-label">Email Address</label>
+                            {{ form.email }}
+                            {% for error in form.email.errors %}
+                            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="grid gap-5 sm:grid-cols-2">
+                            <div>
+                                <label for="{{ form.password.id_for_label }}" class="input-label">Password</label>
+                                {{ form.password }}
+                                {% for error in form.password.errors %}
+                                <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                <label for="{{ form.confirm_password.id_for_label }}" class="input-label">Confirm Password</label>
+                                {{ form.confirm_password }}
+                                {% for error in form.confirm_password.errors %}
+                                <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
+                                {{ form.terms_accepted }}
+                                <span>
+                                    I agree to the Terms and Conditions and Privacy Policy of Africa Western Education.
+                                </span>
+                            </label>
+                            {% for error in form.terms_accepted.errors %}
+                            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="submit-btn mt-2 w-full rounded-xl px-5 py-3.5 text-base">
+                            Create Partner Account
+                        </button>
+                    </form>
+
+                    <div class="mt-6 text-center text-sm text-slate-700">
+                        Already verified?
+                        <a href="{% url 'employee:partner_login' %}" class="font-semibold text-emerald-700 hover:text-emerald-800">Sign in</a>
+                    </div>
+
+                    <p class="mt-8 text-center text-xs text-slate-500">
+                        &copy; 2026 Africa Western Education. Official Partner Onboarding.
+                    </p>
                 </div>
-
-                <button type="submit" class="w-full rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-400">
-                    Create Partner Account
-                </button>
-            </form>
-
-            <div class="mt-6 text-center text-sm text-slate-300">
-                Already verified?
-                <a href="{% url 'employee:partner_login' %}" class="font-semibold text-emerald-300 hover:text-emerald-200">Sign in</a>
-            </div>
+            </section>
         </div>
-    </div>
+    </main>
 </body>
 </html>
