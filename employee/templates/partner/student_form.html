@@ -5,34 +5,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} | Africa Western Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --awe-navy: #0b2c48;
+            --awe-green: #0f7b4f;
+            --awe-gold: #f5b400;
+            --awe-text: #13324a;
+            --awe-soft: #f5f9fc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--awe-text);
+            min-height: 100vh;
+            background:
+                radial-gradient(1100px 650px at 85% -20%, rgba(15, 123, 79, 0.25), transparent 60%),
+                radial-gradient(950px 550px at 10% 105%, rgba(245, 180, 0, 0.2), transparent 55%),
+                linear-gradient(140deg, #eff5fb, #f7fbff 55%, #eef7f2);
+        }
+
+        .hero-panel {
+            background:
+                linear-gradient(135deg, rgba(11, 44, 72, 0.96), rgba(13, 72, 52, 0.94)),
+                url("{% static 'global_agency/img/hero_students.jpg' %}") center/cover no-repeat;
+            color: #f8fdff;
+        }
+
+        .form-shell {
+            background: rgba(255, 255, 255, 0.93);
+            border: 1px solid rgba(11, 44, 72, 0.1);
+            box-shadow: 0 22px 45px rgba(11, 44, 72, 0.11);
+            backdrop-filter: blur(8px);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea,
+        input[type='text'],
+        input[type='email'],
+        input[type='number'],
+        textarea,
+        select {
+            width: 100%;
+            border: 1px solid #c8d8e6;
+            border-radius: 0.85rem;
+            background: #ffffff;
+            color: #13324a;
+            padding: 0.8rem 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus,
+        input[type='text']:focus,
+        input[type='email']:focus,
+        input[type='number']:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--awe-green);
+            box-shadow: 0 0 0 4px rgba(15, 123, 79, 0.16);
+            outline: none;
+            transform: translateY(-1px);
+        }
+
+        .form-textarea,
+        textarea {
+            min-height: 96px;
+        }
+
+        .input-label {
+            color: #194362;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.45rem;
+            display: block;
+        }
+
+        .save-btn {
+            background: linear-gradient(92deg, var(--awe-green), #0c6944);
+            color: #fff;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .save-btn:hover {
+            filter: brightness(1.04);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 25px rgba(12, 105, 68, 0.25);
+        }
+
+        .cancel-btn {
+            border: 1px solid #b7cadb;
+            color: #1f4460;
+            background: #ffffff;
+        }
+
+        .cancel-btn:hover {
+            background: var(--awe-soft);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-950 text-white">
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_40%),linear-gradient(135deg,_#020617,_#111827,_#1e293b)] px-4 py-8 md:px-8">
-        <div class="mx-auto max-w-5xl rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 md:p-8 shadow-2xl">
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <div>
-                    <p class="text-sky-300 uppercase tracking-[0.3em] text-xs font-semibold mb-3">Partner Portal</p>
-                    <h1 class="text-3xl font-extrabold">{{ page_title }}</h1>
+<body class="min-h-screen px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <div class="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+        <section class="hero-panel overflow-hidden rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex items-start gap-4">
+                    <img src="{% static 'global_agency/img/logo.png' %}" alt="Africa Western Education Logo" class="h-14 w-14 rounded-full border border-white/30 bg-white p-2 shadow-lg sm:h-16 sm:w-16">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.22em] text-amber-100">Africa Western Education</p>
+                        <h1 class="mt-1 text-2xl font-extrabold leading-tight sm:text-3xl">{{ page_title }}</h1>
+                        <p class="mt-2 text-sm text-slate-100 sm:text-base">
+                            Complete student details carefully. This record will be attached to your partner account and visible on your dashboard.
+                        </p>
+                    </div>
                 </div>
-                <a href="{% url 'employee:partner_dashboard' %}" class="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Back to dashboard</a>
+                <a href="{% url 'employee:partner_dashboard' %}" class="inline-flex items-center rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </section>
+
+        {% if messages %}
+        <section class="space-y-3">
+            {% for message in messages %}
+            <div class="rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800{% else %}border-emerald-200 bg-emerald-50 text-emerald-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        <section class="form-shell rounded-3xl p-5 sm:p-7 lg:p-8">
+            <div class="mb-6 flex items-center justify-between">
+                <h2 class="text-lg font-extrabold text-slate-900 sm:text-xl">Student Information Form</h2>
+                <span class="hidden rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 sm:inline-flex">Partner Intake</span>
             </div>
 
-            {% if messages %}
-            <div class="mb-6 space-y-3">
-                {% for message in messages %}
-                <div class="rounded-xl border border-white/10 px-4 py-3 {% if message.tags == 'error' %}bg-rose-500/20 text-rose-100{% else %}bg-emerald-500/20 text-emerald-100{% endif %}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <form method="post" class="space-y-5">
+            <form method="post" class="space-y-6">
                 {% csrf_token %}
                 {% if form.non_field_errors %}
-                <div class="rounded-xl border border-rose-400/40 bg-rose-500/15 px-4 py-3 text-rose-100">
+                <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
                     {{ form.non_field_errors }}
                 </div>
                 {% endif %}
@@ -40,24 +159,27 @@
                 <div class="grid gap-5 md:grid-cols-2">
                     {% for field in form.visible_fields %}
                     <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'address' or field.name == 'emergency_address' %}md:col-span-2{% endif %}">
-                        <label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-medium text-slate-200">{{ field.label }}</label>
+                        <label for="{{ field.id_for_label }}" class="input-label">{{ field.label }}</label>
                         {{ field }}
                         {% if field.help_text %}
-                        <p class="mt-1 text-xs text-slate-400">{{ field.help_text }}</p>
+                        <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
                         {% endif %}
                         {% for error in field.errors %}
-                        <p class="mt-1 text-sm text-rose-300">{{ error }}</p>
+                        <p class="mt-1 text-sm text-red-700">{{ error }}</p>
                         {% endfor %}
                     </div>
                     {% endfor %}
                 </div>
 
-                <div class="flex flex-wrap gap-3 pt-3">
-                    <button type="submit" class="rounded-xl bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-400">{{ submit_label }}</button>
-                    <a href="{% url 'employee:partner_dashboard' %}" class="rounded-xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Cancel</a>
+                <div class="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-end">
+                    <a href="{% url 'employee:partner_dashboard' %}" class="cancel-btn rounded-xl px-5 py-3 text-center text-sm font-semibold sm:text-base">Cancel</a>
+                    <button type="submit" class="save-btn rounded-xl px-5 py-3 text-sm sm:text-base">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i>
+                        {{ submit_label }}
+                    </button>
                 </div>
             </form>
-        </div>
+        </section>
     </div>
 </body>
 </html>
