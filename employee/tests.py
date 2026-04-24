@@ -216,6 +216,19 @@ class PortalUpdateMultiUploadTests(TestCase):
 )
 class PartnerPortalTests(TestCase):
     def setUp(self):
+        self.employee_user = User.objects.create_user(
+            username='employee.reviewer@example.com',
+            email='employee.reviewer@example.com',
+            password='EmployeePass123!',
+            first_name='Reviewer',
+            last_name='Staff',
+        )
+        UserProfile.objects.create(
+            user=self.employee_user,
+            role='employee',
+            registration_method='admin',
+        )
+
         self.partner_payload = {
             'full_name': 'Grace Mushi',
             'email': 'partner@example.com',
@@ -292,3 +305,61 @@ class PartnerPortalTests(TestCase):
         self.assertTrue(application.account_created)
         self.assertIsNotNone(application.portal_application)
         self.assertEqual(application.student_user.username, 'amina@example.com')
+
+    def test_partner_parent_mode_requires_at_least_one_parent(self):
+        self.client.post(reverse('employee:partner_register'), self.partner_payload)
+        partner_user = User.objects.get(username='partner@example.com')
+        activation_url = reverse(
+            'employee:partner_activate',
+            kwargs={
+                'uidb64': urlsafe_base64_encode(force_bytes(partner_user.pk)),
+                'token': default_token_generator.make_token(partner_user),
+            },
+        )
+        self.client.get(activation_url)
+
+        invalid_payload = self.student_payload.copy()
+        invalid_payload.update(
+            {
+                'parent_entry_mode': 'parents',
+                'father_name': '',
+                'mother_name': '',
+            }
+        )
+
+        response = self.client.post(reverse('employee:partner_application_create'), invalid_payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Please enter at least one parent name or switch to guardian mode.')
+        self.assertFalse(StudentApplication.objects.filter(email='amina@example.com').exists())
+
+    def test_employee_review_pages_show_partner_submission_context(self):
+        self.client.post(reverse('employee:partner_register'), self.partner_payload)
+        partner_user = User.objects.get(username='partner@example.com')
+        activation_url = reverse(
+            'employee:partner_activate',
+            kwargs={
+                'uidb64': urlsafe_base64_encode(force_bytes(partner_user.pk)),
+                'token': default_token_generator.make_token(partner_user),
+            },
+        )
+        self.client.get(activation_url)
+        self.client.post(reverse('employee:partner_application_create'), self.student_payload)
+
+        portal_application = Application.objects.get(student__username='amina@example.com')
+
+        self.client.logout()
+        self.client.login(username='employee.reviewer@example.com', password='EmployeePass123!')
+
+        list_response = self.client.get(reverse('employee:student_application_list'))
+        detail_response = self.client.get(
+            reverse('employee:student_application_detail', kwargs={'application_id': portal_application.id})
+        )
+
+        self.assertEqual(list_response.status_code, 200)
+        self.assertContains(list_response, 'Partner Entry')
+        self.assertContains(list_response, 'Grace Mushi')
+
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertContains(detail_response, 'Partner Submitted Application')
+        self.assertContains(detail_response, 'Grace Mushi')

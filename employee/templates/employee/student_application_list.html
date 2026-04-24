@@ -268,6 +268,24 @@
             align-items: center;
             gap: 0.5rem;
         }
+
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .source-partner {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+        .source-direct {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
         
         /* Statistics Cards */
         .stats-grid {
@@ -509,6 +527,7 @@
                         <th>Application Type</th>
                         <th>Details</th>
                         <th>Payment Status</th>
+                        <th>Submission Source</th>
                         <th>Application Status</th>
                         <th>Submitted Date</th>
                         <th>Actions</th>
@@ -550,6 +569,19 @@
                                 <span class="payment-paid">Paid</span>
                             {% else %}
                                 <span class="payment-pending">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.partner_intake and app.partner_intake.created_by %}
+                                <span class="source-badge source-partner"><i class="fas fa-handshake"></i> Partner Entry</span>
+                                <div><small><strong>{{ app.partner_intake.created_by.get_full_name|default:app.partner_intake.created_by.username }}</strong></small></div>
+                                <div><small style="color: #666;">{{ app.partner_intake.created_by.email }}</small></div>
+                                {% if app.partner_intake.created_by.userprofile.phone_number %}
+                                <div><small style="color: #666;">{{ app.partner_intake.created_by.userprofile.phone_number }}</small></div>
+                                {% endif %}
+                            {% else %}
+                                <span class="source-badge source-direct"><i class="fas fa-user-graduate"></i> Student Portal</span>
+                                <div><small style="color: #666;">Self-submitted</small></div>
                             {% endif %}
                         </td>
                         <td>
@@ -618,8 +650,12 @@
                 <div class="stat-label">Approved</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ applications.count }}</div>
+                <div class="stat-number">{{ displayed_count }}</div>
                 <div class="stat-label">Currently Displayed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ partner_submitted_count }}</div>
+                <div class="stat-label">Partner Submitted</div>
             </div>
         </div>
     </div>

@@ -485,6 +485,25 @@
                 </div>
 
                 <div class="info-item">
+                    <div class="info-label"><i class="fas fa-route"></i> Submission Source</div>
+                    {% if partner_intake and partner_intake.created_by and partner_intake.created_by.userprofile.role == 'partner' %}
+                    <div style="margin-bottom: 0.4rem;"><strong style="color: #1b5e20;">Partner Submitted Application</strong></div>
+                    <div><strong>Partner Name:</strong> {{ partner_intake.created_by.get_full_name|default:partner_intake.created_by.username }}</div>
+                    <div><strong>Partner Email:</strong> {{ partner_intake.created_by.email }}</div>
+                    {% if partner_intake.created_by.userprofile.phone_number %}
+                    <div><strong>Partner Phone:</strong> {{ partner_intake.created_by.userprofile.phone_number }}</div>
+                    {% endif %}
+                    <div><strong>Partner Intake Date:</strong> {{ partner_intake.created_at|date:"M d, Y H:i" }}</div>
+                    {% elif partner_intake and partner_intake.created_by %}
+                    <div><strong>Offline Entry by Staff:</strong> {{ partner_intake.created_by.get_full_name|default:partner_intake.created_by.username }}</div>
+                    <div><strong>Entry Date:</strong> {{ partner_intake.created_at|date:"M d, Y H:i" }}</div>
+                    {% else %}
+                    <div><strong>Student Portal Direct Submission</strong></div>
+                    <div style="color: #666;">Submitted directly by the student account.</div>
+                    {% endif %}
+                </div>
+
+                <div class="info-item">
                     <div class="info-label"><i class="fas fa-tag"></i> Application Type</div>
                     <div style="font-size: 1.2rem; font-weight: bold; color: #007bff;">
                         {{ application.get_application_type_display }}

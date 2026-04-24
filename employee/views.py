@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
+from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseRedirect, JsonResponse
@@ -171,17 +172,26 @@ def student_application_list(request):
     profile = UserProfile.objects.get(user=request.user)
     
     # ALL employees see ALL applications (removed admin/employee distinction)
-    applications = Application.objects.all().order_by('-created_at')
+    applications_qs = (
+        Application.objects.select_related('student')
+        .prefetch_related(
+            Prefetch(
+                'offline_intakes',
+                queryset=StudentApplication.objects.select_related('created_by', 'created_by__userprofile').order_by('-created_at'),
+            )
+        )
+        .order_by('-created_at')
+    )
     
     # Filter by status if provided
     status_filter = request.GET.get('status')
     if status_filter:
-        applications = applications.filter(status=status_filter)
+        applications_qs = applications_qs.filter(status=status_filter)
     
     # Search functionality
     search_query = request.GET.get('search')
     if search_query:
-        applications = applications.filter(
+        applications_qs = applications_qs.filter(
             Q(student__username__icontains=search_query) |
             Q(student__first_name__icontains=search_query) |
             Q(student__last_name__icontains=search_query) |
@@ -189,6 +199,21 @@ def student_application_list(request):
             Q(course__icontains=search_query) |
             Q(country__icontains=search_query)
         )
+
+    applications = list(applications_qs)
+    partner_submitted_count = 0
+    for app in applications:
+        partner_intake = None
+        for intake in app.offline_intakes.all():
+            created_by = intake.created_by
+            if not created_by:
+                continue
+            user_profile = getattr(created_by, 'userprofile', None)
+            if user_profile and user_profile.role == 'partner':
+                partner_intake = intake
+                partner_submitted_count += 1
+                break
+        app.partner_intake = partner_intake
     
     context = {
         'applications': applications,
@@ -197,6 +222,8 @@ def student_application_list(request):
         'total_applications': Application.objects.count(),
         'pending_reviews': Application.objects.filter(status='submitted').count(),
         'approved_applications': Application.objects.filter(status='approved').count(),
+        'displayed_count': len(applications),
+        'partner_submitted_count': partner_submitted_count,
         'is_admin': profile.is_admin(),
     }
     return render(request, 'employee/student_application_list.html', context)
@@ -209,6 +236,13 @@ def student_application_detail(request, application_id):
     
     # ALL employees can see ANY application
     application = get_object_or_404(Application, id=application_id)
+
+    partner_intake = (
+        StudentApplication.objects.select_related('created_by', 'created_by__userprofile')
+        .filter(portal_application=application, created_by__isnull=False)
+        .order_by('-created_at')
+        .first()
+    )
     
     documents = Document.objects.filter(student=application.student)
     payments = Payment.objects.filter(application=application)
@@ -224,9 +258,94 @@ def student_application_detail(request, application_id):
         'student_profile': student_profile,
         'documents': documents,
         'payments': payments,
+        'partner_intake': partner_intake,
         'is_admin': profile.is_admin(),
     }
     return render(request, 'employee/student_application_detail.html', context)
+
+
+def _build_partner_form_sections(form):
+    section_specs = [
+        {
+            'key': 'student_identity',
+            'title': 'Student Identity',
+            'description': 'Basic profile and contact details for the student.',
+            'icon': 'fa-user-graduate',
+            'fields': ['full_name', 'gender', 'nationality', 'email', 'phone', 'address'],
+        },
+        {
+            'key': 'family_selector',
+            'title': 'Family Contact Mode',
+            'description': 'Choose whether parent details are available or guardian-only details should be used.',
+            'icon': 'fa-sliders',
+            'fields': ['parent_entry_mode'],
+        },
+        {
+            'key': 'parents',
+            'title': 'Parent Details',
+            'description': 'Enter one or both parents when available.',
+            'icon': 'fa-people-roof',
+            'fields': [
+                'father_name', 'father_phone', 'father_email', 'father_occupation',
+                'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
+            ],
+        },
+        {
+            'key': 'guardian',
+            'title': 'Guardian Details',
+            'description': 'Required when no parent details are available.',
+            'icon': 'fa-user-shield',
+            'fields': ['emergency_name', 'emergency_relation', 'emergency_gender', 'emergency_occupation', 'emergency_address'],
+        },
+        {
+            'key': 'olevel',
+            'title': 'O-Level Background',
+            'description': 'Add O-Level school and performance information.',
+            'icon': 'fa-school',
+            'fields': ['olevel_school', 'olevel_country', 'olevel_address', 'olevel_region', 'olevel_year', 'olevel_candidate_no', 'olevel_gpa'],
+        },
+        {
+            'key': 'alevel',
+            'title': 'A-Level Background',
+            'description': 'Add A-Level school details when available.',
+            'icon': 'fa-building-columns',
+            'fields': ['alevel_school', 'alevel_country', 'alevel_address', 'alevel_region', 'alevel_year', 'alevel_candidate_no', 'alevel_gpa'],
+        },
+        {
+            'key': 'study_preferences',
+            'title': 'Study Preferences',
+            'description': 'Capture destination countries and programs of interest.',
+            'icon': 'fa-compass-drafting',
+            'fields': [
+                'preferred_country_1', 'preferred_program_1',
+                'preferred_country_2', 'preferred_program_2',
+                'preferred_country_3', 'preferred_program_3',
+                'preferred_country_4', 'preferred_program_4',
+            ],
+        },
+        {
+            'key': 'referral',
+            'title': 'Referral Information',
+            'description': 'Track how the student heard about Africa Western Education.',
+            'icon': 'fa-bullhorn',
+            'fields': ['heard_about_us', 'heard_about_other'],
+        },
+    ]
+
+    sections = []
+    for spec in section_specs:
+        available_fields = [field_name for field_name in spec['fields'] if field_name in form.fields]
+        if not available_fields:
+            continue
+        bound_fields = [form[field_name] for field_name in available_fields]
+        sections.append({
+            'key': spec['key'],
+            'title': spec['title'],
+            'description': spec['description'],
+            'icon': spec['icon'],
+            'bound_fields': bound_fields,
+        })
+    return sections
 
 @login_required
 @employee_required
@@ -607,6 +726,7 @@ def partner_application_create(request):
         'partner/student_form.html',
         {
             'form': form,
+            'form_sections': _build_partner_form_sections(form),
             'page_title': 'Add student record',
             'submit_label': 'Save student record',
         },
@@ -655,6 +775,7 @@ def partner_application_edit(request, pk):
         'partner/student_form.html',
         {
             'form': form,
+            'form_sections': _build_partner_form_sections(form),
             'page_title': 'Edit student record',
             'submit_label': 'Update student record',
             'application': application,

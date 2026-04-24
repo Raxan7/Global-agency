@@ -246,11 +246,27 @@ class PartnerRegistrationForm(forms.Form):
 
 
 class OfflineStudentIntakeForm(forms.ModelForm):
+    parent_entry_mode = forms.ChoiceField(
+        required=False,
+        initial='guardian_only',
+        choices=[
+            ('guardian_only', 'No parent details available (use guardian details)'),
+            ('parents', 'Parent details are available (enter at least one parent)'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Choose how family contact details will be captured for this student.',
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['olevel_country'].initial = 'Tanzania'
         self.fields['alevel_country'].initial = 'Tanzania'
         self.fields['alevel_country'].required = False
+        self.fields['emergency_name'].required = False
+        self.fields['emergency_address'].required = False
+        self.fields['emergency_occupation'].required = False
+        self.fields['emergency_gender'].required = False
+        self.fields['emergency_relation'].required = False
 
     class Meta:
         model = StudentApplication
@@ -354,4 +370,25 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             cleaned_data['olevel_country'] = 'Tanzania'
         if not cleaned_data.get('alevel_country'):
             cleaned_data['alevel_country'] = 'Tanzania'
+
+        father_name = (cleaned_data.get('father_name') or '').strip()
+        mother_name = (cleaned_data.get('mother_name') or '').strip()
+        parent_entry_mode = cleaned_data.get('parent_entry_mode') or 'guardian_only'
+        has_parent_info = bool(father_name or mother_name)
+
+        guardian_required_fields = {
+            'emergency_name': 'Guardian name is required when no parent details are provided.',
+            'emergency_address': 'Guardian address is required when no parent details are provided.',
+            'emergency_relation': 'Guardian relation is required when no parent details are provided.',
+            'emergency_gender': 'Guardian gender is required when no parent details are provided.',
+        }
+
+        if parent_entry_mode == 'parents' and not has_parent_info:
+            self.add_error('parent_entry_mode', 'Please enter at least one parent name or switch to guardian mode.')
+
+        if not has_parent_info:
+            for field_name, error_message in guardian_required_fields.items():
+                if not cleaned_data.get(field_name):
+                    self.add_error(field_name, error_message)
+
         return cleaned_data

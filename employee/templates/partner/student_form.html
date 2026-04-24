@@ -31,8 +31,7 @@
 
         .hero-panel {
             background:
-                linear-gradient(135deg, rgba(11, 44, 72, 0.96), rgba(13, 72, 52, 0.94)),
-                url("{% static 'global_agency/img/hero_students.jpg' %}") center/cover no-repeat;
+                linear-gradient(135deg, rgba(11, 44, 72, 0.96), rgba(13, 72, 52, 0.94));
             color: #f8fdff;
         }
 
@@ -85,6 +84,34 @@
             font-size: 0.9rem;
             margin-bottom: 0.45rem;
             display: block;
+        }
+
+        .section-card {
+            border: 1px solid #dbe7f1;
+            border-radius: 1rem;
+            background: #fcfeff;
+            padding: 1rem;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.9rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e8f0f6;
+        }
+
+        .section-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f7ef;
+            color: #0f7b4f;
+            flex-shrink: 0;
         }
 
         .save-btn {
@@ -156,20 +183,32 @@
                 </div>
                 {% endif %}
 
-                <div class="grid gap-5 md:grid-cols-2">
-                    {% for field in form.visible_fields %}
-                    <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'address' or field.name == 'emergency_address' %}md:col-span-2{% endif %}">
-                        <label for="{{ field.id_for_label }}" class="input-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}
-                        <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% for error in field.errors %}
-                        <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                {% for section in form_sections %}
+                <section class="section-card {% if section.key == 'parents' %}family-parent-section{% endif %} {% if section.key == 'guardian' %}family-guardian-section{% endif %}" {% if section.key == 'parents' %}id="parent-fields-block"{% endif %} {% if section.key == 'guardian' %}id="guardian-fields-block"{% endif %}>
+                    <div class="section-head">
+                        <span class="section-icon"><i class="fa-solid {{ section.icon }}"></i></span>
+                        <div>
+                            <h3 class="text-base font-extrabold text-slate-900">{{ section.title }}</h3>
+                            <p class="text-xs text-slate-600">{{ section.description }}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-5 md:grid-cols-2">
+                        {% for field in section.bound_fields %}
+                        <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' %}md:col-span-2{% endif %}">
+                            <label for="{{ field.id_for_label }}" class="input-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
                         {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
+                </section>
+                {% endfor %}
 
                 <div class="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-end">
                     <a href="{% url 'employee:partner_dashboard' %}" class="cancel-btn rounded-xl px-5 py-3 text-center text-sm font-semibold sm:text-base">Cancel</a>
@@ -181,5 +220,30 @@
             </form>
         </section>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modeSelect = document.getElementById('id_parent_entry_mode');
+            const parentBlock = document.getElementById('parent-fields-block');
+            const guardianBlock = document.getElementById('guardian-fields-block');
+
+            if (!modeSelect) {
+                return;
+            }
+
+            function updateFamilyBlocks() {
+                const guardianOnly = modeSelect.value === 'guardian_only';
+                if (parentBlock) {
+                    parentBlock.style.display = guardianOnly ? 'none' : '';
+                }
+                if (guardianBlock) {
+                    guardianBlock.style.opacity = guardianOnly ? '1' : '0.95';
+                }
+            }
+
+            modeSelect.addEventListener('change', updateFamilyBlocks);
+            updateFamilyBlocks();
+        });
+    </script>
 </body>
 </html>
