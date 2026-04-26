@@ -13,6 +13,8 @@ def set_dynamic_row_format(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
+    atomic = False
+
     dependencies = [
         ('student_portal', '0017_remove_applicationsupplementalprofile_agency_name_and_more'),
     ]
