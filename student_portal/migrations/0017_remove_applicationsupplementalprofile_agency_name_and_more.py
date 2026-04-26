@@ -116,21 +116,93 @@ LEGACY_SUPPLEMENTAL_FIELDS = [
 ]
 
 
-def drop_existing_legacy_columns(apps, schema_editor):
-    table_name = 'student_portal_applicationsupplementalprofile'
+def rebuild_supplemental_profile_table(apps, schema_editor):
     connection = schema_editor.connection
+    vendor = connection.vendor
+    original_table = 'student_portal_applicationsupplementalprofile'
+    backup_table = 'student_portal_applicationsupplementalprofile_legacy'
+
+    existing_tables = set(connection.introspection.table_names())
+    if original_table not in existing_tables and backup_table not in existing_tables:
+        return
+
+    if vendor != 'mysql':
+        # The production failure is MySQL-specific. On other backends, keep the
+        # migration state change only and avoid backend-specific table rebuilds.
+        return
+
+    source_table = original_table if original_table in existing_tables else backup_table
+    quoted_original = schema_editor.quote_name(original_table)
+    quoted_backup = schema_editor.quote_name(backup_table)
 
     with connection.cursor() as cursor:
-        existing_columns = {
-            column.name for column in connection.introspection.get_table_description(cursor, table_name)
+        if source_table == original_table:
+            if backup_table in existing_tables:
+                schema_editor.execute(f'DROP TABLE {quoted_backup}')
+            schema_editor.execute(f'RENAME TABLE {quoted_original} TO {quoted_backup}')
+            source_table = backup_table
+
+        source_columns = {
+            column.name
+            for column in connection.introspection.get_table_description(cursor, source_table)
         }
 
-    quoted_table = schema_editor.quote_name(table_name)
-    for column_name in LEGACY_SUPPLEMENTAL_FIELDS:
-        if column_name not in existing_columns:
-            continue
-        quoted_column = schema_editor.quote_name(column_name)
-        schema_editor.execute(f'ALTER TABLE {quoted_table} DROP COLUMN {quoted_column}')
+    schema_editor.execute(f'DROP TABLE IF EXISTS {quoted_original}')
+    schema_editor.execute(
+        f"""
+        CREATE TABLE {quoted_original} (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            application_id BIGINT NOT NULL UNIQUE,
+            passport_expiration_date DATE NULL,
+            english_test_name LONGTEXT NULL,
+            english_test_score LONGTEXT NULL,
+            has_passport_photo BOOL NULL,
+            has_other_attachments BOOL NULL,
+            other_attachments_description LONGTEXT NULL,
+            declaration_agreed BOOL NULL,
+            serial_number VARCHAR(100) NULL,
+            generated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+            CONSTRAINT student_portal_appsup_profile_application_id_fk
+                FOREIGN KEY (application_id)
+                REFERENCES student_portal_application (id)
+        ) ROW_FORMAT=DYNAMIC
+        """
+    )
+
+    def select_expr(column_name, default_sql='NULL'):
+        quoted = schema_editor.quote_name(column_name)
+        return quoted if column_name in source_columns else default_sql
+
+    insert_sql = f"""
+        INSERT INTO {quoted_original} (
+            id,
+            application_id,
+            passport_expiration_date,
+            english_test_name,
+            english_test_score,
+            has_passport_photo,
+            has_other_attachments,
+            other_attachments_description,
+            declaration_agreed,
+            serial_number,
+            generated_at
+        )
+        SELECT
+            {select_expr('id')},
+            {select_expr('application_id')},
+            {select_expr('passport_expiration_date')},
+            {select_expr('english_test_name')},
+            {select_expr('english_test_score')},
+            {select_expr('has_passport_photo')},
+            {select_expr('has_other_attachments')},
+            {select_expr('other_attachments_description')},
+            {select_expr('declaration_agreed')},
+            {select_expr('serial_number')},
+            {select_expr('generated_at', 'CURRENT_TIMESTAMP(6)')}
+        FROM {quoted_backup}
+    """
+    schema_editor.execute(insert_sql)
+    schema_editor.execute(f'DROP TABLE {quoted_backup}')
 
 
 class Migration(migrations.Migration):
@@ -143,7 +215,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                migrations.RunPython(drop_existing_legacy_columns, migrations.RunPython.noop),
+                migrations.RunPython(rebuild_supplemental_profile_table, migrations.RunPython.noop),
             ],
             state_operations=[
                 *[
