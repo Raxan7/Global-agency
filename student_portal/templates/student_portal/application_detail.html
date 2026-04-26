@@ -442,6 +442,44 @@
                 </div>
             </div>
 
+            {% if application.employee_status_note or application.official_remarks or application.status_updated_at %}
+            <div class="detail-section">
+                <h3>Latest Update From Africa Western Education</h3>
+                <div class="detail-grid">
+                    {% if application.employee_status_note %}
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <span class="detail-label">Status Feedback</span>
+                        <div class="detail-value">{{ application.employee_status_note|linebreaksbr }}</div>
+                    </div>
+                    {% endif %}
+                    {% if application.official_remarks %}
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <span class="detail-label">Office Remarks</span>
+                        <div class="detail-value">{{ application.official_remarks|linebreaksbr }}</div>
+                    </div>
+                    {% endif %}
+                    {% if application.official_admission_status %}
+                    <div class="detail-item">
+                        <span class="detail-label">Admission Status</span>
+                        <div class="detail-value">{{ application.get_official_admission_status_display }}</div>
+                    </div>
+                    {% endif %}
+                    {% if application.official_visa_status %}
+                    <div class="detail-item">
+                        <span class="detail-label">Visa Status</span>
+                        <div class="detail-value">{{ application.get_official_visa_status_display }}</div>
+                    </div>
+                    {% endif %}
+                    {% if application.status_updated_at %}
+                    <div class="detail-item">
+                        <span class="detail-label">Last Reviewed</span>
+                        <div class="detail-value">{{ application.status_updated_at|date:"F d, Y H:i" }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
             <div class="button-group" style="margin-top: 2rem;">
                 <a href="{% url 'student_portal:applications' %}" class="btn-secondary">Back to Applications</a>
                 <a href="{% url 'student_portal:documents' %}" class="btn-secondary">Manage Documents</a>

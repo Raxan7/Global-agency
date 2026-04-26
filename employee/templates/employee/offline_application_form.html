@@ -2,63 +2,173 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block hero_title %}Offline Student Intake{% endblock %}
-{% block hero_copy %}Enter paper-form applications here so offline students are created in the system immediately, with a working student account and their full details ready in the portal.{% endblock %}
+{% block hero_copy %}Use the same paced flow as the student portal while keeping the intake offline for staff work.{% endblock %}
 
 {% block content %}
 <style>
-    .intake-card {
-        padding: 28px;
-    }
-
-    .section-grid {
+    .intake-shell {
         display: grid;
-        gap: 18px;
+        gap: 1.5rem;
+        grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+        align-items: start;
     }
 
-    .section-block {
-        padding: 22px;
-        border-radius: 22px;
+    .wizard-nav,
+    .wizard-panel {
+        background: #fff;
         border: 1px solid #dbe3f0;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border-radius: 24px;
     }
 
-    .section-block h3 {
-        margin: 0 0 14px;
-        font-size: 1.08rem;
+    .wizard-nav {
+        padding: 1.4rem;
+        position: sticky;
+        top: 1.5rem;
     }
 
-    .section-note {
+    .wizard-panel {
+        padding: 1.6rem;
+    }
+
+    .wizard-title {
+        margin: 0 0 0.4rem;
+        font-size: 1.65rem;
+        line-height: 1.2;
+    }
+
+    .wizard-copy {
+        margin: 0;
         color: #64748b;
-        margin: 0 0 18px;
+        font-size: 1rem;
+        line-height: 1.6;
     }
 
-    .helper-card {
-        margin-top: 18px;
-        padding: 18px 20px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(59, 130, 246, 0.08));
-        border: 1px solid rgba(125, 211, 252, 0.35);
-        color: #334155;
+    .wizard-steps {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1.4rem;
     }
 
-    .actions-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-top: 24px;
+    .wizard-step {
+        width: 100%;
+        text-align: left;
+        border: 1px solid #dbe3f0;
+        border-radius: 16px;
+        background: #f8fbff;
+        padding: 0.9rem 1rem;
+        cursor: pointer;
+    }
+
+    .wizard-step.active {
+        border-color: #2563eb;
+        background: #eff6ff;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.12);
+    }
+
+    .wizard-step small {
+        display: block;
+        margin-top: 0.25rem;
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.45;
+    }
+
+    .wizard-body {
+        display: grid;
+        gap: 1.4rem;
+    }
+
+    .wizard-band {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 1.3rem;
+    }
+
+    .step-panel {
+        display: none;
+    }
+
+    .step-panel.active {
+        display: block;
+    }
+
+    .step-heading {
+        margin: 0 0 0.45rem;
+        font-size: 1.45rem;
+        line-height: 1.25;
+    }
+
+    .step-description {
+        margin: 0 0 1.2rem;
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 0.45rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        padding: 0.95rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        background: #fff;
+    }
+
+    .form-field textarea {
+        min-height: 110px;
+    }
+
+    .field-help {
+        margin: 0.4rem 0 0;
+        color: #64748b;
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    .field-errors {
+        margin-top: 0.4rem;
+        color: #b91c1c;
+        font-size: 0.92rem;
+    }
+
+    .upload-band {
+        border: 1px solid #dbe3f0;
+        border-radius: 18px;
+        background: #f8fbff;
+        padding: 1rem;
     }
 
     .existing-file-grid {
         display: grid;
-        gap: 12px;
+        gap: 0.75rem;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
 
     .existing-file-grid a {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 14px;
+        gap: 0.55rem;
+        padding: 0.85rem 1rem;
         border-radius: 14px;
         border: 1px solid #dbe3f0;
         background: #fff;
@@ -66,78 +176,232 @@
         text-decoration: none;
         font-weight: 600;
     }
+
+    .wizard-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-top: 1.4rem;
+        flex-wrap: wrap;
+    }
+
+    .wizard-actions-right {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .wizard-btn {
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #0f172a;
+        border-radius: 14px;
+        padding: 0.85rem 1.2rem;
+        font-size: 0.98rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .wizard-btn.primary {
+        border-color: #0f766e;
+        background: #0f766e;
+        color: #fff;
+    }
+
+    .wizard-btn[hidden] {
+        display: none;
+    }
+
+    @media (max-width: 1024px) {
+        .intake-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .wizard-nav {
+            position: static;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <div class="page-head">
     <div>
         <h2>{{ page_title }}</h2>
-        <p>When you submit this form, the student account is created immediately with the default password format <strong>FIRSTNAME12345</strong>.</p>
+        <p>The student account is created immediately with the default password format <strong>FIRSTNAME12345</strong>.</p>
     </div>
     <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">Back to applications</a>
 </div>
 
-<section class="card intake-card">
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        {% if form.non_field_errors %}
-            <div class="message" style="margin-bottom: 18px; border-color: #fecaca; background: #fef2f2; color: #991b1b;">
+    <div class="intake-shell">
+        <aside class="wizard-nav">
+            <h3 class="wizard-title">{{ page_title }}</h3>
+            <p class="wizard-copy">This follows the student portal order, with the AWEC-specific fields slotted into the same guided flow.</p>
+            <div class="wizard-steps">
+                {% for section in form_sections %}
+                <button type="button" class="wizard-step {% if forloop.first %}active{% endif %}" data-step-target="{{ forloop.counter0 }}" data-section-key="{{ section.key }}">
+                    <strong>Step {{ forloop.counter }}: {{ section.title }}</strong>
+                    <small>{{ section.description }}</small>
+                </button>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <section class="wizard-panel">
+            {% if form.non_field_errors %}
+            <div class="message" style="margin-bottom: 1rem; border-color: #fecaca; background: #fef2f2; color: #991b1b;">
                 {{ form.non_field_errors }}
             </div>
-        {% endif %}
+            {% endif %}
 
-        {% if current_profile_picture or existing_documents %}
-            <section class="section-block" style="margin-bottom: 18px;">
-                <h3>Current Uploaded Files</h3>
-                <p class="section-note">Use the intake form below to add or replace student uploads.</p>
+            {% if current_profile_picture or existing_documents %}
+            <div class="upload-band" style="margin-bottom: 1.2rem;">
+                <h3 style="margin: 0 0 0.35rem; font-size: 1.2rem;">Current Uploaded Files</h3>
+                <p class="wizard-copy">You can review the existing photo and documents before replacing anything.</p>
                 {% if current_profile_picture %}
-                    <div style="margin-bottom: 14px;">
-                        <p style="font-weight: 600; margin-bottom: 8px;">Current student image</p>
-                        <img src="{{ current_profile_picture.url }}" alt="Current student image" style="width: 120px; height: 120px; object-fit: cover; border-radius: 18px; border: 1px solid #dbe3f0;">
-                    </div>
+                <div style="margin: 1rem 0;">
+                    <p style="font-weight: 700; margin-bottom: 0.6rem;">Current student image</p>
+                    <img src="{{ current_profile_picture.url }}" alt="Current student image" style="width: 132px; height: 132px; object-fit: cover; border-radius: 18px; border: 1px solid #dbe3f0;">
+                </div>
                 {% endif %}
                 {% if existing_documents %}
-                    <div class="existing-file-grid">
-                        {% for document_type, document in existing_documents.items %}
-                            <a href="{{ document.file.url }}" target="_blank" rel="noopener noreferrer">
-                                <span>View</span>
-                                <span>{{ document.get_document_type_display }}</span>
-                            </a>
-                        {% endfor %}
-                    </div>
+                <div class="existing-file-grid">
+                    {% for document_type, document in existing_documents.items %}
+                    <a href="{{ document.file.url }}" target="_blank" rel="noopener noreferrer">
+                        <span>View</span>
+                        <span>{{ document.get_document_type_display }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
                 {% endif %}
-            </section>
-        {% endif %}
+            </div>
+            {% endif %}
 
-        <div class="section-grid">
-            {% for section in form_sections %}
-                <section class="section-block">
-                    <h3>{{ section.title }}</h3>
-                    <p class="section-note">{{ section.description }}</p>
+            <div class="wizard-body">
+                {% for section in form_sections %}
+                <section class="step-panel {% if forloop.first %}active{% endif %} {% if section.key == 'parents' %}family-parent-section{% endif %} {% if section.key == 'guardian' %}family-guardian-section{% endif %}" data-step-panel="{{ forloop.counter0 }}" data-section-key="{{ section.key }}" {% if section.key == 'parents' %}id="parent-fields-block"{% endif %} {% if section.key == 'guardian' %}id="guardian-fields-block"{% endif %}>
+                    <h3 class="step-heading">{{ section.title }}</h3>
+                    <p class="step-description">{{ section.description }}</p>
                     <div class="form-grid">
                         {% for field in section.bound_fields %}
-                            <div class="form-field {% if field.name == 'address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' or field.name == 'correspondence_address' or field.name == 'emergency_contact_address' or field.name == 'contact_person_china_address' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' %}full{% endif %}">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <p class="section-note" style="margin: 8px 0 0;">{{ field.help_text }}</p>
-                                {% endif %}
-                                {{ field.errors }}
-                            </div>
+                        <div class="form-field {% if field.name == 'address' or field.name == 'current_address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
                         {% endfor %}
                     </div>
                 </section>
-            {% endfor %}
-        </div>
+                {% endfor %}
+            </div>
 
-        <div class="actions-row">
-            <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
-            <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
-
-    <div class="helper-card">
-        The student account uses the email as the username. Example: if the student is <strong>Asha</strong>, the default password becomes <strong>ASHA12345</strong>.
+            <div class="wizard-band">
+                <div class="wizard-actions">
+                    <button type="button" class="wizard-btn" id="wizard-prev" hidden>Back</button>
+                    <div class="wizard-actions-right">
+                        <a href="{% url 'employee:student_application_list' %}" class="wizard-btn" style="text-decoration: none;">Cancel</a>
+                        <button type="button" class="wizard-btn" id="wizard-next">Next Step</button>
+                        <button type="submit" class="wizard-btn primary" id="wizard-submit" hidden>{{ submit_label }}</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-</section>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stepButtons = Array.from(document.querySelectorAll('[data-step-target]'));
+        const stepPanels = Array.from(document.querySelectorAll('[data-step-panel]'));
+        const prevButton = document.getElementById('wizard-prev');
+        const nextButton = document.getElementById('wizard-next');
+        const submitButton = document.getElementById('wizard-submit');
+        const modeSelect = document.getElementById('id_parent_entry_mode');
+        const parentBlock = document.getElementById('parent-fields-block');
+        const guardianBlock = document.getElementById('guardian-fields-block');
+        const parentButton = document.querySelector('[data-section-key="parents"]');
+        const guardianButton = document.querySelector('[data-section-key="guardian"]');
+
+        let currentStep = 0;
+
+        function updateFamilyBlocks() {
+            if (!modeSelect) {
+                return;
+            }
+            const guardianOnly = modeSelect.value === 'guardian_only';
+            if (parentBlock) {
+                parentBlock.style.display = guardianOnly ? 'none' : '';
+            }
+            if (parentButton) {
+                parentButton.style.display = guardianOnly ? 'none' : '';
+            }
+            if (guardianBlock) {
+                guardianBlock.style.opacity = guardianOnly ? '1' : '0.96';
+            }
+            if (guardianButton) {
+                guardianButton.style.display = '';
+            }
+            if (guardianOnly && currentStep === Number(parentBlock?.dataset.stepPanel || '-1')) {
+                setStep(Math.min(currentStep + 1, stepPanels.length - 1));
+            }
+        }
+
+        function setStep(index) {
+            currentStep = Math.max(0, Math.min(index, stepPanels.length - 1));
+            stepPanels.forEach((panel, panelIndex) => {
+                panel.classList.toggle('active', panelIndex === currentStep);
+            });
+            stepButtons.forEach((button, buttonIndex) => {
+                button.classList.toggle('active', buttonIndex === currentStep);
+            });
+            prevButton.hidden = currentStep === 0;
+            nextButton.hidden = currentStep === stepPanels.length - 1;
+            submitButton.hidden = currentStep !== stepPanels.length - 1;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        stepButtons.forEach((button) => {
+            button.addEventListener('click', function () {
+                setStep(Number(button.dataset.stepTarget));
+            });
+        });
+
+        prevButton.addEventListener('click', function () {
+            setStep(currentStep - 1);
+        });
+
+        nextButton.addEventListener('click', function () {
+            setStep(currentStep + 1);
+        });
+
+        if (modeSelect) {
+            modeSelect.addEventListener('change', updateFamilyBlocks);
+            updateFamilyBlocks();
+        }
+
+        const firstErrorField = document.querySelector('.field-errors');
+        if (firstErrorField) {
+            const errorStep = stepPanels.findIndex((panel) => panel.contains(firstErrorField));
+            if (errorStep >= 0) {
+                setStep(errorStep);
+            } else {
+                setStep(0);
+            }
+        } else {
+            setStep(0);
+        }
+    });
+</script>
 {% endblock %}

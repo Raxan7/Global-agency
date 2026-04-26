@@ -8,18 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --awe-navy: #0b2c48;
             --awe-green: #0f7b4f;
-            --awe-gold: #f5b400;
             --awe-text: #13324a;
             --awe-soft: #f5f9fc;
         }
 
+        * { box-sizing: border-box; }
+
         body {
+            margin: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--awe-text);
             min-height: 100vh;
@@ -29,250 +29,460 @@
                 linear-gradient(140deg, #eff5fb, #f7fbff 55%, #eef7f2);
         }
 
-        .hero-panel {
-            background:
-                linear-gradient(135deg, rgba(11, 44, 72, 0.96), rgba(13, 72, 52, 0.94));
+        .page {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .hero,
+        .wizard-nav,
+        .wizard-panel,
+        .flash {
+            border-radius: 28px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(11, 44, 72, 0.96), rgba(13, 72, 52, 0.94));
             color: #f8fdff;
-        }
-
-        .form-shell {
-            background: rgba(255, 255, 255, 0.93);
-            border: 1px solid rgba(11, 44, 72, 0.1);
-            box-shadow: 0 22px 45px rgba(11, 44, 72, 0.11);
-            backdrop-filter: blur(8px);
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea,
-        input[type='text'],
-        input[type='email'],
-        input[type='number'],
-        textarea,
-        select {
-            width: 100%;
-            border: 1px solid #c8d8e6;
-            border-radius: 0.85rem;
-            background: #ffffff;
-            color: #13324a;
-            padding: 0.8rem 0.95rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus,
-        input[type='text']:focus,
-        input[type='email']:focus,
-        input[type='number']:focus,
-        textarea:focus,
-        select:focus {
-            border-color: var(--awe-green);
-            box-shadow: 0 0 0 4px rgba(15, 123, 79, 0.16);
-            outline: none;
-            transform: translateY(-1px);
-        }
-
-        .form-textarea,
-        textarea {
-            min-height: 96px;
-        }
-
-        .input-label {
-            color: #194362;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.45rem;
-            display: block;
-        }
-
-        .section-card {
-            border: 1px solid #dbe7f1;
-            border-radius: 1rem;
-            background: #fcfeff;
-            padding: 1rem;
-        }
-
-        .section-head {
+            padding: 1.8rem;
             display: flex;
+            gap: 1rem;
             align-items: center;
-            gap: 0.65rem;
-            margin-bottom: 0.9rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid #e8f0f6;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            box-shadow: 0 24px 50px rgba(11, 44, 72, 0.12);
         }
 
-        .section-icon {
-            width: 2rem;
-            height: 2rem;
+        .hero-copy {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .hero img {
+            width: 72px;
+            height: 72px;
             border-radius: 999px;
+            background: #fff;
+            padding: 0.6rem;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .hero h1 {
+            margin: 0.25rem 0 0;
+            font-size: 2rem;
+            line-height: 1.15;
+        }
+
+        .hero p {
+            margin: 0.55rem 0 0;
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: #e2e8f0;
+        }
+
+        .hero-link {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #e8f7ef;
-            color: #0f7b4f;
-            flex-shrink: 0;
+            padding: 0.9rem 1.15rem;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            background: rgba(255,255,255,0.08);
         }
 
-        .save-btn {
+        .flash {
+            border: 1px solid #dbe3f0;
+            background: rgba(255,255,255,0.92);
+            padding: 1rem 1.2rem;
+        }
+
+        .layout {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+            align-items: start;
+        }
+
+        .wizard-nav,
+        .wizard-panel {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(11, 44, 72, 0.1);
+            box-shadow: 0 22px 45px rgba(11, 44, 72, 0.11);
+        }
+
+        .wizard-nav {
+            padding: 1.4rem;
+            position: sticky;
+            top: 1.5rem;
+        }
+
+        .wizard-panel {
+            padding: 1.6rem;
+        }
+
+        .wizard-title {
+            margin: 0 0 0.35rem;
+            font-size: 1.55rem;
+        }
+
+        .wizard-copy {
+            margin: 0;
+            color: #64748b;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .wizard-steps {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1.3rem;
+        }
+
+        .wizard-step {
+            width: 100%;
+            text-align: left;
+            border: 1px solid #dbe3f0;
+            border-radius: 16px;
+            background: #f8fbff;
+            padding: 0.9rem 1rem;
+            cursor: pointer;
+            color: var(--awe-text);
+        }
+
+        .wizard-step.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.12);
+        }
+
+        .wizard-step small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .upload-band {
+            border: 1px solid #dbe3f0;
+            border-radius: 18px;
+            background: #f8fbff;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .existing-file-grid {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .existing-file-grid a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid #dbe3f0;
+            background: #fff;
+            color: #1e3a5f;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .step-panel { display: none; }
+        .step-panel.active { display: block; }
+
+        .step-heading {
+            margin: 0 0 0.45rem;
+            font-size: 1.45rem;
+        }
+
+        .step-description {
+            margin: 0 0 1.2rem;
+            color: #64748b;
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-field.full { grid-column: 1 / -1; }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 0.45rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 0.95rem 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            background: #fff;
+            color: var(--awe-text);
+        }
+
+        .form-field textarea { min-height: 110px; }
+
+        .field-help,
+        .field-errors {
+            margin-top: 0.4rem;
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .field-help { color: #64748b; }
+        .field-errors { color: #b91c1c; }
+
+        .wizard-actions {
+            margin-top: 1.4rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .wizard-actions-right {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .wizard-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 1.2rem;
+            border-radius: 14px;
+            text-decoration: none;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #0f172a;
+        }
+
+        .wizard-btn.primary {
+            border-color: var(--awe-green);
             background: linear-gradient(92deg, var(--awe-green), #0c6944);
             color: #fff;
-            font-weight: 700;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
         }
 
-        .save-btn:hover {
-            filter: brightness(1.04);
-            transform: translateY(-1px);
-            box-shadow: 0 14px 25px rgba(12, 105, 68, 0.25);
+        .wizard-btn[hidden] { display: none; }
+
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+            .wizard-nav { position: static; }
         }
 
-        .cancel-btn {
-            border: 1px solid #b7cadb;
-            color: #1f4460;
-            background: #ffffff;
-        }
-
-        .cancel-btn:hover {
-            background: var(--awe-soft);
+        @media (max-width: 720px) {
+            .page { padding: 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="min-h-screen px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-    <div class="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-        <section class="hero-panel overflow-hidden rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl">
-            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                <div class="flex items-start gap-4">
-                    <img src="{% static 'global_agency/img/logo.png' %}" alt="Africa Western Education Logo" class="h-14 w-14 rounded-full border border-white/30 bg-white p-2 shadow-lg sm:h-16 sm:w-16">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.22em] text-amber-100">Africa Western Education</p>
-                        <h1 class="mt-1 text-2xl font-extrabold leading-tight sm:text-3xl">{{ page_title }}</h1>
-                        <p class="mt-2 text-sm text-slate-100 sm:text-base">
-                            Complete student details carefully. This record will be attached to your partner account and visible on your dashboard.
-                        </p>
-                    </div>
+<body>
+    <div class="page">
+        <section class="hero">
+            <div class="hero-copy">
+                <img src="{% static 'global_agency/img/logo.png' %}" alt="Africa Western Education Logo">
+                <div>
+                    <p style="margin: 0; text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.78rem; color: #fcd34d;">Africa Western Education</p>
+                    <h1>{{ page_title }}</h1>
+                    <p>Use the same guided order as the student portal, with the extra AWEC registration details added where they belong.</p>
                 </div>
-                <a href="{% url 'employee:partner_dashboard' %}" class="inline-flex items-center rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
-                    <i class="fa-solid fa-arrow-left mr-2"></i>
-                    Back to Dashboard
-                </a>
             </div>
+            <a href="{% url 'employee:partner_dashboard' %}" class="hero-link">Back to Dashboard</a>
         </section>
 
         {% if messages %}
-        <section class="space-y-3">
+        <section>
             {% for message in messages %}
-            <div class="rounded-xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800{% else %}border-emerald-200 bg-emerald-50 text-emerald-800{% endif %}">
+            <div class="flash" style="{% if message.tags == 'error' %}border-color: #fecaca; background: #fef2f2; color: #991b1b;{% endif %}">
                 {{ message }}
             </div>
             {% endfor %}
         </section>
         {% endif %}
 
-        <section class="form-shell rounded-3xl p-5 sm:p-7 lg:p-8">
-            <div class="mb-6 flex items-center justify-between">
-                <h2 class="text-lg font-extrabold text-slate-900 sm:text-xl">Student Information Form</h2>
-                <span class="hidden rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 sm:inline-flex">Partner Intake</span>
-            </div>
-
-            <form method="post" enctype="multipart/form-data" class="space-y-6">
-                {% csrf_token %}
-                {% if form.non_field_errors %}
-                <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-                    {{ form.non_field_errors }}
-                </div>
-                {% endif %}
-
-                {% if current_profile_picture or existing_documents %}
-                <section class="section-card">
-                    <div class="section-head">
-                        <span class="section-icon"><i class="fa-solid fa-paperclip"></i></span>
-                        <div>
-                            <h3 class="text-base font-extrabold text-slate-900">Current Uploaded Files</h3>
-                            <p class="text-xs text-slate-600">Use the upload fields below to add or replace student assets.</p>
-                        </div>
-                    </div>
-
-                    {% if current_profile_picture %}
-                    <div class="mb-4">
-                        <p class="input-label">Current student image</p>
-                        <img src="{{ current_profile_picture.url }}" alt="Current student image" class="h-28 w-28 rounded-2xl object-cover border border-slate-200">
-                    </div>
-                    {% endif %}
-
-                    {% if existing_documents %}
-                    <div class="grid gap-3 md:grid-cols-2">
-                        {% for document_type, document in existing_documents.items %}
-                        <a href="{{ document.file.url }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700">
-                            <i class="fa-solid fa-file-lines mr-2"></i>
-                            {{ document.get_document_type_display }}
-                        </a>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="layout">
+                <aside class="wizard-nav">
+                    <h2 class="wizard-title">{{ page_title }}</h2>
+                    <p class="wizard-copy">This flow is shorter to work through and keeps the employee, partner, and student intake order aligned.</p>
+                    <div class="wizard-steps">
+                        {% for section in form_sections %}
+                        <button type="button" class="wizard-step {% if forloop.first %}active{% endif %}" data-step-target="{{ forloop.counter0 }}" data-section-key="{{ section.key }}">
+                            <strong>Step {{ forloop.counter }}: {{ section.title }}</strong>
+                            <small>{{ section.description }}</small>
+                        </button>
                         {% endfor %}
                     </div>
-                    {% endif %}
-                </section>
-                {% endif %}
+                </aside>
 
-                {% for section in form_sections %}
-                <section class="section-card {% if section.key == 'parents' %}family-parent-section{% endif %} {% if section.key == 'guardian' %}family-guardian-section{% endif %}" {% if section.key == 'parents' %}id="parent-fields-block"{% endif %} {% if section.key == 'guardian' %}id="guardian-fields-block"{% endif %}>
-                    <div class="section-head">
-                        <span class="section-icon"><i class="fa-solid {{ section.icon }}"></i></span>
-                        <div>
-                            <h3 class="text-base font-extrabold text-slate-900">{{ section.title }}</h3>
-                            <p class="text-xs text-slate-600">{{ section.description }}</p>
-                        </div>
+                <section class="wizard-panel">
+                    {% if form.non_field_errors %}
+                    <div class="flash" style="margin-bottom: 1rem; border-color: #fecaca; background: #fef2f2; color: #991b1b;">
+                        {{ form.non_field_errors }}
                     </div>
+                    {% endif %}
 
-                    <div class="grid gap-5 md:grid-cols-2">
-                        {% for field in section.bound_fields %}
-                        <div class="{% if field.name == 'address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' or field.name == 'correspondence_address' or field.name == 'emergency_contact_address' or field.name == 'contact_person_china_address' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' %}md:col-span-2{% endif %}">
-                            <label for="{{ field.id_for_label }}" class="input-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                            <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
-                            {% endif %}
-                            {% for error in field.errors %}
-                            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                    {% if current_profile_picture or existing_documents %}
+                    <div class="upload-band">
+                        <h3 style="margin: 0 0 0.35rem; font-size: 1.2rem;">Current Uploaded Files</h3>
+                        <p class="wizard-copy">Review what is already attached before replacing anything.</p>
+                        {% if current_profile_picture %}
+                        <div style="margin: 1rem 0;">
+                            <p style="font-weight: 700; margin-bottom: 0.6rem;">Current student image</p>
+                            <img src="{{ current_profile_picture.url }}" alt="Current student image" style="width: 132px; height: 132px; object-fit: cover; border-radius: 18px; border: 1px solid #dbe3f0;">
+                        </div>
+                        {% endif %}
+                        {% if existing_documents %}
+                        <div class="existing-file-grid">
+                            {% for document_type, document in existing_documents.items %}
+                            <a href="{{ document.file.url }}" target="_blank" rel="noopener noreferrer">
+                                <span>View</span>
+                                <span>{{ document.get_document_type_display }}</span>
+                            </a>
                             {% endfor %}
                         </div>
-                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% for section in form_sections %}
+                    <section class="step-panel {% if forloop.first %}active{% endif %} {% if section.key == 'parents' %}family-parent-section{% endif %} {% if section.key == 'guardian' %}family-guardian-section{% endif %}" data-step-panel="{{ forloop.counter0 }}" data-section-key="{{ section.key }}" {% if section.key == 'parents' %}id="parent-fields-block"{% endif %} {% if section.key == 'guardian' %}id="guardian-fields-block"{% endif %}>
+                        <h3 class="step-heading">{{ section.title }}</h3>
+                        <p class="step-description">{{ section.description }}</p>
+                        <div class="form-grid">
+                            {% for field in section.bound_fields %}
+                            <div class="form-field {% if field.name == 'address' or field.name == 'current_address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                <p class="field-help">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% if field.errors %}
+                                <div class="field-errors">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                    {% endfor %}
+
+                    <div class="wizard-actions">
+                        <button type="button" class="wizard-btn" id="wizard-prev" hidden>Back</button>
+                        <div class="wizard-actions-right">
+                            <a href="{% url 'employee:partner_dashboard' %}" class="wizard-btn">Cancel</a>
+                            <button type="button" class="wizard-btn" id="wizard-next">Next Step</button>
+                            <button type="submit" class="wizard-btn primary" id="wizard-submit" hidden>{{ submit_label }}</button>
+                        </div>
                     </div>
                 </section>
-                {% endfor %}
-
-                <div class="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-end">
-                    <a href="{% url 'employee:partner_dashboard' %}" class="cancel-btn rounded-xl px-5 py-3 text-center text-sm font-semibold sm:text-base">Cancel</a>
-                    <button type="submit" class="save-btn rounded-xl px-5 py-3 text-sm sm:text-base">
-                        <i class="fa-solid fa-floppy-disk mr-2"></i>
-                        {{ submit_label }}
-                    </button>
-                </div>
-            </form>
-        </section>
+            </div>
+        </form>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const stepButtons = Array.from(document.querySelectorAll('[data-step-target]'));
+            const stepPanels = Array.from(document.querySelectorAll('[data-step-panel]'));
+            const prevButton = document.getElementById('wizard-prev');
+            const nextButton = document.getElementById('wizard-next');
+            const submitButton = document.getElementById('wizard-submit');
             const modeSelect = document.getElementById('id_parent_entry_mode');
             const parentBlock = document.getElementById('parent-fields-block');
             const guardianBlock = document.getElementById('guardian-fields-block');
-
-            if (!modeSelect) {
-                return;
-            }
+            const parentButton = document.querySelector('[data-section-key="parents"]');
+            const guardianButton = document.querySelector('[data-section-key="guardian"]');
+            let currentStep = 0;
 
             function updateFamilyBlocks() {
+                if (!modeSelect) {
+                    return;
+                }
                 const guardianOnly = modeSelect.value === 'guardian_only';
                 if (parentBlock) {
                     parentBlock.style.display = guardianOnly ? 'none' : '';
                 }
+                if (parentButton) {
+                    parentButton.style.display = guardianOnly ? 'none' : '';
+                }
                 if (guardianBlock) {
-                    guardianBlock.style.opacity = guardianOnly ? '1' : '0.95';
+                    guardianBlock.style.opacity = guardianOnly ? '1' : '0.96';
+                }
+                if (guardianButton) {
+                    guardianButton.style.display = '';
+                }
+                if (guardianOnly && currentStep === Number(parentBlock?.dataset.stepPanel || '-1')) {
+                    setStep(Math.min(currentStep + 1, stepPanels.length - 1));
                 }
             }
 
-            modeSelect.addEventListener('change', updateFamilyBlocks);
-            updateFamilyBlocks();
+            function setStep(index) {
+                currentStep = Math.max(0, Math.min(index, stepPanels.length - 1));
+                stepPanels.forEach((panel, panelIndex) => {
+                    panel.classList.toggle('active', panelIndex === currentStep);
+                });
+                stepButtons.forEach((button, buttonIndex) => {
+                    button.classList.toggle('active', buttonIndex === currentStep);
+                });
+                prevButton.hidden = currentStep === 0;
+                nextButton.hidden = currentStep === stepPanels.length - 1;
+                submitButton.hidden = currentStep !== stepPanels.length - 1;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            stepButtons.forEach((button) => {
+                button.addEventListener('click', function () {
+                    setStep(Number(button.dataset.stepTarget));
+                });
+            });
+
+            prevButton.addEventListener('click', function () {
+                setStep(currentStep - 1);
+            });
+
+            nextButton.addEventListener('click', function () {
+                setStep(currentStep + 1);
+            });
+
+            if (modeSelect) {
+                modeSelect.addEventListener('change', updateFamilyBlocks);
+                updateFamilyBlocks();
+            }
+
+            const firstErrorField = document.querySelector('.field-errors');
+            if (firstErrorField) {
+                const errorStep = stepPanels.findIndex((panel) => panel.contains(firstErrorField));
+                setStep(errorStep >= 0 ? errorStep : 0);
+            } else {
+                setStep(0);
+            }
         });
     </script>
 </body>

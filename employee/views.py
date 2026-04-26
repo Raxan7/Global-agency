@@ -24,7 +24,6 @@ from student_portal.models import Application, ApplicationSupplementalProfile, D
 from .forms import (
     DOCUMENT_FLAG_FIELD_MAP,
     DOCUMENT_UPLOAD_FIELD_MAP,
-    SUPPLEMENTAL_FIELD_GROUPS,
     SUPPLEMENTAL_FIELD_NAMES,
     OfflineStudentIntakeForm,
     PartnerRegistrationForm,
@@ -316,9 +315,46 @@ def update_student_application_status(request, application_id):
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
+        employee_status_note = (request.POST.get('employee_status_note') or '').strip()
+        official_eligibility = request.POST.get('official_eligibility', '').strip()
+        official_documents_verified_raw = request.POST.get('official_documents_verified', '').strip()
+        official_admission_status = request.POST.get('official_admission_status', '').strip()
+        official_visa_status = request.POST.get('official_visa_status', '').strip()
+        official_final_decision = request.POST.get('official_final_decision', '').strip()
+        official_remarks = (request.POST.get('official_remarks') or '').strip()
+
+        documents_verified_value = None
+        if official_documents_verified_raw == 'true':
+            documents_verified_value = True
+        elif official_documents_verified_raw == 'false':
+            documents_verified_value = False
+
         if new_status in dict(Application.APPLICATION_STATUS):
             application.status = new_status
-            application.save(update_fields=['status', 'updated_at'])
+            application.employee_status_note = employee_status_note
+            application.official_eligibility = official_eligibility
+            application.official_documents_verified = documents_verified_value
+            application.official_admission_status = official_admission_status
+            application.official_visa_status = official_visa_status
+            application.official_final_decision = official_final_decision
+            application.official_remarks = official_remarks
+            application.status_updated_by = request.user
+            application.status_updated_at = timezone.now()
+            application.save(
+                update_fields=[
+                    'status',
+                    'employee_status_note',
+                    'official_eligibility',
+                    'official_documents_verified',
+                    'official_admission_status',
+                    'official_visa_status',
+                    'official_final_decision',
+                    'official_remarks',
+                    'status_updated_by',
+                    'status_updated_at',
+                    'updated_at',
+                ]
+            )
             messages.success(request, f'Application status updated to {application.get_status_display()}.')
         else:
             messages.error(request, 'Invalid status selected.')
@@ -399,6 +435,7 @@ def _create_or_update_student_portal_records(
         defaults={
             'phone_number': text_value('phone'),
             'address': text_value('address'),
+            'date_of_birth': cleaned_data.get('date_of_birth'),
             'nationality': text_value('nationality'),
             'gender': text_value('gender'),
             'father_name': text_value('father_name'),
@@ -483,36 +520,16 @@ def _create_or_update_student_portal_records(
     for field_name in SUPPLEMENTAL_FIELD_NAMES:
         setattr(supplemental_profile, field_name, cleaned_data.get(field_name))
 
-    if not supplemental_profile.surname:
-        supplemental_profile.surname = last_name
-    if not supplemental_profile.given_name:
-        supplemental_profile.given_name = first_name
-    if not supplemental_profile.personal_phone:
-        supplemental_profile.personal_phone = text_value('phone')
-    if not supplemental_profile.personal_email:
-        supplemental_profile.personal_email = email
-    if not supplemental_profile.correspondence_address:
-        supplemental_profile.correspondence_address = text_value('address')
-    if not supplemental_profile.emergency_contact_name:
-        supplemental_profile.emergency_contact_name = text_value('emergency_name')
-    if not supplemental_profile.emergency_contact_gender:
-        supplemental_profile.emergency_contact_gender = text_value('emergency_gender')
-    if not supplemental_profile.emergency_contact_relation:
-        supplemental_profile.emergency_contact_relation = text_value('emergency_relation')
-    if not supplemental_profile.emergency_contact_phone:
-        supplemental_profile.emergency_contact_phone = text_value('phone')
-    if not supplemental_profile.emergency_contact_email:
-        supplemental_profile.emergency_contact_email = text_value('father_email') or text_value('mother_email')
-    if not supplemental_profile.emergency_contact_address:
-        supplemental_profile.emergency_contact_address = text_value('emergency_address')
-    if not supplemental_profile.father_name:
-        supplemental_profile.father_name = text_value('father_name')
-    if not supplemental_profile.father_occupation:
-        supplemental_profile.father_occupation = text_value('father_occupation')
-    if not supplemental_profile.mother_name:
-        supplemental_profile.mother_name = text_value('mother_name')
-    if not supplemental_profile.mother_occupation:
-        supplemental_profile.mother_occupation = text_value('mother_occupation')
+    if not supplemental_profile.full_name_passport:
+        supplemental_profile.full_name_passport = full_name
+    if not supplemental_profile.residential_email:
+        supplemental_profile.residential_email = email
+    if not supplemental_profile.whatsapp_number:
+        supplemental_profile.whatsapp_number = text_value('phone')
+    if not supplemental_profile.current_address:
+        supplemental_profile.current_address = text_value('address')
+    if not supplemental_profile.current_country:
+        supplemental_profile.current_country = text_value('nationality') or 'Tanzania'
     if not supplemental_profile.serial_number:
         supplemental_profile.serial_number = f'AWECO/Tz/DSM/{portal_application.id:03d}'
 
@@ -639,23 +656,23 @@ def offline_application_create(request):
 def _build_intake_form_sections(form):
     section_specs = [
         {
-            'key': 'student_identity',
-            'title': 'Student Identity',
-            'description': 'Basic profile and contact details for the student.',
+            'key': 'personal_details',
+            'title': 'Personal Details',
+            'description': 'Start with the same core identity details the student portal collects.',
             'icon': 'fa-user-graduate',
-            'fields': ['full_name', 'gender', 'nationality', 'email', 'phone', 'address'],
+            'fields': ['full_name', 'gender', 'date_of_birth', 'nationality', 'email', 'phone', 'address', 'profile_picture_upload'],
         },
         {
             'key': 'family_selector',
-            'title': 'Family Contact Mode',
-            'description': 'Choose whether parent details are available or guardian-only details should be used.',
+            'title': 'Family Setup',
+            'description': 'Choose whether you are entering parents or guardian-only details.',
             'icon': 'fa-sliders',
             'fields': ['parent_entry_mode'],
         },
         {
             'key': 'parents',
-            'title': 'Parent Details',
-            'description': 'Enter one or both parents when available.',
+            'title': 'Parents Details',
+            'description': 'Enter one or both parents when they are available.',
             'icon': 'fa-people-roof',
             'fields': [
                 'father_name', 'father_phone', 'father_email', 'father_occupation',
@@ -664,15 +681,28 @@ def _build_intake_form_sections(form):
         },
         {
             'key': 'guardian',
-            'title': 'Guardian Details',
-            'description': 'Required when no parent details are available.',
+            'title': 'Emergency / Guardian Details',
+            'description': 'This matches the emergency-contact section from the student portal and AWEC form.',
             'icon': 'fa-user-shield',
             'fields': ['emergency_name', 'emergency_relation', 'emergency_gender', 'emergency_occupation', 'emergency_address'],
         },
         {
+            'key': 'passport_and_residence',
+            'title': 'Passport And Residence',
+            'description': 'Fill the AWEC passport and residence details before moving to academic history.',
+            'icon': 'fa-passport',
+            'fields': [
+                'full_name_passport', 'place_of_birth', 'current_region', 'current_city',
+                'current_country', 'current_postal_code', 'whatsapp_number',
+                'residential_email', 'current_address', 'passport_number',
+                'passport_issue_country', 'passport_issue_date',
+                'passport_expiration_date', 'has_valid_visa', 'valid_visa_details',
+            ],
+        },
+        {
             'key': 'olevel',
-            'title': 'O-Level Background',
-            'description': 'Add O-Level school and performance information.',
+            'title': 'Academic Qualifications',
+            'description': 'Follow the student-portal academic flow first, then add any post-secondary history below.',
             'icon': 'fa-school',
             'fields': ['olevel_school', 'olevel_country', 'olevel_address', 'olevel_region', 'olevel_year', 'olevel_candidate_no', 'olevel_gpa'],
         },
@@ -684,43 +714,66 @@ def _build_intake_form_sections(form):
             'fields': ['alevel_school', 'alevel_country', 'alevel_address', 'alevel_region', 'alevel_year', 'alevel_candidate_no', 'alevel_gpa'],
         },
         {
+            'key': 'post_secondary',
+            'title': 'Post-Secondary And English Tests',
+            'description': 'Add certificate, diploma, degree, and English-test details from the AWEC form.',
+            'icon': 'fa-book-open-reader',
+            'fields': [
+                'certificate_institution', 'certificate_field_of_study',
+                'certificate_year_completed', 'certificate_gpa',
+                'diploma_institution', 'diploma_field_of_study',
+                'diploma_year_completed', 'diploma_gpa',
+                'bachelor_institution', 'bachelor_field_of_study',
+                'bachelor_year_completed', 'bachelor_gpa',
+                'master_institution', 'master_field_of_study',
+                'master_year_completed', 'master_gpa',
+                'phd_institution', 'phd_field_of_study',
+                'phd_year_completed', 'phd_gpa',
+                'professional_qualifications', 'english_test_name',
+                'english_test_score', 'english_test_year',
+            ],
+        },
+        {
             'key': 'study_preferences',
             'title': 'Study Preferences',
-            'description': 'Capture destination countries and programs of interest.',
+            'description': 'Capture the preferred countries, programs, intake, and accommodation choices.',
             'icon': 'fa-compass-drafting',
             'fields': [
                 'preferred_country_1', 'preferred_program_1',
                 'preferred_country_2', 'preferred_program_2',
                 'preferred_country_3', 'preferred_program_3',
-                'preferred_country_4', 'preferred_program_4',
+                'program_level', 'preferred_intake', 'accommodation_preference',
             ],
         },
         {
-            'key': 'referral',
-            'title': 'Referral Information',
-            'description': 'Track how the student heard about Africa Western Education.',
-            'icon': 'fa-bullhorn',
-            'fields': ['heard_about_us', 'heard_about_other'],
+            'key': 'finance_medical',
+            'title': 'Finance, Medical And Referral',
+            'description': 'Complete the remaining AWEC sections before uploads.',
+            'icon': 'fa-hand-holding-dollar',
+            'fields': [
+                'education_sponsor', 'estimated_budget_usd', 'scholarship_applied',
+                'scholarship_details', 'has_medical_condition',
+                'medical_condition_details', 'needs_special_assistance',
+                'special_assistance_details', 'heard_about_us', 'heard_about_other',
+            ],
         },
         {
             'key': 'student_assets',
-            'title': 'Student Image and Uploads',
-            'description': 'Attach the student image and the main supporting documents directly during intake.',
+            'title': 'Uploads And Declaration',
+            'description': 'Finish with the supporting uploads and declaration items that feed the export checklist.',
             'icon': 'fa-file-arrow-up',
-            'fields': ['profile_picture_upload'] + [field_name for field_name, _document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP],
+            'fields': [
+                field_name for field_name, _document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP
+            ] + [
+                'has_passport_copy', 'has_passport_photo', 'has_academic_certificates',
+                'has_academic_transcripts', 'has_english_test_results',
+                'has_cv_resume', 'has_personal_statement',
+                'has_recommendation_letters', 'has_financial_proof',
+                'has_health_insurance', 'has_other_attachments',
+                'other_attachments_description', 'declaration_agreed',
+            ],
         },
     ]
-
-    for key, title, description, icon, fields in SUPPLEMENTAL_FIELD_GROUPS:
-        section_specs.append(
-            {
-                'key': key,
-                'title': title,
-                'description': description,
-                'icon': icon,
-                'fields': fields,
-            }
-        )
 
     sections = []
     for spec in section_specs:

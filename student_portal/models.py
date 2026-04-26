@@ -232,6 +232,32 @@ class Application(models.Model):
         ('rejected', 'Rejected'),
         ('selected', 'Selected'),
     ]
+    OFFICE_ELIGIBILITY_CHOICES = [
+        ('', '---------'),
+        ('eligible', 'Eligible'),
+        ('not_eligible', 'Not Eligible'),
+    ]
+    OFFICE_ADMISSION_STATUS_CHOICES = [
+        ('', '---------'),
+        ('not_applied', 'Not Applied'),
+        ('applied', 'Applied'),
+        ('offer_received', 'Offer Received'),
+        ('accepted', 'Accepted'),
+    ]
+    OFFICE_VISA_STATUS_CHOICES = [
+        ('', '---------'),
+        ('not_started', 'Not Started'),
+        ('processing', 'Processing'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    OFFICE_FINAL_DECISION_CHOICES = [
+        ('', '---------'),
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('conditional', 'Conditional'),
+    ]
     
     APPLICATION_TYPES = [
         ('university', 'University Application'),
@@ -265,13 +291,48 @@ class Application(models.Model):
     payment_verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_payments')
     payment_verified_at = models.DateTimeField(null=True, blank=True)
     payment_notes = models.TextField(blank=True, help_text="Employee notes about payment verification")
+    employee_status_note = models.TextField(blank=True, help_text="Status feedback visible to the student and partner.")
+    status_updated_at = models.DateTimeField(null=True, blank=True)
+    status_updated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='application_status_updates',
+    )
+    official_eligibility = models.CharField(
+        max_length=20,
+        choices=OFFICE_ELIGIBILITY_CHOICES,
+        blank=True,
+        default='',
+    )
+    official_documents_verified = models.BooleanField(null=True, blank=True)
+    official_admission_status = models.CharField(
+        max_length=20,
+        choices=OFFICE_ADMISSION_STATUS_CHOICES,
+        blank=True,
+        default='',
+    )
+    official_visa_status = models.CharField(
+        max_length=20,
+        choices=OFFICE_VISA_STATUS_CHOICES,
+        blank=True,
+        default='',
+    )
+    official_final_decision = models.CharField(
+        max_length=20,
+        choices=OFFICE_FINAL_DECISION_CHOICES,
+        blank=True,
+        default='',
+    )
+    official_remarks = models.TextField(blank=True)
 
     def __str__(self):
         return f"{self.get_application_type_display()} - {self.student.username}"
 
 
 class ApplicationSupplementalProfile(models.Model):
-    """CSC-style supplemental application data; additive and migration-safe."""
+    """Supplemental AWEC registration data used for intake and export."""
 
     application = models.OneToOneField(
         Application,
@@ -279,126 +340,68 @@ class ApplicationSupplementalProfile(models.Model):
         related_name='supplemental_profile',
     )
 
-    # Page 1: Personal Information
-    agency_no = models.CharField(max_length=50, null=True, blank=True)
-    agency_name = models.TextField(null=True, blank=True)
-    surname = models.CharField(max_length=100, null=True, blank=True)
-    given_name = models.CharField(max_length=150, null=True, blank=True)
-    chinese_name = models.CharField(max_length=150, null=True, blank=True)
-    marital_status = models.CharField(max_length=50, null=True, blank=True)
-    native_language = models.CharField(max_length=100, null=True, blank=True)
-    passport_no = models.CharField(max_length=100, null=True, blank=True)
+    full_name_passport = models.TextField(null=True, blank=True)
+    place_of_birth = models.TextField(null=True, blank=True)
+    passport_number = models.TextField(null=True, blank=True)
+    passport_issue_country = models.TextField(null=True, blank=True)
+    passport_issue_date = models.DateField(null=True, blank=True)
     passport_expiration_date = models.DateField(null=True, blank=True)
-    country_of_birth = models.CharField(max_length=100, null=True, blank=True)
-    city_of_birth = models.CharField(max_length=100, null=True, blank=True)
-    religion = models.CharField(max_length=100, null=True, blank=True)
-    personal_phone = models.CharField(max_length=50, null=True, blank=True)
-    personal_email = models.EmailField(null=True, blank=True)
-    alternate_email = models.EmailField(null=True, blank=True)
-    wechat_id = models.CharField(max_length=100, null=True, blank=True)
-    skype_no = models.CharField(max_length=100, null=True, blank=True)
-    correspondence_address = models.TextField(null=True, blank=True)
-    emergency_contact_name = models.CharField(max_length=150, null=True, blank=True)
-    emergency_contact_gender = models.CharField(max_length=20, null=True, blank=True)
-    emergency_contact_relation = models.CharField(max_length=100, null=True, blank=True)
-    emergency_contact_phone = models.CharField(max_length=50, null=True, blank=True)
-    emergency_contact_email = models.EmailField(null=True, blank=True)
-    emergency_contact_address = models.TextField(null=True, blank=True)
+    has_valid_visa = models.BooleanField(null=True, blank=True)
+    valid_visa_details = models.TextField(null=True, blank=True)
+    current_region = models.TextField(null=True, blank=True)
+    current_city = models.TextField(null=True, blank=True)
+    current_country = models.TextField(null=True, blank=True)
+    current_postal_code = models.TextField(null=True, blank=True)
+    whatsapp_number = models.TextField(null=True, blank=True)
+    residential_email = models.EmailField(null=True, blank=True)
+    current_address = models.TextField(null=True, blank=True)
 
-    # Page 2: Education and Employment History
-    highest_education_level = models.CharField(max_length=100, null=True, blank=True)
-    highest_education_country = models.CharField(max_length=100, null=True, blank=True)
-    highest_education_institute = models.TextField(null=True, blank=True)
-    highest_education_start_date = models.DateField(null=True, blank=True)
-    highest_education_end_date = models.DateField(null=True, blank=True)
-    highest_education_field_of_study = models.TextField(null=True, blank=True)
-    highest_education_qualification = models.TextField(null=True, blank=True)
-    other_education_1_level = models.CharField(max_length=100, null=True, blank=True)
-    other_education_1_country = models.CharField(max_length=100, null=True, blank=True)
-    other_education_1_institute = models.TextField(null=True, blank=True)
-    other_education_1_start_date = models.DateField(null=True, blank=True)
-    other_education_1_end_date = models.DateField(null=True, blank=True)
-    other_education_1_field_of_study = models.TextField(null=True, blank=True)
-    other_education_1_qualification = models.TextField(null=True, blank=True)
-    other_education_2_level = models.CharField(max_length=100, null=True, blank=True)
-    other_education_2_country = models.CharField(max_length=100, null=True, blank=True)
-    other_education_2_institute = models.TextField(null=True, blank=True)
-    other_education_2_start_date = models.DateField(null=True, blank=True)
-    other_education_2_end_date = models.DateField(null=True, blank=True)
-    other_education_2_field_of_study = models.TextField(null=True, blank=True)
-    other_education_2_qualification = models.TextField(null=True, blank=True)
-    employer = models.TextField(null=True, blank=True)
-    employment_start_date = models.DateField(null=True, blank=True)
-    employment_end_date = models.DateField(null=True, blank=True)
-    work_engaged = models.TextField(null=True, blank=True)
-    title_position = models.TextField(null=True, blank=True)
+    certificate_institution = models.TextField(null=True, blank=True)
+    certificate_field_of_study = models.TextField(null=True, blank=True)
+    certificate_year_completed = models.TextField(null=True, blank=True)
+    certificate_gpa = models.TextField(null=True, blank=True)
+    diploma_institution = models.TextField(null=True, blank=True)
+    diploma_field_of_study = models.TextField(null=True, blank=True)
+    diploma_year_completed = models.TextField(null=True, blank=True)
+    diploma_gpa = models.TextField(null=True, blank=True)
+    bachelor_institution = models.TextField(null=True, blank=True)
+    bachelor_field_of_study = models.TextField(null=True, blank=True)
+    bachelor_year_completed = models.TextField(null=True, blank=True)
+    bachelor_gpa = models.TextField(null=True, blank=True)
+    master_institution = models.TextField(null=True, blank=True)
+    master_field_of_study = models.TextField(null=True, blank=True)
+    master_year_completed = models.TextField(null=True, blank=True)
+    master_gpa = models.TextField(null=True, blank=True)
+    phd_institution = models.TextField(null=True, blank=True)
+    phd_field_of_study = models.TextField(null=True, blank=True)
+    phd_year_completed = models.TextField(null=True, blank=True)
+    phd_gpa = models.TextField(null=True, blank=True)
+    professional_qualifications = models.TextField(null=True, blank=True)
+    english_test_name = models.TextField(null=True, blank=True)
+    english_test_score = models.TextField(null=True, blank=True)
+    english_test_year = models.TextField(null=True, blank=True)
+    program_level = models.TextField(null=True, blank=True)
+    preferred_intake = models.TextField(null=True, blank=True)
+    accommodation_preference = models.TextField(null=True, blank=True)
+    education_sponsor = models.TextField(null=True, blank=True)
+    estimated_budget_usd = models.TextField(null=True, blank=True)
+    scholarship_applied = models.BooleanField(null=True, blank=True)
+    scholarship_details = models.TextField(null=True, blank=True)
+    has_medical_condition = models.BooleanField(null=True, blank=True)
+    medical_condition_details = models.TextField(null=True, blank=True)
+    needs_special_assistance = models.BooleanField(null=True, blank=True)
+    special_assistance_details = models.TextField(null=True, blank=True)
 
-    # Page 3: Language Proficiency and Study Plan
-    chinese_proficiency = models.CharField(max_length=50, null=True, blank=True)
-    has_hsk_certificate = models.BooleanField(null=True, blank=True)
-    hsk_level = models.CharField(max_length=100, null=True, blank=True)
-    hsk_score = models.CharField(max_length=50, null=True, blank=True)
-    hsk_test_date = models.DateField(null=True, blank=True)
-    english_proficiency = models.CharField(max_length=50, null=True, blank=True)
-    has_english_certificate = models.BooleanField(null=True, blank=True)
-    english_test_name = models.CharField(max_length=100, null=True, blank=True)
-    english_test_score = models.CharField(max_length=50, null=True, blank=True)
-    english_test_date = models.DateField(null=True, blank=True)
-    apply_as = models.CharField(max_length=100, null=True, blank=True)
-    preferred_teaching_language = models.CharField(max_length=50, null=True, blank=True)
-    has_pre_admission_letter = models.BooleanField(null=True, blank=True)
-    institute_preference_1 = models.TextField(null=True, blank=True)
-    discipline_1 = models.TextField(null=True, blank=True)
-    major_1 = models.TextField(null=True, blank=True)
-    institute_preference_2 = models.TextField(null=True, blank=True)
-    discipline_2 = models.TextField(null=True, blank=True)
-    major_2 = models.TextField(null=True, blank=True)
-    institute_preference_3 = models.TextField(null=True, blank=True)
-    discipline_3 = models.TextField(null=True, blank=True)
-    major_3 = models.TextField(null=True, blank=True)
-    major_study_start_date = models.DateField(null=True, blank=True)
-    major_study_end_date = models.DateField(null=True, blank=True)
-    ever_studied_or_worked_in_china = models.BooleanField(null=True, blank=True)
-    china_institute_or_employer = models.TextField(null=True, blank=True)
-    china_employment_start_date = models.DateField(null=True, blank=True)
-    china_employment_end_date = models.DateField(null=True, blank=True)
-    ever_had_chinese_government_scholarship = models.BooleanField(null=True, blank=True)
-    previous_csc_institute_name = models.TextField(null=True, blank=True)
-    previous_csc_start_date = models.DateField(null=True, blank=True)
-    previous_csc_end_date = models.DateField(null=True, blank=True)
-
-    # Page 4: Other Contacts
-    contact_person_china_name = models.CharField(max_length=150, null=True, blank=True)
-    contact_person_china_tel = models.CharField(max_length=50, null=True, blank=True)
-    contact_person_china_email = models.EmailField(null=True, blank=True)
-    contact_person_china_fax = models.CharField(max_length=50, null=True, blank=True)
-    contact_person_china_address = models.TextField(null=True, blank=True)
-    spouse_name = models.CharField(max_length=150, null=True, blank=True)
-    spouse_age = models.PositiveIntegerField(null=True, blank=True)
-    spouse_occupation = models.CharField(max_length=150, null=True, blank=True)
-    father_name = models.CharField(max_length=150, null=True, blank=True)
-    father_age = models.PositiveIntegerField(null=True, blank=True)
-    father_occupation = models.CharField(max_length=150, null=True, blank=True)
-    mother_name = models.CharField(max_length=150, null=True, blank=True)
-    mother_age = models.PositiveIntegerField(null=True, blank=True)
-    mother_occupation = models.CharField(max_length=150, null=True, blank=True)
-
-    # Page 5: Supporting Documents and Declaration
     has_passport_photo = models.BooleanField(null=True, blank=True)
-    has_highest_education_certificate = models.BooleanField(null=True, blank=True)
-    has_highest_education_transcript = models.BooleanField(null=True, blank=True)
-    has_study_plan = models.BooleanField(null=True, blank=True)
-    has_reference_1 = models.BooleanField(null=True, blank=True)
-    has_reference_2 = models.BooleanField(null=True, blank=True)
-    has_passport_home_page = models.BooleanField(null=True, blank=True)
-    has_physical_exam_record = models.BooleanField(null=True, blank=True)
-    has_articles_or_papers = models.BooleanField(null=True, blank=True)
-    has_art_music_examples = models.BooleanField(null=True, blank=True)
-    has_chinese_language_certificate = models.BooleanField(null=True, blank=True)
-    has_english_language_certificate = models.BooleanField(null=True, blank=True)
-    has_csca_score_report = models.BooleanField(null=True, blank=True)
-    has_pre_admission_letter_document = models.BooleanField(null=True, blank=True)
-    has_non_criminal_record = models.BooleanField(null=True, blank=True)
+    has_passport_copy = models.BooleanField(null=True, blank=True)
+    has_academic_certificates = models.BooleanField(null=True, blank=True)
+    has_academic_transcripts = models.BooleanField(null=True, blank=True)
+    has_english_test_results = models.BooleanField(null=True, blank=True)
+    has_cv_resume = models.BooleanField(null=True, blank=True)
+    has_personal_statement = models.BooleanField(null=True, blank=True)
+    has_recommendation_letters = models.BooleanField(null=True, blank=True)
+    has_financial_proof = models.BooleanField(null=True, blank=True)
+    has_health_insurance = models.BooleanField(null=True, blank=True)
     has_other_attachments = models.BooleanField(null=True, blank=True)
     other_attachments_description = models.TextField(null=True, blank=True)
     declaration_agreed = models.BooleanField(null=True, blank=True)

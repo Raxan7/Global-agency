@@ -74,6 +74,22 @@
         .btn-outline:hover {
             background: var(--awe-soft);
         }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .status-submitted { background: #dbeafe; color: #1d4ed8; }
+        .status-under_review { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-selected { background: #ede9fe; color: #5b21b6; }
+        .status-pending_payment { background: #e2e8f0; color: #334155; }
     </style>
 </head>
 <body class="min-h-screen px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
@@ -151,6 +167,35 @@
                         <div><span class="font-semibold text-slate-500">Student Login:</span> {{ application.username|default:"Pending" }}</div>
                         <div><span class="font-semibold text-slate-500">Record ID:</span> {{ application.id }}</div>
                     </div>
+                    {% if application.portal_application %}
+                    <div class="mt-4 rounded-2xl border border-slate-200 bg-white/80 p-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Application Status</p>
+                                <span class="status-chip status-{{ application.portal_application.status }}">
+                                    {{ application.portal_application.get_status_display }}
+                                </span>
+                            </div>
+                            {% if application.portal_application.status_updated_at %}
+                            <p class="text-xs text-slate-500">
+                                Updated {{ application.portal_application.status_updated_at|date:"M d, Y H:i" }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% if application.portal_application.employee_status_note %}
+                        <div class="mt-3 text-sm leading-6 text-slate-700">
+                            <strong class="text-slate-900">Employee Feedback:</strong>
+                            {{ application.portal_application.employee_status_note|linebreaksbr }}
+                        </div>
+                        {% endif %}
+                        {% if application.portal_application.official_remarks %}
+                        <div class="mt-2 text-sm leading-6 text-slate-600">
+                            <strong class="text-slate-900">Office Remarks:</strong>
+                            {{ application.portal_application.official_remarks|linebreaksbr }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                     <div class="mt-5 flex flex-wrap gap-3">
                         <a href="{% url 'employee:partner_application_edit' application.pk %}" class="btn-primary rounded-xl px-4 py-2 text-sm">Edit</a>
                         <a href="{% url 'employee:partner_application_delete' application.pk %}" class="btn-outline rounded-xl px-4 py-2 text-sm font-semibold">Delete</a>

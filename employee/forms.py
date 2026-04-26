@@ -15,82 +15,62 @@ from .models import PortalUpdate, PortalUpdateAttachment, PortalUpdateImage
 
 SUPPLEMENTAL_FIELD_GROUPS = [
     (
-        'csc_personal',
-        'Application Format: Personal Information',
-        'Capture the CSC-style personal details requested in the new format.',
-        'fa-id-card',
+        'awec_passport',
+        'Passport And Residence',
+        'Add the extra passport and residential details required by the AWEC registration form.',
+        'fa-passport',
         [
-            'agency_no', 'agency_name', 'surname', 'given_name', 'chinese_name',
-            'marital_status', 'native_language', 'passport_no', 'passport_expiration_date',
-            'country_of_birth', 'city_of_birth', 'religion', 'personal_phone',
-            'personal_email', 'alternate_email', 'wechat_id', 'skype_no',
-            'correspondence_address', 'emergency_contact_name', 'emergency_contact_gender',
-            'emergency_contact_relation', 'emergency_contact_phone',
-            'emergency_contact_email', 'emergency_contact_address',
+            'full_name_passport', 'place_of_birth', 'current_region', 'current_city',
+            'current_country', 'current_postal_code', 'whatsapp_number',
+            'residential_email', 'current_address', 'passport_number',
+            'passport_issue_country', 'passport_issue_date',
+            'passport_expiration_date', 'has_valid_visa', 'valid_visa_details',
         ],
     ),
     (
-        'csc_education',
-        'Application Format: Education and Employment History',
-        'Fill in the extended academic and work history exactly as requested in the new format.',
-        'fa-graduation-cap',
+        'awec_higher_education',
+        'Post-Secondary And English Tests',
+        'Capture the higher-education history and English test information shown in the AWEC form.',
+        'fa-user-graduate',
         [
-            'highest_education_level', 'highest_education_country', 'highest_education_institute',
-            'highest_education_start_date', 'highest_education_end_date',
-            'highest_education_field_of_study', 'highest_education_qualification',
-            'other_education_1_level', 'other_education_1_country', 'other_education_1_institute',
-            'other_education_1_start_date', 'other_education_1_end_date',
-            'other_education_1_field_of_study', 'other_education_1_qualification',
-            'other_education_2_level', 'other_education_2_country', 'other_education_2_institute',
-            'other_education_2_start_date', 'other_education_2_end_date',
-            'other_education_2_field_of_study', 'other_education_2_qualification',
-            'employer', 'employment_start_date', 'employment_end_date',
-            'work_engaged', 'title_position',
+            'certificate_institution', 'certificate_field_of_study',
+            'certificate_year_completed', 'certificate_gpa',
+            'diploma_institution', 'diploma_field_of_study',
+            'diploma_year_completed', 'diploma_gpa',
+            'bachelor_institution', 'bachelor_field_of_study',
+            'bachelor_year_completed', 'bachelor_gpa',
+            'master_institution', 'master_field_of_study',
+            'master_year_completed', 'master_gpa',
+            'phd_institution', 'phd_field_of_study',
+            'phd_year_completed', 'phd_gpa',
+            'professional_qualifications', 'english_test_name',
+            'english_test_score', 'english_test_year',
         ],
     ),
     (
-        'csc_language',
-        'Application Format: Language Proficiency and Study Plan',
-        'These fields feed the CSC-style PDF and employee review workflow.',
-        'fa-earth-africa',
+        'awec_program_preferences',
+        'Program, Finance And Medical',
+        'Match the study-preference, finance, and medical sections from the AWEC registration flow.',
+        'fa-globe',
         [
-            'chinese_proficiency', 'has_hsk_certificate', 'hsk_level', 'hsk_score', 'hsk_test_date',
-            'english_proficiency', 'has_english_certificate', 'english_test_name',
-            'english_test_score', 'english_test_date', 'apply_as', 'preferred_teaching_language',
-            'has_pre_admission_letter', 'institute_preference_1', 'discipline_1', 'major_1',
-            'institute_preference_2', 'discipline_2', 'major_2',
-            'institute_preference_3', 'discipline_3', 'major_3',
-            'major_study_start_date', 'major_study_end_date',
-            'ever_studied_or_worked_in_china', 'china_institute_or_employer',
-            'china_employment_start_date', 'china_employment_end_date',
-            'ever_had_chinese_government_scholarship', 'previous_csc_institute_name',
-            'previous_csc_start_date', 'previous_csc_end_date',
+            'program_level', 'preferred_intake', 'accommodation_preference',
+            'education_sponsor', 'estimated_budget_usd', 'scholarship_applied',
+            'scholarship_details', 'has_medical_condition',
+            'medical_condition_details', 'needs_special_assistance',
+            'special_assistance_details',
         ],
     ),
     (
-        'csc_contacts',
-        'Application Format: Other Contacts',
-        'Keep the extra family and China contact details here.',
-        'fa-address-book',
-        [
-            'contact_person_china_name', 'contact_person_china_tel', 'contact_person_china_email',
-            'contact_person_china_fax', 'contact_person_china_address',
-            'spouse_name', 'spouse_age', 'spouse_occupation',
-            'father_age', 'mother_age',
-        ],
-    ),
-    (
-        'csc_declaration',
-        'Application Format: Supporting Documents and Declaration',
-        'Mark supporting-document availability and confirm the declaration.',
+        'awec_declaration',
+        'Declaration And Checklist',
+        'Track uploaded-document coverage and the applicant declaration.',
         'fa-file-signature',
         [
-            'has_passport_photo', 'has_highest_education_certificate', 'has_highest_education_transcript',
-            'has_study_plan', 'has_reference_1', 'has_reference_2', 'has_passport_home_page',
-            'has_physical_exam_record', 'has_articles_or_papers', 'has_art_music_examples',
-            'has_chinese_language_certificate', 'has_english_language_certificate',
-            'has_csca_score_report', 'has_pre_admission_letter_document',
-            'has_non_criminal_record', 'has_other_attachments',
+            'has_passport_copy', 'has_passport_photo', 'has_academic_certificates',
+            'has_academic_transcripts', 'has_english_test_results',
+            'has_cv_resume', 'has_personal_statement',
+            'has_recommendation_letters', 'has_financial_proof',
+            'has_health_insurance', 'has_other_attachments',
             'other_attachments_description', 'declaration_agreed',
         ],
     ),
@@ -103,63 +83,117 @@ SUPPLEMENTAL_FIELD_NAMES = [
 ]
 
 DOCUMENT_UPLOAD_FIELD_MAP = [
-    ('passport_document', 'passport', 'Passport / ID page'),
+    ('passport_document', 'passport', 'Passport copy'),
     ('passport_photo_document', 'passport_photo', 'Passport photo'),
     ('ordinary_level_document', 'ordinary_level', 'O-Level certificate'),
     ('advanced_level_document', 'advanced_level', 'A-Level certificate'),
-    ('academic_transcript_document', 'academic_transcript', 'Academic transcript'),
-    ('degree_certificate_document', 'degree_certificate', 'Degree certificate'),
+    ('academic_transcript_document', 'academic_transcript', 'Academic transcripts'),
+    ('degree_certificate_document', 'degree_certificate', 'Degree / diploma certificates'),
     ('application_form_document', 'application_form', 'Application form'),
-    ('recommendation_letter_document', 'recommendation_letter', 'Recommendation letter'),
-    ('sop_document', 'sop', 'Statement of purpose / study plan'),
+    ('recommendation_letter_document', 'recommendation_letter', 'Recommendation letter(s)'),
+    ('sop_document', 'sop', 'Statement of Purpose / Motivation Letter'),
     ('cv_document', 'cv', 'CV / resume'),
-    ('language_test_document', 'language_test', 'Language test result'),
+    ('language_test_document', 'language_test', 'English proficiency test'),
     ('proof_of_funds_document', 'proof_of_funds', 'Proof of funds'),
     ('health_insurance_document', 'health_insurance', 'Health insurance'),
-    ('financial_document', 'financial_documents', 'Financial document'),
 ]
 
 DOCUMENT_FLAG_FIELD_MAP = {
-    'passport_document': 'has_passport_home_page',
+    'passport_document': 'has_passport_copy',
     'passport_photo_document': 'has_passport_photo',
-    'ordinary_level_document': 'has_highest_education_certificate',
-    'advanced_level_document': 'has_highest_education_certificate',
-    'academic_transcript_document': 'has_highest_education_transcript',
-    'degree_certificate_document': 'has_highest_education_certificate',
+    'ordinary_level_document': 'has_academic_certificates',
+    'advanced_level_document': 'has_academic_certificates',
+    'academic_transcript_document': 'has_academic_transcripts',
+    'degree_certificate_document': 'has_academic_certificates',
     'application_form_document': 'has_other_attachments',
-    'recommendation_letter_document': 'has_reference_1',
-    'sop_document': 'has_study_plan',
-    'language_test_document': 'has_english_language_certificate',
-    'proof_of_funds_document': 'has_other_attachments',
-    'health_insurance_document': 'has_other_attachments',
-    'financial_document': 'has_other_attachments',
+    'recommendation_letter_document': 'has_recommendation_letters',
+    'sop_document': 'has_personal_statement',
+    'cv_document': 'has_cv_resume',
+    'language_test_document': 'has_english_test_results',
+    'proof_of_funds_document': 'has_financial_proof',
+    'health_insurance_document': 'has_health_insurance',
 }
 
 SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
-    'agency_name',
-    'highest_education_institute',
-    'highest_education_field_of_study',
-    'highest_education_qualification',
-    'other_education_1_institute',
-    'other_education_1_field_of_study',
-    'other_education_1_qualification',
-    'other_education_2_institute',
-    'other_education_2_field_of_study',
-    'other_education_2_qualification',
-    'employer',
-    'work_engaged',
-    'title_position',
-    'institute_preference_1',
-    'discipline_1',
-    'major_1',
-    'institute_preference_2',
-    'discipline_2',
-    'major_2',
-    'institute_preference_3',
-    'discipline_3',
-    'major_3',
-    'china_institute_or_employer',
-    'previous_csc_institute_name',
+    'full_name_passport',
+    'place_of_birth',
+    'current_region',
+    'current_city',
+    'current_country',
+    'current_postal_code',
+    'whatsapp_number',
+    'passport_number',
+    'passport_issue_country',
+    'valid_visa_details',
+    'certificate_institution',
+    'certificate_field_of_study',
+    'certificate_year_completed',
+    'certificate_gpa',
+    'diploma_institution',
+    'diploma_field_of_study',
+    'diploma_year_completed',
+    'diploma_gpa',
+    'bachelor_institution',
+    'bachelor_field_of_study',
+    'bachelor_year_completed',
+    'bachelor_gpa',
+    'master_institution',
+    'master_field_of_study',
+    'master_year_completed',
+    'master_gpa',
+    'phd_institution',
+    'phd_field_of_study',
+    'phd_year_completed',
+    'phd_gpa',
+    'english_test_name',
+    'english_test_score',
+    'english_test_year',
+    'program_level',
+    'preferred_intake',
+    'accommodation_preference',
+    'education_sponsor',
+    'estimated_budget_usd',
+}
+
+SUPPLEMENTAL_SELECT_CHOICES = {
+    'english_test_name': [
+        ('', '---------'),
+        ('IELTS', 'IELTS'),
+        ('TOEFL', 'TOEFL'),
+        ('Duolingo', 'Duolingo'),
+        ('Other', 'Other'),
+    ],
+    'program_level': [
+        ('', '---------'),
+        ('Foundation', 'Foundation'),
+        ('Diploma', 'Diploma'),
+        ('Bachelor', 'Bachelor'),
+        ('Master', 'Master'),
+        ('PhD', 'PhD'),
+    ],
+    'preferred_intake': [
+        ('', '---------'),
+        ('January', 'January'),
+        ('May', 'May'),
+        ('September', 'September'),
+        ('Other', 'Other'),
+    ],
+    'accommodation_preference': [
+        ('', '---------'),
+        ('University Hostel', 'University Hostel'),
+        ('Private Housing', 'Private Housing'),
+        ('Homestay', 'Homestay'),
+        ('Not Sure', 'Not Sure'),
+    ],
+    'education_sponsor': [
+        ('', '---------'),
+        ('Self', 'Self'),
+        ('Parent', 'Parent'),
+        ('Relative', 'Relative'),
+        ('Scholarship', 'Scholarship'),
+        ('Loan', 'Loan'),
+        ('Other', 'Other'),
+    ],
 }
 
 
@@ -439,6 +473,11 @@ class PartnerRegistrationForm(forms.Form):
 
 
 class OfflineStudentIntakeForm(forms.ModelForm):
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        label='Date of birth',
+    )
     profile_picture_upload = forms.ImageField(
         required=False,
         widget=forms.ClearableFileInput(attrs={'class': 'form-input', 'accept': 'image/*'}),
@@ -458,7 +497,6 @@ class OfflineStudentIntakeForm(forms.ModelForm):
     language_test_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
     proof_of_funds_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
     health_insurance_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    financial_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
     parent_entry_mode = forms.ChoiceField(
         required=False,
         initial='guardian_only',
@@ -484,6 +522,8 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         self.fields['emergency_gender'].required = False
         self.fields['emergency_relation'].required = False
         self.current_profile_picture = getattr(self.student_profile_instance, 'profile_picture', None)
+        if self.student_profile_instance and getattr(self.student_profile_instance, 'date_of_birth', None):
+            self.initial['date_of_birth'] = self.student_profile_instance.date_of_birth
         self.existing_documents_by_type = {}
         for document in self.existing_documents:
             self.existing_documents_by_type.setdefault(document.document_type, document)
@@ -516,6 +556,13 @@ class OfflineStudentIntakeForm(forms.ModelForm):
 
             if is_boolean_field:
                 form_field.widget = forms.Select(attrs={'class': 'form-select'})
+            elif field_name in SUPPLEMENTAL_SELECT_CHOICES:
+                form_field = forms.ChoiceField(
+                    required=False,
+                    choices=SUPPLEMENTAL_SELECT_CHOICES[field_name],
+                    widget=forms.Select(attrs={'class': 'form-select'}),
+                    label=model_field.verbose_name.replace('_', ' ').title(),
+                )
             elif model_field.get_internal_type() == 'DateField':
                 widget = forms.DateInput(attrs={'class': 'form-input', 'type': 'date'})
                 form_field.widget = widget
@@ -591,7 +638,7 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             'heard_about_other',
         ]
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Student full name'}),
+            'full_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Full name as in passport'}),
             'gender': forms.Select(attrs={'class': 'form-select'}),
             'nationality': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Nationality'}),
             'email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'student@example.com'}),
@@ -632,7 +679,20 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             'emergency_occupation': forms.TextInput(attrs={'class': 'form-input'}),
             'emergency_gender': forms.Select(attrs={'class': 'form-select'}),
             'emergency_relation': forms.TextInput(attrs={'class': 'form-input'}),
-            'heard_about_us': forms.TextInput(attrs={'class': 'form-input'}),
+            'heard_about_us': forms.Select(
+                attrs={'class': 'form-select'},
+                choices=[
+                    ('', '---------'),
+                    ('Google Search', 'Google Search'),
+                    ('Friend / Family Referral', 'Friend / Family Referral'),
+                    ('School / College', 'School / College'),
+                    ('Education Fair / Event', 'Education Fair / Event'),
+                    ('Agent / Partner', 'Agent / Partner'),
+                    ('Advertisement (TV, Radio, Newspaper)', 'Advertisement (TV, Radio, Newspaper)'),
+                    ('Social Media', 'Social Media'),
+                    ('Other', 'Other'),
+                ],
+            ),
             'heard_about_other': forms.TextInput(attrs={'class': 'form-input'}),
         }
 

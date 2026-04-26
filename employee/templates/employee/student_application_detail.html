@@ -460,20 +460,92 @@
             <!-- Status Update Form -->
             <form method="post" action="{% url 'employee:update_student_application_status' application.id %}">
                 {% csrf_token %}
-                <div style="display: flex; gap: 1rem; align-items: center; margin: 1.5rem 0; flex-wrap: wrap;">
-                    <strong>Update Status:</strong>
-                    <select name="status" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;">
-                        {% for status_value, status_label in application.APPLICATION_STATUS %}
-                        <option value="{{ status_value }}" {% if application.status == status_value %}selected{% endif %}>
-                            {{ status_label }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-sync-alt"></i> Update Status
-                    </button>
+                <div style="margin: 1.5rem 0; padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">
+                    <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                        <div>
+                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Application Status</label>
+                            <select name="status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; min-width: 200px; width: 100%;">
+                                {% for status_value, status_label in application.APPLICATION_STATUS %}
+                                <option value="{{ status_value }}" {% if application.status == status_value %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Eligibility</label>
+                            <select name="official_eligibility" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
+                                {% for value, label in application.OFFICE_ELIGIBILITY_CHOICES %}
+                                <option value="{{ value }}" {% if application.official_eligibility == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Documents Verified</label>
+                            <select name="official_documents_verified" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
+                                <option value="" {% if application.official_documents_verified == None %}selected{% endif %}>---------</option>
+                                <option value="true" {% if application.official_documents_verified == True %}selected{% endif %}>Yes</option>
+                                <option value="false" {% if application.official_documents_verified == False %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Admission Status</label>
+                            <select name="official_admission_status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
+                                {% for value, label in application.OFFICE_ADMISSION_STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if application.official_admission_status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Visa Status</label>
+                            <select name="official_visa_status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
+                                {% for value, label in application.OFFICE_VISA_STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if application.official_visa_status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Final Decision</label>
+                            <select name="official_final_decision" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
+                                {% for value, label in application.OFFICE_FINAL_DECISION_CHOICES %}
+                                <option value="{{ value }}" {% if application.official_final_decision == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Status Feedback For Student And Partner</label>
+                        <textarea name="employee_status_note" rows="4" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 10px;">{{ application.employee_status_note }}</textarea>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Official Remarks</label>
+                        <textarea name="official_remarks" rows="3" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 10px;">{{ application.official_remarks }}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-sync-alt"></i> Save Status And Feedback
+                        </button>
+                        {% if application.status_updated_by %}
+                        <span style="color: #64748b;">
+                            Last update by {{ application.status_updated_by.get_full_name|default:application.status_updated_by.username }}
+                            on {{ application.status_updated_at|date:"M d, Y H:i" }}
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
             </form>
+
+            {% if application.employee_status_note or application.official_remarks %}
+            <div style="margin: 1rem 0 0; padding: 1rem 1.2rem; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe;">
+                <h4 style="margin-bottom: 0.6rem; color: #1d4ed8;"><i class="fas fa-reply"></i> Latest Shared Feedback</h4>
+                {% if application.employee_status_note %}
+                <p style="margin: 0 0 0.6rem; color: #1e293b;">{{ application.employee_status_note|linebreaksbr }}</p>
+                {% endif %}
+                {% if application.official_remarks %}
+                <p style="margin: 0; color: #475569;"><strong>Office Remarks:</strong> {{ application.official_remarks|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
 
             <!-- Application Information -->
             <div class="info-grid">
