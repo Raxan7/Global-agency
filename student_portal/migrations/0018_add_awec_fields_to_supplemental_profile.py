@@ -11,6 +11,89 @@ def set_dynamic_row_format(apps, schema_editor):
     )
 
 
+def get_awec_field_definitions():
+    return [
+        ('accommodation_preference', models.TextField(blank=True, null=True)),
+        ('bachelor_field_of_study', models.TextField(blank=True, null=True)),
+        ('bachelor_gpa', models.TextField(blank=True, null=True)),
+        ('bachelor_institution', models.TextField(blank=True, null=True)),
+        ('bachelor_year_completed', models.TextField(blank=True, null=True)),
+        ('certificate_field_of_study', models.TextField(blank=True, null=True)),
+        ('certificate_gpa', models.TextField(blank=True, null=True)),
+        ('certificate_institution', models.TextField(blank=True, null=True)),
+        ('certificate_year_completed', models.TextField(blank=True, null=True)),
+        ('current_address', models.TextField(blank=True, null=True)),
+        ('current_city', models.TextField(blank=True, null=True)),
+        ('current_country', models.TextField(blank=True, null=True)),
+        ('current_postal_code', models.TextField(blank=True, null=True)),
+        ('current_region', models.TextField(blank=True, null=True)),
+        ('diploma_field_of_study', models.TextField(blank=True, null=True)),
+        ('diploma_gpa', models.TextField(blank=True, null=True)),
+        ('diploma_institution', models.TextField(blank=True, null=True)),
+        ('diploma_year_completed', models.TextField(blank=True, null=True)),
+        ('education_sponsor', models.TextField(blank=True, null=True)),
+        ('english_test_year', models.TextField(blank=True, null=True)),
+        ('estimated_budget_usd', models.TextField(blank=True, null=True)),
+        ('full_name_passport', models.TextField(blank=True, null=True)),
+        ('has_academic_certificates', models.BooleanField(blank=True, null=True)),
+        ('has_academic_transcripts', models.BooleanField(blank=True, null=True)),
+        ('has_cv_resume', models.BooleanField(blank=True, null=True)),
+        ('has_english_test_results', models.BooleanField(blank=True, null=True)),
+        ('has_financial_proof', models.BooleanField(blank=True, null=True)),
+        ('has_health_insurance', models.BooleanField(blank=True, null=True)),
+        ('has_medical_condition', models.BooleanField(blank=True, null=True)),
+        ('has_passport_copy', models.BooleanField(blank=True, null=True)),
+        ('has_personal_statement', models.BooleanField(blank=True, null=True)),
+        ('has_recommendation_letters', models.BooleanField(blank=True, null=True)),
+        ('has_valid_visa', models.BooleanField(blank=True, null=True)),
+        ('master_field_of_study', models.TextField(blank=True, null=True)),
+        ('master_gpa', models.TextField(blank=True, null=True)),
+        ('master_institution', models.TextField(blank=True, null=True)),
+        ('master_year_completed', models.TextField(blank=True, null=True)),
+        ('medical_condition_details', models.TextField(blank=True, null=True)),
+        ('needs_special_assistance', models.BooleanField(blank=True, null=True)),
+        ('passport_issue_country', models.TextField(blank=True, null=True)),
+        ('passport_issue_date', models.DateField(blank=True, null=True)),
+        ('passport_number', models.TextField(blank=True, null=True)),
+        ('phd_field_of_study', models.TextField(blank=True, null=True)),
+        ('phd_gpa', models.TextField(blank=True, null=True)),
+        ('phd_institution', models.TextField(blank=True, null=True)),
+        ('phd_year_completed', models.TextField(blank=True, null=True)),
+        ('place_of_birth', models.TextField(blank=True, null=True)),
+        ('preferred_intake', models.TextField(blank=True, null=True)),
+        ('professional_qualifications', models.TextField(blank=True, null=True)),
+        ('program_level', models.TextField(blank=True, null=True)),
+        ('residential_email', models.EmailField(blank=True, max_length=254, null=True)),
+        ('scholarship_applied', models.BooleanField(blank=True, null=True)),
+        ('scholarship_details', models.TextField(blank=True, null=True)),
+        ('special_assistance_details', models.TextField(blank=True, null=True)),
+        ('valid_visa_details', models.TextField(blank=True, null=True)),
+        ('whatsapp_number', models.TextField(blank=True, null=True)),
+    ]
+
+
+def add_missing_awec_fields(apps, schema_editor):
+    model = apps.get_model('student_portal', 'ApplicationSupplementalProfile')
+    table_name = model._meta.db_table
+
+    with schema_editor.connection.cursor() as cursor:
+        existing_columns = {
+            column.name
+            for column in schema_editor.connection.introspection.get_table_description(
+                cursor, table_name
+            )
+        }
+
+    for field_name, field in get_awec_field_definitions():
+        if field_name in existing_columns:
+            continue
+
+        field = field.clone()
+        field.set_attributes_from_name(field_name)
+        schema_editor.add_field(model, field)
+        existing_columns.add(field_name)
+
+
 class Migration(migrations.Migration):
 
     atomic = False
@@ -21,285 +104,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(set_dynamic_row_format, migrations.RunPython.noop),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='accommodation_preference',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='bachelor_field_of_study',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='bachelor_gpa',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='bachelor_institution',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='bachelor_year_completed',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='certificate_field_of_study',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='certificate_gpa',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='certificate_institution',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='certificate_year_completed',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='current_address',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='current_city',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='current_country',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='current_postal_code',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='current_region',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='diploma_field_of_study',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='diploma_gpa',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='diploma_institution',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='diploma_year_completed',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='education_sponsor',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='english_test_year',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='estimated_budget_usd',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='full_name_passport',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_academic_certificates',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_academic_transcripts',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_cv_resume',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_english_test_results',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_financial_proof',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_health_insurance',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_medical_condition',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_passport_copy',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_personal_statement',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_recommendation_letters',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='has_valid_visa',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='master_field_of_study',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='master_gpa',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='master_institution',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='master_year_completed',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='medical_condition_details',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='needs_special_assistance',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='passport_issue_country',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='passport_issue_date',
-            field=models.DateField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='passport_number',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='phd_field_of_study',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='phd_gpa',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='phd_institution',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='phd_year_completed',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='place_of_birth',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='preferred_intake',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='professional_qualifications',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='program_level',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='residential_email',
-            field=models.EmailField(blank=True, max_length=254, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='scholarship_applied',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='scholarship_details',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='special_assistance_details',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='valid_visa_details',
-            field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='applicationsupplementalprofile',
-            name='whatsapp_number',
-            field=models.TextField(blank=True, null=True),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunPython(add_missing_awec_fields, migrations.RunPython.noop),
+            ],
+            state_operations=[
+                *[
+                    migrations.AddField(
+                        model_name='applicationsupplementalprofile',
+                        name=field_name,
+                        field=field,
+                    )
+                    for field_name, field in get_awec_field_definitions()
+                ],
+            ],
         ),
         migrations.AlterField(
             model_name='applicationsupplementalprofile',

@@ -10,13 +10,15 @@ from django.db.models import Q
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
+from django.utils.html import escape
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
 from urllib.parse import quote
+import json
 import logging
 import re
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
@@ -1272,7 +1274,19 @@ def reply_to_message(request, message_id, channel):
         contact_message.save(update_fields=['handled'])
 
     if channel == 'email':
-        return HttpResponseRedirect(_build_email_reply_url(contact_message))
+        email_reply_url = _build_email_reply_url(contact_message)
+        escaped_email_reply_url = escape(email_reply_url)
+        return HttpResponse(
+            (
+                "<!DOCTYPE html>"
+                "<html><head><meta charset=\"utf-8\"><title>Open Email Reply</title></head>"
+                "<body>"
+                "<p>Opening your email client...</p>"
+                f"<p><a href=\"{escaped_email_reply_url}\">If nothing happens, click here to compose the email.</a></p>"
+                f"<script>window.location.replace({json.dumps(email_reply_url)});</script>"
+                "</body></html>"
+            )
+        )
 
     if channel == 'whatsapp':
         whatsapp_url = _build_whatsapp_reply_url(contact_message)
