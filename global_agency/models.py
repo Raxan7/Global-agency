@@ -78,6 +78,16 @@ class ContactMessage(models.Model):
     message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     handled = models.BooleanField(default=False)
+    reply_subject = models.CharField(max_length=255, blank=True)
+    reply_message = models.TextField(blank=True, null=True)
+    replied_at = models.DateTimeField(blank=True, null=True)
+    replied_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact_message_replies',
+    )
 
     def __str__(self):
         return f"{self.name} - {self.email}"

@@ -10,15 +10,13 @@ from django.db.models import Q
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
-from django.utils.html import escape
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
 from urllib.parse import quote
-import json
 import logging
 import re
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
@@ -1227,17 +1225,11 @@ def update_message_status(request, message_id):
     return redirect('employee:contact_messages')
 
 
-def _build_email_reply_url(contact_message):
+def _build_email_reply_subject(contact_message):
     is_consultation = bool((contact_message.destination or '').strip())
     if is_consultation:
-        subject = 'Re: Your Consultation Request - Africa Western Education'
-    else:
-        subject = 'Re: Your Message - Africa Western Education'
-
-    body = f"Dear {contact_message.name},\n\n"
-    body += "Thank you for contacting Africa Western Education.\n\n"
-
-    return f"mailto:{contact_message.email}?subject={quote(subject)}&body={quote(body)}"
+        return 'Re: Your Consultation Request - Africa Western Education'
+    return 'Re: Your Message - Africa Western Education'
 
 
 def _build_whatsapp_reply_url(contact_message):
@@ -1262,33 +1254,94 @@ def _build_whatsapp_reply_url(contact_message):
 @employee_required
 @csrf_protect
 def reply_to_message(request, message_id, channel):
-    """Mark message as handled and redirect employee to reply channel."""
+    """Send an in-system reply and optionally open WhatsApp."""
     contact_message = get_object_or_404(ContactMessage, id=message_id)
 
     if request.method != 'POST':
         messages.error(request, 'Invalid request method for reply action.')
         return redirect('employee:contact_messages')
 
-    if not contact_message.handled:
-        contact_message.handled = True
-        contact_message.save(update_fields=['handled'])
-
     if channel == 'email':
-        email_reply_url = _build_email_reply_url(contact_message)
-        escaped_email_reply_url = escape(email_reply_url)
-        return HttpResponse(
-            (
-                "<!DOCTYPE html>"
-                "<html><head><meta charset=\"utf-8\"><title>Open Email Reply</title></head>"
-                "<body>"
-                "<p>Opening your email client...</p>"
-                f"<p><a href=\"{escaped_email_reply_url}\">If nothing happens, click here to compose the email.</a></p>"
-                f"<script>window.location.replace({json.dumps(email_reply_url)});</script>"
-                "</body></html>"
-            )
+        subject = (request.POST.get('subject') or '').strip() or _build_email_reply_subject(contact_message)
+        reply_body = (request.POST.get('reply_message') or '').strip()
+
+        if not reply_body:
+            messages.error(request, 'Reply message cannot be empty.')
+            return redirect('employee:contact_messages')
+
+        from_email = getattr(
+            settings,
+            'EMPLOYEE_REPLY_FROM_EMAIL',
+            'African Western Education <info@africawesterneducation.com>',
+        )
+        email_body = (
+            f"Dear {contact_message.name},\n\n"
+            f"{reply_body}\n\n"
+            "Best regards,\n"
+            "Africa Western Education\n"
+            "info@africawesterneducation.com"
         )
 
+        smtp_is_configured = bool(
+            getattr(settings, 'EMAIL_HOST_USER', '').strip()
+            and getattr(settings, 'EMAIL_HOST_PASSWORD', '').strip()
+        )
+
+        if not smtp_is_configured:
+            contact_message.reply_subject = subject
+            contact_message.reply_message = reply_body
+            contact_message.replied_at = timezone.now()
+            contact_message.replied_by = request.user
+            contact_message.handled = True
+            contact_message.save(
+                update_fields=[
+                    'reply_subject',
+                    'reply_message',
+                    'replied_at',
+                    'replied_by',
+                    'handled',
+                ]
+            )
+            messages.warning(
+                request,
+                'Reply saved in the system, but outbound email was skipped because SMTP credentials are not configured locally.',
+            )
+            return redirect('employee:contact_messages')
+
+        try:
+            send_mail(
+                subject,
+                email_body,
+                from_email,
+                [contact_message.email],
+                fail_silently=False,
+            )
+        except Exception:
+            logger.exception('Failed to send employee reply email for contact message %s', contact_message.id)
+            messages.error(request, 'The reply could not be sent right now. Please check the email configuration and try again.')
+            return redirect('employee:contact_messages')
+
+        contact_message.reply_subject = subject
+        contact_message.reply_message = reply_body
+        contact_message.replied_at = timezone.now()
+        contact_message.replied_by = request.user
+        contact_message.handled = True
+        contact_message.save(
+            update_fields=[
+                'reply_subject',
+                'reply_message',
+                'replied_at',
+                'replied_by',
+                'handled',
+            ]
+        )
+        messages.success(request, f'Reply sent successfully to {contact_message.email}.')
+        return redirect('employee:contact_messages')
+
     if channel == 'whatsapp':
+        if not contact_message.handled:
+            contact_message.handled = True
+            contact_message.save(update_fields=['handled'])
         whatsapp_url = _build_whatsapp_reply_url(contact_message)
         if not whatsapp_url:
             messages.error(request, 'WhatsApp reply is unavailable because this message has no valid phone number.')

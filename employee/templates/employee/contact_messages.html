@@ -214,6 +214,66 @@
             display: inline-block;
         }
 
+        .reply-panel {
+            margin-top: 12px;
+            border: 1px solid #dbe4ea;
+            border-radius: 10px;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .reply-panel summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 12px 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .reply-panel summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .reply-form {
+            padding: 0 14px 14px;
+        }
+
+        .reply-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin: 10px 0 6px;
+            color: #334155;
+        }
+
+        .reply-form input,
+        .reply-form textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            font: inherit;
+            background: #fff;
+        }
+
+        .reply-form textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .reply-history {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+        }
+
+        .reply-history h4 {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
         .messages-alert {
             padding: 10px;
             border-radius: 8px;
@@ -329,11 +389,6 @@
                                 </button>
                             </form>
 
-                            <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'email' %}" target="_blank">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success">Reply via Email</button>
-                            </form>
-
                             {% if consultation.phone %}
                                 <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'whatsapp' %}" target="_blank">
                                     {% csrf_token %}
@@ -341,6 +396,30 @@
                                 </form>
                             {% endif %}
                         </div>
+
+                        <details class="reply-panel">
+                            <summary>Reply from within the system</summary>
+                            <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'email' %}" class="reply-form">
+                                {% csrf_token %}
+                                <label for="consultation-subject-{{ consultation.id }}">Subject</label>
+                                <input id="consultation-subject-{{ consultation.id }}" type="text" name="subject" value="Re: Your Consultation Request - Africa Western Education">
+                                <label for="consultation-reply-{{ consultation.id }}">Reply message</label>
+                                <textarea id="consultation-reply-{{ consultation.id }}" name="reply_message" placeholder="Write your reply here..." required>{% if consultation.reply_message %}{{ consultation.reply_message }}{% else %}Thank you for contacting Africa Western Education regarding your consultation request.{% endif %}</textarea>
+                                <button type="submit" class="btn btn-success">Send from info@africawesterneducation.com</button>
+                            </form>
+                        </details>
+
+                        {% if consultation.reply_message %}
+                            <div class="reply-history">
+                                <h4>Last sent reply</h4>
+                                <div class="meta">
+                                    Subject: {{ consultation.reply_subject|default:"(No subject)" }}
+                                    {% if consultation.replied_at %} | Sent {{ consultation.replied_at|date:"M d, Y H:i" }}{% endif %}
+                                    {% if consultation.replied_by %} | By {{ consultation.replied_by.get_full_name|default:consultation.replied_by.username }}{% endif %}
+                                </div>
+                                <div class="message-body">{{ consultation.reply_message }}</div>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
 
@@ -371,11 +450,6 @@
                                 </button>
                             </form>
 
-                            <form method="post" action="{% url 'employee:reply_to_message' message.id 'email' %}" target="_blank">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success">Reply via Email</button>
-                            </form>
-
                             {% if message.phone %}
                                 <form method="post" action="{% url 'employee:reply_to_message' message.id 'whatsapp' %}" target="_blank">
                                     {% csrf_token %}
@@ -383,6 +457,30 @@
                                 </form>
                             {% endif %}
                         </div>
+
+                        <details class="reply-panel">
+                            <summary>Reply from within the system</summary>
+                            <form method="post" action="{% url 'employee:reply_to_message' message.id 'email' %}" class="reply-form">
+                                {% csrf_token %}
+                                <label for="message-subject-{{ message.id }}">Subject</label>
+                                <input id="message-subject-{{ message.id }}" type="text" name="subject" value="Re: Your Message - Africa Western Education">
+                                <label for="message-reply-{{ message.id }}">Reply message</label>
+                                <textarea id="message-reply-{{ message.id }}" name="reply_message" placeholder="Write your reply here..." required>{% if message.reply_message %}{{ message.reply_message }}{% else %}Thank you for contacting Africa Western Education.{% endif %}</textarea>
+                                <button type="submit" class="btn btn-success">Send from info@africawesterneducation.com</button>
+                            </form>
+                        </details>
+
+                        {% if message.reply_message %}
+                            <div class="reply-history">
+                                <h4>Last sent reply</h4>
+                                <div class="meta">
+                                    Subject: {{ message.reply_subject|default:"(No subject)" }}
+                                    {% if message.replied_at %} | Sent {{ message.replied_at|date:"M d, Y H:i" }}{% endif %}
+                                    {% if message.replied_by %} | By {{ message.replied_by.get_full_name|default:message.replied_by.username }}{% endif %}
+                                </div>
+                                <div class="message-body">{{ message.reply_message }}</div>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}

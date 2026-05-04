@@ -115,12 +115,12 @@ WSGI_APPLICATION = 'globalagency_project.wsgi.application'
 # DATABASE
 # =============================================================================
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 DATABASES = {
     'default': {
@@ -441,14 +441,19 @@ if not os.path.exists(LOGS_DIR):
 # =============================================================================
 
 # Email backend configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'globalagency_project.email_backend.EmailBackend'
 EMAIL_HOST = 'africawesterneducation.com'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='support@africawesterneducation.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # Set in .env file
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # Leave blank locally to skip outbound delivery and test in-system replies only.
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
+EMAIL_LOCAL_HOSTNAME = config('EMAIL_LOCAL_HOSTNAME', default='africawesterneducation.com')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='African Western Education <support@africawesterneducation.com>')
+EMPLOYEE_REPLY_FROM_EMAIL = config(
+    'EMPLOYEE_REPLY_FROM_EMAIL',
+    default='African Western Education <info@africawesterneducation.com>',
+)
 
 # Password reset settings
 PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
