@@ -1269,11 +1269,7 @@ def reply_to_message(request, message_id, channel):
             messages.error(request, 'Reply message cannot be empty.')
             return redirect('employee:contact_messages')
 
-        from_email = getattr(
-            settings,
-            'EMPLOYEE_REPLY_FROM_EMAIL',
-            'African Western Education <info@africawesterneducation.com>',
-        )
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@africawesternedu.com')
         email_body = (
             f"Dear {contact_message.name},\n\n"
             f"{reply_body}\n\n"
@@ -1281,32 +1277,6 @@ def reply_to_message(request, message_id, channel):
             "Africa Western Education\n"
             "info@africawesterneducation.com"
         )
-
-        smtp_is_configured = bool(
-            getattr(settings, 'EMAIL_HOST_USER', '').strip()
-            and getattr(settings, 'EMAIL_HOST_PASSWORD', '').strip()
-        )
-
-        if not smtp_is_configured:
-            contact_message.reply_subject = subject
-            contact_message.reply_message = reply_body
-            contact_message.replied_at = timezone.now()
-            contact_message.replied_by = request.user
-            contact_message.handled = True
-            contact_message.save(
-                update_fields=[
-                    'reply_subject',
-                    'reply_message',
-                    'replied_at',
-                    'replied_by',
-                    'handled',
-                ]
-            )
-            messages.warning(
-                request,
-                'Reply saved in the system, but outbound email was skipped because SMTP credentials are not configured locally.',
-            )
-            return redirect('employee:contact_messages')
 
         try:
             send_mail(

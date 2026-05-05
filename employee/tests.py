@@ -8,7 +8,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from pathlib import Path
 
-from global_agency.models import StudentApplication
+from global_agency.models import ContactMessage, StudentApplication
 from employee.forms import PortalUpdateForm
 from employee.models import PortalUpdate, UserProfile
 from student_portal.models import Application, ApplicationSupplementalProfile, Document, StudentProfile
@@ -112,6 +112,59 @@ class EmployeePasswordResetTests(TestCase):
         )
         self.employee_user.refresh_from_db()
         self.assertTrue(self.employee_user.check_password('OldPassword123!'))
+
+
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    DEFAULT_FROM_EMAIL='African Western Education <support@africawesterneducation.com>',
+    EMAIL_HOST_PASSWORD='',
+    SECURE_SSL_REDIRECT=False,
+    PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
+)
+class EmployeeContactReplyEmailTests(TestCase):
+    def setUp(self):
+        self.employee_user = User.objects.create_user(
+            username='employee@example.com',
+            email='employee@example.com',
+            password='EmployeePass123!',
+            first_name='Musa',
+        )
+        UserProfile.objects.create(
+            user=self.employee_user,
+            role='employee',
+            registration_method='admin',
+        )
+        self.contact_message = ContactMessage.objects.create(
+            name='Asha Mollel',
+            email='asha@example.com',
+            phone='255712345678',
+            message='I need consultation support.',
+        )
+
+    def test_employee_reply_uses_default_email_configuration(self):
+        self.client.login(username='employee@example.com', password='EmployeePass123!')
+
+        response = self.client.post(
+            reverse(
+                'employee:reply_to_message',
+                kwargs={'message_id': self.contact_message.id, 'channel': 'email'},
+            ),
+            {
+                'subject': 'Re: Consultation',
+                'reply_message': 'Thank you for contacting us. We will assist you shortly.',
+            },
+        )
+
+        self.assertRedirects(response, reverse('employee:contact_messages'), fetch_redirect_response=False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].from_email, 'African Western Education <support@africawesterneducation.com>')
+        self.assertEqual(mail.outbox[0].to, ['asha@example.com'])
+        self.assertIn('Thank you for contacting us.', mail.outbox[0].body)
+
+        self.contact_message.refresh_from_db()
+        self.assertTrue(self.contact_message.handled)
+        self.assertEqual(self.contact_message.reply_subject, 'Re: Consultation')
+        self.assertEqual(self.contact_message.replied_by, self.employee_user)
 
 
 @override_settings(
