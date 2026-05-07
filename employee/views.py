@@ -19,6 +19,7 @@ from django.utils import timezone
 from urllib.parse import quote
 import logging
 import re
+import uuid
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
 from student_portal.models import Application, ApplicationSupplementalProfile, Document, Payment, StudentProfile
 from .forms import (
@@ -380,11 +381,20 @@ def _create_or_update_student_portal_records(
             uploaded_file.seek(0)
         field_file.save(file_name, uploaded_file, save=False)
 
+    def available_fallback_username():
+        full_name_slug = re.sub(r'[^a-z0-9]+', '-', (cleaned_data.get('full_name') or '').lower()).strip('-')
+        base = f"offline-{full_name_slug or 'student'}"[:120].strip('-') or 'offline-student'
+        while True:
+            candidate = f'{base}-{uuid.uuid4().hex[:8]}'
+            if not User.objects.filter(username=candidate).exists():
+                return candidate
+
     full_name = (cleaned_data.get('full_name') or '').strip()
     name_parts = full_name.split()
     first_name = name_parts[0] if name_parts else ''
     last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
-    email = cleaned_data['email']
+    email = (cleaned_data.get('email') or '').strip().lower()
+    account_username = email or available_fallback_username()
     default_password = f"{(first_name.upper() or 'STUDENT')}12345"
 
     if existing_user is not None:
@@ -392,7 +402,7 @@ def _create_or_update_student_portal_records(
         user_created = False
     else:
         user, user_created = User.objects.get_or_create(
-            username=email,
+            username=account_username,
             defaults={
                 'email': email,
                 'first_name': first_name,
@@ -400,7 +410,8 @@ def _create_or_update_student_portal_records(
             },
         )
 
-    user.username = email
+    if email:
+        user.username = email
     user.email = email
     user.first_name = first_name
     user.last_name = last_name

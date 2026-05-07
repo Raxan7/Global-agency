@@ -168,7 +168,9 @@ class EmployeeContactReplyEmailTests(TestCase):
 
 
 @override_settings(
+    ALLOWED_HOSTS=['testserver'],
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    SECURE_SSL_REDIRECT=False,
     PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
 )
 class OfflineStudentIntakeTests(TestCase):
@@ -284,6 +286,35 @@ class OfflineStudentIntakeTests(TestCase):
         self.assertTrue(passport_documents.first().file.name)
         self.assertTrue(supplemental_profile.has_passport_home_page)
 
+    def test_employee_can_create_partial_offline_application_without_core_details(self):
+        self.client.login(username='employee@example.com', password='EmployeePass123!')
+
+        response = self.client.post(
+            reverse('employee:offline_application_create'),
+            {
+                'preferred_program_1': 'Computer Science',
+            },
+        )
+
+        offline_application = StudentApplication.objects.get()
+        student_user = offline_application.student_user
+        portal_application = offline_application.portal_application
+        student_profile = StudentProfile.objects.get(user=student_user)
+
+        self.assertRedirects(
+            response,
+            reverse('employee:student_application_detail', kwargs={'application_id': portal_application.id}),
+            fetch_redirect_response=False,
+        )
+        self.assertTrue(student_user.username.startswith('offline-student-'))
+        self.assertEqual(student_user.email, '')
+        self.assertEqual(offline_application.full_name, '')
+        self.assertEqual(offline_application.email, '')
+        self.assertEqual(offline_application.phone, '')
+        self.assertEqual(student_profile.preferred_program_1, 'Computer Science')
+        self.assertEqual(student_profile.olevel_country, 'Tanzania')
+        self.assertTrue(offline_application.account_created)
+
 
 class PortalUpdateMultiUploadTests(TestCase):
     def test_gallery_images_and_attachments_accept_multiple_files(self):
@@ -317,7 +348,9 @@ class PortalUpdateMultiUploadTests(TestCase):
 
 
 @override_settings(
+    ALLOWED_HOSTS=['testserver'],
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    SECURE_SSL_REDIRECT=False,
     PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
 )
 class PartnerPortalTests(TestCase):
@@ -446,23 +479,29 @@ class PartnerPortalTests(TestCase):
         self.assertIsNotNone(application.portal_application)
         self.assertEqual(application.student_user.username, 'amina@example.com')
 
-    def test_partner_parent_mode_requires_at_least_one_parent(self):
+    def test_partner_parent_mode_allows_missing_parent_details(self):
         self._activate_and_approve_partner()
 
-        invalid_payload = self.student_payload.copy()
-        invalid_payload.update(
+        partial_payload = self.student_payload.copy()
+        partial_payload.update(
             {
                 'parent_entry_mode': 'parents',
                 'father_name': '',
                 'mother_name': '',
+                'emergency_name': '',
+                'emergency_address': '',
+                'emergency_relation': '',
+                'emergency_gender': '',
             }
         )
 
-        response = self.client.post(reverse('employee:partner_application_create'), invalid_payload)
+        response = self.client.post(reverse('employee:partner_application_create'), partial_payload)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Please enter at least one parent name or switch to guardian mode.')
-        self.assertFalse(StudentApplication.objects.filter(email='amina@example.com').exists())
+        self.assertRedirects(response, reverse('employee:partner_dashboard'), fetch_redirect_response=False)
+        application = StudentApplication.objects.get(email='amina@example.com')
+        self.assertFalse(application.father_name)
+        self.assertFalse(application.mother_name)
+        self.assertFalse(application.emergency_name)
 
     def test_employee_review_pages_show_partner_submission_context(self):
         self._activate_and_approve_partner()

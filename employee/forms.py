@@ -513,14 +513,11 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         self.student_profile_instance = kwargs.pop('student_profile_instance', None)
         self.existing_documents = kwargs.pop('existing_documents', [])
         super().__init__(*args, **kwargs)
+        for field_name in self.Meta.fields:
+            self.fields[field_name].required = False
+
         self.fields['olevel_country'].initial = 'Tanzania'
         self.fields['alevel_country'].initial = 'Tanzania'
-        self.fields['alevel_country'].required = False
-        self.fields['emergency_name'].required = False
-        self.fields['emergency_address'].required = False
-        self.fields['emergency_occupation'].required = False
-        self.fields['emergency_gender'].required = False
-        self.fields['emergency_relation'].required = False
         self.current_profile_picture = getattr(self.student_profile_instance, 'profile_picture', None)
         if self.student_profile_instance and getattr(self.student_profile_instance, 'date_of_birth', None):
             self.initial['date_of_birth'] = self.student_profile_instance.date_of_birth
@@ -697,7 +694,7 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         }
 
     def clean_email(self):
-        return self.cleaned_data['email'].strip().lower()
+        return (self.cleaned_data.get('email') or '').strip().lower()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -705,25 +702,5 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             cleaned_data['olevel_country'] = 'Tanzania'
         if not cleaned_data.get('alevel_country'):
             cleaned_data['alevel_country'] = 'Tanzania'
-
-        father_name = (cleaned_data.get('father_name') or '').strip()
-        mother_name = (cleaned_data.get('mother_name') or '').strip()
-        parent_entry_mode = cleaned_data.get('parent_entry_mode') or 'guardian_only'
-        has_parent_info = bool(father_name or mother_name)
-
-        guardian_required_fields = {
-            'emergency_name': 'Guardian name is required when no parent details are provided.',
-            'emergency_address': 'Guardian address is required when no parent details are provided.',
-            'emergency_relation': 'Guardian relation is required when no parent details are provided.',
-            'emergency_gender': 'Guardian gender is required when no parent details are provided.',
-        }
-
-        if parent_entry_mode == 'parents' and not has_parent_info:
-            self.add_error('parent_entry_mode', 'Please enter at least one parent name or switch to guardian mode.')
-
-        if not has_parent_info:
-            for field_name, error_message in guardian_required_fields.items():
-                if not cleaned_data.get(field_name):
-                    self.add_error(field_name, error_message)
 
         return cleaned_data
