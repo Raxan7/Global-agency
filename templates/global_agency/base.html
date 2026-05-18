@@ -138,6 +138,14 @@
         html {
             scroll-behavior: smooth;
         }
+
+        /* Public images should show the full uploaded artwork by default. */
+        body img.object-cover:not(.allow-crop):not(.decorative-image),
+        body img.public-fit-image {
+            object-fit: contain !important;
+            object-position: center;
+            background-color: #f8fafc;
+        }
         
         /* RTL specific adjustments */
         [dir="rtl"] .ltr-only {

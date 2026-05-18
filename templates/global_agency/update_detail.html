@@ -103,7 +103,8 @@
   .detail-hero-image {
     width: 100%;
     max-height: 28rem;
-    object-fit: cover;
+    object-fit: contain;
+    background: #f8fafc;
     display: block;
   }
 
@@ -111,7 +112,8 @@
     aspect-ratio: 4 / 3;
     width: 100%;
     max-height: 13rem;
-    object-fit: cover;
+    object-fit: contain;
+    background: #f8fafc;
     display: block;
   }
 
@@ -125,7 +127,8 @@
   .gallery-grid img {
     width: 100%;
     height: 220px;
-    object-fit: cover;
+    object-fit: contain;
+    background: #f8fafc;
     display: block;
     border-radius: 24px;
   }
@@ -218,9 +221,9 @@
         {% if update.attachments.all %}
           <div class="attachment-list">
             {% for attachment in update.attachments.all %}
-              <a href="{{ attachment.file.url }}" class="attachment-link" target="_blank" rel="noopener">
+              <a href="{% url 'global_agency:update_attachment_download' update.slug attachment.id %}" class="attachment-link">
                 <span>{{ attachment.title|default:attachment.filename }}</span>
-                <span>Open attachment</span>
+                <span>Download attachment</span>
               </a>
             {% endfor %}
           </div>

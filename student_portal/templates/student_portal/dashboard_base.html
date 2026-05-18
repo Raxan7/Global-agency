@@ -21,27 +21,97 @@
             transition: width 0.3s ease;
         }
         
+        body {
+            color: #111827;
+            text-rendering: optimizeLegibility;
+        }
+
+        main {
+            background: #f8fafc;
+        }
+
+        main > .max-w-4xl {
+            max-width: 64rem;
+        }
+
+        main > .max-w-4xl > .bg-white {
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        }
+
+        main > .max-w-4xl > .bg-white > .flex:first-child {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 1.25rem;
+        }
+
+        main > .max-w-4xl h2 {
+            font-size: 1.875rem;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        main > .max-w-4xl h3 {
+            letter-spacing: 0;
+        }
+
+        main > .max-w-4xl p {
+            font-size: 1.02rem;
+            line-height: 1.65;
+        }
+
+        main form {
+            font-size: 1.02rem;
+        }
+
+        main form .grid {
+            row-gap: 1.65rem;
+        }
+
+        main form .border-b {
+            border-color: #e2e8f0;
+        }
+
+        main form label.block {
+            color: #111827;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.45;
+            margin-bottom: 0.55rem;
+        }
+
+        main form .text-sm {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
         /* Form Input Styling */
         .form-input, input[type="text"], input[type="email"], input[type="date"], 
         input[type="tel"], input[type="number"], input[type="file"], 
         textarea, select {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            padding: 0.9rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.65rem;
+            font-size: 1.0625rem;
+            line-height: 1.55;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
             background-color: white;
+            color: #0f172a;
         }
         
         .form-input:focus, input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
         }
         
         .form-input:hover, input:hover, textarea:hover, select:hover {
-            border-color: #9ca3af;
+            border-color: #94a3b8;
+        }
+
+        .form-input::placeholder, input::placeholder, textarea::placeholder {
+            color: #94a3b8;
         }
         
         /* Select dropdown styling */
@@ -56,20 +126,21 @@
         
         /* File input special styling */
         input[type="file"] {
-            padding: 0.5rem;
+            padding: 0.75rem;
+            background: #f8fafc;
         }
         
         /* Textarea */
         textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
         }
         
         /* Labels */
         label {
             display: block;
-            font-weight: 500;
-            color: #374151;
+            font-weight: 700;
+            color: #111827;
             margin-bottom: 0.5rem;
         }
         
@@ -82,7 +153,37 @@
         
         .errorlist li {
             color: #dc2626;
-            font-size: 0.875rem;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+
+        main form a[class*="px-6"],
+        main form button[type="submit"] {
+            border-radius: 0.65rem;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.4;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 1.25rem;
+            }
+
+            main > .max-w-4xl > .bg-white {
+                padding: 1.35rem;
+            }
+
+            main > .max-w-4xl h2 {
+                font-size: 1.45rem;
+            }
+
+            .form-input, input[type="text"], input[type="email"], input[type="date"],
+            input[type="tel"], input[type="number"], input[type="file"],
+            textarea, select {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>

@@ -363,6 +363,32 @@ def update_student_application_status(request, application_id):
     return redirect('employee:student_application_detail', application_id=application_id)
 
 
+@login_required
+@employee_required
+@csrf_protect
+def edit_student_application(request, application_id):
+    """Edit basic application fields (university, course, country, application type)."""
+    application = get_object_or_404(Application, id=application_id)
+    from student_portal.forms import ApplicationForm
+
+    if request.method == 'POST':
+        form = ApplicationForm(request.POST, instance=application)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Application updated successfully.')
+            return redirect('employee:student_application_detail', application_id=application_id)
+        else:
+            messages.error(request, 'Please fix the errors below.')
+    else:
+        form = ApplicationForm(instance=application)
+
+    context = {
+        'form': form,
+        'application': application,
+    }
+    return render(request, 'employee/student_application_edit.html', context)
+
+
 def _create_or_update_student_portal_records(
     cleaned_data,
     created_by,

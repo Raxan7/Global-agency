@@ -180,7 +180,7 @@
       <article class="group overflow-hidden rounded-[32px] border border-white/10 bg-white/10 backdrop-blur-xl shadow-[0_30px_80px_rgba(2,6,23,0.28)]">
         {% with item=featured_updates.0 %}
           {% if item.hero_image %}
-            <img src="{{ item.hero_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="h-80 w-full object-cover transition duration-500 group-hover:scale-[1.02] md:h-[28rem]">
+            <img src="{{ item.hero_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="h-80 w-full object-contain bg-slate-50 transition duration-500 group-hover:scale-[1.02] md:h-[28rem]">
           {% else %}
             <div class="h-80 w-full bg-gradient-to-br from-slate-900 via-cyan-800 to-amber-500 md:h-[28rem]"></div>
           {% endif %}
@@ -206,7 +206,7 @@
           <article class="group overflow-hidden rounded-[28px] border border-white/10 bg-white/10 backdrop-blur-xl shadow-[0_20px_60px_rgba(2,6,23,0.22)]">
             <div class="grid md:grid-cols-[180px_1fr]">
               {% if item.hero_image %}
-                <img src="{{ item.hero_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="h-52 w-full object-cover md:h-full">
+                <img src="{{ item.hero_image.url }}" alt="{{ item.image_alt_text|default:item.title }}" class="h-52 w-full object-contain bg-slate-50 md:h-full">
               {% else %}
                 <div class="h-52 w-full bg-gradient-to-br from-slate-900 via-cyan-800 to-amber-500 md:h-full"></div>
               {% endif %}

@@ -12,12 +12,19 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
-from reportlab.platypus import Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import HRFlowable, Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from student_portal.models import Document, Payment
+from student_portal.models import WorkExperience
 
 
-TOTAL_PAGES = 7
+TOTAL_PAGES = 6
+INK = colors.HexColor('#0f172a')
+MUTED = colors.HexColor('#475569')
+BORDER = colors.HexColor('#cbd5e1')
+HEADER_FILL = colors.HexColor('#eff6ff')
+LABEL_FILL = colors.HexColor('#f8fafc')
+BRAND_BLUE = colors.HexColor('#1d4ed8')
+BRAND_ORANGE = colors.HexColor('#c2410c')
 HEADER_ADDRESS_LINES = [
     'Plot 8, Block 46',
     'Kijitonyama, Mpakani Centre',
@@ -74,93 +81,107 @@ def _styles():
             'tiny_center',
             parent=sample['Normal'],
             fontName='Helvetica',
-            fontSize=8.2,
-            leading=10,
+            fontSize=9.2,
+            leading=11.4,
             alignment=TA_CENTER,
+            textColor=MUTED,
         ),
         'office': ParagraphStyle(
             'office',
             parent=sample['Normal'],
             fontName='Helvetica',
-            fontSize=8.7,
-            leading=11.2,
+            fontSize=9.8,
+            leading=12.8,
             alignment=TA_LEFT,
+            textColor=INK,
         ),
         'title': ParagraphStyle(
             'title',
             parent=sample['Normal'],
             fontName='Helvetica-Bold',
-            fontSize=16.2,
-            leading=18,
+            fontSize=18.6,
+            leading=20.6,
             alignment=TA_CENTER,
-            spaceAfter=3,
+            spaceAfter=4,
+            textColor=INK,
         ),
         'subtitle': ParagraphStyle(
             'subtitle',
             parent=sample['Normal'],
             fontName='Helvetica',
-            fontSize=9.2,
-            leading=11.2,
+            fontSize=10.5,
+            leading=12.9,
             alignment=TA_CENTER,
+            textColor=MUTED,
         ),
         'section': ParagraphStyle(
             'section',
             parent=sample['Normal'],
             fontName='Helvetica-Bold',
-            fontSize=11.6,
-            leading=13.4,
+            fontSize=12.9,
+            leading=15.2,
             alignment=TA_LEFT,
-            spaceAfter=4,
+            spaceAfter=5,
+            textColor=BRAND_BLUE,
         ),
         'body': ParagraphStyle(
             'body',
             parent=sample['Normal'],
             fontName='Helvetica',
-            fontSize=9.3,
-            leading=12,
+            fontSize=10.4,
+            leading=13.4,
             alignment=TA_LEFT,
+            textColor=INK,
         ),
         'field': ParagraphStyle(
             'field',
             parent=sample['Normal'],
             fontName='Helvetica',
-            fontSize=9.1,
-            leading=11.5,
+            fontSize=10.2,
+            leading=12.9,
             alignment=TA_LEFT,
+            textColor=INK,
         ),
         'small': ParagraphStyle(
             'small',
             parent=sample['Normal'],
             fontName='Helvetica',
-            fontSize=8.2,
-            leading=10.4,
+            fontSize=9.6,
+            leading=12,
             alignment=TA_LEFT,
+            textColor=MUTED,
         ),
     }
 
 
-def _boxed_table(rows, widths, row_heights=None, font_size=8.9, padding=4):
+def _boxed_table(rows, widths, row_heights=None, font_size=9.9, padding=4.0, header_rows=0):
     table = Table(rows, colWidths=widths, rowHeights=row_heights)
-    table.setStyle(
-        TableStyle(
+    table_styles = [
+        ('BOX', (0, 0), (-1, -1), 0.8, BORDER),
+        ('INNERGRID', (0, 0), (-1, -1), 0.55, BORDER),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), padding),
+        ('RIGHTPADDING', (0, 0), (-1, -1), padding),
+        ('TOPPADDING', (0, 0), (-1, -1), 4.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4.5),
+        ('FONTSIZE', (0, 0), (-1, -1), font_size),
+        ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.white, LABEL_FILL]),
+    ]
+    if header_rows:
+        table_styles.extend(
             [
-                ('GRID', (0, 0), (-1, -1), 0.7, colors.black),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('LEFTPADDING', (0, 0), (-1, -1), padding),
-                ('RIGHTPADDING', (0, 0), (-1, -1), padding),
-                ('TOPPADDING', (0, 0), (-1, -1), 4),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                ('FONTSIZE', (0, 0), (-1, -1), font_size),
+                ('BACKGROUND', (0, 0), (-1, header_rows - 1), HEADER_FILL),
+                ('TEXTCOLOR', (0, 0), (-1, header_rows - 1), INK),
             ]
         )
-    )
+    table.setStyle(TableStyle(table_styles))
     return table
 
 
 def _field_paragraph(label, value, styles):
     text = (
-        f'<font size="8.2"><b>{escape(label)}</b></font><br/>'
-        f'<font size="9.4">{_escaped(value) or "&nbsp;"}</font>'
+        f'<font size="9.6" color="#1d4ed8"><b>{escape(label)}</b></font><br/>'
+        f'<font size="10.7" color="#0f172a">{_escaped(value) or "&nbsp;"}</font>'
     )
     return Paragraph(text, styles['field'])
 
@@ -205,7 +226,7 @@ def _header(story, styles):
     )
     story.append(table)
     story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('<font color="#c2410c">________________________________________________________________________________</font>', styles['tiny_center']))
+    story.append(HRFlowable(width='100%', thickness=1.2, color=BRAND_ORANGE, spaceBefore=0, spaceAfter=0))
     story.append(Spacer(1, 1.6 * mm))
 
 
@@ -251,10 +272,6 @@ def _photo_flowable(student_profile, styles):
     return placeholder
 
 
-def _latest_payment(application):
-    return Payment.objects.filter(application=application).order_by('-payment_date').first()
-
-
 def _office_value(choice_value, display_value, fallback=''):
     if display_value and display_value != '---------':
         return display_value
@@ -263,9 +280,6 @@ def _office_value(choice_value, display_value, fallback=''):
 
 def build_csc_style_application_pdf(application, student_profile=None, supplemental_profile=None):
     styles = _styles()
-    documents = list(Document.objects.filter(student=application.student).order_by('-uploaded_at'))
-    document_types = {document.document_type for document in documents}
-    payment = _latest_payment(application)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="application_{application.id}_{application.student.username}.pdf"'
@@ -280,12 +294,7 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
 
     student_name = getattr(supplemental_profile, 'full_name_passport', None) or application.student.get_full_name() or application.student.username
     gender = student_profile.get_gender_display() if student_profile and getattr(student_profile, 'gender', None) else ''
-    father_lines = [value for value in [student_profile.father_name if student_profile else '', student_profile.father_occupation if student_profile else '', student_profile.father_phone if student_profile else '', student_profile.father_email if student_profile else ''] if value]
-    mother_lines = [value for value in [student_profile.mother_name if student_profile else '', student_profile.mother_occupation if student_profile else '', student_profile.mother_phone if student_profile else '', student_profile.mother_email if student_profile else ''] if value]
-    guardian_lines = [value for value in [student_profile.emergency_contact if student_profile else '', student_profile.emergency_relation if student_profile else '', student_profile.emergency_occupation if student_profile else '', student_profile.phone_number if student_profile else ''] if value]
-    father_text = '<br/>'.join(escape(value) for value in father_lines)
-    mother_text = '<br/>'.join(escape(value) for value in mother_lines)
-    guardian_text = '<br/>'.join(escape(value) for value in guardian_lines)
+    work_experiences = list(WorkExperience.objects.filter(student=student_profile).order_by('-start_date')) if student_profile else []
 
     story = []
 
@@ -294,7 +303,7 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
     story.append(Paragraph('STUDY ABROAD REGISTRATION FORM', styles['title']))
     story.append(Paragraph(f'Registration Reference Number: {serial}    Application Date: {generated_date}', styles['subtitle']))
     story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('SECTION 1: PERSONAL INFORMATION', styles['section']))
+    story.append(Paragraph('SECTION 1: PERSONAL DETAILS', styles['section']))
     page_one = Table(
         [[
             _single_row_table([
@@ -315,50 +324,55 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
     )
     page_one.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0)]))
     story.append(page_one)
-    story.append(Spacer(1, 2.5 * mm))
-    story.append(Paragraph('PARENT / GUARDIAN DETAILS', styles['section']))
-    story.append(
-        _boxed_table(
-            [
-                [Paragraph('<b>Relation</b>', styles['body']), Paragraph('<b>Details</b>', styles['body'])],
-                [Paragraph('Father', styles['body']), Paragraph(father_text or '&nbsp;', styles['body'])],
-                [Paragraph('Mother', styles['body']), Paragraph(mother_text or '&nbsp;', styles['body'])],
-                [Paragraph('Guardian (if any)', styles['body']), Paragraph(guardian_text or '&nbsp;', styles['body'])],
-            ],
-            [42 * mm, 142 * mm],
-        )
-    )
+    story.append(Spacer(1, 1.8 * mm))
+    story.append(Paragraph('SECTION 2: PARENTS DETAILS', styles['section']))
+    parent_rows = [
+        [
+            Paragraph('<b>Field</b>', styles['body']),
+            Paragraph('<b>Father</b>', styles['body']),
+            Paragraph('<b>Mother</b>', styles['body']),
+        ],
+        [
+            Paragraph('Full Name', styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'father_name', None)), styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'mother_name', None)), styles['body']),
+        ],
+        [
+            Paragraph('Address (Street/Village/House No.)', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+        ],
+        [
+            Paragraph('Postal Code', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+        ],
+        [
+            Paragraph('Region', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+        ],
+        [
+            Paragraph('Occupation', styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'father_occupation', None)), styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'mother_occupation', None)), styles['body']),
+        ],
+        [
+            Paragraph('Phone', styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'father_phone', None)), styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'mother_phone', None)), styles['body']),
+        ],
+        [
+            Paragraph('Email', styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'father_email', None)), styles['body']),
+            Paragraph(_escaped(getattr(student_profile, 'mother_email', None)), styles['body']),
+        ],
+    ]
+    story.append(_boxed_table(parent_rows, [48 * mm, 68 * mm, 68 * mm], header_rows=1))
     story.append(PageBreak())
 
     # Page 2
-    _header(story, styles)
-    story.append(Paragraph('Residential Information', styles['section']))
-    story.append(
-        _single_row_table([
-            ('Current Address', getattr(supplemental_profile, 'current_address', None) or (student_profile.address if student_profile else '')),
-            ('Region', getattr(supplemental_profile, 'current_region', None)),
-            ('City', getattr(supplemental_profile, 'current_city', None)),
-            ('Country', getattr(supplemental_profile, 'current_country', None)),
-            ('Postal Code', getattr(supplemental_profile, 'current_postal_code', None)),
-            ('Phone Number (WhatsApp)', getattr(supplemental_profile, 'whatsapp_number', None) or (student_profile.phone_number if student_profile else '')),
-            ('Email Address', getattr(supplemental_profile, 'residential_email', None) or application.student.email),
-            ('Emergency Contact', getattr(student_profile, 'emergency_contact', None) if student_profile else None),
-        ], styles)
-    )
-    story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('SECTION 2: PASSPORT DETAILS', styles['section']))
-    story.append(
-        _single_row_table([
-            ('Passport Number', getattr(supplemental_profile, 'passport_number', None)),
-            ('Country of Issue', getattr(supplemental_profile, 'passport_issue_country', None)),
-            ('Date of Issue', getattr(supplemental_profile, 'passport_issue_date', None)),
-            ('Expiry Date', getattr(supplemental_profile, 'passport_expiration_date', None)),
-            ('Do you hold a valid visa?', f'{_bool_box(getattr(supplemental_profile, "has_valid_visa", None) is True)} Yes   {_bool_box(getattr(supplemental_profile, "has_valid_visa", None) is False)} No'),
-            ('If yes (country and type)', getattr(supplemental_profile, 'valid_visa_details', None)),
-        ], styles)
-    )
-    story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('SECTION 3: EMERGENCY CONTACT', styles['section']))
+    story.append(Paragraph('SECTION 3: EMERGENCY CONTACT DETAILS', styles['section']))
     story.append(
         _single_row_table([
             ('Full Name', getattr(student_profile, 'emergency_contact', None) if student_profile else None),
@@ -366,11 +380,11 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
             ('Occupation', getattr(student_profile, 'emergency_occupation', None) if student_profile else None),
             ('Phone Number', getattr(student_profile, 'phone_number', None) if student_profile else None),
             ('Email Address', application.student.email),
-            ('Address', getattr(student_profile, 'emergency_address', None) if student_profile else None),
+            ('Address (Street/Village/House No.)', getattr(student_profile, 'emergency_address', None) if student_profile else None),
         ], styles)
     )
-    story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('SECTION 4: EDUCATIONAL BACKGROUND (Based on Tanzania Education System)', styles['section']))
+    story.append(Spacer(1, 1.6 * mm))
+    story.append(Paragraph('SECTION 4: EDUCATION BACKGROUND DETAILS', styles['section']))
     story.append(
         _boxed_table(
             [
@@ -379,12 +393,12 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
                 [Paragraph('Form Six (A-Level)', styles['body']), Paragraph(_escaped(getattr(student_profile, 'alevel_school', None)), styles['body']), Paragraph(_escaped(getattr(student_profile, 'alevel_candidate_no', None)), styles['body']), Paragraph(_escaped(getattr(student_profile, 'alevel_year', None)), styles['body']), Paragraph(_escaped(getattr(student_profile, 'alevel_gpa', None)), styles['body'])],
             ],
             [34 * mm, 64 * mm, 30 * mm, 28 * mm, 28 * mm],
+            header_rows=1,
         )
     )
     story.append(PageBreak())
 
     # Page 3
-    _header(story, styles)
     story.append(Paragraph('Post-Secondary / Higher Education', styles['section']))
     story.append(
         _boxed_table(
@@ -397,13 +411,14 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
                 [Paragraph('PhD', styles['body']), Paragraph(_escaped(getattr(supplemental_profile, 'phd_institution', None)), styles['body']), Paragraph(_escaped(getattr(supplemental_profile, 'phd_field_of_study', None)), styles['body']), Paragraph(_escaped(getattr(supplemental_profile, 'phd_year_completed', None)), styles['body']), Paragraph(_escaped(getattr(supplemental_profile, 'phd_gpa', None)), styles['body'])],
             ],
             [30 * mm, 58 * mm, 48 * mm, 26 * mm, 22 * mm],
-            font_size=8.4,
+            font_size=9.3,
+            header_rows=1,
         )
     )
-    story.append(Spacer(1, 2 * mm))
+    story.append(Spacer(1, 1.6 * mm))
     story.append(Paragraph('Professional Qualifications / Training', styles['section']))
-    story.append(_boxed_table([[Paragraph(_escaped(getattr(supplemental_profile, 'professional_qualifications', None)), styles['body'])]], [184 * mm], row_heights=[20 * mm]))
-    story.append(Spacer(1, 2 * mm))
+    story.append(_boxed_table([[Paragraph(_escaped(getattr(supplemental_profile, 'professional_qualifications', None)), styles['body'])]], [184 * mm], row_heights=[18 * mm]))
+    story.append(Spacer(1, 1.6 * mm))
     story.append(Paragraph('English Language Proficiency', styles['section']))
     story.append(
         _boxed_table(
@@ -412,10 +427,43 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
                 [Paragraph(_escaped(getattr(supplemental_profile, 'english_test_name', None)), styles['body']), Paragraph(_escaped(getattr(supplemental_profile, 'english_test_score', None)), styles['body']), Paragraph(_escaped(getattr(supplemental_profile, 'english_test_year', None)), styles['body'])],
             ],
             [84 * mm, 50 * mm, 50 * mm],
+            header_rows=1,
         )
     )
-    story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('SECTION 5: STUDY ABROAD PREFERENCES', styles['section']))
+    story.append(Spacer(1, 1.6 * mm))
+    story.append(Paragraph('SECTION 5: EMPLOYMENT HISTORY / WORK EXPERIENCE', styles['section']))
+    work_rows = [
+        [
+            Paragraph('<b>Employer</b>', styles['body']),
+            Paragraph('<b>Position</b>', styles['body']),
+            Paragraph('<b>Location</b>', styles['body']),
+            Paragraph('<b>Period</b>', styles['body']),
+        ]
+    ]
+    if work_experiences:
+        for experience in work_experiences[:4]:
+            end_value = 'Present' if experience.currently_working else _as_text(experience.end_date)
+            period = f'{_as_text(experience.start_date)} - {end_value}'
+            work_rows.append(
+                [
+                    Paragraph(_escaped(experience.company_name), styles['body']),
+                    Paragraph(_escaped(experience.position), styles['body']),
+                    Paragraph(_escaped(experience.location), styles['body']),
+                    Paragraph(_escaped(period), styles['body']),
+                ]
+            )
+    else:
+        work_rows.append([
+            Paragraph('No work experience provided', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+            Paragraph('&nbsp;', styles['body']),
+        ])
+    story.append(_boxed_table(work_rows, [64 * mm, 46 * mm, 40 * mm, 34 * mm], header_rows=1))
+    story.append(PageBreak())
+
+    # Page 4
+    story.append(Paragraph('SECTION 6: STUDY PREFERENCES', styles['section']))
     story.append(
         _single_row_table([
             ('Preferred Country 1', getattr(student_profile, 'preferred_country_1', None) if student_profile else None),
@@ -426,12 +474,32 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
             ('Preferred Program 3', getattr(student_profile, 'preferred_program_3', None) if student_profile else None),
         ], styles)
     )
-    story.append(PageBreak())
-
-    # Page 4
-    _header(story, styles)
+    story.append(Spacer(1, 1.6 * mm))
+    story.append(Paragraph('SECTION 7: CURRENT AND PERMANENT ADDRESS', styles['section']))
     story.append(
         _single_row_table([
+            ('Current Address (Street/Village/House No.)', getattr(supplemental_profile, 'current_address', None) or (student_profile.address if student_profile else '')),
+            ('Current Region', getattr(supplemental_profile, 'current_region', None)),
+            ('Current City', getattr(supplemental_profile, 'current_city', None)),
+            ('Current Country', getattr(supplemental_profile, 'current_country', None)),
+            ('Current Postal Code', getattr(supplemental_profile, 'current_postal_code', None)),
+            ('Permanent Address (Street/Village/House No.)', student_profile.address if student_profile else ''),
+            ('Permanent Region', ''),
+            ('Permanent City', ''),
+            ('Permanent Country', getattr(student_profile, 'nationality', None) if student_profile else ''),
+            ('Permanent Postal Code', ''),
+        ], styles)
+    )
+    story.append(Spacer(1, 1.6 * mm))
+    story.append(Paragraph('SECTION 8: OTHER DETAILS', styles['section']))
+    story.append(
+        _single_row_table([
+            ('Passport Number', getattr(supplemental_profile, 'passport_number', None)),
+            ('Country of Issue', getattr(supplemental_profile, 'passport_issue_country', None)),
+            ('Date of Issue', getattr(supplemental_profile, 'passport_issue_date', None)),
+            ('Expiry Date', getattr(supplemental_profile, 'passport_expiration_date', None)),
+            ('Valid Visa?', f'{_bool_box(getattr(supplemental_profile, "has_valid_visa", None) is True)} Yes   {_bool_box(getattr(supplemental_profile, "has_valid_visa", None) is False)} No'),
+            ('Visa Details', getattr(supplemental_profile, 'valid_visa_details', None)),
             ('Program Level', getattr(supplemental_profile, 'program_level', None)),
             ('Preferred Intake', getattr(supplemental_profile, 'preferred_intake', None)),
             ('Accommodation Preference', getattr(supplemental_profile, 'accommodation_preference', None)),
@@ -445,29 +513,22 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
             ('If yes, specify', getattr(supplemental_profile, 'special_assistance_details', None)),
         ], styles)
     )
-    story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('SECTION 8: DOCUMENT CHECKLIST', styles['section']))
-    checklist_rows = [[Paragraph(item, styles['body'])] for item in [
-        f'{_bool_box("passport" in document_types or getattr(supplemental_profile, "has_passport_copy", None))} Passport Copy',
-        f'{_bool_box(("ordinary_level" in document_types) or ("advanced_level" in document_types) or ("degree_certificate" in document_types) or getattr(supplemental_profile, "has_academic_certificates", None))} Academic Certificates',
-        f'{_bool_box("academic_transcript" in document_types or getattr(supplemental_profile, "has_academic_transcripts", None))} Academic Transcripts',
-        f'{_bool_box("language_test" in document_types or getattr(supplemental_profile, "has_english_test_results", None))} English Test Results',
-        f'{_bool_box("cv" in document_types or getattr(supplemental_profile, "has_cv_resume", None))} Curriculum Vitae (CV)',
-        f'{_bool_box("sop" in document_types or getattr(supplemental_profile, "has_personal_statement", None))} Personal Statement',
-        f'{_bool_box("recommendation_letter" in document_types or getattr(supplemental_profile, "has_recommendation_letters", None))} Recommendation Letters',
-        f'{_bool_box("passport_photo" in document_types or getattr(supplemental_profile, "has_passport_photo", None) or bool(getattr(student_profile, "profile_picture", None)))} Passport Photos',
-        f'{_bool_box("proof_of_funds" in document_types or getattr(supplemental_profile, "has_financial_proof", None))} Financial Proof / Bank Statement',
-        f'{_bool_box("health_insurance" in document_types or getattr(supplemental_profile, "has_health_insurance", None))} Health Insurance',
-        f'{_bool_box(getattr(supplemental_profile, "has_other_attachments", None))} Other: {_as_text(getattr(supplemental_profile, "other_attachments_description", None))}',
-    ]]
-    story.append(_boxed_table(checklist_rows, [184 * mm]))
     story.append(PageBreak())
 
     # Page 5
-    _header(story, styles)
-    story.append(Paragraph('SECTION 9: DECLARATION BY APPLICANT', styles['section']))
-    story.append(Paragraph('I declare that all information provided is true and correct. I authorize the agency to represent me in academic and visa applications where necessary.', styles['body']))
-    story.append(Spacer(1, 2 * mm))
+    story.append(Paragraph('SECTION 9: HOW DID YOU HEAR ABOUT US?', styles['section']))
+    story.append(
+        _single_row_table([
+            ('Source', getattr(student_profile, 'heard_about_us', None) if student_profile else ''),
+            ('Other (please specify)', getattr(student_profile, 'heard_about_other', None) if student_profile else ''),
+        ], styles)
+    )
+    story.append(Spacer(1, 1.6 * mm))
+    story.append(Paragraph('SECTION 10: DECLARATION BY APPLICANT', styles['section']))
+    for item in DECLARATION_LINES:
+        story.append(Paragraph(escape(item), styles['body']))
+        story.append(Spacer(1, 1.2 * mm))
+    story.append(Spacer(1, 1.6 * mm))
     story.append(
         _single_row_table([
             ('Applicant Full Name', student_name),
@@ -476,66 +537,13 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
             ('Declaration Agreed', _as_text(getattr(supplemental_profile, 'declaration_agreed', None), 'Yes')),
         ], styles)
     )
-    story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph('TERMS AND CONDITIONS', styles['section']))
-    for item in TERMS_AND_CONDITIONS[:7]:
-        story.append(Paragraph(escape(item), styles['body']))
-        story.append(Spacer(1, 1.3 * mm))
     story.append(PageBreak())
 
     # Page 6
-    _header(story, styles)
-    story.append(Paragraph('DECLARATION AND APPLICANT AGREEMENT', styles['section']))
-    for item in DECLARATION_LINES:
-        story.append(Paragraph(escape(item), styles['body']))
-        story.append(Spacer(1, 1.4 * mm))
-    story.append(Spacer(1, 2 * mm))
-    for item in TERMS_AND_CONDITIONS[7:]:
-        story.append(Paragraph(escape(item), styles['body']))
-        story.append(Spacer(1, 1.2 * mm))
-    story.append(Spacer(1, 2 * mm))
-    story.append(
-        _single_row_table([
-            ('Applicant Name', student_name),
-            ('Date', generated_date),
-            ('Signature', ''),
-            ('How did you hear about us?', f'{getattr(student_profile, "heard_about_us", "")} {getattr(student_profile, "heard_about_other", "")}'.strip() if student_profile else ''),
-        ], styles)
-    )
-    story.append(PageBreak())
-
-    # Page 7
-    _header(story, styles)
-    story.append(Paragraph('FOR OFFICIAL USE ONLY', styles['title']))
-    fee_method = payment.get_payment_method_display() if payment else ('Manual / Staff' if application.is_paid else '')
-    transaction_id = ''
-    if payment:
-        transaction_id = payment.transaction_id or payment.order_reference or payment.payment_reference
-    officer = application.status_updated_by or application.payment_verified_by
-    office_rows = [
-        ['Application ID', serial],
-        ['Date Received', _as_text(application.submission_date or application.created_at)],
-        ['Processed By', officer.get_full_name() if officer else ''],
-        ['Status', application.get_status_display()],
-        ['Eligibility', _office_value(application.official_eligibility, application.get_official_eligibility_display(), 'Pending')],
-        ['Documents Verified', _as_text(application.official_documents_verified)],
-        ['Country', application.country],
-        ['Institution', application.university_name or 'Pending Placement'],
-        ['Program', application.course],
-        ['Intake', getattr(supplemental_profile, 'preferred_intake', None)],
-        ['Admission Status', _office_value(application.official_admission_status, application.get_official_admission_status_display(), 'Pending')],
-        ['Fee Paid', 'Yes' if application.is_paid else 'No'],
-        ['Method', fee_method],
-        ['Transaction ID', transaction_id],
-        ['Visa Status', _office_value(application.official_visa_status, application.get_official_visa_status_display(), 'Not Started')],
-        ['Final Decision', _office_value(application.official_final_decision, application.get_official_final_decision_display(), application.get_status_display())],
-        ['Remarks', application.official_remarks or application.employee_status_note],
-        ['Officer Name', officer.get_full_name() if officer else ''],
-        ['Signature', ''],
-        ['Date', _as_text(application.status_updated_at or application.updated_at)],
-    ]
-    office_story_rows = [[Paragraph(f'<b>{escape(label)}</b>', styles['body']), Paragraph(_escaped(value), styles['body'])] for label, value in office_rows]
-    story.append(_boxed_table(office_story_rows, [54 * mm, 130 * mm], font_size=9))
+    story.append(Paragraph('TERMS AND CONDITIONS', styles['section']))
+    for item in TERMS_AND_CONDITIONS:
+        story.append(Paragraph(escape(item), styles['small']))
+        story.append(Spacer(1, 1.1 * mm))
 
     doc.build(story, onFirstPage=_footer, onLaterPages=_footer)
     response.write(buffer.getvalue())

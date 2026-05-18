@@ -8,6 +8,11 @@ urlpatterns = [
     path('test-language/', test_views.test_language_view, name='test_language'),  # Debug view
     path('', views.home, name='home'),
     path('updates/', views.updates_list, name='updates'),
+    path(
+        'updates/<slug:slug>/attachments/<int:attachment_id>/download/',
+        views.update_attachment_download,
+        name='update_attachment_download',
+    ),
     path('updates/<slug:slug>/', views.update_detail, name='update_detail'),
     path('terms-and-conditions/', views.terms_and_conditions, name='terms_and_conditions'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),

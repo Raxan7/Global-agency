@@ -1,0 +1,38 @@
+{% extends 'employee/base.html' %}
+{% load static %}
+
+{% block title %}Edit Application - Employee Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <h2><i class="fas fa-edit"></i> Edit Application #{{ application.id }}</h2>
+    <div>
+      <a href="{% url 'employee:student_application_detail' application.id %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        {{ form.application_type.label_tag }}
+        <div>{{ form.application_type }}</div>
+        {{ form.university_name.label_tag }}
+        <div>{{ form.university_name }}</div>
+        {{ form.course.label_tag }}
+        <div>{{ form.course }}</div>
+        {{ form.country.label_tag }}
+        <div>{{ form.country }}</div>
+      </div>
+      {% if form.errors %}
+      <div style="margin-top: 1rem; color: #dc3545;">Please correct the highlighted fields.</div>
+      {% endif %}
+      <div style="margin-top: 1rem; display:flex; gap:0.5rem;">
+        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Changes</button>
+        <a href="{% url 'employee:student_application_detail' application.id %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

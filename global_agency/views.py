@@ -1,15 +1,18 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from django.http import Http404
-from django.utils.translation import activate
-from django.conf import settings
-from django.utils import timezone
-from .forms import StudentApplicationForm, ContactMessageForm, SimpleRegistrationForm
-from employee.models import PortalUpdate
 import json
+import mimetypes
 import os
-from django.core.paginator import Paginator
 from pathlib import Path
+
+from django.contrib import messages
+from django.conf import settings
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.utils.translation import activate
+
+from .forms import StudentApplicationForm, ContactMessageForm, SimpleRegistrationForm
+from django.core.paginator import Paginator
+from employee.models import PortalUpdate, PortalUpdateAttachment
 
 def home(request):
     featured_updates = list(
@@ -82,6 +85,29 @@ def update_detail(request, slug):
         'related_updates': related_updates,
     }
     return render(request, 'global_agency/update_detail.html', context)
+
+
+def update_attachment_download(request, slug, attachment_id):
+    attachment = get_object_or_404(
+        PortalUpdateAttachment.objects.select_related('update'),
+        pk=attachment_id,
+        update__slug=slug,
+        update__status='published',
+    )
+    filename = attachment.filename
+    content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+    try:
+        attachment.file.open('rb')
+    except OSError as exc:
+        raise Http404("Attachment file is not available.") from exc
+
+    return FileResponse(
+        attachment.file,
+        as_attachment=True,
+        filename=filename,
+        content_type=content_type,
+    )
 
 def set_language_view(request, language):
     """Switch to a different language and redirect to the same page"""

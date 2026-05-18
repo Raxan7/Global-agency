@@ -1,6 +1,5 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
 from io import BytesIO
@@ -390,25 +389,6 @@ class PortalUpdateForm(forms.ModelForm):
                 file_name = getattr(uploaded_file, 'name', 'upload.png').rsplit('/', 1)[-1].rsplit('\\', 1)[-1].rsplit('.', 1)[0] + '.png'
                 return SimpleUploadedFile(file_name, buffer.getvalue(), content_type='image/png')
 
-        def normalized_attachment_file(uploaded_file):
-            uploaded_file.seek(0)
-            try:
-                from PIL import Image as PillowImage
-
-                with PillowImage.open(uploaded_file) as image:
-                    image.verify()
-                uploaded_file.seek(0)
-                return uploaded_file
-            except Exception:
-                uploaded_file.seek(0)
-                from PIL import Image as PillowImage
-
-                buffer = BytesIO()
-                placeholder = PillowImage.new('RGB', (1, 1), color=(255, 255, 255))
-                placeholder.save(buffer, format='PNG')
-                file_name = getattr(uploaded_file, 'name', 'upload.png').rsplit('/', 1)[-1].rsplit('\\', 1)[-1].rsplit('.', 1)[0] + '.png'
-                return SimpleUploadedFile(file_name, buffer.getvalue(), content_type='image/png')
-
         for image in self.cleaned_data.get('remove_gallery_images', []):
             image.delete()
 
@@ -423,9 +403,10 @@ class PortalUpdateForm(forms.ModelForm):
             )
 
         for attachment_file in self.cleaned_data.get('attachments', []):
+            attachment_file.seek(0)
             PortalUpdateAttachment.objects.create(
                 update=portal_update,
-                file=normalized_attachment_file(attachment_file),
+                file=attachment_file,
                 title=attachment_file.name.rsplit('/', 1)[-1],
             )
 

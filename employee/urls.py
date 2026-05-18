@@ -26,6 +26,7 @@ urlpatterns = [
     path('student-applications/', views.student_application_list, name='student_application_list'),
     path('student-applications/offline/new/', views.offline_application_create, name='offline_application_create'),
     path('student-applications/<int:application_id>/', views.student_application_detail, name='student_application_detail'),
+    path('student-applications/<int:application_id>/edit/', views.edit_student_application, name='edit_student_application'),
     path('student-applications/<int:application_id>/update-status/', views.update_student_application_status, name='update_student_application_status'),
     
     # Payment Verification (M-PESA)

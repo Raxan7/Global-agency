@@ -7,10 +7,12 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from pathlib import Path
+import shutil
+import tempfile
 
 from global_agency.models import ContactMessage, StudentApplication
 from employee.forms import PortalUpdateForm
-from employee.models import PortalUpdate, UserProfile
+from employee.models import PortalUpdate, PortalUpdateAttachment, UserProfile
 from student_portal.models import Application, ApplicationSupplementalProfile, Document, StudentProfile
 
 VALID_GIF_BYTES = (
@@ -18,6 +20,15 @@ VALID_GIF_BYTES = (
     b'\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,'
     b'\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
 )
+
+TEST_FILE_STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
 
 
 @override_settings(
@@ -121,6 +132,7 @@ class EmployeePasswordResetTests(TestCase):
     SECURE_SSL_REDIRECT=False,
     PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
 )
+
 class EmployeeContactReplyEmailTests(TestCase):
     def setUp(self):
         self.employee_user = User.objects.create_user(
@@ -317,6 +329,19 @@ class OfflineStudentIntakeTests(TestCase):
 
 
 class PortalUpdateMultiUploadTests(TestCase):
+    def setUp(self):
+        self.temp_media_root = tempfile.mkdtemp()
+        self.storage_settings = override_settings(
+            MEDIA_ROOT=self.temp_media_root,
+            SECURE_SSL_REDIRECT=False,
+            STORAGES=TEST_FILE_STORAGES,
+        )
+        self.storage_settings.enable()
+
+    def tearDown(self):
+        self.storage_settings.disable()
+        shutil.rmtree(self.temp_media_root, ignore_errors=True)
+
     def test_gallery_images_and_attachments_accept_multiple_files(self):
         form = PortalUpdateForm(
             data={
@@ -345,6 +370,96 @@ class PortalUpdateMultiUploadTests(TestCase):
         self.assertEqual(PortalUpdate.objects.count(), 1)
         self.assertEqual(update.gallery_images.count(), 2)
         self.assertEqual(update.attachments.count(), 2)
+
+    def test_pdf_attachment_keeps_original_file_content_and_name(self):
+        pdf_bytes = b'%PDF-1.4 preserved pdf bytes'
+        form = PortalUpdateForm(
+            data={
+                'content_type': 'blog',
+                'title': 'Downloadable Guide',
+                'excerpt': 'Short summary',
+                'content': 'Full content',
+                'status': 'draft',
+            },
+            files={
+                'attachments': [
+                    SimpleUploadedFile(
+                        'guide.pdf',
+                        pdf_bytes,
+                        content_type='application/pdf',
+                    ),
+                ],
+            },
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        update = form.save()
+        form.save_related_files(update)
+
+        attachment = update.attachments.get()
+        self.assertEqual(attachment.title, 'guide.pdf')
+        self.assertTrue(attachment.file.name.endswith('.pdf'))
+        attachment.file.open('rb')
+        self.assertEqual(attachment.file.read(), pdf_bytes)
+
+    def test_published_update_attachment_downloads_original_file(self):
+        pdf_bytes = b'%PDF-1.4 public download bytes'
+        update = PortalUpdate.objects.create(
+            content_type='blog',
+            title='Published Guide',
+            excerpt='Short summary',
+            content='Full content',
+            status='published',
+        )
+        attachment = PortalUpdateAttachment.objects.create(
+            update=update,
+            file=SimpleUploadedFile(
+                'published-guide.pdf',
+                pdf_bytes,
+                content_type='application/pdf',
+            ),
+            title='published-guide.pdf',
+        )
+
+        response = self.client.get(
+            reverse(
+                'global_agency:update_attachment_download',
+                args=[update.slug, attachment.id],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertIn('attachment;', response['Content-Disposition'])
+        self.assertIn('published-guide.pdf', response['Content-Disposition'])
+        self.assertEqual(b''.join(response.streaming_content), pdf_bytes)
+
+    def test_draft_update_attachment_is_not_publicly_downloadable(self):
+        update = PortalUpdate.objects.create(
+            content_type='blog',
+            title='Draft Guide',
+            excerpt='Short summary',
+            content='Full content',
+            status='draft',
+        )
+        attachment = PortalUpdateAttachment.objects.create(
+            update=update,
+            file=SimpleUploadedFile(
+                'draft-guide.pdf',
+                b'%PDF-1.4 draft bytes',
+                content_type='application/pdf',
+            ),
+            title='draft-guide.pdf',
+        )
+
+        response = self.client.get(
+            reverse(
+                'global_agency:update_attachment_download',
+                args=[update.slug, attachment.id],
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
 
 
 @override_settings(
