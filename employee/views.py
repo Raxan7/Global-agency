@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django import forms
+from django.forms import modelform_factory
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
@@ -22,6 +24,14 @@ import re
 import uuid
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
 from student_portal.models import Application, ApplicationSupplementalProfile, Document, Payment, StudentProfile
+from student_portal.forms import (
+    AcademicQualificationsForm,
+    ApplicationForm as PortalApplicationForm,
+    EmergencyContactForm,
+    ParentsDetailsForm,
+    PersonalDetailsForm,
+    StudyPreferencesForm,
+)
 from .forms import (
     DOCUMENT_FLAG_FIELD_MAP,
     DOCUMENT_UPLOAD_FIELD_MAP,
@@ -310,6 +320,169 @@ def student_application_detail(request, application_id):
 @login_required
 @employee_required
 @csrf_protect
+def edit_student_application(request, application_id):
+    """Allow employees to edit the full student application bundle."""
+    application = get_object_or_404(Application, id=application_id)
+
+    student_profile, _ = StudentProfile.objects.get_or_create(user=application.student)
+    supplemental_profile = ApplicationSupplementalProfile.objects.filter(application=application).first()
+    if supplemental_profile is None:
+        supplemental_profile = ApplicationSupplementalProfile(application=application)
+
+    SupplementalProfileForm = modelform_factory(
+        ApplicationSupplementalProfile,
+        fields=SUPPLEMENTAL_FIELD_NAMES,
+        widgets={
+            'full_name_passport': forms.TextInput(attrs={'class': 'form-input'}),
+            'place_of_birth': forms.TextInput(attrs={'class': 'form-input'}),
+            'passport_number': forms.TextInput(attrs={'class': 'form-input'}),
+            'passport_issue_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'passport_issue_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'passport_expiration_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'current_region': forms.TextInput(attrs={'class': 'form-input'}),
+            'current_city': forms.TextInput(attrs={'class': 'form-input'}),
+            'current_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'current_postal_code': forms.TextInput(attrs={'class': 'form-input'}),
+            'whatsapp_number': forms.TextInput(attrs={'class': 'form-input'}),
+            'residential_email': forms.EmailInput(attrs={'class': 'form-input'}),
+            'current_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'valid_visa_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'professional_qualifications': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'scholarship_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'medical_condition_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'special_assistance_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'other_attachments_description': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+            'english_test_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'english_test_score': forms.TextInput(attrs={'class': 'form-input'}),
+            'english_test_year': forms.TextInput(attrs={'class': 'form-input'}),
+        },
+    )
+
+    if request.method == 'POST':
+        core_form = PortalApplicationForm(request.POST, instance=application)
+        personal_form = PersonalDetailsForm(request.POST, request.FILES, instance=student_profile)
+        parents_form = ParentsDetailsForm(request.POST, instance=student_profile)
+        academic_form = AcademicQualificationsForm(request.POST, instance=student_profile)
+        preferences_form = StudyPreferencesForm(request.POST, instance=student_profile)
+        emergency_form = EmergencyContactForm(request.POST, instance=student_profile)
+        supplemental_form = SupplementalProfileForm(request.POST, instance=supplemental_profile)
+
+        forms_to_save = [
+            core_form,
+            personal_form,
+            parents_form,
+            academic_form,
+            preferences_form,
+            emergency_form,
+            supplemental_form,
+        ]
+
+        if all(form.is_valid() for form in forms_to_save):
+            with transaction.atomic():
+                core_form.save()
+                personal_form.save()
+                parents_form.save()
+                academic_form.save()
+                preferences_form.save()
+                emergency_form.save()
+                supplemental_instance = supplemental_form.save(commit=False)
+                supplemental_instance.application = application
+                supplemental_instance.save()
+
+            messages.success(request, 'Student application updated successfully.')
+            return redirect('employee:student_application_detail', application_id=application_id)
+
+        messages.error(request, 'Please correct the errors below.')
+    else:
+        core_form = PortalApplicationForm(instance=application)
+        personal_form = PersonalDetailsForm(instance=student_profile)
+        parents_form = ParentsDetailsForm(instance=student_profile)
+        academic_form = AcademicQualificationsForm(instance=student_profile)
+        preferences_form = StudyPreferencesForm(instance=student_profile)
+        emergency_form = EmergencyContactForm(instance=student_profile)
+        supplemental_form = SupplementalProfileForm(instance=supplemental_profile)
+
+    form_sections = [
+        {
+            'key': 'application',
+            'title': 'Application Details',
+            'description': 'Edit the core application details shown in the employee portal.',
+            'bound_fields': [core_form[field_name] for field_name in core_form.fields],
+        },
+        {
+            'key': 'personal',
+            'title': 'Personal Details',
+            'description': 'Update the student personal profile information.',
+            'bound_fields': [personal_form[field_name] for field_name in personal_form.fields],
+        },
+        {
+            'key': 'parents',
+            'title': 'Parents Details',
+            'description': 'Update the family contact details.',
+            'bound_fields': [parents_form[field_name] for field_name in parents_form.fields],
+        },
+        {
+            'key': 'academic',
+            'title': 'Academic Qualifications',
+            'description': 'Edit O-Level and A-Level history.',
+            'bound_fields': [academic_form[field_name] for field_name in academic_form.fields],
+        },
+        {
+            'key': 'preferences',
+            'title': 'Study Preferences',
+            'description': 'Update preferred countries and programs.',
+            'bound_fields': [preferences_form[field_name] for field_name in preferences_form.fields],
+        },
+        {
+            'key': 'emergency',
+            'title': 'Emergency Contact',
+            'description': 'Maintain emergency and referral details.',
+            'bound_fields': [emergency_form[field_name] for field_name in emergency_form.fields],
+        },
+        {
+            'key': 'supplemental',
+            'title': 'AWEC Supplemental Details',
+            'description': 'Edit passport, education, finance, and declaration data.',
+            'bound_fields': [supplemental_form[field_name] for field_name in supplemental_form.fields],
+        },
+    ]
+
+    full_width_fields = {
+        'address',
+        'current_address',
+        'emergency_address',
+        'valid_visa_details',
+        'professional_qualifications',
+        'scholarship_details',
+        'medical_condition_details',
+        'special_assistance_details',
+        'other_attachments_description',
+        'description',
+        'responsibilities',
+        'achievements',
+    }
+
+    return render(
+        request,
+        'employee/student_application_edit.html',
+        {
+            'application': application,
+            'form_sections': form_sections,
+            'core_form': core_form,
+            'personal_form': personal_form,
+            'parents_form': parents_form,
+            'academic_form': academic_form,
+            'preferences_form': preferences_form,
+            'emergency_form': emergency_form,
+            'supplemental_form': supplemental_form,
+            'full_width_fields': full_width_fields,
+        },
+    )
+
+
+@login_required
+@employee_required
+@csrf_protect
 def update_student_application_status(request, application_id):
     """Update student portal application status."""
     application = get_object_or_404(Application, id=application_id)
@@ -361,32 +534,6 @@ def update_student_application_status(request, application_id):
             messages.error(request, 'Invalid status selected.')
 
     return redirect('employee:student_application_detail', application_id=application_id)
-
-
-@login_required
-@employee_required
-@csrf_protect
-def edit_student_application(request, application_id):
-    """Edit basic application fields (university, course, country, application type)."""
-    application = get_object_or_404(Application, id=application_id)
-    from student_portal.forms import ApplicationForm
-
-    if request.method == 'POST':
-        form = ApplicationForm(request.POST, instance=application)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Application updated successfully.')
-            return redirect('employee:student_application_detail', application_id=application_id)
-        else:
-            messages.error(request, 'Please fix the errors below.')
-    else:
-        form = ApplicationForm(instance=application)
-
-    context = {
-        'form': form,
-        'application': application,
-    }
-    return render(request, 'employee/student_application_edit.html', context)
 
 
 def _create_or_update_student_portal_records(

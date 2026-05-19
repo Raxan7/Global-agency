@@ -417,6 +417,9 @@
                 <a href="{% url 'employee:export_single_application_pdf' application.id %}" class="btn btn-primary" target="_blank">
                     <i class="fas fa-file-pdf"></i> Export PDF
                 </a>
+                <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-edit"></i> Edit Application
+                </a>
                 <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Applications
                 </a>
@@ -464,7 +467,7 @@
                     <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
                         <div>
                             <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Application Status</label>
-                            <select name="status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; min-width: 200px; width: 100%;">
+                            <select name="status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
                                 {% for status_value, status_label in application.APPLICATION_STATUS %}
                                 <option value="{{ status_value }}" {% if application.status == status_value %}selected{% endif %}>
                                     {{ status_label }}
@@ -660,9 +663,6 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-edit"></i> Edit Application
-                </a>
                 <a href="#" class="btn btn-primary">
                     <i class="fas fa-envelope"></i> Contact Student
                 </a>
@@ -685,11 +685,10 @@
                 <!-- Profile Picture -->
                 <div style="flex-shrink: 0; text-align: center;">
                     {% if student_profile.profile_picture %}
-                    <img src="{{ student_profile.profile_picture.url }}" alt="{{ application.student.get_full_name }}" 
-                         style="width: 200px; height: 200px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 3px solid #28a745;">
+                    <img src="{{ student_profile.profile_picture.url }}" alt="{{ application.student.get_full_name }}" class="responsive-img">
                     {% else %}
-                    <div style="width: 200px; height: 200px; border-radius: 12px; background: linear-gradient(135deg, #28a745, #20c997); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 3px solid #28a745;">
-                        <i class="fas fa-user" style="font-size: 5rem; color: white;"></i>
+                    <div class="profile-placeholder">
+                        <i class="fas fa-user" style="font-size: 3.5rem; color: white;"></i>
                     </div>
                     {% endif %}
                     <div style="margin-top: 1rem; text-align: center;">
@@ -699,7 +698,7 @@
                 </div>
                 
                 <!-- Quick Info Sidebar -->
-                <div style="flex: 1; min-width: 250px;">
+                <div class="flex-fill-min">
                     <h4 style="margin-top: 0; color: #28a745; margin-bottom: 1rem;">
                         <i class="fas fa-info-circle"></i> Quick Information
                     </h4>

@@ -1,38 +1,294 @@
 {% extends 'employee/base.html' %}
-{% load static %}
 
 {% block title %}Edit Application - Employee Portal{% endblock %}
+{% block hero_title %}Edit Student Application{% endblock %}
+{% block hero_copy %}Update the student record in a full multi-section editor that mirrors the offline intake flow.{% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="page-header">
-    <h2><i class="fas fa-edit"></i> Edit Application #{{ application.id }}</h2>
-    <div>
-      <a href="{% url 'employee:student_application_detail' application.id %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
-    </div>
-  </div>
+<style>
+    .edit-shell {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+        align-items: start;
+    }
 
-  <div class="card">
-    <form method="post" novalidate>
-      {% csrf_token %}
-      <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-        {{ form.application_type.label_tag }}
-        <div>{{ form.application_type }}</div>
-        {{ form.university_name.label_tag }}
-        <div>{{ form.university_name }}</div>
-        {{ form.course.label_tag }}
-        <div>{{ form.course }}</div>
-        {{ form.country.label_tag }}
-        <div>{{ form.country }}</div>
-      </div>
-      {% if form.errors %}
-      <div style="margin-top: 1rem; color: #dc3545;">Please correct the highlighted fields.</div>
-      {% endif %}
-      <div style="margin-top: 1rem; display:flex; gap:0.5rem;">
-        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Changes</button>
-        <a href="{% url 'employee:student_application_detail' application.id %}" class="btn btn-secondary">Cancel</a>
-      </div>
-    </form>
-  </div>
+    .edit-nav,
+    .edit-panel {
+        background: #fff;
+        border: 1px solid #dbe3f0;
+        border-radius: 24px;
+    }
+
+    .edit-nav {
+        padding: 1.4rem;
+        position: sticky;
+        top: 1.5rem;
+    }
+
+    .edit-panel {
+        padding: 1.6rem;
+    }
+
+    .edit-title {
+        margin: 0 0 0.4rem;
+        font-size: 1.65rem;
+        line-height: 1.2;
+    }
+
+    .edit-copy {
+        margin: 0;
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .edit-steps {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1.4rem;
+    }
+
+    .edit-step {
+        width: 100%;
+        text-align: left;
+        border: 1px solid #dbe3f0;
+        border-radius: 16px;
+        background: #f8fbff;
+        padding: 0.9rem 1rem;
+        cursor: pointer;
+    }
+
+    .edit-step.active {
+        border-color: #2563eb;
+        background: #eff6ff;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.12);
+    }
+
+    .edit-step small {
+        display: block;
+        margin-top: 0.25rem;
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.45;
+    }
+
+    .step-panel {
+        display: none;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 1.3rem;
+        margin-top: 1.3rem;
+    }
+
+    .step-panel.active {
+        display: block;
+    }
+
+    .step-heading {
+        margin: 0 0 0.45rem;
+        font-size: 1.45rem;
+        line-height: 1.25;
+    }
+
+    .step-description {
+        margin: 0 0 1.2rem;
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 0.45rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        padding: 0.95rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        background: #fff;
+    }
+
+    .form-field textarea {
+        min-height: 110px;
+    }
+
+    .field-help {
+        margin: 0.4rem 0 0;
+        color: #64748b;
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    .field-errors {
+        margin-top: 0.4rem;
+        color: #b91c1c;
+        font-size: 0.92rem;
+    }
+
+    .wizard-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-top: 1.4rem;
+        flex-wrap: wrap;
+    }
+
+    .wizard-actions-right {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .wizard-btn {
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #0f172a;
+        border-radius: 14px;
+        padding: 0.85rem 1.2rem;
+        font-size: 0.98rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .wizard-btn.primary {
+        border-color: #0f766e;
+        background: #0f766e;
+        color: #fff;
+    }
+
+    .wizard-btn[hidden] {
+        display: none;
+    }
+
+    @media (max-width: 1024px) {
+        .edit-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .edit-nav {
+            position: static;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2>Edit Application #{{ application.id }}</h2>
+        <p>Update the full student record from one place. All sections below are editable.</p>
+    </div>
+    <a href="{% url 'employee:student_application_detail' application.id %}" class="btn btn-secondary">Back to details</a>
 </div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="edit-shell">
+        <aside class="edit-nav">
+            <h3 class="edit-title">Edit Student Application</h3>
+            <p class="edit-copy">Use the step list to jump between the core application, profile, parents, academics, preferences, emergency contact, and AWEC supplemental data.</p>
+            <div class="edit-steps">
+                {% for section in form_sections %}
+                <button type="button" class="edit-step {% if forloop.first %}active{% endif %}" data-step-target="{{ forloop.counter0 }}">
+                    <strong>Step {{ forloop.counter }}: {{ section.title }}</strong>
+                    <small>{{ section.description }}</small>
+                </button>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <section class="edit-panel">
+            {% if messages %}
+            {% endif %}
+            {% if core_form.non_field_errors %}
+            <div class="message" style="margin-bottom: 1rem; border-color: #fecaca; background: #fef2f2; color: #991b1b;">
+                {{ core_form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            {% for section in form_sections %}
+            <section class="step-panel {% if forloop.first %}active{% endif %}" data-step-panel="{{ forloop.counter0 }}">
+                <h3 class="step-heading">{{ section.title }}</h3>
+                <p class="step-description">{{ section.description }}</p>
+                <div class="form-grid">
+                    {% for field in section.bound_fields %}
+                    <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' or field.field.widget.input_type == 'file' %}full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endfor %}
+
+            <div class="wizard-actions">
+                <button type="button" class="wizard-btn" id="wizard-prev" hidden>Back</button>
+                <div class="wizard-actions-right">
+                    <a href="{% url 'employee:student_application_detail' application.id %}" class="wizard-btn">Cancel</a>
+                    <button type="button" class="wizard-btn" id="wizard-next">Next Step</button>
+                    <button type="submit" class="wizard-btn primary" id="wizard-submit" hidden>Save Changes</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stepButtons = Array.from(document.querySelectorAll('[data-step-target]'));
+        const stepPanels = Array.from(document.querySelectorAll('[data-step-panel]'));
+        const prevButton = document.getElementById('wizard-prev');
+        const nextButton = document.getElementById('wizard-next');
+        const submitButton = document.getElementById('wizard-submit');
+        let currentStep = 0;
+
+        function showStep(step) {
+            currentStep = Math.max(0, Math.min(step, stepPanels.length - 1));
+            stepPanels.forEach((panel, index) => panel.classList.toggle('active', index === currentStep));
+            stepButtons.forEach((button, index) => button.classList.toggle('active', index === currentStep));
+            prevButton.hidden = currentStep === 0;
+            nextButton.hidden = currentStep === stepPanels.length - 1;
+            submitButton.hidden = currentStep !== stepPanels.length - 1;
+        }
+
+        stepButtons.forEach((button, index) => {
+            button.addEventListener('click', () => showStep(index));
+        });
+
+        prevButton.addEventListener('click', () => showStep(currentStep - 1));
+        nextButton.addEventListener('click', () => showStep(currentStep + 1));
+
+        showStep(0);
+    });
+</script>
 {% endblock %}

@@ -115,7 +115,8 @@
             border-radius: 8px; 
             font-size: 1rem;
             transition: border-color 0.3s;
-            min-width: 250px;
+            min-width: 150px;
+            max-width: 100%;
         }
         .search-box input:focus {
             outline: none;
@@ -432,7 +433,13 @@
         .action-buttons {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
+
+        /* More menu */
+        .more-btn { cursor: pointer; }
+        .more-menu .dropdown-item { display: block; color: #111; text-decoration: none; }
+        .more-menu .dropdown-item:hover { background: #f8f9fa; }
         
         /* Quick Actions */
         .quick-actions {
@@ -598,9 +605,16 @@
                                 <a href="{% url 'employee:student_application_detail' app.id %}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-eye"></i> View
                                 </a>
-                                <a href="#" class="btn btn-sm" style="background: #e9ecef; color: #495057;">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </a>
+                                <div class="more-container" style="position: relative;">
+                                    <button type="button" class="btn btn-sm more-btn" aria-expanded="false" aria-controls="more-menu-{{ app.id }}" style="background: #e9ecef; color: #495057;">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div id="more-menu-{{ app.id }}" class="more-menu" style="display:none; position:absolute; right:0; top:36px; background:white; border:1px solid #ddd; border-radius:8px; padding:0.25rem; min-width:160px; box-shadow:0 8px 20px rgba(0,0,0,0.08); z-index:50;">
+                                        <a href="{% url 'employee:student_application_detail' app.id %}" class="dropdown-item" style="display:block; padding:0.5rem 0.75rem; color:#111; text-decoration:none;"> <i class="fas fa-eye" style="width:18px;"></i> View</a>
+                                        <a href="{% url 'employee:edit_student_application' app.id %}" class="dropdown-item" style="display:block; padding:0.5rem 0.75rem; color:#111; text-decoration:none;"> <i class="fas fa-edit" style="width:18px;"></i> Edit</a>
+                                        <a href="{% url 'employee:export_single_application_pdf' app.id %}" target="_blank" class="dropdown-item" style="display:block; padding:0.5rem 0.75rem; color:#111; text-decoration:none;"> <i class="fas fa-file-pdf" style="width:18px;"></i> Export PDF</a>
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -714,6 +728,31 @@
                     }, 600);
                 });
             });
+
+                // Toggle 'More' dropdown menus
+                const moreButtons = document.querySelectorAll('.more-btn');
+                moreButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const menu = this.parentElement.querySelector('.more-menu');
+                        const expanded = this.getAttribute('aria-expanded') === 'true';
+                        // Close other menus
+                        document.querySelectorAll('.more-menu').forEach(m => { m.style.display = 'none'; });
+                        document.querySelectorAll('.more-btn').forEach(b => { b.setAttribute('aria-expanded', 'false'); });
+                        if (!expanded) {
+                            menu.style.display = 'block';
+                            this.setAttribute('aria-expanded', 'true');
+                            // prevent clicks inside menu from closing it
+                            menu.addEventListener('click', function(ev) { ev.stopPropagation(); });
+                        }
+                    });
+                });
+
+                // Close menus when clicking outside
+                document.addEventListener('click', function() {
+                    document.querySelectorAll('.more-menu').forEach(m => { m.style.display = 'none'; });
+                    document.querySelectorAll('.more-btn').forEach(b => { b.setAttribute('aria-expanded', 'false'); });
+                });
         });
     </script>
 </body>
