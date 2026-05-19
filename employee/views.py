@@ -42,7 +42,7 @@ from .forms import (
 )
 from .models import PortalUpdate, UserProfile
 from .decorators import employee_required, admin_required, partner_required
-from .pdf_exports import build_csc_style_application_pdf
+from .awec_csc_exact_style_django_pdf_export import build_awec_csc_style_application_pdf_response
 
 logger = logging.getLogger(__name__)
 
@@ -2149,7 +2149,7 @@ def export_single_application_pdf(request, application_id):
 
     supplemental_profile = ApplicationSupplementalProfile.objects.filter(application=application).first()
 
-    return build_csc_style_application_pdf(
+    return build_awec_csc_style_application_pdf_response(
         application=application,
         student_profile=student_profile,
         supplemental_profile=supplemental_profile,
