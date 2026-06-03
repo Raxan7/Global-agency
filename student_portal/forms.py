@@ -179,10 +179,17 @@ class StudentProfileForm(forms.ModelForm):
 
 # Profile Section Forms
 class PersonalDetailsForm(forms.ModelForm):
+    full_name = forms.CharField(
+        max_length=150,
+        required=True,
+        label='Full Name',
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your full name'}),
+    )
+
     class Meta:
         model = StudentProfile
         fields = [
-            'gender', 'date_of_birth', 'nationality', 
+            'full_name', 'gender', 'date_of_birth', 'nationality', 
             'phone_number', 'address', 'profile_picture'
         ]
         widgets = {
@@ -194,10 +201,33 @@ class PersonalDetailsForm(forms.ModelForm):
             'profile_picture': forms.FileInput(attrs={'class': 'form-input'}),
         }
         labels = {
+            'full_name': 'Full Name',
             'date_of_birth': 'Date of Birth',
             'phone_number': 'Phone Number',
             'profile_picture': 'Profile Picture (Optional)',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.user_id:
+            self.initial.setdefault('full_name', self.instance.user.get_full_name())
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        full_name = (self.cleaned_data.get('full_name') or '').strip()
+
+        if profile.user_id:
+            first_name, _, last_name = full_name.partition(' ')
+            profile.user.first_name = first_name
+            profile.user.last_name = last_name.strip()
+
+            if commit:
+                profile.user.save(update_fields=['first_name', 'last_name'])
+
+        if commit:
+            profile.save()
+
+        return profile
 
 class ParentsDetailsForm(forms.ModelForm):
     class Meta:

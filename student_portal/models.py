@@ -92,7 +92,9 @@ class StudentProfile(models.Model):
 
     def get_completion_flags(self):
         """Compute section completion directly from profile field values."""
+        user_full_name = (self.user.get_full_name() or '').strip()
         personal_complete = all([
+            user_full_name,
             self.phone_number,
             self.address,
             self.nationality,

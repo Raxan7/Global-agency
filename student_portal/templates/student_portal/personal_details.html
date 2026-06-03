@@ -26,6 +26,16 @@
         <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             
+            <div>
+                <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span class="text-red-500">*</span>
+                </label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.full_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">

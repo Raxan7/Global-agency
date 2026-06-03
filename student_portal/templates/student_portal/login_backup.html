@@ -270,8 +270,7 @@
         </div>
         {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
+        <form method="post">{% csrf_token %}
             
             <div class="form-group">
                 <label for="username">Username or Email:</label>

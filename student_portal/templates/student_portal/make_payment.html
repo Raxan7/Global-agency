@@ -325,8 +325,7 @@
             • Payment confirmation is usually instant
         </div>
 
-        <form method="post">
-            {% csrf_token %}
+        <form method="post">{% csrf_token %}
             <div class="payment-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-redo"></i>

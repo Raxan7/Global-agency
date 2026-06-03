@@ -462,8 +462,7 @@
 
             <!-- Status Update Form -->
             <form method="post" action="{% url 'employee:update_student_application_status' application.id %}">
-                {% csrf_token %}
-                <div style="margin: 1.5rem 0; padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">
+                {% csrf_token %}<div style="margin: 1.5rem 0; padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">
                     <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
                         <div>
                             <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Application Status</label>
@@ -620,8 +619,7 @@
                         <strong><i class="fas fa-exclamation-triangle"></i> Action Required:</strong>
                         <p style="margin: 0.5rem 0;">Student has submitted M-PESA payment details. Please verify and confirm.</p>
                         <form method="POST" action="{% url 'employee:verify_payment' application.id %}" style="display: inline-block; margin-right: 0.5rem;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="verify">
+                            {% csrf_token %}<input type="hidden" name="action" value="verify">
                             <button type="submit" class="btn btn-success" onclick="return confirm('Confirm that you have verified the M-PESA payment?')">
                                 <i class="fas fa-check"></i> Verify Payment
                             </button>
@@ -1236,8 +1234,7 @@
         <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
             <h3 style="margin-top: 0; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Reject Payment</h3>
             <p>Please provide a reason for rejecting this payment:</p>
-            <form method="POST" action="{% url 'employee:verify_payment' application.id %}">
-                {% csrf_token %}
+            <form method="POST" action="{% url 'employee:verify_payment' application.id %}">{% csrf_token %}
                 <input type="hidden" name="action" value="reject">
                 <textarea name="rejection_reason" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; margin-bottom: 1rem;" placeholder="E.g., Invalid transaction reference, Amount mismatch..." required></textarea>
                 <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">

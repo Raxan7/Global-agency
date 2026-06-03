@@ -7,8 +7,10 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import format_html
 from django.utils import timezone
 from django.utils.translation import activate
+from django.views.decorators.csrf import csrf_protect
 
 from .forms import StudentApplicationForm, ContactMessageForm, SimpleRegistrationForm
 from django.core.paginator import Paginator
@@ -140,6 +142,7 @@ def set_language_view(request, language):
     # Fallback: redirect to home in the new language
     return redirect(f'/{language}/')
 
+@csrf_protect
 def register(request):
     """Simple registration view - creates user account only"""
     if request.user.is_authenticated:
@@ -174,6 +177,7 @@ def register(request):
     
     return render(request, 'global_agency/register.html', {'form': form})
 
+@csrf_protect
 def contact(request):
     if request.method == 'POST':
         form = ContactMessageForm(request.POST)
@@ -188,6 +192,7 @@ def contact(request):
 
     return render(request, 'global_agency/contact_page.html', {'form': form})
 
+@csrf_protect
 def start_application(request):
     if request.method == 'POST':
         form = StudentApplicationForm(request.POST, request.FILES)
@@ -200,15 +205,15 @@ def start_application(request):
             
             if student_user:
                 # Success message with login details
-                success_message = (
-                    f"✅ Application submitted successfully! "
-                    f"Your student account has been created. "
-                    f"<br><br>"
-                    f"<strong>Login Details:</strong><br>"
-                    f"Username: <code>{application.username}</code><br>"
-                    f"Password: <code>{application.temporary_password}</code>"
-                    f"<br><br>"
-                    f"Please go to the <a href='/student-portal/' class='font-semibold text-blue-600 hover:text-blue-800'>Student Portal</a> to login and track your application."
+                success_message = format_html(
+                    "✅ Application submitted successfully! Your student account has been created.<br><br>"
+                    "<strong>Login Details:</strong><br>"
+                    "Username: <code>{}</code><br>"
+                    "Password: <code>{}</code>"
+                    "<br><br>"
+                    "Please go to the <a href='/student-portal/' class='font-semibold text-blue-600 hover:text-blue-800'>Student Portal</a> to login and track your application.",
+                    application.username,
+                    application.temporary_password
                 )
                 messages.success(request, success_message)
                 return redirect('global_agency:application_success')

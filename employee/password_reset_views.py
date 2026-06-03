@@ -97,8 +97,8 @@ def employee_password_reset_confirm(request, uidb64, token):
             return redirect('employee:forgot_password')
 
         if request.method == 'POST':
-            password1 = request.POST.get('password1', '')
-            password2 = request.POST.get('password2', '')
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
             
             if not password1 or not password2:
                 messages.error(request, 'Please enter and confirm your new password.')

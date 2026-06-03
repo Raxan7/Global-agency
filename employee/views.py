@@ -812,7 +812,7 @@ def offline_application_create(request):
         else:
             logger.warning(
                 'Offline intake form invalid for %s. Errors=%s Files=%s',
-                request.POST.get('email'),
+                form['email'].value(),
                 form.errors.as_json(),
                 list(request.FILES.keys()),
             )
@@ -1173,7 +1173,7 @@ def partner_application_create(request):
         else:
             logger.warning(
                 'Partner create form invalid for %s. Partner=%s Errors=%s Files=%s',
-                request.POST.get('email'),
+                form['email'].value(),
                 request.user.username,
                 form.errors.as_json(),
                 list(request.FILES.keys()),

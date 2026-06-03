@@ -130,6 +130,7 @@ def student_profile(request):
 
 # Profile Section Views
 @login_required
+@csrf_protect
 def personal_details(request):
     """Personal details form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
@@ -152,6 +153,7 @@ def personal_details(request):
     return render(request, 'student_portal/personal_details.html', context)
 
 @login_required
+@csrf_protect
 def parents_details(request):
     """Parents details form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
@@ -174,6 +176,7 @@ def parents_details(request):
     return render(request, 'student_portal/parents_details.html', context)
 
 @login_required
+@csrf_protect
 def academic_qualifications(request):
     """Academic qualifications form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
@@ -196,6 +199,7 @@ def academic_qualifications(request):
     return render(request, 'student_portal/academic_qualifications.html', context)
 
 @login_required
+@csrf_protect
 def study_preferences(request):
     """Study preferences form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
@@ -218,6 +222,7 @@ def study_preferences(request):
     return render(request, 'student_portal/study_preferences.html', context)
 
 @login_required
+@csrf_protect
 def emergency_contact(request):
     """Emergency contact form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
@@ -286,6 +291,7 @@ def work_experience_list(request):
     return response
 
 @login_required
+@csrf_protect
 def work_experience_add(request):
     """Add new work experience"""
     profile = get_object_or_404(StudentProfile, user=request.user)
@@ -311,6 +317,7 @@ def work_experience_add(request):
     return render(request, 'student_portal/work_experience_form.html', context)
 
 @login_required
+@csrf_protect
 def work_experience_edit(request, pk):
     """Edit work experience"""
     profile = get_object_or_404(StudentProfile, user=request.user)
@@ -336,6 +343,7 @@ def work_experience_edit(request, pk):
     return render(request, 'student_portal/work_experience_form.html', context)
 
 @login_required
+@csrf_protect
 def work_experience_delete(request, pk):
     """Delete work experience"""
     profile = get_object_or_404(StudentProfile, user=request.user)
@@ -482,6 +490,7 @@ def payment_page(request, application_id):
     return response
 
 @login_required
+@csrf_protect
 def make_payment(request, application_id):
     """Enhanced payment retry functionality"""
     application = get_object_or_404(Application, id=application_id, student=request.user)
@@ -796,6 +805,7 @@ def process_card_payment(request, application, card_number, card_holder, expiry_
         return redirect('student_portal:payment', application_id=application.id)
 
 @login_required
+@csrf_protect
 def payment_verification(request, payment_id):
     """Page to verify payment status"""
     # Ensure student profile exists
@@ -960,6 +970,7 @@ def check_payment_status(request, payment_id):
     })
 
 @login_required
+@csrf_protect
 def documents(request):
     """Documents view"""
     # Ensure student profile exists
@@ -1016,6 +1027,7 @@ def document_services(request):
     return response
 
 @login_required
+@csrf_protect
 def service_form(request, service_type):
     """Service form view"""
     # Ensure student profile exists
@@ -1085,6 +1097,7 @@ def messages_list(request):
     return response
 
 @login_required
+@csrf_protect
 def mark_message_read(request, message_id):
     """Mark message as read"""
     if request.method == 'POST':
@@ -1107,6 +1120,7 @@ def student_logout(request):
     return redirect('student_portal:login')
 
 @login_required
+@csrf_protect
 def delete_application(request, application_id):
     """Delete an application"""
     # Ensure student profile exists
@@ -1129,6 +1143,7 @@ def delete_application(request, application_id):
     return redirect('student_portal:applications')
 
 @login_required
+@csrf_protect
 def delete_document(request, document_id):
     """Delete a document"""
     # Ensure student profile exists
