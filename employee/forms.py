@@ -555,6 +555,8 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         mtaa_select_field_names = {f'current_{s}' for s in ['region', 'district', 'ward', 'street']}
         mtaa_select_field_names |= {f'permanent_{s}' for s in ['region', 'district', 'ward', 'street']}
         mtaa_select_field_names |= {f'professional_qualification_{s}' for s in ['region', 'district', 'ward', 'street']}
+        # Include other potential location fields from the intake form sections
+        mtaa_select_field_names |= {f'{p}_{s}' for p in ['father', 'mother', 'emergency', 'olevel_school', 'alevel_school'] for s in ['region', 'district', 'ward', 'street']}
 
         for field_name in SUPPLEMENTAL_FIELD_NAMES:
             model_field = ApplicationSupplementalProfile._meta.get_field(field_name)
@@ -577,10 +579,11 @@ class OfflineStudentIntakeForm(forms.ModelForm):
                 continue
 
             if is_mtaa_select:
-                form_field = forms.ChoiceField(
+                # Use CharField for dynamic location selects to bypass ChoiceField 
+                # validation while still rendering a Select widget for JS to populate.
+                form_field = forms.CharField(
                     required=False,
-                    choices=[('', '--- Select ---')],
-                    widget=forms.Select(attrs={'class': 'form-input'}),
+                    widget=forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
                     label=model_field.verbose_name.replace('_', ' ').title(),
                 )
             elif is_boolean_field:
