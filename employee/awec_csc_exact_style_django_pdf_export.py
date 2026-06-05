@@ -136,7 +136,7 @@ DEFAULT_DATA: Dict[str, Any] = {
     },
     "meta": {
         "form_title": "LOCAL AND ABROAD UNIVERSITIES SEAT RESERVATION PORTFOLIO/ PROFILE FORM.",
-        "application_id": "AWECO/Tz/DSM/001",
+        "application_id": "AWECO/INT/REG/TZ/DSM/20268001",
         "generated_date": date.today().strftime("%Y-%m-%d"),
         "application_date": date.today().strftime("%d/%m/%Y"),
     },
@@ -159,7 +159,7 @@ DEFAULT_DATA: Dict[str, Any] = {
         "Passport Number": "TZA123456",
         "Passport Issued Date": "01/01/2024",
         "Passport Expired Date": "01/01/2034",
-        "Application ID / Serial Number": "AWECO/Tz/DSM/001",
+        "Application ID / Serial Number": "AWECO/INT/REG/TZ/DSM/20268001",
         "Student Photo": "",
     },
     "parents": {
@@ -258,21 +258,35 @@ DEFAULT_DATA: Dict[str, Any] = {
     ],
     "professional_qualifications": [
         {
-            "Qualification / Training": "Academic Writing Short Course",
+            "Qualification Title": "Academic Writing Short Course",
             "Institution": "Dar Training Centre",
-            "Start Date": "01/03/2024",
-            "Completed Date": "30/04/2024",
+            "Institution Address": "Mpakani Centre, Kijitonyama",
             "Country": "Tanzania",
-            "Region": "Dar es Salaam",
-            "Region Post Code": "14100",
-            "District": "Kinondoni",
-            "District Post Code": "14128",
-            "Ward": "Kijitonyama",
-            "Ward Post Code": "14113",
-            "Street": "Mpakani Centre",
-            "Place / Neighbourhood": "Kijitonyama",
-            "House No.": "-",
-        }
+            "Period": "2 Months",
+            "Start Date": "01/03/2024",
+            "Finished Date": "30/04/2024",
+            "Award / Certificate?": "Yes",
+        },
+        {
+            "Qualification Title": "-",
+            "Institution": "-",
+            "Institution Address": "-",
+            "Country": "-",
+            "Period": "-",
+            "Start Date": "-",
+            "Finished Date": "-",
+            "Award / Certificate?": "-",
+        },
+        {
+            "Qualification Title": "-",
+            "Institution": "-",
+            "Institution Address": "-",
+            "Country": "-",
+            "Period": "-",
+            "Start Date": "-",
+            "Finished Date": "-",
+            "Award / Certificate?": "-",
+        },
     ],
     "english_proficiency": {
         "Test Name": "IELTS",
@@ -981,43 +995,189 @@ def draw_tick_choice(c: canvas.Canvas, y: float, label: str, value: Any) -> floa
     return y_bottom - CELL_Y_GAP
 
 
-def draw_professional_qualifications_block(c: canvas.Canvas, y: float, qualifications: Any) -> float:
-    """Draw professional qualifications with institution, dates, and detailed location."""
-    if isinstance(qualifications, str):
-        qualifications = [{
-            "Qualification / Training": qualifications,
-            "Institution": MISSING,
-            "Start Date": MISSING,
-            "Completed Date": MISSING,
-        }]
-    if not qualifications:
-        qualifications = [{
-            "Qualification / Training": "No professional qualifications provided",
-            "Institution": MISSING,
-            "Start Date": MISSING,
-            "Completed Date": MISSING,
-        }]
 
-    for idx, item in enumerate(qualifications[:2], start=1):
-        c.setFont(FONT_BOLD, 10.2)
-        c.setFillColor(BLACK)
-        c.drawString(LEFT, y, f"Qualification {idx}")
-        y -= 4.0 * mm
-        y = draw_row(c, y, [
-            ("Qualification / Training", item.get("Qualification / Training"), CONTENT_W * 0.50),
-            ("Institution", item.get("Institution"), CONTENT_W * 0.50),
-        ], 12.3 * mm)
-        y = draw_row(c, y, [
-            ("From", item.get("Start Date"), CONTENT_W / 2),
-            ("To", item.get("Completed Date"), CONTENT_W / 2),
-        ], 12.0 * mm)
-        c.setFont(FONT_BOLD, 9.9)
-        y -= 6.0 * mm
-        c.drawString(LEFT, y, "Institution Location")
-        y -= 7.0 * mm
-        y = draw_address_hierarchy_rows(c, y, item, 10.6 * mm)
-        y -= 4.5 * mm
+def _normalise_professional_qualifications(qualifications: Any) -> List[Dict[str, Any]]:
+    """Return exactly three professional qualification records."""
+    if isinstance(qualifications, str):
+        qualifications = [{"Qualification Title": qualifications}]
+
+    if not isinstance(qualifications, list):
+        qualifications = []
+
+    cleaned: List[Dict[str, Any]] = []
+    for item in qualifications[:3]:
+        if not isinstance(item, dict):
+            item = {}
+
+        cleaned.append({
+            "Qualification Title": (
+                item.get("Qualification Title")
+                or item.get("Qualification / Training")
+                or item.get("Title")
+                or MISSING
+            ),
+            "Institution": item.get("Institution") or MISSING,
+            "Institution Address": (
+                item.get("Institution Address")
+                or item.get("Address")
+                or item.get("Street")
+                or MISSING
+            ),
+            "Country": item.get("Country") or MISSING,
+            "Period": item.get("Period") or MISSING,
+            "Start Date": item.get("Start Date") or item.get("From") or MISSING,
+            "Finished Date": (
+                item.get("Finished Date")
+                or item.get("Completed Date")
+                or item.get("To")
+                or MISSING
+            ),
+            "Award / Certificate?": (
+                item.get("Award / Certificate?")
+                or item.get("Certificate?")
+                or item.get("Awards / Certificate?")
+                or item.get("Award Certificate")
+                or MISSING
+            ),
+        })
+
+    while len(cleaned) < 3:
+        cleaned.append({
+            "Qualification Title": MISSING,
+            "Institution": MISSING,
+            "Institution Address": MISSING,
+            "Country": MISSING,
+            "Period": MISSING,
+            "Start Date": MISSING,
+            "Finished Date": MISSING,
+            "Award / Certificate?": MISSING,
+        })
+
+    return cleaned
+
+
+def _draw_yes_no_certificate_cell(
+    c: canvas.Canvas,
+    x: float,
+    y_top: float,
+    w: float,
+    h: float,
+    label: str,
+    value: Any,
+    label_size: float = 6.2,
+    value_size: float = 7.2,
+) -> None:
+    """Draw the Award / Certificate Yes/No field."""
+    y = y_top - h
+    c.setStrokeColor(BLACK)
+    c.setLineWidth(CELL_BORDER_WIDTH)
+    c.rect(x, y, w, h, stroke=1, fill=0)
+
+    selected = str(val(value)).strip().lower()
+    yes_tick = "✓" if selected in {"yes", "y", "true", "1"} else ""
+    no_tick = "✓" if selected in {"no", "n", "false", "0"} else ""
+
+    c.setFillColor(BLACK)
+    c.setFont(FONT, label_size)
+    c.drawString(x + 2.0, y + h - label_size - 1.8, label)
+
+    c.setFont(FONT_BOLD, value_size)
+    c.drawString(x + 2.0, y + 2.0 * mm, f"YES {yes_tick}".rstrip())
+    c.drawRightString(x + w - 2.0, y + 2.0 * mm, f"NO {no_tick}".rstrip())
+
+
+def draw_professional_qualification_card(
+    c: canvas.Canvas,
+    x: float,
+    y_top: float,
+    card_w: float,
+    title: str,
+    item: Dict[str, Any],
+) -> float:
+    """Draw one compact professional qualification card."""
+    y = y_top
+
+    title_h = 6.2 * mm
+    row_h = 9.5 * mm
+    small_row_h = 8.8 * mm
+
+    c.setStrokeColor(BLACK)
+    c.setLineWidth(CELL_BORDER_WIDTH)
+    c.rect(x, y - title_h, card_w, title_h, stroke=1, fill=0)
+
+    c.setFillColor(BLACK)
+    c.setFont(FONT_BOLD, 8.4)
+    c.drawCentredString(x + card_w / 2, y - title_h + 2.0 * mm, title.upper())
+
+    y -= title_h + CELL_Y_GAP
+
+    rows = [
+        ([("Qualification Title", item.get("Qualification Title"), 100)], row_h),
+        ([("Institution", item.get("Institution"), 100)], row_h),
+        ([("Institution Address", item.get("Institution Address"), 100)], row_h),
+        ([("Country", item.get("Country"), 45), ("Period", item.get("Period"), 55)], small_row_h),
+        ([("Start Date", item.get("Start Date"), 50), ("Finished Date", item.get("Finished Date"), 50)], small_row_h),
+    ]
+
+    for row, height in rows:
+        y = draw_cells_at(c, x, y, card_w, row, height, label_size=6.15, value_size=7.15)
+
+    certificate_h = 8.8 * mm
+    _draw_yes_no_certificate_cell(
+        c,
+        x,
+        y,
+        card_w,
+        certificate_h,
+        "Award / Certificate?",
+        item.get("Award / Certificate?"),
+        label_size=6.15,
+        value_size=7.15,
+    )
+
+    y -= certificate_h + CELL_Y_GAP
     return y
+
+
+def professional_qualifications_three_cards_height() -> float:
+    """Height needed for the three-card professional qualifications layout."""
+    return (
+        6.2 * mm
+        + CELL_Y_GAP
+        + 3 * (9.5 * mm + CELL_Y_GAP)
+        + 2 * (8.8 * mm + CELL_Y_GAP)
+        + 8.8 * mm
+        + CELL_Y_GAP
+        + 4.0 * mm
+    )
+
+
+def draw_professional_qualifications_block(c: canvas.Canvas, y: float, qualifications: Any) -> float:
+    """
+    Draw exactly three professional qualifications.
+
+    Requested order:
+    Qualification 1 = right
+    Qualification 2 = centre
+    Qualification 3 = left
+    """
+    qualifications = _normalise_professional_qualifications(qualifications)
+
+    card_gap = 2.2 * mm
+    card_w = (CONTENT_W - (2 * card_gap)) / 3
+
+    left_x = LEFT
+    centre_x = LEFT + card_w + card_gap
+    right_x = LEFT + (2 * (card_w + card_gap))
+
+    positions = [
+        ("Qualification 1", right_x, qualifications[0]),
+        ("Qualification 2", centre_x, qualifications[1]),
+        ("Qualification 3", left_x, qualifications[2]),
+    ]
+
+    y_values = [draw_professional_qualification_card(c, x, y, card_w, title, item) for title, x, item in positions]
+    return min(y_values) - 4.0 * mm
 
 
 def draw_english_proficiency_block(c: canvas.Canvas, y: float, ep: Dict[str, Any]) -> float:
@@ -1641,147 +1801,34 @@ def draw_professional_qualifications_block_flow(
     qualifications: Any,
 ) -> Tuple[int, float]:
     """
-    Draw professional qualifications with true row-by-row page flow.
+    Flow version of the three-card professional qualifications section.
 
-    This works like the Mother's Details flow: the qualification can begin in
-    the remaining space on the current page, then continue cleanly on the next
-    page instead of moving the whole qualification block and leaving a large
-    blank space behind.
+    Requested order:
+    Qualification 1 = right
+    Qualification 2 = centre
+    Qualification 3 = left
     """
-    if isinstance(qualifications, str):
-        qualifications = [{
-            "Qualification / Training": qualifications,
-            "Institution": MISSING,
-            "Start Date": MISSING,
-            "Completed Date": MISSING,
-        }]
-    if not qualifications:
-        qualifications = [{
-            "Qualification / Training": "No professional qualifications provided",
-            "Institution": MISSING,
-            "Start Date": MISSING,
-            "Completed Date": MISSING,
-        }]
+    qualifications = _normalise_professional_qualifications(qualifications)
 
-    title_h = 4.2 * mm
-    main_row_h = 12.3 * mm
-    date_row_h = 12.0 * mm
-    location_label_h = 13.0 * mm
-    address_row_h = 10.6 * mm
-    bottom_gap = 4.5 * mm
+    needed_h = professional_qualifications_three_cards_height()
+    page_no, y = ensure_flow_space(c, data, page_no, y, needed_h)
 
-    def draw_qualification_title(title: str, title_y: float) -> float:
-        c.setFont(FONT_BOLD, 10.2)
-        c.setFillColor(BLACK)
-        c.drawString(LEFT, title_y, title)
-        return title_y - title_h
+    card_gap = 2.2 * mm
+    card_w = (CONTENT_W - (2 * card_gap)) / 3
 
-    def draw_location_label(label_y: float) -> float:
-        # More vertical room is reserved here so the label never touches the
-        # qualification/date table above it or the address table below it.
-        c.setFont(FONT_BOLD, 9.9)
-        c.setFillColor(BLACK)
-        label_text_y = label_y - 6.2 * mm
-        c.drawString(LEFT, label_text_y, "Institution Location")
-        return label_text_y - 6.8 * mm
+    left_x = LEFT
+    centre_x = LEFT + card_w + card_gap
+    right_x = LEFT + (2 * (card_w + card_gap))
 
-    for idx, item in enumerate(qualifications[:3], start=1):
-        qualification_title = f"Qualification {idx}"
+    positions = [
+        ("Qualification 1", right_x, qualifications[0]),
+        ("Qualification 2", centre_x, qualifications[1]),
+        ("Qualification 3", left_x, qualifications[2]),
+    ]
 
-        # Keep the qualification title with at least the first information row.
-        page_no, y = ensure_flow_space(c, data, page_no, y, title_h + main_row_h)
-        y = draw_qualification_title(qualification_title, y)
+    y_values = [draw_professional_qualification_card(c, x, y, card_w, title, item) for title, x, item in positions]
+    return page_no, min(y_values) - 4.0 * mm
 
-        info_rows = [
-            (
-                [
-                    ("Qualification / Training", item.get("Qualification / Training"), CONTENT_W * 0.50),
-                    ("Institution", item.get("Institution"), CONTENT_W * 0.50),
-                ],
-                main_row_h,
-            ),
-            (
-                [
-                    ("From", item.get("Start Date"), CONTENT_W / 2),
-                    ("To", item.get("Completed Date"), CONTENT_W / 2),
-                ],
-                date_row_h,
-            ),
-        ]
-
-        for row, height in info_rows:
-            if not block_fits(y, height):
-                page_no, y = next_flow_page(c, data, page_no)
-                page_no, y = draw_section_flow(
-                    c,
-                    data,
-                    page_no,
-                    y,
-                    "PROFESSIONAL QUALIFICATIONS / TRAINING CONTINUED",
-                    title_h + height,
-                )
-                y -= 3.0 * mm
-                y = draw_qualification_title(f"{qualification_title} Continued", y)
-            y = draw_row(c, y, row, height)
-
-        # Keep the Institution Location label with at least the first address row.
-        if not block_fits(y, location_label_h + address_row_h):
-            page_no, y = next_flow_page(c, data, page_no)
-            page_no, y = draw_section_flow(
-                c,
-                data,
-                page_no,
-                y,
-                "PROFESSIONAL QUALIFICATIONS / TRAINING CONTINUED",
-                title_h + location_label_h + address_row_h,
-            )
-            y -= 3.0 * mm
-            y = draw_qualification_title(f"{qualification_title} Continued", y)
-
-        y = draw_location_label(y)
-
-        address_rows = [
-            [
-                ("Country", item.get("Country"), CONTENT_W / 3),
-                ("Region", item.get("Region"), CONTENT_W / 3),
-                ("Region Post Code", item.get("Region Post Code"), CONTENT_W / 3),
-            ],
-            [
-                ("District", item.get("District"), CONTENT_W / 3),
-                ("District Post Code", item.get("District Post Code"), CONTENT_W / 3),
-                ("Ward", item.get("Ward"), CONTENT_W / 3),
-            ],
-            [
-                ("Ward Post Code", item.get("Ward Post Code"), CONTENT_W / 3),
-                ("Street", item.get("Street"), CONTENT_W / 3),
-                ("Place / Neighbourhood", item.get("Place / Neighbourhood"), CONTENT_W / 3),
-            ],
-            [
-                ("House No.", item.get("House No."), CONTENT_W / 3),
-                ("", "", CONTENT_W / 3),
-                ("", "", CONTENT_W / 3),
-            ],
-        ]
-
-        for row in address_rows:
-            if not block_fits(y, address_row_h):
-                page_no, y = next_flow_page(c, data, page_no)
-                page_no, y = draw_section_flow(
-                    c,
-                    data,
-                    page_no,
-                    y,
-                    "PROFESSIONAL QUALIFICATIONS / TRAINING CONTINUED",
-                    title_h + location_label_h + address_row_h,
-                )
-                y -= 3.0 * mm
-                y = draw_qualification_title(f"{qualification_title} Continued", y)
-                y = draw_location_label(y)
-            y = draw_row(c, y, row, address_row_h)
-
-        y -= bottom_gap
-
-    return page_no, y
 
 def draw_english_proficiency_block_flow(
     c: canvas.Canvas,
@@ -2201,7 +2248,14 @@ def generate_pdf(output: str, data: Dict[str, Any]) -> None:
     y = draw_table(c, LEFT, y, [CONTENT_W * 0.14, CONTENT_W * 0.27, CONTENT_W * 0.24, CONTENT_W * 0.115, CONTENT_W * 0.14, CONTENT_W * 0.095], [10 * mm] + [12.2 * mm] * len(data["higher_education"]), rows, font_size=7.8)
     y -= 4 * mm
 
-    page, y = draw_section_flow(c, data, page, y, "PROFESSIONAL QUALIFICATIONS / TRAINING", 22 * mm)
+    page, y = draw_section_flow(
+        c,
+        data,
+        page,
+        y,
+        "SECTION 5: PROFESSIONAL QUALIFICATIONS / TRAINING",
+        professional_qualifications_three_cards_height(),
+    )
     page, y = draw_professional_qualifications_block_flow(c, data, page, y, data.get("professional_qualifications", []))
 
     page, y = draw_section_flow(c, data, page, y, "ENGLISH LANGUAGE PROFICIENCY", 40 * mm)
@@ -2440,10 +2494,15 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
     app_id = _safe_get(application, "id", "001")
     if _safe_get(supplemental_profile, "serial_number"):
         serial = str(_safe_get(supplemental_profile, "serial_number"))
-    elif str(app_id).isdigit():
-        serial = f"AWECO/Tz/DSM/{int(app_id):03d}"
+    elif hasattr(application, 'get_registration_number'):
+        serial = application.get_registration_number()
     else:
-        serial = f"AWECO/Tz/DSM/{app_id}"
+        gen_year = getattr(generated, 'year', today.year)
+        try:
+            numeric_id = int(app_id)
+            serial = f"AWECO/INT/REG/TZ/DSM/{gen_year}8{numeric_id:03d}"
+        except (ValueError, TypeError):
+            serial = f"AWECO/INT/REG/TZ/DSM/{gen_year}8{app_id}"
     today = date.today()
     generated = _safe_get(supplemental_profile, "generated_at") or today
     generated_date = generated.strftime("%Y-%m-%d") if hasattr(generated, "strftime") else str(generated)
@@ -2589,22 +2648,43 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "GPA": val(_safe_get(supplemental_profile, f"{prefix}_gpa")),
         })
 
-    data["professional_qualifications"] = [{
-        "Qualification / Training": val(_safe_get(supplemental_profile, "professional_qualifications")),
-        "Institution": val(_safe_get(supplemental_profile, "professional_qualification_institution")),
-        "Start Date": _date_text(_first_attr(supplemental_profile, ["professional_qualification_start_date", "professional_qualification_from"])),
-        "Completed Date": _date_text(_first_attr(supplemental_profile, ["professional_qualification_completed_date", "professional_qualification_to"])),
-        "Country": val(_first_attr(supplemental_profile, ["professional_qualification_country"], "Tanzania")),
-        "Region": val(_safe_get(supplemental_profile, "professional_qualification_region")),
-        "Region Post Code": val(_safe_get(supplemental_profile, "professional_qualification_region_post_code")),
-        "District": val(_safe_get(supplemental_profile, "professional_qualification_district")),
-        "District Post Code": val(_safe_get(supplemental_profile, "professional_qualification_district_post_code")),
-        "Ward": val(_safe_get(supplemental_profile, "professional_qualification_ward")),
-        "Ward Post Code": val(_safe_get(supplemental_profile, "professional_qualification_ward_post_code")),
-        "Street": val(_safe_get(supplemental_profile, "professional_qualification_street")),
-        "Place / Neighbourhood": val(_first_attr(supplemental_profile, ["professional_qualification_place_neighbourhood", "professional_qualification_neighbourhood", "professional_qualification_location"])),
-        "House No.": val(_safe_get(supplemental_profile, "professional_qualification_house_no")),
-    }]
+    def _professional_qualification_from_profile(index: int) -> Dict[str, Any]:
+        suffix = "" if index == 1 else f"_{index}"
+        return {
+            "Qualification Title": val(_first_attr(supplemental_profile, [
+                f"professional_qualification_title{suffix}",
+                f"professional_qualifications{suffix}",
+                f"professional_qualification_training{suffix}",
+            ])),
+            "Institution": val(_safe_get(supplemental_profile, f"professional_qualification_institution{suffix}")),
+            "Institution Address": val(_first_attr(supplemental_profile, [
+                f"professional_qualification_address{suffix}",
+                f"professional_qualification_institution_address{suffix}",
+                f"professional_qualification_street{suffix}",
+            ])),
+            "Country": val(_first_attr(supplemental_profile, [f"professional_qualification_country{suffix}"], "Tanzania")),
+            "Period": val(_safe_get(supplemental_profile, f"professional_qualification_period{suffix}")),
+            "Start Date": _date_text(_first_attr(supplemental_profile, [
+                f"professional_qualification_start_date{suffix}",
+                f"professional_qualification_from{suffix}",
+            ])),
+            "Finished Date": _date_text(_first_attr(supplemental_profile, [
+                f"professional_qualification_finished_date{suffix}",
+                f"professional_qualification_completed_date{suffix}",
+                f"professional_qualification_to{suffix}",
+            ])),
+            "Award / Certificate?": _bool_text(_first_attr(supplemental_profile, [
+                f"professional_qualification_certificate{suffix}",
+                f"professional_qualification_award_certificate{suffix}",
+                f"professional_qualification_has_certificate{suffix}",
+            ])),
+        }
+
+    data["professional_qualifications"] = [
+        _professional_qualification_from_profile(1),
+        _professional_qualification_from_profile(2),
+        _professional_qualification_from_profile(3),
+    ]
     data["english_proficiency"] = {
         "Test Name": val(_safe_get(supplemental_profile, "english_test_name")),
         "Institution": val(_safe_get(supplemental_profile, "english_test_institution")),

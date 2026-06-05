@@ -21,56 +21,86 @@
             {% endif %}
         </div>
 
-        <p class="text-gray-600 mb-6">Please provide your parents' contact information. At least one parent's details are required.</p>
+        <p class="text-gray-600 mb-6">Please provide your parents' contact and address information.</p>
 
         <form method="post" class="space-y-8">
             {% csrf_token %}
-            
+
             <!-- Father's Details -->
             <div class="border-b pb-6">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">
                     <i class="fas fa-male mr-2"></i>Father's Details
                 </h3>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="{{ form.father_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Full Name
-                        </label>
+                        <label for="{{ form.father_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                         {{ form.father_name }}
-                        {% if form.father_name.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.father_name.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.father_name.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_name.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div>
-                        <label for="{{ form.father_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Phone Number
-                        </label>
+                        <label for="{{ form.father_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                         {{ form.father_phone }}
-                        {% if form.father_phone.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.father_phone.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.father_phone.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_phone.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div>
-                        <label for="{{ form.father_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Email Address
-                        </label>
+                        <label for="{{ form.father_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                         {{ form.father_email }}
-                        {% if form.father_email.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.father_email.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.father_email.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_email.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div>
-                        <label for="{{ form.father_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Occupation
-                        </label>
+                        <label for="{{ form.father_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
                         {{ form.father_occupation }}
-                        {% if form.father_occupation.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.father_occupation.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.father_occupation.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_occupation.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Father's Address with mtaa -->
+                <div class="mtaa-location-group mt-4">
+                    <h4 class="text-md font-semibold text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Father's Address
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            {{ form.father_country }}
+                            {% if form.father_country.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_country.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div></div>
+                        <div class="mtaa-region">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                            {{ form.father_region }}
+                            {% if form.father_region.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_region.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="mtaa-district">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">District</label>
+                            {{ form.father_district }}
+                            {% if form.father_district.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_district.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="mtaa-ward">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ward</label>
+                            {{ form.father_ward }}
+                            {% if form.father_ward.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_ward.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="mtaa-street">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Street / Mtaa</label>
+                            {{ form.father_street }}
+                            {% if form.father_street.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_street.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">House / Plot Number</label>
+                            {{ form.father_house_no }}
+                            {% if form.father_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_house_no.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa Name (if different)</label>
+                            {{ form.father_mtaa }}
+                            {% if form.father_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_mtaa.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
+                            {{ form.father_address }}
+                            {% if form.father_address.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_address.errors.0 }}</p>{% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -80,46 +110,76 @@
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">
                     <i class="fas fa-female mr-2"></i>Mother's Details
                 </h3>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="{{ form.mother_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Full Name
-                        </label>
+                        <label for="{{ form.mother_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                         {{ form.mother_name }}
-                        {% if form.mother_name.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.mother_name.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.mother_name.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_name.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div>
-                        <label for="{{ form.mother_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Phone Number
-                        </label>
+                        <label for="{{ form.mother_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                         {{ form.mother_phone }}
-                        {% if form.mother_phone.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.mother_phone.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.mother_phone.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_phone.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div>
-                        <label for="{{ form.mother_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Email Address
-                        </label>
+                        <label for="{{ form.mother_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                         {{ form.mother_email }}
-                        {% if form.mother_email.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.mother_email.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.mother_email.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_email.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div>
-                        <label for="{{ form.mother_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Occupation
-                        </label>
+                        <label for="{{ form.mother_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
                         {{ form.mother_occupation }}
-                        {% if form.mother_occupation.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.mother_occupation.errors.0 }}</p>
-                        {% endif %}
+                        {% if form.mother_occupation.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_occupation.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Mother's Address with mtaa -->
+                <div class="mtaa-location-group mt-4">
+                    <h4 class="text-md font-semibold text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Mother's Address
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            {{ form.mother_country }}
+                            {% if form.mother_country.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_country.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div></div>
+                        <div class="mtaa-region">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                            {{ form.mother_region }}
+                            {% if form.mother_region.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_region.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="mtaa-district">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">District</label>
+                            {{ form.mother_district }}
+                            {% if form.mother_district.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_district.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="mtaa-ward">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ward</label>
+                            {{ form.mother_ward }}
+                            {% if form.mother_ward.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_ward.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="mtaa-street">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Street / Mtaa</label>
+                            {{ form.mother_street }}
+                            {% if form.mother_street.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_street.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">House / Plot Number</label>
+                            {{ form.mother_house_no }}
+                            {% if form.mother_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_house_no.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa Name (if different)</label>
+                            {{ form.mother_mtaa }}
+                            {% if form.mother_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_mtaa.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
+                            {{ form.mother_address }}
+                            {% if form.mother_address.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_address.errors.0 }}</p>{% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,4 +195,6 @@
         </form>
     </div>
 </div>
+
+{% include 'student_portal/includes/mtaa_setup.html' %}
 {% endblock %}

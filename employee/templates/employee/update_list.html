@@ -1,4 +1,5 @@
 {% extends 'employee/base.html' %}
+{% load security_tags %}
 
 {% block title %}Manage Updates{% endblock %}
 {% block nav_updates %}active{% endblock %}
@@ -319,7 +320,7 @@
                                 <div>
                                     <h3 class="row-title">
                                         {% if item.status == 'published' %}
-                                            <a href="{{ item.get_absolute_url }}" target="_blank" rel="noopener">{{ item.title }}</a>
+                                            <a href="{{ item.get_absolute_url|safe_href }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
                                         {% else %}
                                             {{ item.title }}
                                         {% endif %}
@@ -364,7 +365,7 @@
                             <div class="actions">
                                 <a href="{% url 'employee:update_edit' item.pk %}" class="btn btn-secondary">Edit</a>
                                 {% if item.status == 'published' %}
-                                    <a href="{{ item.get_absolute_url }}" class="btn btn-secondary" target="_blank" rel="noopener">Preview</a>
+                                    <a href="{{ item.get_absolute_url|safe_href }}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Preview</a>
                                 {% endif %}
                                 <a href="{% url 'employee:update_delete' item.pk %}" class="btn btn-danger">Delete</a>
                             </div>

@@ -1,4 +1,5 @@
 {% load static %}
+{% load security_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -288,7 +289,7 @@
                         {% else %}
                         <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Pending Verification</span>
                         {% endif %}
-                        <a href="{{ doc.file.url }}" target="_blank" class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
+                        <a href="{{ doc.file.url|safe_href }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
                             View
                         </a>
                     </div>

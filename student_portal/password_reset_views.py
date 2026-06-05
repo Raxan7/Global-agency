@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.urls import reverse
@@ -81,15 +83,29 @@ def student_password_reset_confirm(request, uidb64, token):
         if request.method == 'POST':
             password1 = request.POST.get('password1')
             password2 = request.POST.get('password2')
-            
-            if password1 and password1 == password2:
-                user.set_password(password1)
-                user.save()
-                messages.success(request, 'Your password has been reset successfully. You can now login.')
-                return redirect('student_portal:login')
-            else:
+
+            if not password1 or not password2:
+                messages.error(request, 'Please enter and confirm your new password.')
+            elif password1 != password2:
                 messages.error(request, 'Passwords do not match.')
-        
+            else:
+                try:
+                    validate_password(password1, user=user)
+                except ValidationError as exc:
+                    for error in exc.messages:
+                        messages.error(request, error)
+                else:
+                    user.set_password(password1)
+                    user.save()
+                    messages.success(request, 'Your password has been reset successfully. You can now login.')
+                    return redirect('student_portal:login')
+
+            return redirect(
+                'student_portal:password_reset_confirm',
+                uidb64=uidb64,
+                token=token,
+            )
+
         return render(request, 'student_portal/password_reset_confirm.html', {
             'validlink': True,
             'uidb64': uidb64,

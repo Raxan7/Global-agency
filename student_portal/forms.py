@@ -189,28 +189,55 @@ class PersonalDetailsForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
         fields = [
-            'full_name', 'gender', 'date_of_birth', 'nationality', 
-            'phone_number', 'address', 'profile_picture'
+            'full_name', 'gender', 'date_of_birth', 'nationality',
+            'phone_number', 'whatsapp_number', 'place_of_birth',
+            'marital_status', 'native_language',
+            'country', 'region', 'district', 'ward', 'street',
+            'house_no', 'address', 'profile_picture',
         ]
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
-            'address': forms.Textarea(attrs={'rows': 3, 'class': 'form-input'}),
+            'address': forms.Textarea(attrs={'rows': 2, 'class': 'form-input'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
+            'whatsapp_number': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'nationality': forms.TextInput(attrs={'class': 'form-input'}),
+            'place_of_birth': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Town / City of birth'}),
+            'native_language': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Swahili'}),
+            'marital_status': forms.Select(attrs={'class': 'form-input'}),
             'gender': forms.Select(attrs={'class': 'form-input'}),
+            'country': forms.TextInput(attrs={'class': 'form-input'}),
+            'region': forms.TextInput(attrs={'class': 'form-input'}),
+            'district': forms.TextInput(attrs={'class': 'form-input'}),
+            'ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'street': forms.TextInput(attrs={'class': 'form-input'}),
+            'house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
             'profile_picture': forms.FileInput(attrs={'class': 'form-input'}),
         }
         labels = {
             'full_name': 'Full Name',
             'date_of_birth': 'Date of Birth',
             'phone_number': 'Phone Number',
+            'whatsapp_number': 'WhatsApp Number',
+            'place_of_birth': 'Place of Birth',
+            'marital_status': 'Marital Status',
+            'native_language': 'Native Language',
             'profile_picture': 'Profile Picture (Optional)',
+            'country': 'Country',
+            'region': 'Region',
+            'district': 'District',
+            'ward': 'Ward',
+            'street': 'Street / Mtaa',
+            'house_no': 'House / Plot Number',
+            'address': 'Old-style full address (optional)',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.user_id:
             self.initial.setdefault('full_name', self.instance.user.get_full_name())
+        for fname in ['region', 'district', 'ward', 'street']:
+            self.fields[fname].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
+            self.fields[fname].required = False
 
     def save(self, commit=True):
         profile = super().save(commit=False)
@@ -234,74 +261,154 @@ class ParentsDetailsForm(forms.ModelForm):
         model = StudentProfile
         fields = [
             'father_name', 'father_phone', 'father_email', 'father_occupation',
+            'father_country', 'father_region', 'father_district', 'father_ward',
+            'father_street', 'father_mtaa', 'father_house_no', 'father_address',
             'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
+            'mother_country', 'mother_region', 'mother_district', 'mother_ward',
+            'mother_street', 'mother_mtaa', 'mother_house_no', 'mother_address',
         ]
         widgets = {
             'father_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': "Father's Full Name"}),
             'father_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'father_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'father@example.com'}),
             'father_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
+            'father_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'father_region': forms.TextInput(attrs={'class': 'form-input'}),
+            'father_district': forms.TextInput(attrs={'class': 'form-input'}),
+            'father_ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'father_street': forms.TextInput(attrs={'class': 'form-input'}),
+            'father_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'father_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
+            'father_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
             'mother_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': "Mother's Full Name"}),
             'mother_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'mother_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'mother@example.com'}),
             'mother_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
+            'mother_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'mother_region': forms.TextInput(attrs={'class': 'form-input'}),
+            'mother_district': forms.TextInput(attrs={'class': 'form-input'}),
+            'mother_ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'mother_street': forms.TextInput(attrs={'class': 'form-input'}),
+            'mother_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'mother_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
+            'mother_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
         }
         labels = {
             'father_name': "Father's Full Name",
             'father_phone': "Father's Phone Number",
             'father_email': "Father's Email Address",
             'father_occupation': "Father's Occupation",
+            'father_country': "Father's Country",
+            'father_region': "Father's Region",
+            'father_district': "Father's District",
+            'father_ward': "Father's Ward",
+            'father_street': "Father's Street / Mtaa",
+            'father_mtaa': "Father's Mtaa (if different)",
+            'father_house_no': "Father's House / Plot Number",
+            'father_address': "Father's Full Address",
             'mother_name': "Mother's Full Name",
             'mother_phone': "Mother's Phone Number",
             'mother_email': "Mother's Email Address",
             'mother_occupation': "Mother's Occupation",
+            'mother_country': "Mother's Country",
+            'mother_region': "Mother's Region",
+            'mother_district': "Mother's District",
+            'mother_ward': "Mother's Ward",
+            'mother_street': "Mother's Street / Mtaa",
+            'mother_mtaa': "Mother's Mtaa (if different)",
+            'mother_house_no': "Mother's House / Plot Number",
+            'mother_address': "Mother's Full Address",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for prefix in ['father_', 'mother_']:
+            for fname in ['region', 'district', 'ward', 'street']:
+                fn = prefix + fname
+                if fn in self.fields:
+                    self.fields[fn].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
+                    self.fields[fn].required = False
 
 class AcademicQualificationsForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
         fields = [
             # O-Level
-            'olevel_school', 'olevel_country', 'olevel_address', 'olevel_region',
-            'olevel_year', 'olevel_candidate_no', 'olevel_gpa',
+            'olevel_school', 'olevel_country',
+            'olevel_school_region', 'olevel_school_district', 'olevel_school_ward',
+            'olevel_school_street', 'olevel_school_mtaa', 'olevel_school_house_no',
+            'olevel_start_year', 'olevel_completed_year',
+            'olevel_candidate_no', 'olevel_gpa',
             # A-Level
-            'alevel_school', 'alevel_country', 'alevel_address', 'alevel_region',
-            'alevel_year', 'alevel_candidate_no', 'alevel_gpa',
+            'alevel_school', 'alevel_country',
+            'alevel_school_region', 'alevel_school_district', 'alevel_school_ward',
+            'alevel_school_street', 'alevel_school_mtaa', 'alevel_school_house_no',
+            'alevel_start_year', 'alevel_completed_year',
+            'alevel_candidate_no', 'alevel_gpa',
         ]
         widgets = {
             # O-Level widgets
             'olevel_school': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Name'}),
             'olevel_country': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_address': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Address'}),
-            'olevel_region': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Region'}),
-            'olevel_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2020)'}),
+            'olevel_school_region': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_school_district': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_school_ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_school_street': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_school_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'olevel_school_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
+            'olevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year (e.g., 2016)'}),
+            'olevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2020)'}),
             'olevel_candidate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Candidate Number'}),
             'olevel_gpa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'GPA/Division'}),
             # A-Level widgets
             'alevel_school': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Name'}),
             'alevel_country': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_address': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Address'}),
-            'alevel_region': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Region'}),
-            'alevel_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2022)'}),
+            'alevel_school_region': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_school_district': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_school_ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_school_street': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_school_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'alevel_school_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
+            'alevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year (e.g., 2020)'}),
+            'alevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2022)'}),
             'alevel_candidate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Candidate Number'}),
             'alevel_gpa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'GPA/Division/Points'}),
         }
         labels = {
             'olevel_school': 'O-Level School Name',
             'olevel_country': 'Country',
-            'olevel_address': 'School Address',
-            'olevel_region': 'Region',
-            'olevel_year': 'Year Completed',
+            'olevel_school_region': 'Region',
+            'olevel_school_district': 'District',
+            'olevel_school_ward': 'Ward',
+            'olevel_school_street': 'Street / Mtaa',
+            'olevel_school_mtaa': 'Alternate Mtaa Name',
+            'olevel_school_house_no': 'House / Plot Number',
+            'olevel_start_year': 'Start Year',
+            'olevel_completed_year': 'Year Completed',
             'olevel_candidate_no': 'Candidate Number',
             'olevel_gpa': 'GPA/Division',
             'alevel_school': 'A-Level School Name',
             'alevel_country': 'Country',
-            'alevel_address': 'School Address',
-            'alevel_region': 'Region',
-            'alevel_year': 'Year Completed',
+            'alevel_school_region': 'Region',
+            'alevel_school_district': 'District',
+            'alevel_school_ward': 'Ward',
+            'alevel_school_street': 'Street / Mtaa',
+            'alevel_school_mtaa': 'Alternate Mtaa Name',
+            'alevel_school_house_no': 'House / Plot Number',
+            'alevel_start_year': 'Start Year',
+            'alevel_completed_year': 'Year Completed',
             'alevel_candidate_no': 'Candidate Number',
             'alevel_gpa': 'GPA/Division/Points',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for prefix in ['olevel_school_', 'alevel_school_']:
+            for fname in ['region', 'district', 'ward', 'street']:
+                fn = prefix + fname
+                if fn in self.fields:
+                    self.fields[fn].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
+                    self.fields[fn].required = False
 
 class StudyPreferencesForm(forms.ModelForm):
     class Meta:
@@ -337,35 +444,63 @@ class EmergencyContactForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
         fields = [
-            'emergency_contact', 'emergency_address', 'emergency_occupation',
-            'emergency_gender', 'emergency_relation', 'heard_about_us', 'heard_about_other'
+            'emergency_contact', 'emergency_occupation',
+            'emergency_gender', 'emergency_relation',
+            'emergency_country', 'emergency_region', 'emergency_district',
+            'emergency_ward', 'emergency_street', 'emergency_mtaa',
+            'emergency_house_no', 'emergency_address',
+            'heard_about_us', 'heard_about_other',
         ]
         widgets = {
             'emergency_contact': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Emergency Contact Full Name'}),
-            'emergency_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 3, 'placeholder': 'Full Address'}),
             'emergency_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
             'emergency_gender': forms.Select(attrs={'class': 'form-input'}),
             'emergency_relation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g., Father, Mother, Guardian'}),
+            'emergency_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_region': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_district': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_street': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'emergency_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
+            'emergency_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Full Address'}),
             'heard_about_us': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'How did you hear about us?'}),
             'heard_about_other': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Please specify if "Other"'}),
         }
         labels = {
             'emergency_contact': 'Emergency Contact Name',
-            'emergency_address': 'Emergency Contact Address',
             'emergency_occupation': 'Emergency Contact Occupation',
             'emergency_gender': 'Emergency Contact Gender',
             'emergency_relation': 'Relationship to You',
+            'emergency_country': 'Country',
+            'emergency_region': 'Region',
+            'emergency_district': 'District',
+            'emergency_ward': 'Ward',
+            'emergency_street': 'Street / Mtaa',
+            'emergency_mtaa': 'Alternate Mtaa Name',
+            'emergency_house_no': 'House / Plot Number',
+            'emergency_address': 'Emergency Contact Address',
             'heard_about_us': 'How Did You Hear About Us?',
             'heard_about_other': 'Other (Please Specify)',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for fname in ['emergency_region', 'emergency_district', 'emergency_ward', 'emergency_street']:
+            if fname in self.fields:
+                self.fields[fname].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
+                self.fields[fname].required = False
 
 class WorkExperienceForm(forms.ModelForm):
     class Meta:
         model = WorkExperience
         fields = [
-            'company_name', 'position', 'location', 
+            'company_name', 'position',
+            'country', 'region', 'district', 'ward', 'street', 'mtaa',
+            'house_no', 'location',
             'start_date', 'end_date', 'currently_working',
-            'description', 'responsibilities', 'achievements'
+            'employment_type', 'supervisor', 'supervisor_contact',
+            'description', 'responsibilities', 'achievements', 'remarks',
         ]
         widgets = {
             'company_name': forms.TextInput(attrs={
@@ -376,9 +511,16 @@ class WorkExperienceForm(forms.ModelForm):
                 'class': 'form-input',
                 'placeholder': 'Your Job Title'
             }),
+            'country': forms.TextInput(attrs={'class': 'form-input'}),
+            'region': forms.TextInput(attrs={'class': 'form-input'}),
+            'district': forms.TextInput(attrs={'class': 'form-input'}),
+            'ward': forms.TextInput(attrs={'class': 'form-input'}),
+            'street': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Street / Mtaa'}),
+            'mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa name (if different)'}),
+            'house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
             'location': forms.TextInput(attrs={
                 'class': 'form-input',
-                'placeholder': 'City, Country'
+                'placeholder': 'City, Country (legacy)'
             }),
             'start_date': forms.DateInput(attrs={
                 'type': 'date',
@@ -391,6 +533,24 @@ class WorkExperienceForm(forms.ModelForm):
             'currently_working': forms.CheckboxInput(attrs={
                 'class': 'form-checkbox h-5 w-5 text-blue-600 rounded',
                 'onclick': 'toggleEndDate()'
+            }),
+            'employment_type': forms.Select(attrs={'class': 'form-input'}, choices=[
+                ('', '---------'),
+                ('full_time', 'Full-Time'),
+                ('part_time', 'Part-Time'),
+                ('contract', 'Contract'),
+                ('internship', 'Internship'),
+                ('volunteer', 'Volunteer'),
+                ('self_employed', 'Self-Employed'),
+                ('freelance', 'Freelance'),
+            ]),
+            'supervisor': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Supervisor / Manager name'
+            }),
+            'supervisor_contact': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Supervisor phone / email'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-input',
@@ -407,17 +567,33 @@ class WorkExperienceForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Notable achievements, promotions, awards, or impact you made...'
             }),
+            'remarks': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2,
+                'placeholder': 'Any additional remarks'
+            }),
         }
         labels = {
             'company_name': 'Company/Organization',
             'position': 'Position/Job Title',
-            'location': 'Work Location',
+            'country': 'Workplace Country',
+            'region': 'Region',
+            'district': 'District',
+            'ward': 'Ward',
+            'street': 'Street / Mtaa',
+            'mtaa': 'Mtaa Name (if different)',
+            'house_no': 'House / Plot Number',
+            'location': 'Work Location (legacy)',
             'start_date': 'Start Date',
             'end_date': 'End Date',
             'currently_working': 'I currently work here',
+            'employment_type': 'Employment Type',
+            'supervisor': 'Supervisor Name',
+            'supervisor_contact': 'Supervisor Contact',
             'description': 'Job Description',
             'responsibilities': 'Key Responsibilities',
             'achievements': 'Achievements & Impact',
+            'remarks': 'Additional Remarks',
         }
         help_texts = {
             'start_date': 'When did you start this position?',
@@ -425,6 +601,13 @@ class WorkExperienceForm(forms.ModelForm):
             'responsibilities': 'Use bullet points to list your main duties and responsibilities',
         }
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for fname in ['region', 'district', 'ward', 'street']:
+            if fname in self.fields:
+                self.fields[fname].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
+                self.fields[fname].required = False
+
     def clean(self):
         cleaned_data = super().clean()
         start_date = cleaned_data.get('start_date')

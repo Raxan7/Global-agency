@@ -1,4 +1,5 @@
 {% extends 'employee/base.html' %}
+{% load security_tags %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block nav_updates %}active{% endblock %}
@@ -283,7 +284,7 @@
             <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
             <a href="{% url 'employee:update_management' %}" class="btn btn-secondary">Cancel</a>
             {% if portal_update and portal_update.status == 'published' %}
-                <a href="{{ portal_update.get_absolute_url }}" class="btn btn-secondary" target="_blank" rel="noopener">Open public page</a>
+                <a href="{{ portal_update.get_absolute_url|safe_href }}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Open public page</a>
             {% endif %}
         </div>
     </form>

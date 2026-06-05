@@ -21,11 +21,11 @@
             {% endif %}
         </div>
 
-        <p class="text-gray-600 mb-6">Please provide emergency contact information. This is important for your safety and security. All fields marked with <span class="text-red-500">*</span> are required.</p>
+        <p class="text-gray-600 mb-6">Please provide emergency contact information.</p>
 
         <form method="post" class="space-y-6">
             {% csrf_token %}
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="{{ form.emergency_contact.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
@@ -39,7 +39,7 @@
 
                 <div>
                     <label for="{{ form.emergency_gender.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Gender <span class="text-red-500">*</span>
+                        Gender
                     </label>
                     {{ form.emergency_gender }}
                     {% if form.emergency_gender.errors %}
@@ -69,19 +69,58 @@
                 </div>
             </div>
 
-            <div>
-                <label for="{{ form.emergency_address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                    Emergency Contact Address <span class="text-red-500">*</span>
-                </label>
-                {{ form.emergency_address }}
-                {% if form.emergency_address.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ form.emergency_address.errors.0 }}</p>
-                {% endif %}
+            <!-- Emergency Contact Address with mtaa -->
+            <div class="mtaa-location-group border-t pt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Emergency Contact Address
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                        {{ form.emergency_country }}
+                        {% if form.emergency_country.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_country.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div></div>
+                    <div class="mtaa-region">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                        {{ form.emergency_region }}
+                        {% if form.emergency_region.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_region.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="mtaa-district">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">District</label>
+                        {{ form.emergency_district }}
+                        {% if form.emergency_district.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_district.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="mtaa-ward">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ward</label>
+                        {{ form.emergency_ward }}
+                        {% if form.emergency_ward.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_ward.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="mtaa-street">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Street / Mtaa</label>
+                        {{ form.emergency_street }}
+                        {% if form.emergency_street.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_street.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">House / Plot Number</label>
+                        {{ form.emergency_house_no }}
+                        {% if form.emergency_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_house_no.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa (if different)</label>
+                        {{ form.emergency_mtaa }}
+                        {% if form.emergency_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_mtaa.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
+                        {{ form.emergency_address }}
+                        {% if form.emergency_address.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_address.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
             </div>
 
             <div class="border-t pt-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Additional Information</h3>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="{{ form.heard_about_us.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
@@ -91,9 +130,7 @@
                         {% if form.heard_about_us.errors %}
                             <p class="text-red-500 text-sm mt-1">{{ form.heard_about_us.errors.0 }}</p>
                         {% endif %}
-                        <p class="text-sm text-gray-500 mt-1">e.g., Social Media, Friend Referral, Website, Advertisement</p>
                     </div>
-
                     <div>
                         <label for="{{ form.heard_about_other.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                             Other (Please Specify)
@@ -124,4 +161,6 @@
         </form>
     </div>
 </div>
+
+{% include 'student_portal/includes/mtaa_setup.html' %}
 {% endblock %}

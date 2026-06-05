@@ -1,4 +1,5 @@
 {% extends 'student_portal/dashboard_base.html' %}
+{% load security_tags %}
 
 {% block title %}Documents - Student Portal{% endblock %}
 
@@ -150,8 +151,9 @@
                         </span>
                         
                         <!-- View Button -->
-                        <a href="{{ document.file.url }}" 
-                           target="_blank" 
+                        <a href="{{ document.file.url|safe_href }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                             <i class="fas fa-eye mr-1"></i>
                             View

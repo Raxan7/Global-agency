@@ -387,6 +387,10 @@ if __name__ == '__main__':
     with open("optimize_static_files.py", 'w') as f:
         f.write(static_optimize_content)
     
+    # nosemgrep: python.lang.security.audit.insecure-file-permissions.insecure-file-permissions
+    # The optimize_static_files.py helper must remain executable so the
+    # operator can invoke it directly from the shell; 0o755 (rwxr-xr-x) is
+    # the conventional permission for a tool script.
     os.chmod("optimize_static_files.py", 0o755)
     
     print("✅ Static file optimization script created")

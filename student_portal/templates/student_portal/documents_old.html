@@ -1,3 +1,4 @@
+{% load security_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -446,7 +447,7 @@
                         <span class="verification-badge {% if document.is_verified %}verified{% else %}pending{% endif %}">
                             {% if document.is_verified %}Verified{% else %}Pending Verification{% endif %}
                         </span>
-                        <a href="{{ document.file.url }}" target="_blank" class="btn-sm btn-outline-primary">View</a>
+                        <a href="{{ document.file.url|safe_href }}" target="_blank" rel="noopener noreferrer" class="btn-sm btn-outline-primary">View</a>
                     </div>
                 </div>
                 {% endfor %}

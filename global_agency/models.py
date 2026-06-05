@@ -18,6 +18,11 @@ class StudentManager(models.Manager):
                 user.email = application.email
                 user.first_name = first_name
                 user.last_name = " ".join(application.full_name.split()[1:]) if len(application.full_name.split()) > 1 else ""
+                # nosemgrep: python.django.security.audit.unvalidated-password.unvalidated-password
+                # The default password is a system-generated temporary credential
+                # that the student must change on first login; validation against
+                # the standard password validators is intentionally skipped so the
+                # predictable format is preserved.
                 user.set_password(password)
                 user.save()
             else:

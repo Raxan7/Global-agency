@@ -1,4 +1,5 @@
 {% load static %}
+{% load security_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -474,7 +475,7 @@
                             {% if university.website %}
                             <div>
                                 <p class="text-sm text-gray-600">Official Website</p>
-                                <a href="{{ university.website }}" target="_blank" class="font-semibold text-blue-600 hover:underline break-words">
+                                <a href="{{ university.website|safe_href }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 hover:underline break-words">
                                     {{ university.website }}
                                 </a>
                             </div>

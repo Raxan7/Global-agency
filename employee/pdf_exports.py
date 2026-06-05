@@ -1,6 +1,10 @@
 from io import BytesIO
 from pathlib import Path
-from xml.sax.saxutils import escape
+# xml.sax.saxutils.escape is a *string escaping* helper, not an XML parser,
+# so the defusedxml advisory does not apply here. The escape() function is
+# used to sanitize field values before they are embedded in Paragraph HTML
+# in the generated PDF; we never parse untrusted XML in this module.
+from xml.sax.saxutils import escape  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
 
 from PIL import Image as PillowImage
 from django.conf import settings

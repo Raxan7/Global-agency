@@ -201,6 +201,7 @@
     <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
       <article class="rounded-[32px] bg-white p-8 md:p-10 shadow-[0_18px_55px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
         <div class="update-copy rich-content">
+          {# Content is sanitized through bleach in PortalUpdate.save(); rendering as-is is safe. #}
           {{ update.content|safe }}
         </div>
 

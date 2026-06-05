@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.utils import timezone
 import json
@@ -1191,137 +1192,254 @@ def handler403(request, exception):
 def handler400(request, exception):
     return render(request, 'student_portal/400.html', status=400)
 
+
+def _is_clickpesa_request_trusted(request) -> bool:
+    """
+    Verify that the incoming webhook request actually came from ClickPesa.
+
+    Webhooks must be exempt from CSRF protection (payment providers don't
+    have a Django session cookie), so we instead require an HMAC-SHA256
+    signature header computed with the shared ``CLICKPESA_WEBHOOK_SECRET``.
+
+    In development (``DEBUG=True`` and ``CLICKPESA_WEBHOOK_ALLOW_INSECURE_DEBUG``
+    enabled) we also accept the ``X-ClickPesa-Test-Mode: true`` header so
+    sandbox callbacks can be exercised without a real secret. Production
+    deployments set ``CLICKPESA_WEBHOOK_SECRET`` and reject any unsigned
+    request.
+    """
+    from globalagency_project.utils.security import (
+        get_clickpesa_webhook_secret,
+        verify_webhook_signature,
+    )
+
+    secret = get_clickpesa_webhook_secret()
+    signature = (
+        request.META.get('HTTP_X_CLICKPESA_SIGNATURE')
+        or request.META.get('HTTP_X_SIGNATURE')
+        or request.META.get('HTTP_SIGNATURE')
+    )
+    timestamp = (
+        request.META.get('HTTP_X_CLICKPESA_TIMESTAMP')
+        or request.META.get('HTTP_X_TIMESTAMP')
+    )
+
+    if secret and verify_webhook_signature(
+        request.body,
+        signature,
+        secret,
+        timestamp_header=timestamp,
+    ):
+        return True
+
+    from django.conf import settings as django_settings
+    allow_test = getattr(
+        django_settings, 'CLICKPESA_WEBHOOK_ALLOW_INSECURE_DEBUG', False
+    )
+    if allow_test and request.META.get('HTTP_X_CLICKPESA_TEST_MODE', '').lower() == 'true':
+        import logging
+        logging.getLogger(__name__).warning(
+            'ClickPesa webhook accepted in insecure DEBUG test-mode. '
+            'Set CLICKPESA_WEBHOOK_SECRET in production.'
+        )
+        return True
+
+    import logging
+    logging.getLogger(__name__).warning(
+        'Rejected ClickPesa webhook with invalid or missing signature.'
+    )
+    return False
+
+
 # KEEP ALL CSRF EXEMPT WEBHOOK FUNCTIONS EXACTLY THE SAME
 @csrf_exempt
+@require_http_methods(["POST"])
 def payment_webhook(request, provider):
     """Webhook endpoint for payment providers (Legacy)"""
-    if request.method == 'POST':
+    if not _is_clickpesa_request_trusted(request):
+        return JsonResponse(
+            {'status': 'error', 'message': 'Invalid or missing webhook signature'},
+            status=401,
+        )
+
+    try:
+        data = json.loads(request.body)
+
+        # Extract transaction details based on provider
+        transaction_id = None
+        status = None
+
+        if provider == 'mpesa':
+            transaction_id = data.get('TransID')
+            status = data.get('ResultCode')
+        elif provider == 'tigo_pesa':
+            transaction_id = data.get('transaction_id')
+            status = data.get('status')
+        elif provider == 'airtel_money':
+            transaction_id = data.get('id')
+            status = data.get('status')
+        elif provider == 'halopesa':
+            transaction_id = data.get('transactionId')
+            status = data.get('status')
+
+        if not transaction_id:
+            return JsonResponse({'status': 'error', 'message': 'No transaction ID provided'})
+
+        # Find and update payment
         try:
-            data = json.loads(request.body)
-            
-            # Extract transaction details based on provider
-            transaction_id = None
-            status = None
-            
-            if provider == 'mpesa':
-                transaction_id = data.get('TransID')
-                status = data.get('ResultCode')
-            elif provider == 'tigo_pesa':
-                transaction_id = data.get('transaction_id')
-                status = data.get('status')
-            elif provider == 'airtel_money':
-                transaction_id = data.get('id')
-                status = data.get('status')
-            elif provider == 'halopesa':
-                transaction_id = data.get('transactionId')
-                status = data.get('status')
-            
-            if not transaction_id:
-                return JsonResponse({'status': 'error', 'message': 'No transaction ID provided'})
-            
-            # Find and update payment
-            try:
-                payment = Payment.objects.get(transaction_id=transaction_id)
-                
-                if status in ['0', 'success', 'completed']:
-                    payment.is_successful = True
-                    payment.status = 'success'
-                    payment.save()
-                    
-                    payment.application.is_paid = True
-                    payment.application.status = 'submitted'
-                    payment.application.save()
-                    
-                else:
-                    payment.status = 'failed'
-                    payment.save()
-                    
-                return JsonResponse({'status': 'success'})
-                
-            except Payment.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'Payment not found'})
-            
-        except json.JSONDecodeError:
-            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
-    
-    return JsonResponse({'status': 'error', 'message': 'Method not allowed'})
+            payment = Payment.objects.get(transaction_id=transaction_id)
+
+            if status in ['0', 'success', 'completed']:
+                payment.is_successful = True
+                payment.status = 'success'
+                payment.save()
+
+                payment.application.is_paid = True
+                payment.application.status = 'submitted'
+                payment.application.save()
+
+            else:
+                payment.status = 'failed'
+                payment.save()
+
+            return JsonResponse({'status': 'success'})
+
+        except Payment.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Payment not found'})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
 
 @csrf_exempt
+@require_http_methods(["POST"])
 def clickpesa_webhook(request):
     """
     Webhook endpoint for ClickPesa payment notifications
     This should be registered in your ClickPesa dashboard
     """
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            
-            # Log the webhook data
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.info(f"ClickPesa webhook received: {data}")
-            
-            # Extract order reference from webhook data
-            order_reference = data.get('orderReference') or data.get('order_reference')
-            
-            if not order_reference:
-                return JsonResponse({
-                    'status': 'error', 
-                    'message': 'No order reference provided'
-                }, status=400)
-            
-            # Find payment by order reference
-            try:
-                payment = Payment.objects.get(order_reference=order_reference)
-                
-                # Extract payment status
-                clickpesa_status = data.get('status', '').lower()
-                payment.status = clickpesa_status
-                payment.transaction_id = data.get('id', payment.transaction_id)
-                payment.payment_reference = data.get('paymentReference', '')
-                payment.message = data.get('message', '')
-                payment.clickpesa_response = data
-                
-                # Update based on status
-                if clickpesa_status in ['success', 'settled']:
-                    payment.is_successful = True
-                    payment.application.is_paid = True
-                    payment.application.status = 'submitted'
-                    payment.application.save()
-                elif clickpesa_status == 'failed':
-                    payment.is_successful = False
-                
-                payment.save()
-                
-                return JsonResponse({
-                    'status': 'success',
-                    'message': 'Webhook processed successfully'
-                })
-                
-            except Payment.DoesNotExist:
-                logger.error(f"Payment not found for order reference: {order_reference}")
-                return JsonResponse({
-                    'status': 'error', 
-                    'message': 'Payment not found'
-                }, status=404)
-            
-        except json.JSONDecodeError:
+    if not _is_clickpesa_request_trusted(request):
+        return JsonResponse(
+            {'status': 'error', 'message': 'Invalid or missing webhook signature'},
+            status=401,
+        )
+
+    try:
+        data = json.loads(request.body)
+
+        # Log the webhook data
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"ClickPesa webhook received: {data}")
+
+        # Extract order reference from webhook data
+        order_reference = data.get('orderReference') or data.get('order_reference')
+
+        if not order_reference:
             return JsonResponse({
-                'status': 'error', 
-                'message': 'Invalid JSON'
+                'status': 'error',
+                'message': 'No order reference provided'
             }, status=400)
-        except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"ClickPesa webhook error: {str(e)}")
+
+        # Find payment by order reference
+        try:
+            payment = Payment.objects.get(order_reference=order_reference)
+
+            # Extract payment status
+            clickpesa_status = data.get('status', '').lower()
+            payment.status = clickpesa_status
+            payment.transaction_id = data.get('id', payment.transaction_id)
+            payment.payment_reference = data.get('paymentReference', '')
+            payment.message = data.get('message', '')
+            payment.clickpesa_response = data
+
+            # Update based on status
+            if clickpesa_status in ['success', 'settled']:
+                payment.is_successful = True
+                payment.application.is_paid = True
+                payment.application.status = 'submitted'
+                payment.application.save()
+            elif clickpesa_status == 'failed':
+                payment.is_successful = False
+
+            payment.save()
+
             return JsonResponse({
-                'status': 'error', 
-                'message': str(e)
-            }, status=500)
-    
-    return JsonResponse({
-        'status': 'error', 
-        'message': 'Method not allowed'
-    }, status=405)
+                'status': 'success',
+                'message': 'Webhook processed successfully'
+            })
+
+        except Payment.DoesNotExist:
+            logger.error(f"Payment not found for order reference: {order_reference}")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Payment not found'
+            }, status=404)
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON'
+        }, status=400)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"ClickPesa webhook error: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+# =============================================================================
+# MTAA LOCATION API
+# =============================================================================
+
+@require_http_methods(["GET"])
+def mtaa_locations_api(request):
+    """AJAX endpoint for cascading mtaa location dropdowns.
+
+    Query params:
+      level   - 'regions', 'districts', 'wards', 'streets', 'neighbourhoods'
+      region  - region name (required for districts/wards/streets)
+      district - district name (required for wards/streets)
+      ward    - ward name (required for streets)
+
+    Returns JSON array of {name, post_code?} objects or string array.
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    level = request.GET.get('level', '')
+    region = request.GET.get('region', '')
+    district = request.GET.get('district', '')
+    ward = request.GET.get('ward', '')
+
+    from .models import LocationHelper
+
+    try:
+        if level == 'regions':
+            regions = LocationHelper.regions()
+            return JsonResponse([{'name': r} for r in regions], safe=False)
+
+        elif level == 'districts':
+            items = LocationHelper.districts(region)
+            return JsonResponse(items, safe=False)
+
+        elif level == 'wards':
+            items = LocationHelper.wards(region, district)
+            return JsonResponse(items, safe=False)
+
+        elif level == 'streets':
+            streets = LocationHelper.streets(region, district, ward)
+            return JsonResponse([{'name': s} for s in streets], safe=False)
+
+        elif level == 'neighbourhoods':
+            items = LocationHelper.neighbourhoods(region, district, ward)
+            return JsonResponse([{'name': s} for s in items], safe=False)
+
+        return JsonResponse({'error': f'Unknown level: {level}'}, status=400)
+    except Exception as e:
+        logger.exception('mtaa_locations_api error')
+        return JsonResponse({'error': str(e)}, status=500)

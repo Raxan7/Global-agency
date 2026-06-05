@@ -48,4 +48,7 @@ urlpatterns = [
     # Messages
     path('messages/', views.messages_list, name='messages'),
     path('messages/<int:message_id>/read/', views.mark_message_read, name='mark_message_read'),
+
+    # MTAA Location API
+    path('api/locations/', views.mtaa_locations_api, name='mtaa_locations_api'),
 ]

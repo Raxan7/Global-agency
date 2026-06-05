@@ -19,10 +19,15 @@ SUPPLEMENTAL_FIELD_GROUPS = [
         'Add the extra passport and residential details required by the AWEC registration form.',
         'fa-passport',
         [
-            'full_name_passport', 'place_of_birth', 'current_region', 'current_city',
-            'current_country', 'current_postal_code', 'whatsapp_number',
-            'residential_email', 'current_address', 'passport_number',
-            'passport_issue_country', 'passport_issue_date',
+            'full_name_passport', 'place_of_birth',
+            'current_country', 'current_region', 'current_district', 'current_ward',
+            'current_street', 'current_mtaa', 'current_house_no',
+            'current_city', 'current_postal_code', 'current_address',
+            'permanent_country', 'permanent_region', 'permanent_district',
+            'permanent_ward', 'permanent_street', 'permanent_mtaa',
+            'permanent_house_no', 'permanent_address',
+            'whatsapp_number', 'residential_email',
+            'passport_number', 'passport_issue_country', 'passport_issue_date',
             'passport_expiration_date', 'has_valid_visa', 'valid_visa_details',
         ],
     ),
@@ -33,17 +38,27 @@ SUPPLEMENTAL_FIELD_GROUPS = [
         'fa-user-graduate',
         [
             'certificate_institution', 'certificate_field_of_study',
-            'certificate_year_completed', 'certificate_gpa',
+            'certificate_start_year', 'certificate_completed_year', 'certificate_gpa',
             'diploma_institution', 'diploma_field_of_study',
-            'diploma_year_completed', 'diploma_gpa',
+            'diploma_start_year', 'diploma_completed_year', 'diploma_gpa',
             'bachelor_institution', 'bachelor_field_of_study',
-            'bachelor_year_completed', 'bachelor_gpa',
+            'bachelor_start_year', 'bachelor_completed_year', 'bachelor_gpa',
             'master_institution', 'master_field_of_study',
-            'master_year_completed', 'master_gpa',
+            'master_start_year', 'master_completed_year', 'master_gpa',
             'phd_institution', 'phd_field_of_study',
-            'phd_year_completed', 'phd_gpa',
-            'professional_qualifications', 'english_test_name',
+            'phd_start_year', 'phd_completed_year', 'phd_gpa',
+            'professional_qualifications',
+            'professional_qualification_institution',
+            'professional_qualification_country',
+            'professional_qualification_region', 'professional_qualification_district',
+            'professional_qualification_ward', 'professional_qualification_street',
+            'professional_qualification_mtaa',
+            'professional_qualification_start_date',
+            'professional_qualification_completed_date',
+            'professional_qualification_certificate_awarded',
+            'english_test_name', 'english_test_institution',
             'english_test_score', 'english_test_year',
+            'english_is_primary_language',
         ],
     ),
     (
@@ -117,32 +132,51 @@ SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
     'full_name_passport',
     'place_of_birth',
     'current_region',
+    'current_district',
+    'current_ward',
+    'current_street',
+    'current_mtaa',
     'current_city',
     'current_country',
     'current_postal_code',
+    'current_house_no',
+    'permanent_region',
+    'permanent_district',
+    'permanent_ward',
+    'permanent_street',
+    'permanent_mtaa',
+    'permanent_house_no',
+    'permanent_city',
+    'permanent_country',
+    'permanent_postal_code',
     'whatsapp_number',
     'passport_number',
     'passport_issue_country',
     'valid_visa_details',
     'certificate_institution',
     'certificate_field_of_study',
-    'certificate_year_completed',
+    'certificate_start_year',
+    'certificate_completed_year',
     'certificate_gpa',
     'diploma_institution',
     'diploma_field_of_study',
-    'diploma_year_completed',
+    'diploma_start_year',
+    'diploma_completed_year',
     'diploma_gpa',
     'bachelor_institution',
     'bachelor_field_of_study',
-    'bachelor_year_completed',
+    'bachelor_start_year',
+    'bachelor_completed_year',
     'bachelor_gpa',
     'master_institution',
     'master_field_of_study',
-    'master_year_completed',
+    'master_start_year',
+    'master_completed_year',
     'master_gpa',
     'phd_institution',
     'phd_field_of_study',
-    'phd_year_completed',
+    'phd_start_year',
+    'phd_completed_year',
     'phd_gpa',
     'english_test_name',
     'english_test_score',
@@ -152,6 +186,13 @@ SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
     'accommodation_preference',
     'education_sponsor',
     'estimated_budget_usd',
+    'professional_qualification_institution',
+    'professional_qualification_country',
+    'professional_qualification_region',
+    'professional_qualification_district',
+    'professional_qualification_ward',
+    'professional_qualification_street',
+    'professional_qualification_mtaa',
 }
 
 SUPPLEMENTAL_SELECT_CHOICES = {
@@ -510,9 +551,16 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             self.fields[field_name].label = label
             self.fields[field_name].help_text = f'Upload the {label.lower()} file if it is available.'
 
+        # Collect mtaa field names for the supplemental group
+        mtaa_select_field_names = {f'current_{s}' for s in ['region', 'district', 'ward', 'street']}
+        mtaa_select_field_names |= {f'permanent_{s}' for s in ['region', 'district', 'ward', 'street']}
+        mtaa_select_field_names |= {f'professional_qualification_{s}' for s in ['region', 'district', 'ward', 'street']}
+
         for field_name in SUPPLEMENTAL_FIELD_NAMES:
             model_field = ApplicationSupplementalProfile._meta.get_field(field_name)
             is_boolean_field = model_field.get_internal_type() == 'BooleanField'
+            is_mtaa_select = field_name in mtaa_select_field_names
+
             if model_field.get_internal_type() == 'BooleanField':
                 form_field = forms.TypedChoiceField(
                     required=False,
@@ -528,11 +576,14 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             if form_field is None:
                 continue
 
-            widget = form_field.widget
-            if hasattr(widget, 'attrs'):
-                widget.attrs['class'] = 'form-input'
-
-            if is_boolean_field:
+            if is_mtaa_select:
+                form_field = forms.ChoiceField(
+                    required=False,
+                    choices=[('', '--- Select ---')],
+                    widget=forms.Select(attrs={'class': 'form-input'}),
+                    label=model_field.verbose_name.replace('_', ' ').title(),
+                )
+            elif is_boolean_field:
                 form_field.widget = forms.Select(attrs={'class': 'form-select'})
             elif field_name in SUPPLEMENTAL_SELECT_CHOICES:
                 form_field = forms.ChoiceField(

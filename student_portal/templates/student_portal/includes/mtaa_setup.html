@@ -1,0 +1,189 @@
+<script>
+(function() {
+    'use strict';
+
+    var MTAA_API = '{% url "student_portal:mtaa_locations_api" %}';
+
+    function mtaaFetch(level, params) {
+        var url = MTAA_API + '?level=' + encodeURIComponent(level);
+        if (params.region) url += '&region=' + encodeURIComponent(params.region);
+        if (params.district) url += '&district=' + encodeURIComponent(params.district);
+        if (params.ward) url += '&ward=' + encodeURIComponent(params.ward);
+        return fetch(url).then(function(r) { return r.json(); });
+    }
+
+    function mtaaPopulate(selectEl, items, valueKey, labelKey, selectedValue) {
+        var currentValue = selectEl.value || selectedValue || '';
+        selectEl.innerHTML = '<option value="">--- Select ---</option>';
+        items.forEach(function(item) {
+            var val = valueKey ? item[valueKey] : item.name || item;
+            var label = labelKey ? item[labelKey] : item.name || item;
+            var opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = label;
+            if (val === currentValue) opt.selected = true;
+            selectEl.appendChild(opt);
+        });
+    }
+
+    function mtaaReplaceWithSelect(field) {
+        if (field.tagName === 'SELECT') return;
+        var select = document.createElement('select');
+        select.name = field.name;
+        select.id = field.id;
+        select.className = field.className;
+        select.value = field.value;
+        select.innerHTML = '<option value="">--- Select ---</option>';
+        field.parentNode.replaceChild(select, field);
+    }
+
+    function mtaaClearField(field) {
+        if (!field) return;
+        if (field.tagName === 'SELECT') {
+            field.innerHTML = '<option value="">--- Select ---</option>';
+        } else {
+            field.value = '';
+        }
+    }
+
+    // Wire a group found in the DOM by .mtaa-location-group container (student portal style)
+    function mtaaWireGroup(groupEl) {
+        var regionField = groupEl.querySelector('.mtaa-region select, .mtaa-region input');
+        var districtField = groupEl.querySelector('.mtaa-district select, .mtaa-district input');
+        var wardField = groupEl.querySelector('.mtaa-ward select, .mtaa-ward input');
+        var streetField = groupEl.querySelector('.mtaa-street select, .mtaa-street input');
+
+        if (!regionField) return;
+        mtaaWireFields(regionField, districtField, wardField, streetField);
+    }
+
+    // Core wiring: attach cascading behavior to the four location fields
+    function mtaaWireFields(regionField, districtField, wardField, streetField) {
+        if (!regionField) return;
+
+        mtaaReplaceWithSelect(regionField);
+        if (districtField) mtaaReplaceWithSelect(districtField);
+        if (wardField) mtaaReplaceWithSelect(wardField);
+        if (streetField) mtaaReplaceWithSelect(streetField);
+
+        var existingRegion = regionField.value;
+        var existingDistrict = districtField ? districtField.value : '';
+        var existingWard = wardField ? wardField.value : '';
+
+        // Load regions on init
+        mtaaFetch('regions', {}).then(function(items) {
+            if (!items || !items.length) return;
+            mtaaPopulate(regionField, items, 'name', 'name', existingRegion);
+            if (existingRegion && districtField) {
+                mtaaLoadDistrictsForFields(districtField, wardField, streetField, existingRegion, existingDistrict, existingWard);
+            }
+        });
+
+        // Region change
+        regionField.addEventListener('change', function() {
+            var region = regionField.value;
+            mtaaClearField(districtField);
+            mtaaClearField(wardField);
+            mtaaClearField(streetField);
+            if (region && districtField) mtaaLoadDistrictsForFields(districtField, wardField, streetField, region, '', '');
+        });
+
+        // District change
+        if (districtField) {
+            districtField.addEventListener('change', function() {
+                var region = regionField.value;
+                var district = districtField.value;
+                mtaaClearField(wardField);
+                mtaaClearField(streetField);
+                if (region && district && wardField) mtaaLoadWardsForFields(wardField, streetField, region, district, '');
+            });
+        }
+
+        // Ward change
+        if (wardField) {
+            wardField.addEventListener('change', function() {
+                var region = regionField.value;
+                var district = districtField.value;
+                var ward = wardField.value;
+                mtaaClearField(streetField);
+                if (region && district && ward && streetField) mtaaLoadStreetsForFields(streetField, region, district, ward, '');
+            });
+        }
+    }
+
+    function mtaaLoadDistrictsForFields(districtField, wardField, streetField, region, selectedDistrict, selectedWard) {
+        if (!districtField) return;
+        districtField.disabled = true;
+        mtaaFetch('districts', {region: region}).then(function(items) {
+            districtField.disabled = false;
+            if (!items || !items.length) {
+                districtField.innerHTML = '<option value="">No districts available</option>';
+                return;
+            }
+            mtaaPopulate(districtField, items, 'name', 'name', selectedDistrict);
+            if (selectedDistrict && selectedWard && wardField) {
+                mtaaLoadWardsForFields(wardField, streetField, region, selectedDistrict, selectedWard);
+            }
+        });
+    }
+
+    function mtaaLoadWardsForFields(wardField, streetField, region, district, selectedWard) {
+        if (!wardField) return;
+        wardField.disabled = true;
+        mtaaFetch('wards', {region: region, district: district}).then(function(items) {
+            wardField.disabled = false;
+            if (!items || !items.length) {
+                wardField.innerHTML = '<option value="">No wards available</option>';
+                return;
+            }
+            mtaaPopulate(wardField, items, 'name', 'name', selectedWard);
+        });
+    }
+
+    function mtaaLoadStreetsForFields(streetField, region, district, ward, selectedStreet) {
+        if (!streetField) return;
+        streetField.disabled = true;
+        mtaaFetch('streets', {region: region, district: district, ward: ward}).then(function(items) {
+            streetField.disabled = false;
+            if (!items || !items.length) {
+                streetField.innerHTML = '<option value="">No streets/mitaa available</option>';
+                return;
+            }
+            mtaaPopulate(streetField, items, 'name', 'name', selectedStreet);
+        });
+    }
+
+    // Wire a set of fields identified by a name prefix (e.g. "father" -> father_region, ...)
+    // or by bare name (empty prefix -> region, district, ...). No DOM moving.
+    function mtaaWireByPrefix(prefix) {
+        var makeName = prefix ? function(suf) { return prefix + '_' + suf; } : function(suf) { return suf; };
+        var regionEl = document.querySelector('[name="' + makeName('region') + '"]');
+        if (!regionEl) return;
+        if (regionEl.getAttribute('data-mtaa-wired') === '1') return;
+
+        var districtEl = document.querySelector('[name="' + makeName('district') + '"]');
+        var wardEl = document.querySelector('[name="' + makeName('ward') + '"]');
+        var streetEl = document.querySelector('[name="' + makeName('street') + '"]');
+
+        // Mark as wired
+        [regionEl, districtEl, wardEl, streetEl].forEach(function(el) {
+            if (el) el.setAttribute('data-mtaa-wired', '1');
+        });
+
+        mtaaWireFields(regionEl, districtEl, wardEl, streetEl);
+    }
+
+    // Init all groups on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Student portal style: .mtaa-location-group containers
+        document.querySelectorAll('.mtaa-location-group').forEach(function(g) { mtaaWireGroup(g); });
+
+        // Employee / flat style: fields identified by name prefix.
+        // '' handles bare region/district/ward/street (PersonalDetailsForm).
+        var prefixes = ['', 'current', 'permanent', 'professional_qualification',
+                        'father', 'mother', 'emergency',
+                        'olevel_school', 'alevel_school'];
+        prefixes.forEach(function(p) { mtaaWireByPrefix(p); });
+    });
+})();
+</script>

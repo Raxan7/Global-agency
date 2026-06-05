@@ -24,8 +24,8 @@
             {% endif %}
         </p>
         
-        <form method="POST">
-            {% csrf_token %}
+        <form method="POST">{% csrf_token %}
+
             <div class="flex justify-center space-x-4">
                 <a href="{% url 'student_portal:work_experience' %}" 
                    class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">

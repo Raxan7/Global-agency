@@ -1,3 +1,4 @@
+{% load security_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -708,12 +709,39 @@
         }
     </script>
 
-    <!-- Django Messages -->
+    <!-- Django Messages (rendered in DOM to avoid XSS and alert() UX issues) -->
     {% if messages %}
-    <script>
+    <div id="django-messages" hidden>
         {% for message in messages %}
-        alert("{{ message|escapejs }}");
+            <div data-message
+                 data-tags="{{ message.tags|default:'' }}"
+                 data-text="{{ message|escapejs }}"></div>
         {% endfor %}
+    </div>
+    <div id="toast-container" aria-live="polite" aria-atomic="true"
+         style="position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+    <script>
+        (function () {
+            var messages = document.querySelectorAll('#django-messages [data-message]');
+            var container = document.getElementById('toast-container');
+            if (!container) { return; }
+            messages.forEach(function (node) {
+                var text = node.getAttribute('data-text') || '';
+                var tags = (node.getAttribute('data-tags') || '').toLowerCase();
+                var toast = document.createElement('div');
+                toast.setAttribute('role', 'status');
+                var bg = '#0f172a';
+                if (tags.indexOf('error') !== -1) { bg = '#b91c1c'; }
+                else if (tags.indexOf('warning') !== -1) { bg = '#b45309'; }
+                else if (tags.indexOf('success') !== -1) { bg = '#15803d'; }
+                else if (tags.indexOf('info') !== -1) { bg = '#1d4ed8'; }
+                toast.style.cssText = 'background:' + bg + ';color:#fff;padding:0.75rem 1rem;border-radius:8px;'
+                    + 'box-shadow:0 10px 25px rgba(15,23,42,0.25);max-width:360px;font-size:0.95rem;line-height:1.4;';
+                toast.textContent = text;
+                container.appendChild(toast);
+                setTimeout(function () { toast.remove(); }, 6000);
+            });
+        })();
     </script>
     {% endif %}
 </body>

@@ -36,7 +36,7 @@
             <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8 text-left">
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="text-green-800 text-lg leading-relaxed">{{ message|safe }}</div>
+                        <div class="text-green-800 text-lg leading-relaxed">{{ message }}</div>
                     {% endfor %}
                 {% else %}
                     <p class="text-green-800 text-lg">Your application has been received and is being processed.</p>

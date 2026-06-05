@@ -1,0 +1,54 @@
+<div class="mtaa-location-group" data-prefix="{{ prefix }}">
+    <h4 class="text-md font-semibold text-gray-700 mb-3 flex items-center">
+        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
+        {{ heading|default:"Location" }}
+    </h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="mtaa-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            {{ form.country }}
+            {% if form.country.errors %}<p class="text-red-500 text-sm mt-1">{{ form.country.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="mtaa-field"></div>
+
+        <div class="mtaa-field mtaa-region">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+            {{ form.region }}
+            {% if form.region.errors %}<p class="text-red-500 text-sm mt-1">{{ form.region.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="mtaa-field mtaa-district">
+            <label class="block text-sm font-medium text-gray-700 mb-1">District</label>
+            {{ form.district }}
+            {% if form.district.errors %}<p class="text-red-500 text-sm mt-1">{{ form.district.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="mtaa-field mtaa-ward">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ward</label>
+            {{ form.ward }}
+            {% if form.ward.errors %}<p class="text-red-500 text-sm mt-1">{{ form.ward.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="mtaa-field mtaa-street">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Street / Mtaa</label>
+            {{ form.street }}
+            {% if form.street.errors %}<p class="text-red-500 text-sm mt-1">{{ form.street.errors.0 }}</p>{% endif %}
+        </div>
+
+        {% if show_house_no %}
+        <div class="mtaa-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">House / Plot Number</label>
+            {{ form.house_no }}
+            {% if form.house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.house_no.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if show_address_line %}
+        <div class="mtaa-field md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Full Address Line</label>
+            {{ form.address_line }}
+            {% if form.address_line.errors %}<p class="text-red-500 text-sm mt-1">{{ form.address_line.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>

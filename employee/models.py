@@ -4,7 +4,38 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from urllib.parse import parse_qs, urlparse
+import bleach
 from student_portal.models import Application, Document
+
+
+ALLOWED_UPDATE_TAGS = [
+    'a', 'abbr', 'b', 'blockquote', 'br', 'code', 'em', 'figure', 'figcaption',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'img', 'li', 'ol', 'p',
+    'pre', 's', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td',
+    'tfoot', 'th', 'thead', 'tr', 'u', 'ul',
+]
+ALLOWED_UPDATE_ATTRIBUTES = {
+    'a': ['href', 'title', 'target', 'rel'],
+    'img': ['src', 'alt', 'title', 'width', 'height', 'loading'],
+    'table': ['summary'],
+    'th': ['scope', 'colspan', 'rowspan'],
+    'td': ['colspan', 'rowspan'],
+    '*': ['class'],
+}
+ALLOWED_UPDATE_PROTOCOLS = ['http', 'https', 'mailto', 'tel']
+
+
+def sanitize_rich_content(value):
+    """Strip dangerous tags/attributes from WYSIWYG-supplied HTML."""
+    if not value:
+        return value
+    return bleach.clean(
+        value,
+        tags=ALLOWED_UPDATE_TAGS,
+        attributes=ALLOWED_UPDATE_ATTRIBUTES,
+        protocols=ALLOWED_UPDATE_PROTOCOLS,
+        strip=True,
+    )
 
 class UserProfile(models.Model):
     USER_ROLES = [
@@ -179,6 +210,19 @@ class PortalUpdate(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        # Sanitize WYSIWYG-supplied HTML to defend against stored XSS even
+        # if a privileged author pastes <script> or javascript: hrefs.
+        if self.content:
+            self.content = sanitize_rich_content(self.content)
+        if self.excerpt:
+            self.excerpt = bleach.clean(
+                self.excerpt, tags=[], attributes={}, strip=True
+            )
+        if self.image_alt_text:
+            self.image_alt_text = bleach.clean(
+                self.image_alt_text, tags=[], attributes={}, strip=True
+            )
+
         if self.status == 'published' and self.published_at is None:
             self.published_at = timezone.now()
 
