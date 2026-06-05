@@ -32,6 +32,7 @@ This document outlines the security measures implemented in the Africa Western E
 - ✅ User attribute similarity check
 - ✅ Numeric password validation
 - ✅ Staff users blocked from student portal
+- ✅ Password validation on student & employee password reset (`validate_password`)
 
 ## 📁 File Upload Security
 - ✅ File size limit: 5MB

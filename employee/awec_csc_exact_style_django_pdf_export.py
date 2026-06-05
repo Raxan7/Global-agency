@@ -110,7 +110,59 @@ CELL_X_GAP = 0.75 * mm
 CELL_Y_GAP = 0.55 * mm
 CELL_BORDER_WIDTH = 0.85
 
-LOGO_PATH = Path(__file__).resolve().parent.parent / "static" / "global_agency" / "img" / "logo.png"
+def resolve_static_asset(relative_path: str) -> Path:
+    """Resolve a Django static asset to a real filesystem path.
+
+    Works in normal Django runs, management commands, and standalone script runs.
+    The stamp file requested by the project is:
+    static/global_agency/image/signature-removebg.png
+    """
+    normalized = relative_path.replace("\\", "/").lstrip("/")
+
+    # Best option in Django: ask staticfiles where the file is.
+    try:
+        from django.contrib.staticfiles import finders  # type: ignore
+
+        found = finders.find(normalized)
+        if found:
+            return Path(found)
+    except Exception:
+        pass
+
+    candidates: List[Path] = []
+
+    # Django settings.BASE_DIR / STATIC_ROOT support.
+    try:
+        from django.conf import settings  # type: ignore
+
+        base_dir = getattr(settings, "BASE_DIR", None)
+        if base_dir:
+            candidates.append(Path(base_dir) / "static" / normalized)
+
+        static_root = getattr(settings, "STATIC_ROOT", None)
+        if static_root:
+            candidates.append(Path(static_root) / normalized)
+    except Exception:
+        pass
+
+    # Existing project-relative behavior.
+    candidates.extend([
+        Path(__file__).resolve().parent.parent / "static" / normalized,
+        Path(__file__).resolve().parent / "static" / normalized,
+        Path.cwd() / "static" / normalized,
+        Path("C:/Users/WINDOWS 11/Documents/Projects/Global-agency/static") / normalized,
+    ])
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    # Return the first Django-style location even if missing, so logs show the expected path.
+    return candidates[0] if candidates else Path(normalized)
+
+
+LOGO_PATH = resolve_static_asset("global_agency/img/logo.png")
+STAMP_PATH = resolve_static_asset("global_agency/image/signature-removebg.png")
 
 # International passport-style student photo size used on the form.
 # 35 mm x 45 mm is a widely accepted passport/ID portrait size.
@@ -1423,8 +1475,30 @@ def draw_auto_signature(c: canvas.Canvas, x: float, y: float, w: float, h: float
 
 
 def draw_auto_stamp(c: canvas.Canvas, center_x: float, center_y: float, radius: float = 11 * mm) -> None:
-    """Draw an automatic round company approval stamp."""
+    """Draw the Africa Western Education company approval stamp.
+
+    Uses the official scanned stamp image at ``STAMP_PATH`` when it exists,
+    and falls back to a vector-drawn stamp otherwise so the form still
+    renders cleanly on machines where the image has not been deployed yet.
+    """
     c.saveState()
+    if STAMP_PATH.exists():
+        try:
+            size = radius * 2
+            c.drawImage(
+                str(STAMP_PATH),
+                center_x - radius,
+                center_y - radius,
+                size,
+                size,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
+            c.restoreState()
+            return
+        except Exception:
+            logger.warning("Failed to render stamp image, falling back to vector stamp", exc_info=True)
+
     stamp_color = colors.HexColor("#B00020")
     c.setStrokeColor(stamp_color)
     c.setFillColor(stamp_color)

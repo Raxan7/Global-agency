@@ -45,8 +45,17 @@ CLICKPESA_CLIENT_ID = config('CLICKPESA_CLIENT_ID', default='')
 CLICKPESA_API_KEY = config('CLICKPESA_API_KEY', default='')
 CLICKPESA_BASE_URL = config('CLICKPESA_BASE_URL', default='https://api.clickpesa.com/third-parties')
 CLICKPESA_CHECKSUM = config('CLICKPESA_CHECKSUM', default='')
+CLICKPESA_WEBHOOK_SECRET = config('CLICKPESA_WEBHOOK_SECRET', default='') or CLICKPESA_CHECKSUM
 PAYMENT_GATEWAY = config('PAYMENT_GATEWAY', default='clickpesa')
 CURRENCY = config('CURRENCY', default='TZS')
+
+# When DEBUG is True we still enforce signature verification but accept the
+# development "test-mode" header so local ClickPesa sandbox callbacks work
+# without a real HMAC secret. Production deployments MUST set
+# CLICKPESA_WEBHOOK_SECRET in the environment.
+CLICKPESA_WEBHOOK_ALLOW_INSECURE_DEBUG = env_bool(
+    'CLICKPESA_WEBHOOK_ALLOW_INSECURE_DEBUG', default=DEBUG
+)
 
 # =============================================================================
 # INSTALLED APPS
@@ -66,6 +75,7 @@ INSTALLED_APPS = [
     'global_agency',
     'employee',
     'student_portal',
+    'globalagency_project',
 ]
 
 # =============================================================================
@@ -180,7 +190,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STORAGES = {
     'default': {
-        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+        'BACKEND': 'globalagency_project.storage.PdfFriendlyCloudinaryStorage',
     },
     'staticfiles': {
         'BACKEND': 'globalagency_project.storage.ResilientCompressedManifestStaticFilesStorage',

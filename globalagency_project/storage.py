@@ -36,12 +36,34 @@ class ResilientCompressedManifestStaticFilesStorage(
 @deconstructible
 class PdfFriendlyCloudinaryStorage(MediaCloudinaryStorage):
     """
-    Store documents as normal Cloudinary media/image assets.
+    Store regular images as Cloudinary image assets and office-style
+    attachments as raw assets.
 
     PDFs are delivered through Cloudinary's image-style URL path so the existing
     template access pattern (`{{ document.file.url }}`) continues to work, while
     also preferring download behavior and auto quality for lighter delivery.
     """
+
+    IMAGE_RESOURCE_EXTENSIONS = {
+        '.avif',
+        '.bmp',
+        '.gif',
+        '.heic',
+        '.jpeg',
+        '.jpg',
+        '.pdf',
+        '.png',
+        '.svg',
+        '.tif',
+        '.tiff',
+        '.webp',
+    }
+
+    def _get_resource_type(self, name):
+        suffix = Path(name).suffix.lower()
+        if suffix and suffix not in self.IMAGE_RESOURCE_EXTENSIONS:
+            return 'raw'
+        return 'image'
 
     def _save(self, name, content):
         public_id = super()._save(name, content)
