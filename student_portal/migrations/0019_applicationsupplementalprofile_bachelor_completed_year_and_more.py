@@ -4,6 +4,70 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+DYNAMIC_TABLES = (
+    "student_portal_studentprofile",
+    "student_portal_applicationsupplementalprofile",
+    "student_portal_workexperience",
+)
+
+
+def _ensure_mysql_dynamic_row_format(apps, schema_editor):
+    """Switch the wide tables to ROW_FORMAT=DYNAMIC on MySQL.
+
+    MySQL/InnoDB stores variable-length columns inline up to a per-row
+    budget (default 8126 bytes for COMPACT rows). With ~200 wide
+    CharField columns and utf8mb4 we blow that budget. DYNAMIC row
+    format allows long values to be stored off-page, so the on-page
+    footprint per column is ~20 bytes regardless of the declared
+    length. This is a no-op on non-MySQL backends.
+    """
+    if schema_editor.connection.vendor != "mysql":
+        return
+    with schema_editor.connection.cursor() as cursor:
+        for table in DYNAMIC_TABLES:
+            cursor.execute(
+                "SHOW TABLES LIKE %s",
+                [table],
+            )
+            if not cursor.fetchone():
+                continue
+            cursor.execute(
+                "SELECT CREATE_OPTIONS FROM information_schema.TABLES "
+                "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s",
+                [table],
+            )
+            row = cursor.fetchone()
+            create_options = (row[0] or "") if row else ""
+            if "row_format=dynamic" in create_options.lower():
+                continue
+            try:
+                cursor.execute(
+                    f"ALTER TABLE `{table}` ROW_FORMAT=DYNAMIC"
+                )
+            except Exception:
+                pass
+
+
+def _restore_mysql_row_format(apps, schema_editor):
+    """Reverse of ``_ensure_mysql_dynamic_row_format``.
+
+    We don't force a specific row format on reversal because InnoDB's
+    default is a sensible choice.  The function exists so Django has a
+    matching reverse callable.
+    """
+    if schema_editor.connection.vendor != "mysql":
+        return
+    with schema_editor.connection.cursor() as cursor:
+        for table in DYNAMIC_TABLES:
+            cursor.execute("SHOW TABLES LIKE %s", [table])
+            if not cursor.fetchone():
+                continue
+            try:
+                cursor.execute(f"ALTER TABLE `{table}` ROW_FORMAT=COMPACT")
+            except Exception:
+                pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -11,6 +75,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            code=_ensure_mysql_dynamic_row_format,
+            reverse_code=_restore_mysql_row_format,
+        ),
         migrations.AddField(
             model_name='applicationsupplementalprofile',
             name='bachelor_completed_year',

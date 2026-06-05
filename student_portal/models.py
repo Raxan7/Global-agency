@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterable, List, Optional
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.fields import NOT_PROVIDED
 from django.utils import timezone
 
 from globalagency_project.storage import PdfFriendlyCloudinaryStorage
@@ -312,7 +313,7 @@ class TanzaniaLocationMixin(models.Model):
 
     def location_parts(self) -> Dict[str, str]:
         return {
-            "country": self.country or COUNTRY_DEFAULT,
+            "country": self.country,
             "region": self.region or "",
             "region_post_code": self.region_post_code or "",
             "district": self.district or "",
@@ -336,7 +337,7 @@ class TanzaniaLocationMixin(models.Model):
             self.ward,
             self.district,
             self.region,
-            self.country or COUNTRY_DEFAULT,
+            self.country,
         ]
         return ", ".join(str(part).strip() for part in parts if str(part or "").strip())
 
@@ -618,6 +619,65 @@ class StudentProfile(models.Model):
 
         super().save(*args, **kwargs)
 
+    # ------------------------------------------------------------------
+    # Normalized schema accessors (see StudentAddress, StudentPassport,
+    # StudentFamilyContact, StudentSchoolHistory below). These return the
+    # canonical normalized record when available so PDF exports, admin
+    # screens and other read paths do not depend on the legacy wide
+    # columns staying physically present in MySQL.
+    # ------------------------------------------------------------------
+    def get_address(self, address_type):
+        """Return the StudentAddress row for ``address_type`` or ``None``."""
+        try:
+            return self.addresses.filter(address_type=address_type).first()
+        except Exception:
+            return None
+
+    def get_passport(self):
+        """Return the related StudentPassport row or ``None``."""
+        try:
+            return getattr(self, "passport_record", None)
+        except StudentPassport.DoesNotExist:
+            return None
+        except Exception:
+            return None
+
+    def get_family_contact(self, contact_type):
+        """Return the StudentFamilyContact row for ``contact_type`` or ``None``."""
+        try:
+            return self.family_contacts.filter(contact_type=contact_type).first()
+        except Exception:
+            return None
+
+    def get_school_history(self, level):
+        """Return the StudentSchoolHistory row for ``level`` or ``None``."""
+        try:
+            return self.school_history.filter(level=level).first()
+        except Exception:
+            return None
+
+    def sync_normalized_fields(self):
+        """Mirror the legacy wide columns into the normalized tables.
+
+        The function is intentionally tolerant: it never raises on missing
+        physical columns or on rows that have not been migrated yet. Call
+        it from form ``save()`` overrides and from any view that updates a
+        StudentProfile so the normalized tables always stay in step with
+        the legacy columns during the transition window.
+
+        The cleanup release that drops the legacy columns will also delete
+        this method.
+        """
+        from django.db import DatabaseError
+
+        try:
+            _sync_student_profile_normalized(self)
+        except DatabaseError:
+            # The destination tables may not exist on the very first
+            # migrate. Swallowing this keeps the public API safe during
+            # the deploy window.
+            pass
+
 
 class WorkExperience(models.Model):
     """Work experience entries for students."""
@@ -688,6 +748,487 @@ class WorkExperience(models.Model):
         if months > 0:
             return f"{months} month{'s' if months > 1 else ''}"
         return "Less than a month"
+
+
+# ---------------------------------------------------------------------------
+# Normalized student-scoped tables.
+#
+# These replace the dozens of address / family / school / passport columns
+# that used to live directly on ``StudentProfile`` and caused MySQL row-size
+# 1118 errors (max row 8126 bytes for the default 16K page size). They are
+# small, related-row tables, so the parent table stays slim.
+#
+# Existing wide columns on ``StudentProfile`` are deliberately retained for
+# now so the in-flight transition deployment does not break any forms,
+# views, admin screens, or exports that still write to those columns. A
+# later cleanup migration will drop the legacy columns once data has been
+# verified in the normalized tables.
+# ---------------------------------------------------------------------------
+
+
+class StudentAddress(models.Model):
+    """Generic address row attached to a StudentProfile.
+
+    ``address_type`` partitions rows into the well-known groupings the rest
+    of the application uses: personal/current, permanent, father, mother,
+    emergency, olevel_school, alevel_school. The relation is many-to-one so
+    new address types can be added later without further migrations.
+
+    Long fields use ``TextField`` so MySQL keeps them off-page and the row
+    stays well under the 8126-byte limit even for many such relations.
+    """
+
+    ADDRESS_TYPE_CHOICES = [
+        ("personal", "Personal / Current"),
+        ("permanent", "Permanent"),
+        ("father", "Father"),
+        ("mother", "Mother"),
+        ("emergency", "Emergency Contact"),
+        ("olevel_school", "O-Level School"),
+        ("alevel_school", "A-Level School"),
+        ("other", "Other"),
+    ]
+
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="addresses",
+    )
+    address_type = models.CharField(max_length=30, choices=ADDRESS_TYPE_CHOICES)
+
+    country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
+    region = models.CharField(max_length=120, blank=True)
+    region_post_code = models.CharField(max_length=30, blank=True)
+    district = models.CharField(max_length=120, blank=True)
+    district_post_code = models.CharField(max_length=30, blank=True)
+    ward = models.CharField(max_length=120, blank=True)
+    ward_post_code = models.CharField(max_length=30, blank=True)
+    house_no = models.CharField(max_length=80, blank=True)
+    postal_code = models.CharField(max_length=30, blank=True)
+    post_code = models.CharField(max_length=30, blank=True)
+
+    street = models.TextField(blank=True)
+    mtaa = models.TextField(blank=True)
+    village = models.TextField(blank=True)
+    neighbourhood = models.TextField(blank=True)
+    place_neighbourhood = models.TextField(blank=True)
+    landmark = models.TextField(blank=True)
+    nearest_landmark = models.TextField(blank=True)
+    address_line = models.TextField(blank=True)
+    remarks = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("student", "address_type")]
+        verbose_name = "Student Address"
+        verbose_name_plural = "Student Addresses"
+        ordering = ["student_id", "address_type"]
+
+    def __str__(self):
+        try:
+            owner = self.student.user.get_full_name() or self.student.user.username
+        except Exception:
+            owner = f"Student #{self.student_id}"
+        return f"{self.get_address_type_display()} address for {owner}"
+
+    def formatted(self) -> str:
+        parts = [
+            self.house_no,
+            self.place_neighbourhood or self.neighbourhood,
+            self.street or self.mtaa,
+            self.ward,
+            self.district,
+            self.region,
+            self.country,
+        ]
+        return ", ".join(str(part).strip() for part in parts if str(part or "").strip())
+
+
+class StudentPassport(models.Model):
+    """Single passport record per student, normalised out of StudentProfile."""
+
+    student = models.OneToOneField(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="passport_record",
+    )
+    passport_number = models.CharField(max_length=100, blank=True)
+    issue_country = models.CharField(max_length=100, blank=True)
+    issue_date = models.DateField(null=True, blank=True)
+    expiry_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Student Passport"
+        verbose_name_plural = "Student Passports"
+
+    def __str__(self):
+        return f"Passport {self.passport_number or '-'} for student #{self.student_id}"
+
+
+class StudentFamilyContact(models.Model):
+    """Father / mother / emergency contact rows normalised out of StudentProfile."""
+
+    CONTACT_TYPE_CHOICES = [
+        ("father", "Father"),
+        ("mother", "Mother"),
+        ("emergency", "Emergency Contact"),
+        ("guardian", "Guardian"),
+        ("other", "Other"),
+    ]
+
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="family_contacts",
+    )
+    contact_type = models.CharField(max_length=20, choices=CONTACT_TYPE_CHOICES)
+    name = models.CharField(max_length=150, blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(blank=True)
+    occupation = models.CharField(max_length=150, blank=True)
+    relation = models.CharField(max_length=100, blank=True)
+    gender = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("student", "contact_type")]
+        verbose_name = "Student Family Contact"
+        verbose_name_plural = "Student Family Contacts"
+        ordering = ["student_id", "contact_type"]
+
+    def __str__(self):
+        return f"{self.get_contact_type_display()}: {self.name or '-'} (student #{self.student_id})"
+
+
+class StudentSchoolHistory(models.Model):
+    """O-Level / A-Level / other school history per student."""
+
+    LEVEL_CHOICES = [
+        ("olevel", "O-Level"),
+        ("alevel", "A-Level"),
+        ("primary", "Primary"),
+        ("other", "Other"),
+    ]
+
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="school_history",
+    )
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
+    school_name = models.CharField(max_length=255, blank=True)
+    candidate_no = models.CharField(max_length=50, blank=True)
+    gpa = models.CharField(max_length=20, blank=True)
+    start_year = models.CharField(max_length=10, blank=True)
+    completed_year = models.CharField(max_length=10, blank=True)
+
+    country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
+    region = models.CharField(max_length=120, blank=True)
+    district = models.CharField(max_length=120, blank=True)
+    ward = models.CharField(max_length=120, blank=True)
+    house_no = models.CharField(max_length=80, blank=True)
+    street = models.TextField(blank=True)
+    mtaa = models.TextField(blank=True)
+    address = models.TextField(blank=True)
+    remarks = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("student", "level")]
+        verbose_name = "Student School History"
+        verbose_name_plural = "Student School Histories"
+        ordering = ["student_id", "level"]
+
+    def __str__(self):
+        return f"{self.get_level_display()}: {self.school_name or '-'} (student #{self.student_id})"
+
+
+# ---------------------------------------------------------------------------
+# Sync helper used by StudentProfile.sync_normalized_fields() and by data
+# migrations. It reads any data still living in the legacy wide columns and
+# mirrors it into the normalized tables. Reads are tolerant: any missing
+# attribute is treated as empty, so this is safe even when migrations have
+# already dropped a column in a future release.
+# ---------------------------------------------------------------------------
+
+
+def _attr(obj: Any, name: str, default: str = "") -> str:
+    """Read an attribute defensively, even when the column is missing.
+
+    Returns the model's field default if the value is None or equal to the
+    field's default.  This ensures that fields declared with
+    ``default=COUNTRY_DEFAULT`` (i.e. "Tanzania") read as empty during
+    normalization, so we don't create empty rows for every country field
+    on every student.
+    """
+    if obj is None:
+        return default
+    try:
+        value = getattr(obj, name, default)
+    except Exception:
+        return default
+    if value is None:
+        return default
+    try:
+        field = obj._meta.get_field(name)
+        field_default = getattr(field, "default", None)
+        if field_default is not None and field_default is not NOT_PROVIDED and value == field_default:
+            return default
+    except Exception:
+        pass
+    return value
+
+
+def _row_has_content(values: Dict[str, Any]) -> bool:
+    """Return True when at least one value in ``values`` is non-empty."""
+    for value in values.values():
+        if value in (None, ""):
+            continue
+        return True
+    return False
+
+
+def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
+    """Mirror legacy columns from a StudentProfile into normalized tables."""
+    address_specs = [
+        (
+            "personal",
+            {
+                "country": _attr(profile, "country"),
+                "region": _attr(profile, "region"),
+                "region_post_code": _attr(profile, "region_post_code"),
+                "district": _attr(profile, "district"),
+                "district_post_code": _attr(profile, "district_post_code"),
+                "ward": _attr(profile, "ward"),
+                "ward_post_code": _attr(profile, "ward_post_code"),
+                "street": _attr(profile, "street"),
+                "mtaa": _attr(profile, "mtaa"),
+                "village": _attr(profile, "village"),
+                "neighbourhood": _attr(profile, "neighbourhood"),
+                "place_neighbourhood": _attr(profile, "place_neighbourhood"),
+                "house_no": _attr(profile, "house_no") or _attr(profile, "house_number"),
+                "address_line": _attr(profile, "address"),
+            },
+        ),
+        (
+            "father",
+            {
+                "country": _attr(profile, "father_country"),
+                "region": _attr(profile, "father_region"),
+                "region_post_code": _attr(profile, "father_region_post_code"),
+                "district": _attr(profile, "father_district"),
+                "district_post_code": _attr(profile, "father_district_post_code"),
+                "ward": _attr(profile, "father_ward"),
+                "ward_post_code": _attr(profile, "father_ward_post_code"),
+                "street": _attr(profile, "father_street") or _attr(profile, "father_street_village"),
+                "mtaa": _attr(profile, "father_mtaa"),
+                "neighbourhood": _attr(profile, "father_neighbourhood"),
+                "place_neighbourhood": _attr(profile, "father_place_neighbourhood"),
+                "house_no": _attr(profile, "father_house_no"),
+                "postal_code": _attr(profile, "father_postal_code"),
+                "address_line": _attr(profile, "father_address"),
+            },
+        ),
+        (
+            "mother",
+            {
+                "country": _attr(profile, "mother_country"),
+                "region": _attr(profile, "mother_region"),
+                "region_post_code": _attr(profile, "mother_region_post_code"),
+                "district": _attr(profile, "mother_district"),
+                "district_post_code": _attr(profile, "mother_district_post_code"),
+                "ward": _attr(profile, "mother_ward"),
+                "ward_post_code": _attr(profile, "mother_ward_post_code"),
+                "street": _attr(profile, "mother_street") or _attr(profile, "mother_street_village"),
+                "mtaa": _attr(profile, "mother_mtaa"),
+                "neighbourhood": _attr(profile, "mother_neighbourhood"),
+                "place_neighbourhood": _attr(profile, "mother_place_neighbourhood"),
+                "house_no": _attr(profile, "mother_house_no"),
+                "postal_code": _attr(profile, "mother_postal_code"),
+                "address_line": _attr(profile, "mother_address"),
+            },
+        ),
+        (
+            "emergency",
+            {
+                "country": _attr(profile, "emergency_country"),
+                "region": _attr(profile, "emergency_region"),
+                "region_post_code": _attr(profile, "emergency_region_post_code"),
+                "district": _attr(profile, "emergency_district"),
+                "district_post_code": _attr(profile, "emergency_district_post_code"),
+                "ward": _attr(profile, "emergency_ward"),
+                "ward_post_code": _attr(profile, "emergency_ward_post_code"),
+                "street": _attr(profile, "emergency_street") or _attr(profile, "emergency_street_village"),
+                "mtaa": _attr(profile, "emergency_mtaa"),
+                "neighbourhood": _attr(profile, "emergency_neighbourhood"),
+                "place_neighbourhood": _attr(profile, "emergency_place_neighbourhood"),
+                "house_no": _attr(profile, "emergency_house_no"),
+                "address_line": _attr(profile, "emergency_address"),
+            },
+        ),
+        (
+            "olevel_school",
+            {
+                "country": _attr(profile, "olevel_school_country") or _attr(profile, "olevel_country"),
+                "region": _attr(profile, "olevel_school_region") or _attr(profile, "olevel_region"),
+                "region_post_code": _attr(profile, "olevel_school_region_post_code"),
+                "district": _attr(profile, "olevel_school_district"),
+                "district_post_code": _attr(profile, "olevel_school_district_post_code"),
+                "ward": _attr(profile, "olevel_school_ward"),
+                "ward_post_code": _attr(profile, "olevel_school_ward_post_code"),
+                "street": _attr(profile, "olevel_school_street") or _attr(profile, "olevel_street"),
+                "mtaa": _attr(profile, "olevel_school_mtaa"),
+                "neighbourhood": _attr(profile, "olevel_school_neighbourhood"),
+                "place_neighbourhood": _attr(profile, "olevel_school_place_neighbourhood"),
+                "house_no": _attr(profile, "olevel_school_house_no"),
+                "address_line": _attr(profile, "olevel_address"),
+            },
+        ),
+        (
+            "alevel_school",
+            {
+                "country": _attr(profile, "alevel_school_country") or _attr(profile, "alevel_country"),
+                "region": _attr(profile, "alevel_school_region") or _attr(profile, "alevel_region"),
+                "region_post_code": _attr(profile, "alevel_school_region_post_code"),
+                "district": _attr(profile, "alevel_school_district"),
+                "district_post_code": _attr(profile, "alevel_school_district_post_code"),
+                "ward": _attr(profile, "alevel_school_ward"),
+                "ward_post_code": _attr(profile, "alevel_school_ward_post_code"),
+                "street": _attr(profile, "alevel_school_street") or _attr(profile, "alevel_street"),
+                "mtaa": _attr(profile, "alevel_school_mtaa"),
+                "neighbourhood": _attr(profile, "alevel_school_neighbourhood"),
+                "place_neighbourhood": _attr(profile, "alevel_school_place_neighbourhood"),
+                "house_no": _attr(profile, "alevel_school_house_no"),
+                "address_line": _attr(profile, "alevel_address"),
+            },
+        ),
+    ]
+
+    for address_type, defaults in address_specs:
+        if _row_has_content(defaults):
+            StudentAddress.objects.update_or_create(
+                student=profile,
+                address_type=address_type,
+                defaults=defaults,
+            )
+
+    passport_values = {
+        "passport_number": _attr(profile, "passport_number"),
+        "issue_country": _attr(profile, "passport_issue_country"),
+        "issue_date": (
+            getattr(profile, "passport_issue_date", None)
+            or getattr(profile, "passport_issued_date", None)
+            or getattr(profile, "passport_date_of_issue", None)
+        ),
+        "expiry_date": (
+            getattr(profile, "passport_expiry_date", None)
+            or getattr(profile, "passport_expiration_date", None)
+            or getattr(profile, "passport_expired_date", None)
+            or getattr(profile, "passport_date_of_expiry", None)
+        ),
+    }
+    if _row_has_content(passport_values):
+        StudentPassport.objects.update_or_create(
+            student=profile,
+            defaults=passport_values,
+        )
+
+    family_specs = [
+        (
+            "father",
+            {
+                "name": _attr(profile, "father_name"),
+                "phone": _attr(profile, "father_phone"),
+                "email": _attr(profile, "father_email"),
+                "occupation": _attr(profile, "father_occupation"),
+                "address": _attr(profile, "father_address"),
+            },
+        ),
+        (
+            "mother",
+            {
+                "name": _attr(profile, "mother_name"),
+                "phone": _attr(profile, "mother_phone"),
+                "email": _attr(profile, "mother_email"),
+                "occupation": _attr(profile, "mother_occupation"),
+                "address": _attr(profile, "mother_address"),
+            },
+        ),
+        (
+            "emergency",
+            {
+                "name": _attr(profile, "emergency_contact"),
+                "occupation": _attr(profile, "emergency_occupation"),
+                "gender": _attr(profile, "emergency_gender"),
+                "relation": _attr(profile, "emergency_relation"),
+                "address": _attr(profile, "emergency_address"),
+            },
+        ),
+    ]
+    for contact_type, defaults in family_specs:
+        if _row_has_content(defaults):
+            StudentFamilyContact.objects.update_or_create(
+                student=profile,
+                contact_type=contact_type,
+                defaults=defaults,
+            )
+
+    school_specs = [
+        (
+            "olevel",
+            {
+                "school_name": _attr(profile, "olevel_school"),
+                "candidate_no": _attr(profile, "olevel_candidate_no"),
+                "gpa": _attr(profile, "olevel_gpa"),
+                "start_year": _attr(profile, "olevel_start_year") or _attr(profile, "olevel_started_year"),
+                "completed_year": _attr(profile, "olevel_completed_year") or _attr(profile, "olevel_year"),
+                "country": _attr(profile, "olevel_school_country") or _attr(profile, "olevel_country"),
+                "region": _attr(profile, "olevel_school_region") or _attr(profile, "olevel_region"),
+                "district": _attr(profile, "olevel_school_district"),
+                "ward": _attr(profile, "olevel_school_ward"),
+                "house_no": _attr(profile, "olevel_school_house_no"),
+                "street": _attr(profile, "olevel_school_street") or _attr(profile, "olevel_street"),
+                "mtaa": _attr(profile, "olevel_school_mtaa"),
+                "address": _attr(profile, "olevel_address"),
+            },
+        ),
+        (
+            "alevel",
+            {
+                "school_name": _attr(profile, "alevel_school"),
+                "candidate_no": _attr(profile, "alevel_candidate_no"),
+                "gpa": _attr(profile, "alevel_gpa"),
+                "start_year": _attr(profile, "alevel_start_year") or _attr(profile, "alevel_started_year"),
+                "completed_year": _attr(profile, "alevel_completed_year") or _attr(profile, "alevel_year"),
+                "country": _attr(profile, "alevel_school_country") or _attr(profile, "alevel_country"),
+                "region": _attr(profile, "alevel_school_region") or _attr(profile, "alevel_region"),
+                "district": _attr(profile, "alevel_school_district"),
+                "ward": _attr(profile, "alevel_school_ward"),
+                "house_no": _attr(profile, "alevel_school_house_no"),
+                "street": _attr(profile, "alevel_school_street") or _attr(profile, "alevel_street"),
+                "mtaa": _attr(profile, "alevel_school_mtaa"),
+                "address": _attr(profile, "alevel_address"),
+            },
+        ),
+    ]
+    for level, defaults in school_specs:
+        if _row_has_content(defaults):
+            StudentSchoolHistory.objects.update_or_create(
+                student=profile,
+                level=level,
+                defaults=defaults,
+            )
 
 
 class Application(models.Model):
@@ -1009,6 +1550,173 @@ class ApplicationSupplementalProfile(models.Model):
         if errors:
             raise ValidationError(errors)
 
+    # ------------------------------------------------------------------
+    # Normalized supplemental address accessors
+    # (see ``ApplicationSupplementalAddress`` below).
+    # ------------------------------------------------------------------
+    def get_address(self, address_type):
+        """Return the supplemental address row for ``address_type`` or ``None``."""
+        try:
+            return self.addresses.filter(address_type=address_type).first()
+        except Exception:
+            return None
+
+    def sync_normalized_fields(self):
+        """Mirror legacy supplemental columns into the normalized table."""
+        from django.db import DatabaseError
+
+        try:
+            _sync_supplemental_profile_normalized(self)
+        except DatabaseError:
+            pass
+
+
+class ApplicationSupplementalAddress(models.Model):
+    """Normalised current / permanent / professional-qualification addresses
+    for an ``ApplicationSupplementalProfile``.
+
+    This is the supplemental-profile analogue of ``StudentAddress``. It
+    drains the wide ``current_*``, ``permanent_*`` and
+    ``professional_qualification_*`` location columns off the parent table
+    so the row-size limit is no longer at risk.
+    """
+
+    ADDRESS_TYPE_CHOICES = [
+        ("current", "Current Address"),
+        ("permanent", "Permanent Address"),
+        ("professional_qualification", "Professional Qualification"),
+        ("other", "Other"),
+    ]
+
+    supplemental = models.ForeignKey(
+        "ApplicationSupplementalProfile",
+        on_delete=models.CASCADE,
+        related_name="addresses",
+    )
+    address_type = models.CharField(max_length=40, choices=ADDRESS_TYPE_CHOICES)
+
+    country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
+    region = models.CharField(max_length=120, blank=True)
+    region_post_code = models.CharField(max_length=30, blank=True)
+    city = models.CharField(max_length=120, blank=True)
+    district = models.CharField(max_length=120, blank=True)
+    district_post_code = models.CharField(max_length=30, blank=True)
+    ward = models.CharField(max_length=120, blank=True)
+    ward_post_code = models.CharField(max_length=30, blank=True)
+    house_no = models.CharField(max_length=80, blank=True)
+    postal_code = models.CharField(max_length=30, blank=True)
+    post_code = models.CharField(max_length=30, blank=True)
+    duration_at_address = models.CharField(max_length=120, blank=True)
+    address_status = models.CharField(max_length=120, blank=True)
+
+    street = models.TextField(blank=True)
+    mtaa = models.TextField(blank=True)
+    village = models.TextField(blank=True)
+    neighbourhood = models.TextField(blank=True)
+    place_neighbourhood = models.TextField(blank=True)
+    landmark = models.TextField(blank=True)
+    nearest_landmark = models.TextField(blank=True)
+    address_line = models.TextField(blank=True)
+    location = models.TextField(blank=True)
+    remarks = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("supplemental", "address_type")]
+        verbose_name = "Application Supplemental Address"
+        verbose_name_plural = "Application Supplemental Addresses"
+        ordering = ["supplemental_id", "address_type"]
+
+    def __str__(self):
+        return f"{self.get_address_type_display()} (supplemental #{self.supplemental_id})"
+
+
+def _sync_supplemental_profile_normalized(supplemental: "ApplicationSupplementalProfile") -> None:
+    """Mirror legacy supplemental columns into ApplicationSupplementalAddress."""
+    address_specs = [
+        (
+            "current",
+            {
+                "country": _attr(supplemental, "current_country"),
+                "region": _attr(supplemental, "current_region"),
+                "region_post_code": _attr(supplemental, "current_region_post_code"),
+                "city": _attr(supplemental, "current_city"),
+                "district": _attr(supplemental, "current_district"),
+                "district_post_code": _attr(supplemental, "current_district_post_code"),
+                "ward": _attr(supplemental, "current_ward"),
+                "ward_post_code": _attr(supplemental, "current_ward_post_code"),
+                "house_no": _attr(supplemental, "current_house_no"),
+                "postal_code": _attr(supplemental, "current_postal_code"),
+                "post_code": _attr(supplemental, "current_post_code"),
+                "duration_at_address": _attr(supplemental, "current_duration_at_address"),
+                "address_status": _attr(supplemental, "current_address_status"),
+                "street": _attr(supplemental, "current_street"),
+                "mtaa": _attr(supplemental, "current_mtaa"),
+                "village": _attr(supplemental, "current_village"),
+                "neighbourhood": _attr(supplemental, "current_neighbourhood"),
+                "place_neighbourhood": _attr(supplemental, "current_place_neighbourhood"),
+                "landmark": _attr(supplemental, "current_landmark"),
+                "nearest_landmark": _attr(supplemental, "current_nearest_landmark"),
+                "address_line": _attr(supplemental, "current_address"),
+                "remarks": _attr(supplemental, "current_address_remarks"),
+            },
+        ),
+        (
+            "permanent",
+            {
+                "country": _attr(supplemental, "permanent_country"),
+                "region": _attr(supplemental, "permanent_region"),
+                "region_post_code": _attr(supplemental, "permanent_region_post_code"),
+                "city": _attr(supplemental, "permanent_city"),
+                "district": _attr(supplemental, "permanent_district"),
+                "district_post_code": _attr(supplemental, "permanent_district_post_code"),
+                "ward": _attr(supplemental, "permanent_ward"),
+                "ward_post_code": _attr(supplemental, "permanent_ward_post_code"),
+                "house_no": _attr(supplemental, "permanent_house_no"),
+                "postal_code": _attr(supplemental, "permanent_postal_code"),
+                "post_code": _attr(supplemental, "permanent_post_code"),
+                "duration_at_address": _attr(supplemental, "permanent_duration_at_address"),
+                "address_status": _attr(supplemental, "permanent_address_status"),
+                "street": _attr(supplemental, "permanent_street"),
+                "mtaa": _attr(supplemental, "permanent_mtaa"),
+                "village": _attr(supplemental, "permanent_village"),
+                "neighbourhood": _attr(supplemental, "permanent_neighbourhood"),
+                "place_neighbourhood": _attr(supplemental, "permanent_place_neighbourhood"),
+                "landmark": _attr(supplemental, "permanent_landmark"),
+                "nearest_landmark": _attr(supplemental, "permanent_nearest_landmark"),
+                "address_line": _attr(supplemental, "permanent_address"),
+                "remarks": _attr(supplemental, "permanent_address_remarks"),
+            },
+        ),
+        (
+            "professional_qualification",
+            {
+                "country": _attr(supplemental, "professional_qualification_country"),
+                "region": _attr(supplemental, "professional_qualification_region"),
+                "region_post_code": _attr(supplemental, "professional_qualification_region_post_code"),
+                "district": _attr(supplemental, "professional_qualification_district"),
+                "district_post_code": _attr(supplemental, "professional_qualification_district_post_code"),
+                "ward": _attr(supplemental, "professional_qualification_ward"),
+                "ward_post_code": _attr(supplemental, "professional_qualification_ward_post_code"),
+                "house_no": _attr(supplemental, "professional_qualification_house_no"),
+                "street": _attr(supplemental, "professional_qualification_street"),
+                "mtaa": _attr(supplemental, "professional_qualification_mtaa"),
+                "neighbourhood": _attr(supplemental, "professional_qualification_neighbourhood"),
+                "place_neighbourhood": _attr(supplemental, "professional_qualification_place_neighbourhood"),
+                "location": _attr(supplemental, "professional_qualification_location"),
+            },
+        ),
+    ]
+    for address_type, defaults in address_specs:
+        if _row_has_content(defaults):
+            ApplicationSupplementalAddress.objects.update_or_create(
+                supplemental=supplemental,
+                address_type=address_type,
+                defaults=defaults,
+            )
+
 
 class ProfessionalQualification(models.Model):
     """Exactly three export-ready professional qualifications per application.
@@ -1089,7 +1797,7 @@ class ProfessionalQualification(models.Model):
             "Qualification / Training": self.qualification_title or "-",
             "Institution": self.institution or "-",
             "Institution Address": self.institution_address or self.street or self.mtaa or "-",
-            "Country": self.country or COUNTRY_DEFAULT,
+            "Country": self.country,
             "Period": self.period or "-",
             "Start Date": self.start_date.strftime("%d/%m/%Y") if self.start_date else "-",
             "Finished Date": self.finished_date.strftime("%d/%m/%Y") if self.finished_date else "-",

@@ -177,6 +177,16 @@ class StudentProfileForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'rows': 3}),
         }
 
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        sync_helper = getattr(instance, 'sync_normalized_fields', None)
+        if sync_helper:
+            try:
+                sync_helper()
+            except Exception:
+                pass
+        return instance
+
 # Profile Section Forms
 class PersonalDetailsForm(forms.ModelForm):
     full_name = forms.CharField(
@@ -328,6 +338,16 @@ class ParentsDetailsForm(forms.ModelForm):
                 if fn in self.fields:
                     self.fields[fn].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
                     self.fields[fn].required = False
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        sync_helper = getattr(instance, 'sync_normalized_fields', None)
+        if sync_helper:
+            try:
+                sync_helper()
+            except Exception:
+                pass
+        return instance
 
 class AcademicQualificationsForm(forms.ModelForm):
     class Meta:
@@ -490,6 +510,16 @@ class EmergencyContactForm(forms.ModelForm):
             if fname in self.fields:
                 self.fields[fname].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
                 self.fields[fname].required = False
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        sync_helper = getattr(instance, 'sync_normalized_fields', None)
+        if sync_helper:
+            try:
+                sync_helper()
+            except Exception:
+                pass
+        return instance
 
 class WorkExperienceForm(forms.ModelForm):
     class Meta:

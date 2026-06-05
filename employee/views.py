@@ -768,6 +768,13 @@ def _create_or_update_student_portal_records(
             student_profile.profile_picture.name,
         )
 
+    sync_student = getattr(student_profile, 'sync_normalized_fields', None)
+    if sync_student:
+        try:
+            sync_student()
+        except Exception:
+            pass
+
     uploader_role = getattr(getattr(created_by, 'userprofile', None), 'role', '')
     uploader_label = 'partner' if uploader_role == 'partner' else 'employee'
 
@@ -848,6 +855,13 @@ def _create_or_update_student_portal_records(
                 setattr(supplemental_profile, supplemental_flag, True)
 
     supplemental_profile.save()
+
+    sync_supplemental = getattr(supplemental_profile, 'sync_normalized_fields', None)
+    if sync_supplemental:
+        try:
+            sync_supplemental()
+        except Exception:
+            pass
 
     return user, student_profile, portal_application, default_password
 
