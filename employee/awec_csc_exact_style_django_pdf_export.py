@@ -2569,13 +2569,20 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
     today_val = date.today()
     generated_at_source = _safe_get(supplemental_profile, "generated_at") or today_val
 
+    serial = None
     if hasattr(application, 'reference_number') and application.reference_number:
         serial = str(application.reference_number)
     elif _safe_get(supplemental_profile, "serial_number"):
         serial = str(_safe_get(supplemental_profile, "serial_number"))
     elif hasattr(application, 'get_registration_number'):
-        serial = application.get_registration_number()
-    else:
+        try:
+            retrieved_serial = application.get_registration_number()
+            if retrieved_serial:
+                serial = str(retrieved_serial)
+        except (AttributeError, TypeError):
+            pass # Ignore errors and proceed to generate if serial is still None
+
+    if not serial: # If serial is still None or empty after all attempts, generate one
         gen_year = getattr(generated_at_source, 'year', today_val.year)
         try:
             numeric_id = int(app_id)
