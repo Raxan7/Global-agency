@@ -320,12 +320,20 @@ def _get_work_experiences(student_profile: Any) -> List[Any]:
 def application_to_awec_csc_style_data(application: Any, student_profile: Any = None, supplemental_profile: Any = None) -> Dict[str, Any]:
     student = _safe_get(application, "student")
     application_id = _safe_get(application, "id", "001")
-    if _safe_get(supplemental_profile, "serial_number"):
+    if hasattr(application, 'reference_number') and application.reference_number:
+        serial = str(application.reference_number)
+    elif _safe_get(supplemental_profile, "serial_number"):
         serial = str(_safe_get(supplemental_profile, "serial_number"))
-    elif str(application_id).isdigit():
-        serial = f"AWECO/Tz/DSM/{int(application_id):03d}"
-    else:
-        serial = f"AWECO/Tz/DSM/{application_id}"
+    elif hasattr(application, 'get_registration_number'):
+        try:
+            serial = application.get_registration_number()
+        except Exception:
+            serial = None
+
+    if not serial:
+        app_date = _safe_get(application, "created_at") or timezone.now()
+        year = app_date.year if hasattr(app_date, "year") else timezone.now().year
+        serial = f"AWECO/INT/REG/TZ/DSM/{year}8{str(application_id).zfill(3) if str(application_id).isdigit() else application_id}"
 
     generated_source = _safe_get(supplemental_profile, "generated_at") or timezone.now()
     if timezone.is_aware(generated_source):

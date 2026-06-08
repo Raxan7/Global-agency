@@ -368,7 +368,22 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
     )
 
     # Serial and generation date (used in footer)
-    serial = getattr(supplemental_profile, 'serial_number', None) or f'AWECO/Tz/DSM/{application.id:03d}'
+    serial = (
+        getattr(application, 'reference_number', None) or
+        getattr(supplemental_profile, 'serial_number', None)
+    )
+    if not serial:
+        try:
+            serial = application.get_registration_number()
+        except (AttributeError, TypeError):
+            pass
+
+    if not serial:
+        app_date = application.created_at if application.created_at else timezone.now()
+        year = app_date.year
+        app_id = application.id if application.id else 1
+        serial = f"AWECO/INT/REG/TZ/DSM/{year}8{app_id:03d}"
+
     generated_source = getattr(supplemental_profile, 'generated_at', None) or timezone.now()
     generated_date = (
         timezone.localtime(generated_source).strftime('%d/%m/%Y')

@@ -432,7 +432,10 @@
             <div class="app-header">
                 <div>
                     <h3>Application #{{ application.id }}</h3>
-                    <p style="color: #666; margin-top: 0.5rem;">
+                    <p style="color: #0056b3; margin-top: 0.25rem; font-weight: bold;">
+                        <i class="fas fa-hashtag"></i> Ref: {{ application.get_registration_number }}
+                    </p>
+                    <p style="color: #666; margin-top: 0.25rem;">
                         <i class="far fa-calendar"></i> Submitted on {{ application.created_at|date:"F d, Y" }}
                     </p>
                 </div>

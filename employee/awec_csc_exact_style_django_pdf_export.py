@@ -2566,21 +2566,25 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
     data = deepcopy(DEFAULT_DATA)
     student = _safe_get(application, "student")
     app_id = _safe_get(application, "id", "001")
-    if _safe_get(supplemental_profile, "serial_number"):
+    today_val = date.today()
+    generated_at_source = _safe_get(supplemental_profile, "generated_at") or today_val
+
+    if hasattr(application, 'reference_number') and application.reference_number:
+        serial = str(application.reference_number)
+    elif _safe_get(supplemental_profile, "serial_number"):
         serial = str(_safe_get(supplemental_profile, "serial_number"))
     elif hasattr(application, 'get_registration_number'):
         serial = application.get_registration_number()
     else:
-        gen_year = getattr(generated, 'year', today.year)
+        gen_year = getattr(generated_at_source, 'year', today_val.year)
         try:
             numeric_id = int(app_id)
             serial = f"AWECO/INT/REG/TZ/DSM/{gen_year}8{numeric_id:03d}"
         except (ValueError, TypeError):
             serial = f"AWECO/INT/REG/TZ/DSM/{gen_year}8{app_id}"
-    today = date.today()
-    generated = _safe_get(supplemental_profile, "generated_at") or today
-    generated_date = generated.strftime("%Y-%m-%d") if hasattr(generated, "strftime") else str(generated)
-    application_date = _date_text(generated, today.strftime("%d/%m/%Y"))
+
+    generated_date = generated_at_source.strftime("%Y-%m-%d") if hasattr(generated_at_source, "strftime") else str(generated_at_source)
+    application_date = _date_text(generated_at_source, today_val.strftime("%d/%m/%Y"))
     student_name = _student_full_name(application, supplemental_profile)
 
     data["meta"].update({

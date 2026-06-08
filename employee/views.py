@@ -817,7 +817,9 @@ def _create_or_update_student_portal_records(
     if not supplemental_profile.current_country:
         supplemental_profile.current_country = text_value('nationality') or 'Tanzania'
     if not supplemental_profile.serial_number:
-        supplemental_profile.serial_number = f'AWECO/Tz/DSM/{portal_application.id:03d}'
+        from django.utils import timezone
+        year = portal_application.created_at.year if portal_application.created_at else timezone.now().year
+        supplemental_profile.serial_number = f'AWECO/INT/REG/TZ/DSM/{year}8{portal_application.id:03d}'
 
     if profile_picture:
         supplemental_profile.has_passport_photo = True

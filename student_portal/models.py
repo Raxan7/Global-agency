@@ -1308,6 +1308,7 @@ class Application(models.Model):
         blank=True,
         related_name="application_status_updates",
     )
+    reference_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
     official_eligibility = models.CharField(max_length=20, choices=OFFICE_ELIGIBILITY_CHOICES, blank=True, default="")
     official_documents_verified = models.BooleanField(null=True, blank=True)
     official_admission_status = models.CharField(max_length=20, choices=OFFICE_ADMISSION_STATUS_CHOICES, blank=True, default="")
@@ -1319,8 +1320,18 @@ class Application(models.Model):
         return f"{self.get_application_type_display()} - {self.student.username}"
 
     def get_registration_number(self):
+        if self.reference_number:
+            return self.reference_number
         year = self.created_at.year if self.created_at else timezone.now().year
         return f"AWECO/INT/REG/TZ/DSM/{year}8{self.id:03d}"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new and not self.reference_number:
+            year = self.created_at.year if self.created_at else timezone.now().year
+            self.reference_number = f"AWECO/INT/REG/TZ/DSM/{year}8{self.id:03d}"
+            super().save(update_fields=['reference_number'])
 
 
 class ApplicationSupplementalProfile(models.Model):
