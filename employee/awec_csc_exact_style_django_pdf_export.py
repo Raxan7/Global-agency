@@ -1579,8 +1579,8 @@ def draw_office_use_only_box(
 
     # Automatic stamp
     stamp_center_x = RIGHT - 19 * mm
-    stamp_center_y = inner_top - 15.7 * mm
-    draw_auto_stamp(c, stamp_center_x, stamp_center_y, 10.5 * mm)
+    stamp_center_y = inner_top - 11.7 * mm
+    draw_auto_stamp(c, stamp_center_x, stamp_center_y, 21 * mm)
     c.setFont(FONT, 7.2)
     c.setFillColor(BLACK)
     c.drawCentredString(stamp_center_x, y_bottom + 2.7 * mm, "Stamp")
@@ -2856,7 +2856,7 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
     }
     data["declaration"] = {
         "Applicant Full Name": student_name,
-        "Date": today.strftime("%d/%m/%Y"),
+        "Date": today_val.strftime("%d/%m/%Y"),
         "Signature": "",
         "Declaration Agreed": _bool_text(_safe_get(supplemental_profile, "declaration_agreed"), "Yes"),
     }
