@@ -1929,6 +1929,30 @@ def update_edit(request, pk):
 
 
 @login_required
+@admin_required  # Only admins should be able to delete applications
+@csrf_protect
+def delete_student_application(request, application_id):
+    """Allow admins to delete student applications."""
+    application = get_object_or_404(Application, id=application_id)
+
+    if request.method == 'POST':
+        try:
+            # Find and delete any associated offline intake records first
+            StudentApplication.objects.filter(portal_application=application).delete()
+            # Then delete the main portal application
+            application.delete()
+            messages.success(request, f'Student application {application_id} and associated records deleted successfully.')
+            return redirect('employee:student_application_list')
+        except Exception as e:
+            logger.exception('Error deleting student application %s: %s', application_id, e)
+            messages.error(request, f'An error occurred while deleting application {application_id}: {e}')
+            return redirect('employee:student_application_detail', application_id=application_id)
+    else:
+        messages.error(request, 'Invalid request method for deletion.')
+        return redirect('employee:student_application_detail', application_id=application_id)
+
+
+@login_required
 @employee_required
 @csrf_protect
 def update_delete(request, pk):
