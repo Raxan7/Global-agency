@@ -163,6 +163,7 @@ def resolve_static_asset(relative_path: str) -> Path:
 
 LOGO_PATH = resolve_static_asset("global_agency/img/logo.png")
 STAMP_PATH = resolve_static_asset("global_agency/image/signature-removebg.png")
+SIGNATURE_PATH = resolve_static_asset("global_agency/image/signature-pazza-removebg-preview.png")
 
 # International passport-style student photo size used on the form.
 # 35 mm x 45 mm is a widely accepted passport/ID portrait size.
@@ -1447,8 +1448,26 @@ def office_use_only_height() -> float:
 
 
 def draw_auto_signature(c: canvas.Canvas, x: float, y: float, w: float, h: float) -> None:
-    """Draw a simple automatic director signature inside the signature field."""
+    """Draw the director signature image inside the signature field."""
     c.saveState()
+    if SIGNATURE_PATH.exists():
+        try:
+            img_w = w * 0.98
+            img_h = h * 0.98
+            c.drawImage(
+                str(SIGNATURE_PATH),
+                x + (w - img_w) / 2,
+                y + (h - img_h) / 2,
+                img_w,
+                img_h,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
+            c.restoreState()
+            return
+        except Exception:
+            logger.warning("Failed to render signature image, falling back to auto-signature", exc_info=True)
+
     c.setStrokeColor(BLACK)
     c.setLineWidth(1.0)
 
@@ -1547,12 +1566,12 @@ def draw_office_use_only_box(
     c.setFont(FONT, 8.4)
     c.drawString(left_x, inner_top - 5.2 * mm, "Director Name: ................................................")
     c.drawString(LEFT + CONTENT_W * 0.52, inner_top - 5.2 * mm, "Signature:")
-    c.line(LEFT + CONTENT_W * 0.66, inner_top - 4.3 * mm, RIGHT - 27 * mm, inner_top - 4.3 * mm)
+    c.line(LEFT + CONTENT_W * 0.64, inner_top - 4.3 * mm, RIGHT - 14 * mm, inner_top - 4.3 * mm)
 
-    signature_x = LEFT + CONTENT_W * 0.67
-    signature_y = inner_top - 9.0 * mm
-    signature_w = CONTENT_W * 0.20
-    signature_h = 8.0 * mm
+    signature_x = LEFT + CONTENT_W * 0.63
+    signature_y = inner_top - 10.5 * mm
+    signature_w = CONTENT_W * 0.28
+    signature_h = 10.0 * mm
     draw_auto_signature(c, signature_x, signature_y, signature_w, signature_h)
 
     # Approval checkboxes
