@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.contrib import messages # Keep this for general messages
 from django import forms
 from django.forms import modelform_factory
 from django.core.mail import send_mail
@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
+from django.db import IntegrityError # Import IntegrityError
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
@@ -18,6 +19,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
+from django.core.exceptions import ValidationError # Import ValidationError
 from urllib.parse import quote
 import logging
 import re
@@ -906,7 +908,17 @@ def offline_application_create(request):
                     offline_application.username = student_user.username
                     offline_application.temporary_password = default_password
                     offline_application.save()
-            except Exception:
+            except IntegrityError as e:
+                logger.exception(
+                    'Offline intake database integrity error for %s. Files=%s',
+                    form.cleaned_data.get('email'),
+                    list(request.FILES.keys()),
+                )
+                messages.error(request, f'A database error occurred: {e}. This might be due to duplicate data or a missing reference. Please check the input.')
+                # The transaction.atomic() block will automatically roll back on exception
+            except ValidationError as e:
+                messages.error(request, f'Validation error during offline intake: {e.message_dict or e.messages}')
+            except Exception as e:
                 logger.exception(
                     'Offline intake upload failed for %s. Files=%s',
                     form.cleaned_data.get('email'),
@@ -1289,7 +1301,18 @@ def partner_application_create(request):
                     offline_application.username = student_user.username
                     offline_application.temporary_password = default_password
                     offline_application.save()
-            except Exception:
+            except IntegrityError as e:
+                logger.exception(
+                    'Partner create database integrity error for %s. Partner=%s Files=%s',
+                    form.cleaned_data.get('email'),
+                    request.user.username,
+                    list(request.FILES.keys()),
+                )
+                messages.error(request, f'A database error occurred: {e}. This might be due to duplicate data or a missing reference. Please check the input.')
+                # The transaction.atomic() block will automatically roll back on exception
+            except ValidationError as e:
+                messages.error(request, f'Validation error during partner application create: {e.message_dict or e.messages}')
+            except Exception as e:
                 logger.exception(
                     'Partner create upload failed for %s. Partner=%s Files=%s',
                     form.cleaned_data.get('email'),
