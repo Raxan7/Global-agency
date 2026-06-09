@@ -2902,3 +2902,47 @@ def build_awec_csc_style_application_pdf_response(application: Any, student_prof
 #     student_profile = getattr(application, "student_profile", None) or getattr(application.student, "studentprofile", None)
 #     supplemental_profile = getattr(application, "supplemental_profile", None) or getattr(application, "applicationsupplementalprofile", None)
 #     return build_awec_csc_style_application_pdf_response(application, student_profile, supplemental_profile)
+
+
+def build_empty_form_pdf_response():
+    """Generate a blank application form PDF with no data for printing and manual filling."""
+    from io import BytesIO
+    from django.http import HttpResponse
+
+    empty_data = deepcopy(DEFAULT_DATA)
+
+    def _blank_all(d):
+        if isinstance(d, dict):
+            return {k: _blank_all(v) for k, v in d.items()}
+        elif isinstance(d, list):
+            return [_blank_all(item) for item in d]
+        elif isinstance(d, str):
+            return ""
+        return d
+
+    # Blank all data fields but preserve organization/meta structure
+    empty_data["personal"] = _blank_all(empty_data["personal"])
+    empty_data["personal"]["Student Photo"] = ""
+    empty_data["parents"] = _blank_all(empty_data["parents"])
+    empty_data["emergency"] = _blank_all(empty_data["emergency"])
+    empty_data["education_background"] = _blank_all(empty_data["education_background"])
+    empty_data["higher_education"] = _blank_all(empty_data["higher_education"])
+    empty_data["professional_qualifications"] = _blank_all(empty_data["professional_qualifications"])
+    empty_data["english_proficiency"] = _blank_all(empty_data["english_proficiency"])
+    empty_data["employment_history"] = _blank_all(empty_data["employment_history"])
+    empty_data["study_preferences"] = _blank_all(empty_data["study_preferences"])
+    empty_data["addresses"] = _blank_all(empty_data["addresses"])
+    empty_data["other_details"] = _blank_all(empty_data["other_details"])
+    empty_data["heard_about_us"] = _blank_all(empty_data["heard_about_us"])
+    empty_data["declaration"] = _blank_all(empty_data["declaration"])
+    empty_data["meta"]["application_id"] = "________________________"
+
+    buffer = BytesIO()
+    generate_pdf(buffer, empty_data)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    filename = "blank_application_form.pdf"
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

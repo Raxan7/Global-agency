@@ -36,6 +36,7 @@ urlpatterns = [
     # PDF Export
     path('student-applications/<int:application_id>/export-pdf/', views.export_single_application_pdf, name='export_single_application_pdf'),
     path('student-applications/export-all-pdf/', views.export_all_applications_pdf, name='export_all_applications_pdf'),
+    path('student-applications/export-empty-pdf/', views.export_empty_application_pdf, name='export_empty_application_pdf'),
     
     # Documents
     path('documents/', views.document_list, name='document_list'),

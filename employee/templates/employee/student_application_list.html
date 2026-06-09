@@ -236,6 +236,15 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,123,255,0.3);
         }
+        .btn-secondary { 
+            background: #6c757d; 
+            color: white; 
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108,117,125,0.3);
+        }
         .btn-success { 
             background: #28a745; 
             color: white; 
@@ -483,6 +492,9 @@
             <div class="quick-actions">
                 <a href="{% url 'employee:offline_application_create' %}" class="btn btn-primary">
                     <i class="fas fa-user-plus"></i> Add Offline Application
+                </a>
+                <a href="{% url 'employee:export_empty_application_pdf' %}" class="btn btn-secondary">
+                    <i class="fas fa-file-pdf"></i> Download Blank Form
                 </a>
                 <button class="btn btn-success" id="exportBtn">
                     <i class="fas fa-download"></i> Export List

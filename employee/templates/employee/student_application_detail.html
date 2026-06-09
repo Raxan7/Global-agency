@@ -427,6 +427,9 @@
                 <a href="{% url 'employee:export_single_application_pdf' application.id %}" class="btn btn-primary" target="_blank">
                     <i class="fas fa-file-pdf"></i> Export PDF
                 </a>
+                <a href="{% url 'employee:export_empty_application_pdf' %}" class="btn btn-secondary">
+                    <i class="fas fa-file-pdf"></i> Blank Form
+                </a>
                 <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-primary btn-sm">
                     <i class="fas fa-edit"></i> Edit Application
                 </a>

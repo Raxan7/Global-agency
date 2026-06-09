@@ -2331,3 +2331,11 @@ def export_single_application_pdf(request, application_id):
         student_profile=student_profile,
         supplemental_profile=supplemental_profile,
     )
+
+
+@login_required
+@employee_required
+def export_empty_application_pdf(request):
+    """Export a blank application form PDF with no data for manual filling."""
+    from .awec_csc_exact_style_django_pdf_export import build_empty_form_pdf_response
+    return build_empty_form_pdf_response()
