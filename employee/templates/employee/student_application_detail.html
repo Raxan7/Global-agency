@@ -715,7 +715,7 @@
                 <!-- Profile Picture -->
                 <div style="flex-shrink: 0; text-align: center;">
                     {% if student_profile.profile_picture %}
-                    <img src="{{ student_profile.profile_picture.url }}" alt="{{ application.student.get_full_name }}" class="responsive-img">
+                    <img src="{{ student_profile.profile_picture.url }}" alt="{{ application.student.get_full_name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px;">
                     {% else %}
                     <div class="profile-placeholder">
                         <i class="fas fa-user" style="font-size: 3.5rem; color: white;"></i>
