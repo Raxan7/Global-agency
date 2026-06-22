@@ -697,6 +697,23 @@ class OfflineStudentIntakeForm(forms.ModelForm):
                         label=label,
                     )
 
+        # Fields in Meta.fields that are rendered as Select but have no choices
+        # on the StudentApplication model need them set explicitly.
+        if 'marital_status' in self.fields:
+            self.fields['marital_status'] = forms.ChoiceField(
+                required=False,
+                choices=StudentProfile.MARITAL_STATUS_CHOICES,
+                widget=forms.Select(attrs={'class': 'form-select'}),
+                label='Marital Status',
+            )
+        if 'preferred_intake' in self.fields:
+            self.fields['preferred_intake'] = forms.ChoiceField(
+                required=False,
+                choices=SUPPLEMENTAL_SELECT_CHOICES['preferred_intake'],
+                widget=forms.Select(attrs={'class': 'form-select'}),
+                label='Preferred Intake',
+            )
+
     class Meta:
         model = StudentApplication
         fields = [

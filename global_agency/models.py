@@ -105,7 +105,7 @@ class StudentApplication(models.Model):
         ('female', 'Female'),
     ])
     date_of_birth = models.DateField(null=True, blank=True)
-    place_of_birth = models.CharField(max_length=150, blank=True, null=True)
+    place_of_birth = models.TextField(blank=True, null=True)
     nationality = models.CharField(max_length=100, default="Tanzanian")
     native_language = models.CharField(max_length=100, blank=True, null=True)
     marital_status = models.CharField(max_length=30, blank=True, null=True)
@@ -117,7 +117,7 @@ class StudentApplication(models.Model):
     father_phone = models.CharField(max_length=50, blank=True, null=True)
     father_email = models.EmailField(blank=True, null=True)
     father_occupation = models.CharField(max_length=150, blank=True, null=True)
-    father_place_neighbourhood = models.CharField(max_length=180, blank=True, null=True)
+    father_place_neighbourhood = models.TextField(blank=True, null=True)
     father_status = models.CharField(max_length=100, blank=True, null=True)
     father_relationship = models.CharField(max_length=100, blank=True, null=True)
 
@@ -125,7 +125,7 @@ class StudentApplication(models.Model):
     mother_phone = models.CharField(max_length=50, blank=True, null=True)
     mother_email = models.EmailField(blank=True, null=True)
     mother_occupation = models.CharField(max_length=150, blank=True, null=True)
-    mother_place_neighbourhood = models.CharField(max_length=180, blank=True, null=True)
+    mother_place_neighbourhood = models.TextField(blank=True, null=True)
     mother_status = models.CharField(max_length=100, blank=True, null=True)
     mother_relationship = models.CharField(max_length=100, blank=True, null=True)
 
@@ -170,7 +170,7 @@ class StudentApplication(models.Model):
     emergency_relationship_status = models.CharField(max_length=100, blank=True, null=True)
     emergency_remarks = models.TextField(blank=True, null=True)
     heard_about_us = models.CharField(max_length=100, blank=True, null=True)
-    heard_about_other = models.CharField(max_length=255, blank=True, null=True)
+    heard_about_other = models.TextField(blank=True, null=True)
 
     # System fields
     created_at = models.DateTimeField(auto_now_add=True)

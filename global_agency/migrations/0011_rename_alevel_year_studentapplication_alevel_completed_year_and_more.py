@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='father_place_neighbourhood',
-            field=models.CharField(blank=True, max_length=180, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -105,7 +105,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='mother_place_neighbourhood',
-            field=models.CharField(blank=True, max_length=180, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -155,7 +155,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='place_of_birth',
-            field=models.CharField(blank=True, max_length=150, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',

@@ -345,13 +345,6 @@
           </div>
         </div>
 
-        <div class="field-group">
-          {{ form.address.errors }}
-          <label for="{{ form.address.id_for_label }}" class="required">Residential Address</label>
-          {{ form.address }}
-          <div class="field-error" id="address_error">Please enter your address</div>
-          <div class="field-valid" id="address_valid">Address is valid</div>
-        </div>
       </div>
 
       <!-- Step 2: Parents -->
@@ -438,32 +431,20 @@
           <div class="field-valid" id="olevel_school_valid">School name is valid</div>
         </div>
 
-        <div class="field-group">
-          <label for="{{ form.olevel_country.id_for_label }}" class="required">Country</label>
-          {{ form.olevel_country }}
-          <div class="field-error" id="olevel_country_error">Please select a country</div>
+          <div class="field-group">
+          <label for="{{ form.olevel_start_year.id_for_label }}" class="required">Start Year</label>
+          {{ form.olevel_start_year }}
+          <div class="field-hint">Format: YYYY (e.g., 2016)</div>
+          <div class="field-error" id="olevel_start_year_error">Please enter a valid year (e.g., 2016)</div>
+          <div class="field-valid" id="olevel_start_year_valid">Year is valid</div>
         </div>
 
         <div class="field-group">
-          <label for="{{ form.olevel_address.id_for_label }}" class="required">Address</label>
-          {{ form.olevel_address }}
-          <div class="field-error" id="olevel_address_error">Please enter the school address</div>
-          <div class="field-valid" id="olevel_address_valid">Address is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.olevel_region.id_for_label }}">Region</label>
-          {{ form.olevel_region }}
-          <div class="field-error" id="olevel_region_error">Please enter a valid region name</div>
-          <div class="field-valid" id="olevel_region_valid">Region is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.olevel_year.id_for_label }}" class="required">Completed Year</label>
-          {{ form.olevel_year }}
+          <label for="{{ form.olevel_completed_year.id_for_label }}" class="required">Completed Year</label>
+          {{ form.olevel_completed_year }}
           <div class="field-hint">Format: YYYY (e.g., 2020)</div>
-          <div class="field-error" id="olevel_year_error">Please enter a valid year (e.g., 2020)</div>
-          <div class="field-valid" id="olevel_year_valid">Year is valid</div>
+          <div class="field-error" id="olevel_completed_year_error">Please enter a valid year (e.g., 2020)</div>
+          <div class="field-valid" id="olevel_completed_year_valid">Year is valid</div>
         </div>
 
         <div class="field-group">
@@ -495,31 +476,19 @@
         </div>
 
         <div class="field-group">
-          <label for="{{ form.alevel_country.id_for_label }}">Country</label>
-          {{ form.alevel_country }}
-          <div class="field-error" id="alevel_country_error">Please select a country</div>
+          <label for="{{ form.alevel_start_year.id_for_label }}">Start Year</label>
+          {{ form.alevel_start_year }}
+          <div class="field-hint">Format: YYYY (e.g., 2020)</div>
+          <div class="field-error" id="alevel_start_year_error">Please enter a valid year</div>
+          <div class="field-valid" id="alevel_start_year_valid">Year is valid</div>
         </div>
 
         <div class="field-group">
-          <label for="{{ form.alevel_address.id_for_label }}">Address</label>
-          {{ form.alevel_address }}
-          <div class="field-error" id="alevel_address_error">Please enter a valid address</div>
-          <div class="field-valid" id="alevel_address_valid">Address is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.alevel_region.id_for_label }}">Region</label>
-          {{ form.alevel_region }}
-          <div class="field-error" id="alevel_region_error">Please enter a valid region name</div>
-          <div class="field-valid" id="alevel_region_valid">Region is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.alevel_year.id_for_label }}">Completed Year</label>
-          {{ form.alevel_year }}
+          <label for="{{ form.alevel_completed_year.id_for_label }}">Completed Year</label>
+          {{ form.alevel_completed_year }}
           <div class="field-hint">Format: YYYY (e.g., 2022)</div>
-          <div class="field-error" id="alevel_year_error">Please enter a valid year (e.g., 2022)</div>
-          <div class="field-valid" id="alevel_year_valid">Year is valid</div>
+          <div class="field-error" id="alevel_completed_year_error">Please enter a valid year (e.g., 2022)</div>
+          <div class="field-valid" id="alevel_completed_year_valid">Year is valid</div>
         </div>
 
         <div class="field-group">
@@ -562,12 +531,6 @@
         </div>
 
         <div class="field-group">
-          <label for="{{ form.preferred_country_4.id_for_label }}">Preferred Country 4</label>
-          {{ form.preferred_country_4 }}
-          <div class="field-error" id="preferred_country_4_error">Please select a country</div>
-        </div>
-
-        <div class="field-group">
           <label for="{{ form.preferred_program_1.id_for_label }}" class="required">Preferred Program 1</label>
           {{ form.preferred_program_1 }}
           <div class="field-error" id="preferred_program_1_error">Please enter your preferred program</div>
@@ -587,39 +550,29 @@
           <div class="field-error" id="preferred_program_3_error">Please enter a valid program name</div>
           <div class="field-valid" id="preferred_program_3_valid">Program is valid</div>
         </div>
-
-        <div class="field-group">
-          <label for="{{ form.preferred_program_4.id_for_label }}">Preferred Program 4</label>
-          {{ form.preferred_program_4 }}
-          <div class="field-error" id="preferred_program_4_error">Please enter a valid program name</div>
-          <div class="field-valid" id="preferred_program_4_valid">Program is valid</div>
-        </div>
       </div>
 
       <!-- Step 6: Emergency & Submit -->
       <div class="step" id="step-6">
         <h3>Emergency Contact & Submit</h3>
         
-        <div class="field-row">
-          <div class="field-group">
+        <div class="field-group">
             <label for="{{ form.emergency_name.id_for_label }}" class="required">Emergency Contact Name</label>
             {{ form.emergency_name }}
             <div class="field-error" id="emergency_name_error">Please enter a valid name (letters and spaces only)</div>
             <div class="field-valid" id="emergency_name_valid">Name is valid</div>
-          </div>
-
-          <div class="field-group">
-            <label for="{{ form.emergency_gender.id_for_label }}" class="required">Gender</label>
-            {{ form.emergency_gender }}
-            <div class="field-error" id="emergency_gender_error">Please select a gender</div>
-          </div>
         </div>
 
         <div class="field-group">
-          <label for="{{ form.emergency_address.id_for_label }}" class="required">Emergency Contact Address</label>
-          {{ form.emergency_address }}
-          <div class="field-error" id="emergency_address_error">Please enter the emergency contact address</div>
-          <div class="field-valid" id="emergency_address_valid">Address is valid</div>
+          <label for="{{ form.emergency_phone.id_for_label }}" class="required">Phone Number</label>
+          {{ form.emergency_phone }}
+          <div class="field-error" id="emergency_phone_error">Please enter a phone number</div>
+          <div class="field-valid" id="emergency_phone_valid">Phone number is valid</div>
+        </div>
+
+        <div class="field-group">
+          <label for="{{ form.emergency_email.id_for_label }}">Email Address</label>
+          {{ form.emergency_email }}
         </div>
 
         <div class="field-row">
@@ -637,6 +590,20 @@
             <div class="field-error" id="emergency_relation_error">Please enter your relationship to the emergency contact</div>
             <div class="field-valid" id="emergency_relation_valid">Relationship is valid</div>
           </div>
+        </div>
+
+        <div class="field-group">
+          <label for="{{ form.emergency_relationship_status.id_for_label }}">Relationship Status</label>
+          {{ form.emergency_relationship_status }}
+          <div class="field-error" id="emergency_relationship_status_error">Please enter the relationship status</div>
+          <div class="field-valid" id="emergency_relationship_status_valid">Valid</div>
+        </div>
+
+        <div class="field-group">
+          <label for="{{ form.emergency_remarks.id_for_label }}">Remarks</label>
+          {{ form.emergency_remarks }}
+          <div class="field-error" id="emergency_remarks_error">Please enter remarks</div>
+          <div class="field-valid" id="emergency_remarks_valid">Valid</div>
         </div>
 
         <div class="field-row">
