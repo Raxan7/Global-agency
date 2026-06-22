@@ -288,7 +288,15 @@
         prevButton.addEventListener('click', () => showStep(currentStep - 1));
         nextButton.addEventListener('click', () => showStep(currentStep + 1));
 
-        showStep(0);
+        // Auto-navigate to the first step that has field errors
+        var firstErrorStep = stepPanels.findIndex(function(panel) {
+            return panel.querySelector('.field-errors, .errorlist');
+        });
+        if (firstErrorStep !== -1) {
+            showStep(firstErrorStep);
+        } else {
+            showStep(0);
+        }
     });
 </script>
 {% include 'student_portal/includes/mtaa_setup.html' %}

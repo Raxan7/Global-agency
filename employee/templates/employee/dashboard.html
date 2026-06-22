@@ -422,20 +422,17 @@
                             <strong>{{ app.student.get_full_name|default:app.student.username }}</strong><br>
                             <small>{{ app.student.email }}</small>
                         </td>
-                        <td>{{ app.get_application_type_display }}</td>
-                        <td>
-                            {% if app.university_name %}<strong>{{ app.university_name }}</strong><br>{% endif %}
-                            {% if app.course %}{{ app.course }}{% endif %}
-                            {% if app.country %}<br><small>{{ app.country }}</small>{% endif %}
-                        </td>
+                        <td>Application</td>
+                        <td>—</td>
                         <td>
                             <span class="status-badge status-{{ app.status }}">
                                 {{ app.get_status_display }}
                             </span>
                         </td>
                         <td>{{ app.created_at|date:"M d, Y" }}</td>
-                        <td>
+                        <td style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <a href="{% url 'employee:student_application_detail' app.id %}" class="btn btn-primary">View</a>
+                            <a href="{% url 'employee:edit_student_application' app.id %}" class="btn btn-primary" style="background: #0f766e;">Edit</a>
                         </td>
                     </tr>
                     {% endfor %}

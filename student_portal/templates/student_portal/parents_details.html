@@ -96,10 +96,20 @@
                             {{ form.father_mtaa }}
                             {% if form.father_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_mtaa.errors.0 }}</p>{% endif %}
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-                            {{ form.father_address }}
-                            {% if form.father_address.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_address.errors.0 }}</p>{% endif %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Place / Neighbourhood</label>
+                            {{ form.father_place_neighbourhood }}
+                            {% if form.father_place_neighbourhood.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_place_neighbourhood.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            {{ form.father_status }}
+                            {% if form.father_status.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_status.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+                            {{ form.father_relationship }}
+                            {% if form.father_relationship.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_relationship.errors.0 }}</p>{% endif %}
                         </div>
                     </div>
                 </div>
@@ -175,10 +185,20 @@
                             {{ form.mother_mtaa }}
                             {% if form.mother_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_mtaa.errors.0 }}</p>{% endif %}
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-                            {{ form.mother_address }}
-                            {% if form.mother_address.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_address.errors.0 }}</p>{% endif %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Place / Neighbourhood</label>
+                            {{ form.mother_place_neighbourhood }}
+                            {% if form.mother_place_neighbourhood.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_place_neighbourhood.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            {{ form.mother_status }}
+                            {% if form.mother_status.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_status.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+                            {{ form.mother_relationship }}
+                            {% if form.mother_relationship.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_relationship.errors.0 }}</p>{% endif %}
                         </div>
                     </div>
                 </div>

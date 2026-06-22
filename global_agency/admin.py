@@ -118,7 +118,6 @@ class StudentApplicationAdmin(admin.ModelAdmin):
     list_filter = (
         'gender',
         'nationality',
-        'emergency_gender',
         'account_created',
         'created_at',
     )
@@ -136,7 +135,7 @@ class StudentApplicationAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Personal Information', {
             'fields': (
-                'full_name', 'gender', 'nationality', 'email', 'phone', 'address'
+                'full_name', 'gender', 'nationality', 'email', 'phone'
             )
         }),
         ('Parents Details', {
@@ -148,29 +147,33 @@ class StudentApplicationAdmin(admin.ModelAdmin):
         }),
         ('Education Background - O-Level', {
             'fields': (
-                'olevel_school', 'olevel_country', 'olevel_address', 'olevel_region',
-                'olevel_year', 'olevel_candidate_no', 'olevel_gpa'
+                'olevel_school', 'olevel_start_year', 'olevel_completed_year',
+                'olevel_candidate_no', 'olevel_gpa', 'olevel_school_type',
+                'olevel_exam_board', 'olevel_certificate_no', 'olevel_remarks'
             ),
             'classes': ('collapse',)
         }),
         ('Education Background - A-Level', {
             'fields': (
-                'alevel_school', 'alevel_country', 'alevel_address', 'alevel_region',
-                'alevel_year', 'alevel_candidate_no', 'alevel_gpa'
+                'alevel_school', 'alevel_start_year', 'alevel_completed_year',
+                'alevel_candidate_no', 'alevel_gpa', 'alevel_school_type',
+                'alevel_exam_board', 'alevel_certificate_no', 'alevel_remarks'
             ),
             'classes': ('collapse',)
         }),
         ('Study Preferences', {
             'fields': (
-                'preferred_country_1', 'preferred_country_2', 'preferred_country_3', 'preferred_country_4',
-                'preferred_program_1', 'preferred_program_2', 'preferred_program_3', 'preferred_program_4'
+                'preferred_country_1', 'preferred_country_2', 'preferred_country_3',
+                'preferred_program_1', 'preferred_program_2', 'preferred_program_3'
             ),
             'classes': ('collapse',)
         }),
         ('Emergency Contact', {
             'fields': (
-                'emergency_name', 'emergency_address', 'emergency_occupation',
-                'emergency_gender', 'emergency_relation', 'heard_about_us', 'heard_about_other'
+                'emergency_name', 'emergency_relation', 'emergency_occupation',
+                'emergency_phone', 'emergency_email', 'emergency_alternative_phone',
+                'emergency_relationship_status', 'emergency_remarks',
+                'heard_about_us', 'heard_about_other'
             ),
             'classes': ('collapse',)
         }),

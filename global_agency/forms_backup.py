@@ -17,7 +17,6 @@ class StudentApplicationForm(forms.ModelForm):
         model = StudentApplication
         fields = '__all__'
         widgets = {
-            'address': forms.Textarea(attrs={'rows':2}),
             'emergency_address': forms.Textarea(attrs={'rows':2}),
             'heard_about_other': forms.TextInput(),
         }

@@ -185,6 +185,7 @@ class EmployeeContactReplyEmailTests(TestCase):
     SECURE_SSL_REDIRECT=False,
     PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
 )
+@override_settings(STORAGES=TEST_FILE_STORAGES)
 class OfflineStudentIntakeTests(TestCase):
     def setUp(self):
         self.employee_user = User.objects.create_user(
@@ -213,16 +214,14 @@ class OfflineStudentIntakeTests(TestCase):
                 'phone': '255712345678',
                 'address': 'Arusha, Tanzania',
                 'olevel_school': 'Arusha Secondary School',
-                'olevel_country': 'Tanzania',
-                'olevel_address': 'Arusha',
-                'olevel_region': 'Arusha',
-                'olevel_year': '2022',
+                'olevel_school_country': 'Tanzania',
+                'olevel_school_region': 'Arusha',
+                'olevel_completed_year': '2022',
                 'olevel_candidate_no': 'S1234/2022/0001',
                 'olevel_gpa': 'Division I',
                 'preferred_country_1': 'Canada',
                 'preferred_program_1': 'Computer Science',
                 'emergency_name': 'Neema Mollel',
-                'emergency_address': 'Moshi, Tanzania',
                 'emergency_occupation': 'Teacher',
                 'emergency_gender': 'female',
                 'emergency_relation': 'Mother',
@@ -262,16 +261,14 @@ class OfflineStudentIntakeTests(TestCase):
             'phone': '255712345678',
             'address': 'Arusha, Tanzania',
             'olevel_school': 'Arusha Secondary School',
-            'olevel_country': 'Tanzania',
-            'olevel_address': 'Arusha',
-            'olevel_region': 'Arusha',
-            'olevel_year': '2022',
+            'olevel_school_country': 'Tanzania',
+            'olevel_school_region': 'Arusha',
+            'olevel_completed_year': '2022',
             'olevel_candidate_no': 'S1234/2022/0001',
             'olevel_gpa': 'Division I',
             'preferred_country_1': 'Canada',
             'preferred_program_1': 'Computer Science',
             'emergency_name': 'Neema Mollel',
-            'emergency_address': 'Moshi, Tanzania',
             'emergency_occupation': 'Teacher',
             'emergency_gender': 'female',
             'emergency_relation': 'Mother',
@@ -296,7 +293,7 @@ class OfflineStudentIntakeTests(TestCase):
         self.assertTrue(student_profile.profile_picture.name)
         self.assertEqual(passport_documents.count(), 1)
         self.assertTrue(passport_documents.first().file.name)
-        self.assertTrue(supplemental_profile.has_passport_home_page)
+        self.assertTrue(supplemental_profile.has_passport_copy)
 
     def test_employee_can_create_partial_offline_application_without_core_details(self):
         self.client.login(username='employee@example.com', password='EmployeePass123!')
@@ -324,7 +321,7 @@ class OfflineStudentIntakeTests(TestCase):
         self.assertEqual(offline_application.email, '')
         self.assertEqual(offline_application.phone, '')
         self.assertEqual(student_profile.preferred_program_1, 'Computer Science')
-        self.assertEqual(student_profile.olevel_country, 'Tanzania')
+        self.assertEqual(student_profile.olevel_school_country, '')
         self.assertTrue(offline_application.account_created)
 
 
@@ -467,6 +464,7 @@ class PortalUpdateMultiUploadTests(TestCase):
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
     SECURE_SSL_REDIRECT=False,
     PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
+    STORAGES=TEST_FILE_STORAGES,
 )
 class PartnerPortalTests(TestCase):
     def setUp(self):
@@ -498,16 +496,14 @@ class PartnerPortalTests(TestCase):
             'phone': '255712345678',
             'address': 'Mwanza, Tanzania',
             'olevel_school': 'Mwanza Secondary School',
-            'olevel_country': 'Tanzania',
-            'olevel_address': 'Mwanza',
-            'olevel_region': 'Mwanza',
-            'olevel_year': '2022',
+            'olevel_school_country': 'Tanzania',
+            'olevel_school_region': 'Mwanza',
+            'olevel_completed_year': '2022',
             'olevel_candidate_no': 'S1234/2022/0001',
             'olevel_gpa': 'Division I',
             'preferred_country_1': 'Canada',
             'preferred_program_1': 'Computer Science',
             'emergency_name': 'Neema Juma',
-            'emergency_address': 'Mwanza, Tanzania',
             'emergency_occupation': 'Teacher',
             'emergency_gender': 'female',
             'emergency_relation': 'Mother',
@@ -604,7 +600,6 @@ class PartnerPortalTests(TestCase):
                 'father_name': '',
                 'mother_name': '',
                 'emergency_name': '',
-                'emergency_address': '',
                 'emergency_relation': '',
                 'emergency_gender': '',
             }
@@ -686,7 +681,7 @@ class PartnerPortalTests(TestCase):
             {
                 'surname': 'Juma',
                 'given_name': 'Amina',
-                'passport_no': 'TZ1234567',
+                'passport_number': 'TZ1234567',
                 'native_language': 'Swahili',
                 'personal_email': 'amina.personal@example.com',
                 'highest_education_level': 'Advanced Level',
@@ -712,12 +707,10 @@ class PartnerPortalTests(TestCase):
         documents = Document.objects.filter(student=portal_application.student)
 
         self.assertTrue(student_profile.profile_picture.name)
-        self.assertEqual(supplemental_profile.passport_no, 'TZ1234567')
-        self.assertEqual(supplemental_profile.highest_education_institute, 'Mwanza Secondary School')
+        self.assertEqual(supplemental_profile.passport_number, 'TZ1234567')
         self.assertTrue(supplemental_profile.declaration_agreed)
         self.assertTrue(supplemental_profile.has_passport_photo)
-        self.assertTrue(supplemental_profile.has_passport_home_page)
-        self.assertTrue(supplemental_profile.has_highest_education_transcript)
+        self.assertTrue(supplemental_profile.has_passport_copy)
         self.assertEqual(documents.count(), 2)
 
     def test_partner_edit_without_new_upload_keeps_existing_document(self):

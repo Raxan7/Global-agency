@@ -124,10 +124,7 @@
                         <span class="text-gray-600">Application ID:</span>
                         <span class="font-semibold">#{{ application.id }}</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Type:</span>
-                        <span class="font-semibold">{{ application.get_application_type_display }}</span>
-                    </div>
+
                     <div class="flex justify-between">
                         <span class="text-gray-600">Amount:</span>
                         <span class="font-bold text-green-600 text-xl">TZS {{ payment_amount|floatformat:0 }}/=</span>

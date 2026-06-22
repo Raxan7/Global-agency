@@ -7,10 +7,51 @@ from django.utils.html import strip_tags
 from urllib.parse import urlparse
 
 from global_agency.models import StudentApplication
-from student_portal.models import ApplicationSupplementalProfile
+from student_portal.models import ApplicationSupplementalProfile, StudentProfile
 
 from .models import PortalUpdate, PortalUpdateAttachment, PortalUpdateImage
 
+
+STUDENT_PROFILE_ONLY_FIELDS = [
+    'city', 'region', 'district', 'ward', 'street', 'mtaa', 'house_no', 'village',
+    'father_country', 'father_region', 'father_district', 'father_ward', 'father_street', 'father_house_no', 'father_place_neighbourhood',
+    'father_status', 'father_relationship',
+    'mother_country', 'mother_region', 'mother_district', 'mother_ward', 'mother_street', 'mother_house_no', 'mother_place_neighbourhood',
+    'mother_status', 'mother_relationship',
+    'olevel_school_country', 'olevel_school_region', 'olevel_school_district', 'olevel_school_ward',
+    'olevel_school_street', 'olevel_school_place_neighbourhood', 'olevel_school_house_no',
+    'olevel_start_year', 'olevel_completed_year', 'olevel_candidate_no', 'olevel_gpa',
+    'olevel_school_type', 'olevel_exam_board', 'olevel_certificate_no', 'olevel_remarks',
+    'alevel_school_country', 'alevel_school_region', 'alevel_school_district', 'alevel_school_ward',
+    'alevel_school_street', 'alevel_school_place_neighbourhood', 'alevel_school_house_no',
+    'alevel_start_year', 'alevel_completed_year', 'alevel_candidate_no', 'alevel_gpa',
+    'alevel_school_type', 'alevel_exam_board', 'alevel_certificate_no', 'alevel_remarks',
+    'emergency_country', 'emergency_region', 'emergency_district',
+    'emergency_ward', 'emergency_street', 'emergency_place_neighbourhood', 'emergency_house_no',
+    'emergency_phone', 'emergency_email', 'emergency_alternative_phone',
+    'emergency_relationship_status', 'emergency_remarks',
+    'marital_status', 'native_language',
+    'preferred_intake',
+    'father_region_post_code', 'father_district_post_code', 'father_ward_post_code',
+    'mother_region_post_code', 'mother_district_post_code', 'mother_ward_post_code',
+    'emergency_region_post_code', 'emergency_district_post_code', 'emergency_ward_post_code',
+    'olevel_school_region_post_code', 'olevel_school_district_post_code', 'olevel_school_ward_post_code',
+    'alevel_school_region_post_code', 'alevel_school_district_post_code', 'alevel_school_ward_post_code',
+]
+
+# Fields that appear in the mtaa location selector (get Select widget)
+MTAA_SELECT_FIELD_NAMES = {
+    'region', 'district', 'ward', 'street',
+    'father_region', 'father_district', 'father_ward', 'father_street',
+    'mother_region', 'mother_district', 'mother_ward', 'mother_street',
+    'emergency_region', 'emergency_district', 'emergency_ward', 'emergency_street',
+    'olevel_school_region', 'olevel_school_district', 'olevel_school_ward', 'olevel_school_street',
+    'alevel_school_region', 'alevel_school_district', 'alevel_school_ward', 'alevel_school_street',
+    'current_region', 'current_district', 'current_ward', 'current_street',
+    'permanent_region', 'permanent_district', 'permanent_ward', 'permanent_street',
+    'professional_qualification_region', 'professional_qualification_district',
+    'professional_qualification_ward', 'professional_qualification_street',
+}
 
 SUPPLEMENTAL_FIELD_GROUPS = [
     (
@@ -26,7 +67,7 @@ SUPPLEMENTAL_FIELD_GROUPS = [
             'permanent_country', 'permanent_region', 'permanent_district',
             'permanent_ward', 'permanent_street', 'permanent_mtaa',
             'permanent_house_no', 'permanent_address',
-            'whatsapp_number', 'residential_email',
+            'residential_email',
             'passport_number', 'passport_issue_country', 'passport_issue_date',
             'passport_expiration_date', 'has_valid_visa', 'valid_visa_details',
         ],
@@ -149,7 +190,6 @@ SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
     'permanent_city',
     'permanent_country',
     'permanent_postal_code',
-    'whatsapp_number',
     'passport_number',
     'passport_issue_country',
     'valid_visa_details',
@@ -538,8 +578,6 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         for field_name in self.Meta.fields:
             self.fields[field_name].required = False
 
-        self.fields['olevel_country'].initial = 'Tanzania'
-        self.fields['alevel_country'].initial = 'Tanzania'
         self.current_profile_picture = getattr(self.student_profile_instance, 'profile_picture', None)
         if self.student_profile_instance and getattr(self.student_profile_instance, 'date_of_birth', None):
             self.initial['date_of_birth'] = self.student_profile_instance.date_of_birth
@@ -622,95 +660,162 @@ class OfflineStudentIntakeForm(forms.ModelForm):
 
             self.fields[field_name] = form_field
 
+        for field_name in STUDENT_PROFILE_ONLY_FIELDS:
+            if field_name in self.fields:
+                continue
+            is_mtaa_select = field_name in MTAA_SELECT_FIELD_NAMES
+            label = field_name.replace('_', ' ').title()
+            if is_mtaa_select:
+                self.fields[field_name] = forms.CharField(
+                    required=False,
+                    widget=forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+                    label=label,
+                )
+            elif field_name in {'olevel_start_year', 'olevel_completed_year', 'alevel_start_year', 'alevel_completed_year'}:
+                self.fields[field_name] = forms.CharField(
+                    required=False,
+                    widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g., 2020'}),
+                    label=label,
+                )
+            else:
+                try:
+                    model_field = StudentProfile._meta.get_field(field_name)
+                    has_choices = bool(model_field.choices)
+                except LookupError:
+                    has_choices = False
+                if has_choices:
+                    self.fields[field_name] = forms.ChoiceField(
+                        required=False,
+                        choices=model_field.choices,
+                        widget=forms.Select(attrs={'class': 'form-select'}),
+                        label=label,
+                    )
+                else:
+                    self.fields[field_name] = forms.CharField(
+                        required=False,
+                        widget=forms.TextInput(attrs={'class': 'form-input'}),
+                        label=label,
+                    )
+
     class Meta:
         model = StudentApplication
         fields = [
             'full_name',
             'gender',
+            'date_of_birth',
+            'place_of_birth',
             'nationality',
+            'native_language',
+            'marital_status',
             'email',
             'phone',
-            'address',
             'father_name',
             'father_phone',
             'father_email',
             'father_occupation',
+            'father_place_neighbourhood',
+            'father_status',
+            'father_relationship',
             'mother_name',
             'mother_phone',
             'mother_email',
             'mother_occupation',
+            'mother_place_neighbourhood',
+            'mother_status',
+            'mother_relationship',
             'olevel_school',
-            'olevel_country',
-            'olevel_address',
-            'olevel_region',
-            'olevel_year',
+            'olevel_start_year',
+            'olevel_completed_year',
             'olevel_candidate_no',
             'olevel_gpa',
+            'olevel_school_type',
+            'olevel_exam_board',
+            'olevel_certificate_no',
+            'olevel_remarks',
             'alevel_school',
-            'alevel_country',
-            'alevel_address',
-            'alevel_region',
-            'alevel_year',
+            'alevel_start_year',
+            'alevel_completed_year',
             'alevel_candidate_no',
             'alevel_gpa',
+            'alevel_school_type',
+            'alevel_exam_board',
+            'alevel_certificate_no',
+            'alevel_remarks',
+            'preferred_intake',
             'preferred_country_1',
             'preferred_country_2',
             'preferred_country_3',
-            'preferred_country_4',
             'preferred_program_1',
             'preferred_program_2',
             'preferred_program_3',
-            'preferred_program_4',
             'emergency_name',
-            'emergency_address',
-            'emergency_occupation',
-            'emergency_gender',
             'emergency_relation',
+            'emergency_occupation',
+            'emergency_phone',
+            'emergency_email',
+            'emergency_alternative_phone',
+            'emergency_relationship_status',
+            'emergency_remarks',
             'heard_about_us',
             'heard_about_other',
         ]
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Full name as in passport'}),
             'gender': forms.Select(attrs={'class': 'form-select'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'place_of_birth': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place of birth'}),
             'nationality': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Nationality'}),
+            'native_language': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Native language'}),
+            'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'student@example.com'}),
             'phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '255712345678'}),
-            'address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
             'father_name': forms.TextInput(attrs={'class': 'form-input'}),
             'father_phone': forms.TextInput(attrs={'class': 'form-input'}),
             'father_email': forms.EmailInput(attrs={'class': 'form-input'}),
             'father_occupation': forms.TextInput(attrs={'class': 'form-input'}),
+            'father_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
+            'father_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Status'}),
+            'father_relationship': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Relationship'}),
             'mother_name': forms.TextInput(attrs={'class': 'form-input'}),
             'mother_phone': forms.TextInput(attrs={'class': 'form-input'}),
             'mother_email': forms.EmailInput(attrs={'class': 'form-input'}),
             'mother_occupation': forms.TextInput(attrs={'class': 'form-input'}),
+            'mother_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
+            'mother_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Status'}),
+            'mother_relationship': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Relationship'}),
             'olevel_school': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_country': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_address': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_region': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_year': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year e.g. 2016'}),
+            'olevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year completed e.g. 2020'}),
             'olevel_candidate_no': forms.TextInput(attrs={'class': 'form-input'}),
             'olevel_gpa': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School type'}),
+            'olevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam board'}),
+            'olevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate no.'}),
+            'olevel_remarks': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
             'alevel_school': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_country': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_address': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_region': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_year': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year e.g. 2020'}),
+            'alevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year completed e.g. 2022'}),
             'alevel_candidate_no': forms.TextInput(attrs={'class': 'form-input'}),
             'alevel_gpa': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School type'}),
+            'alevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam board'}),
+            'alevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate no.'}),
+            'alevel_remarks': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
+            'preferred_intake': forms.Select(attrs={'class': 'form-select'}),
             'preferred_country_1': forms.TextInput(attrs={'class': 'form-input'}),
             'preferred_country_2': forms.TextInput(attrs={'class': 'form-input'}),
             'preferred_country_3': forms.TextInput(attrs={'class': 'form-input'}),
-            'preferred_country_4': forms.TextInput(attrs={'class': 'form-input'}),
             'preferred_program_1': forms.TextInput(attrs={'class': 'form-input'}),
             'preferred_program_2': forms.TextInput(attrs={'class': 'form-input'}),
             'preferred_program_3': forms.TextInput(attrs={'class': 'form-input'}),
-            'preferred_program_4': forms.TextInput(attrs={'class': 'form-input'}),
             'emergency_name': forms.TextInput(attrs={'class': 'form-input'}),
-            'emergency_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
-            'emergency_occupation': forms.TextInput(attrs={'class': 'form-input'}),
-            'emergency_gender': forms.Select(attrs={'class': 'form-select'}),
             'emergency_relation': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_occupation': forms.TextInput(attrs={'class': 'form-input'}),
+            'emergency_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
+            'emergency_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'emergency@example.com'}),
+            'emergency_alternative_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Alternative phone'}),
+            'emergency_relationship_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Relationship status'}),
+            'emergency_remarks': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
             'heard_about_us': forms.Select(
                 attrs={'class': 'form-select'},
                 choices=[
@@ -732,10 +837,4 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         return (self.cleaned_data.get('email') or '').strip().lower()
 
     def clean(self):
-        cleaned_data = super().clean()
-        if not cleaned_data.get('olevel_country'):
-            cleaned_data['olevel_country'] = 'Tanzania'
-        if not cleaned_data.get('alevel_country'):
-            cleaned_data['alevel_country'] = 'Tanzania'
-
-        return cleaned_data
+        return super().clean()

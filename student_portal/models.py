@@ -360,8 +360,6 @@ class StudentProfile(models.Model):
 
     # Basic Information
     phone_number = models.CharField(max_length=30, blank=True)
-    whatsapp_number = models.CharField(max_length=30, blank=True)
-    address = models.TextField(blank=True)
     email = models.EmailField(blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     place_of_birth = models.CharField(max_length=150, blank=True)
@@ -371,12 +369,10 @@ class StudentProfile(models.Model):
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True)
     profile_picture = models.ImageField(upload_to="profiles/", null=True, blank=True)
 
-    # Student current/home location. Kept separate from `address` for the new PDF export.
+    # Student current/home location.
     city = models.CharField(max_length=120, blank=True)
-    country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
     region = models.CharField(max_length=120, blank=True)
     region_post_code = models.CharField(max_length=30, blank=True)
-    district = models.CharField(max_length=120, blank=True)
     district_post_code = models.CharField(max_length=30, blank=True)
     ward = models.CharField(max_length=120, blank=True)
     ward_post_code = models.CharField(max_length=30, blank=True)
@@ -388,16 +384,11 @@ class StudentProfile(models.Model):
     house_no = models.CharField(max_length=80, blank=True)
     house_number = models.CharField(max_length=80, blank=True)
 
-    # Passport fields used by the export when supplemental data is missing.
+    # Passport fields
     passport_number = models.CharField(max_length=100, blank=True)
     passport_issue_country = models.CharField(max_length=100, blank=True)
     passport_issue_date = models.DateField(null=True, blank=True)
-    passport_issued_date = models.DateField(null=True, blank=True)
-    passport_date_of_issue = models.DateField(null=True, blank=True)
     passport_expiration_date = models.DateField(null=True, blank=True)
-    passport_expired_date = models.DateField(null=True, blank=True)
-    passport_expiry_date = models.DateField(null=True, blank=True)
-    passport_date_of_expiry = models.DateField(null=True, blank=True)
 
     # Father Details
     father_name = models.CharField(max_length=150, blank=True)
@@ -412,13 +403,10 @@ class StudentProfile(models.Model):
     father_ward = models.CharField(max_length=120, blank=True)
     father_ward_post_code = models.CharField(max_length=30, blank=True)
     father_street = models.CharField(max_length=180, blank=True)
-    father_mtaa = models.CharField(max_length=180, blank=True)
-    father_street_village = models.CharField(max_length=180, blank=True)
-    father_neighbourhood = models.CharField(max_length=180, blank=True)
     father_place_neighbourhood = models.CharField(max_length=180, blank=True)
     father_house_no = models.CharField(max_length=80, blank=True)
-    father_postal_code = models.CharField(max_length=30, blank=True)
-    father_address = models.TextField(blank=True)
+    father_status = models.CharField(max_length=100, blank=True)
+    father_relationship = models.CharField(max_length=100, blank=True)
 
     # Mother Details
     mother_name = models.CharField(max_length=150, blank=True)
@@ -433,20 +421,14 @@ class StudentProfile(models.Model):
     mother_ward = models.CharField(max_length=120, blank=True)
     mother_ward_post_code = models.CharField(max_length=30, blank=True)
     mother_street = models.CharField(max_length=180, blank=True)
-    mother_mtaa = models.CharField(max_length=180, blank=True)
-    mother_street_village = models.CharField(max_length=180, blank=True)
-    mother_neighbourhood = models.CharField(max_length=180, blank=True)
     mother_place_neighbourhood = models.CharField(max_length=180, blank=True)
     mother_house_no = models.CharField(max_length=80, blank=True)
-    mother_postal_code = models.CharField(max_length=30, blank=True)
-    mother_address = models.TextField(blank=True)
+    mother_status = models.CharField(max_length=100, blank=True)
+    mother_relationship = models.CharField(max_length=100, blank=True)
 
     # O-Level Education
     olevel_school = models.CharField(max_length=150, blank=True)
-    olevel_country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
     olevel_school_country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
-    olevel_address = models.CharField(max_length=255, blank=True)
-    olevel_region = models.CharField(max_length=100, blank=True)
     olevel_school_region = models.CharField(max_length=120, blank=True)
     olevel_school_region_post_code = models.CharField(max_length=30, blank=True)
     olevel_school_district = models.CharField(max_length=120, blank=True)
@@ -454,24 +436,20 @@ class StudentProfile(models.Model):
     olevel_school_ward = models.CharField(max_length=120, blank=True)
     olevel_school_ward_post_code = models.CharField(max_length=30, blank=True)
     olevel_school_street = models.CharField(max_length=180, blank=True)
-    olevel_street = models.CharField(max_length=180, blank=True)
-    olevel_school_mtaa = models.CharField(max_length=180, blank=True)
-    olevel_school_neighbourhood = models.CharField(max_length=180, blank=True)
     olevel_school_place_neighbourhood = models.CharField(max_length=180, blank=True)
     olevel_school_house_no = models.CharField(max_length=80, blank=True)
     olevel_start_year = models.CharField(max_length=10, blank=True)
-    olevel_started_year = models.CharField(max_length=10, blank=True)
     olevel_completed_year = models.CharField(max_length=10, blank=True)
-    olevel_year = models.CharField(max_length=10, blank=True)
     olevel_candidate_no = models.CharField(max_length=50, blank=True)
     olevel_gpa = models.CharField(max_length=20, blank=True)
+    olevel_school_type = models.CharField(max_length=100, blank=True)
+    olevel_exam_board = models.CharField(max_length=100, blank=True)
+    olevel_certificate_no = models.CharField(max_length=100, blank=True)
+    olevel_remarks = models.TextField(blank=True)
 
     # A-Level Education
     alevel_school = models.CharField(max_length=150, blank=True)
-    alevel_country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
     alevel_school_country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
-    alevel_address = models.CharField(max_length=255, blank=True)
-    alevel_region = models.CharField(max_length=100, blank=True)
     alevel_school_region = models.CharField(max_length=120, blank=True)
     alevel_school_region_post_code = models.CharField(max_length=30, blank=True)
     alevel_school_district = models.CharField(max_length=120, blank=True)
@@ -479,34 +457,33 @@ class StudentProfile(models.Model):
     alevel_school_ward = models.CharField(max_length=120, blank=True)
     alevel_school_ward_post_code = models.CharField(max_length=30, blank=True)
     alevel_school_street = models.CharField(max_length=180, blank=True)
-    alevel_street = models.CharField(max_length=180, blank=True)
-    alevel_school_mtaa = models.CharField(max_length=180, blank=True)
-    alevel_school_neighbourhood = models.CharField(max_length=180, blank=True)
     alevel_school_place_neighbourhood = models.CharField(max_length=180, blank=True)
     alevel_school_house_no = models.CharField(max_length=80, blank=True)
     alevel_start_year = models.CharField(max_length=10, blank=True)
-    alevel_started_year = models.CharField(max_length=10, blank=True)
     alevel_completed_year = models.CharField(max_length=10, blank=True)
-    alevel_year = models.CharField(max_length=10, blank=True)
     alevel_candidate_no = models.CharField(max_length=50, blank=True)
     alevel_gpa = models.CharField(max_length=20, blank=True)
+    alevel_school_type = models.CharField(max_length=100, blank=True)
+    alevel_exam_board = models.CharField(max_length=100, blank=True)
+    alevel_certificate_no = models.CharField(max_length=100, blank=True)
+    alevel_remarks = models.TextField(blank=True)
 
     # Study Preferences
+    preferred_intake = models.CharField(max_length=80, blank=True)
     preferred_country_1 = models.CharField(max_length=100, blank=True)
     preferred_country_2 = models.CharField(max_length=100, blank=True)
     preferred_country_3 = models.CharField(max_length=100, blank=True)
-    preferred_country_4 = models.CharField(max_length=100, blank=True)
     preferred_program_1 = models.CharField(max_length=150, blank=True)
     preferred_program_2 = models.CharField(max_length=150, blank=True)
     preferred_program_3 = models.CharField(max_length=150, blank=True)
-    preferred_program_4 = models.CharField(max_length=150, blank=True)
 
     # Emergency Contact
     emergency_contact = models.CharField(max_length=150, blank=True)
-    emergency_address = models.TextField(blank=True)
-    emergency_occupation = models.CharField(max_length=100, blank=True)
-    emergency_gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True)
     emergency_relation = models.CharField(max_length=100, blank=True)
+    emergency_occupation = models.CharField(max_length=100, blank=True)
+    emergency_phone = models.CharField(max_length=50, blank=True)
+    emergency_email = models.EmailField(blank=True)
+    emergency_alternative_phone = models.CharField(max_length=50, blank=True)
     emergency_country = models.CharField(max_length=100, blank=True, default=COUNTRY_DEFAULT)
     emergency_region = models.CharField(max_length=120, blank=True)
     emergency_region_post_code = models.CharField(max_length=30, blank=True)
@@ -515,11 +492,10 @@ class StudentProfile(models.Model):
     emergency_ward = models.CharField(max_length=120, blank=True)
     emergency_ward_post_code = models.CharField(max_length=30, blank=True)
     emergency_street = models.CharField(max_length=180, blank=True)
-    emergency_mtaa = models.CharField(max_length=180, blank=True)
-    emergency_street_village = models.CharField(max_length=180, blank=True)
-    emergency_neighbourhood = models.CharField(max_length=180, blank=True)
     emergency_place_neighbourhood = models.CharField(max_length=180, blank=True)
     emergency_house_no = models.CharField(max_length=80, blank=True)
+    emergency_relationship_status = models.CharField(max_length=100, blank=True)
+    emergency_remarks = models.TextField(blank=True)
 
     heard_about_us = models.CharField(max_length=100, blank=True)
     heard_about_other = models.CharField(max_length=255, blank=True)
@@ -560,8 +536,8 @@ class StudentProfile(models.Model):
         has_guardian_info = bool(self.emergency_contact and self.emergency_relation)
         parents_complete = has_parent_info or has_guardian_info
 
-        has_olevel = all([self.olevel_school, self.olevel_year or self.olevel_completed_year, self.olevel_gpa])
-        has_alevel = all([self.alevel_school, self.alevel_year or self.alevel_completed_year, self.alevel_gpa])
+        has_olevel = all([self.olevel_school, self.olevel_completed_year, self.olevel_gpa])
+        has_alevel = all([self.alevel_school, self.alevel_completed_year, self.alevel_gpa])
         academic_complete = has_olevel or has_alevel
 
         study_complete = bool(self.preferred_country_1 and self.preferred_program_1)
@@ -1031,13 +1007,11 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "district_post_code": _attr(profile, "father_district_post_code"),
                 "ward": _attr(profile, "father_ward"),
                 "ward_post_code": _attr(profile, "father_ward_post_code"),
-                "street": _attr(profile, "father_street") or _attr(profile, "father_street_village"),
+                "street": _attr(profile, "father_street"),
                 "mtaa": _attr(profile, "father_mtaa"),
                 "neighbourhood": _attr(profile, "father_neighbourhood"),
                 "place_neighbourhood": _attr(profile, "father_place_neighbourhood"),
                 "house_no": _attr(profile, "father_house_no"),
-                "postal_code": _attr(profile, "father_postal_code"),
-                "address_line": _attr(profile, "father_address"),
             },
         ),
         (
@@ -1050,13 +1024,11 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "district_post_code": _attr(profile, "mother_district_post_code"),
                 "ward": _attr(profile, "mother_ward"),
                 "ward_post_code": _attr(profile, "mother_ward_post_code"),
-                "street": _attr(profile, "mother_street") or _attr(profile, "mother_street_village"),
+                "street": _attr(profile, "mother_street"),
                 "mtaa": _attr(profile, "mother_mtaa"),
                 "neighbourhood": _attr(profile, "mother_neighbourhood"),
                 "place_neighbourhood": _attr(profile, "mother_place_neighbourhood"),
                 "house_no": _attr(profile, "mother_house_no"),
-                "postal_code": _attr(profile, "mother_postal_code"),
-                "address_line": _attr(profile, "mother_address"),
             },
         ),
         (
@@ -1069,12 +1041,11 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "district_post_code": _attr(profile, "emergency_district_post_code"),
                 "ward": _attr(profile, "emergency_ward"),
                 "ward_post_code": _attr(profile, "emergency_ward_post_code"),
-                "street": _attr(profile, "emergency_street") or _attr(profile, "emergency_street_village"),
+                "street": _attr(profile, "emergency_street"),
                 "mtaa": _attr(profile, "emergency_mtaa"),
                 "neighbourhood": _attr(profile, "emergency_neighbourhood"),
                 "place_neighbourhood": _attr(profile, "emergency_place_neighbourhood"),
                 "house_no": _attr(profile, "emergency_house_no"),
-                "address_line": _attr(profile, "emergency_address"),
             },
         ),
         (
@@ -1087,12 +1058,11 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "district_post_code": _attr(profile, "olevel_school_district_post_code"),
                 "ward": _attr(profile, "olevel_school_ward"),
                 "ward_post_code": _attr(profile, "olevel_school_ward_post_code"),
-                "street": _attr(profile, "olevel_school_street") or _attr(profile, "olevel_street"),
+                "street": _attr(profile, "olevel_school_street"),
                 "mtaa": _attr(profile, "olevel_school_mtaa"),
                 "neighbourhood": _attr(profile, "olevel_school_neighbourhood"),
                 "place_neighbourhood": _attr(profile, "olevel_school_place_neighbourhood"),
                 "house_no": _attr(profile, "olevel_school_house_no"),
-                "address_line": _attr(profile, "olevel_address"),
             },
         ),
         (
@@ -1105,12 +1075,11 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "district_post_code": _attr(profile, "alevel_school_district_post_code"),
                 "ward": _attr(profile, "alevel_school_ward"),
                 "ward_post_code": _attr(profile, "alevel_school_ward_post_code"),
-                "street": _attr(profile, "alevel_school_street") or _attr(profile, "alevel_street"),
+                "street": _attr(profile, "alevel_school_street"),
                 "mtaa": _attr(profile, "alevel_school_mtaa"),
                 "neighbourhood": _attr(profile, "alevel_school_neighbourhood"),
                 "place_neighbourhood": _attr(profile, "alevel_school_place_neighbourhood"),
                 "house_no": _attr(profile, "alevel_school_house_no"),
-                "address_line": _attr(profile, "alevel_address"),
             },
         ),
     ]
@@ -1152,7 +1121,6 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "phone": _attr(profile, "father_phone"),
                 "email": _attr(profile, "father_email"),
                 "occupation": _attr(profile, "father_occupation"),
-                "address": _attr(profile, "father_address"),
             },
         ),
         (
@@ -1162,7 +1130,6 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "phone": _attr(profile, "mother_phone"),
                 "email": _attr(profile, "mother_email"),
                 "occupation": _attr(profile, "mother_occupation"),
-                "address": _attr(profile, "mother_address"),
             },
         ),
         (
@@ -1172,7 +1139,6 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "occupation": _attr(profile, "emergency_occupation"),
                 "gender": _attr(profile, "emergency_gender"),
                 "relation": _attr(profile, "emergency_relation"),
-                "address": _attr(profile, "emergency_address"),
             },
         ),
     ]
@@ -1191,16 +1157,15 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "school_name": _attr(profile, "olevel_school"),
                 "candidate_no": _attr(profile, "olevel_candidate_no"),
                 "gpa": _attr(profile, "olevel_gpa"),
-                "start_year": _attr(profile, "olevel_start_year") or _attr(profile, "olevel_started_year"),
-                "completed_year": _attr(profile, "olevel_completed_year") or _attr(profile, "olevel_year"),
+                "start_year": _attr(profile, "olevel_start_year"),
+                "completed_year": _attr(profile, "olevel_completed_year"),
                 "country": _attr(profile, "olevel_school_country") or _attr(profile, "olevel_country"),
                 "region": _attr(profile, "olevel_school_region") or _attr(profile, "olevel_region"),
                 "district": _attr(profile, "olevel_school_district"),
                 "ward": _attr(profile, "olevel_school_ward"),
                 "house_no": _attr(profile, "olevel_school_house_no"),
-                "street": _attr(profile, "olevel_school_street") or _attr(profile, "olevel_street"),
+                "street": _attr(profile, "olevel_school_street"),
                 "mtaa": _attr(profile, "olevel_school_mtaa"),
-                "address": _attr(profile, "olevel_address"),
             },
         ),
         (
@@ -1209,16 +1174,15 @@ def _sync_student_profile_normalized(profile: "StudentProfile") -> None:
                 "school_name": _attr(profile, "alevel_school"),
                 "candidate_no": _attr(profile, "alevel_candidate_no"),
                 "gpa": _attr(profile, "alevel_gpa"),
-                "start_year": _attr(profile, "alevel_start_year") or _attr(profile, "alevel_started_year"),
-                "completed_year": _attr(profile, "alevel_completed_year") or _attr(profile, "alevel_year"),
+                "start_year": _attr(profile, "alevel_start_year"),
+                "completed_year": _attr(profile, "alevel_completed_year"),
                 "country": _attr(profile, "alevel_school_country") or _attr(profile, "alevel_country"),
                 "region": _attr(profile, "alevel_school_region") or _attr(profile, "alevel_region"),
                 "district": _attr(profile, "alevel_school_district"),
                 "ward": _attr(profile, "alevel_school_ward"),
                 "house_no": _attr(profile, "alevel_school_house_no"),
-                "street": _attr(profile, "alevel_school_street") or _attr(profile, "alevel_street"),
+                "street": _attr(profile, "alevel_school_street"),
                 "mtaa": _attr(profile, "alevel_school_mtaa"),
-                "address": _attr(profile, "alevel_address"),
             },
         ),
     ]
@@ -1267,13 +1231,6 @@ class Application(models.Model):
         ("conditional", "Conditional"),
     ]
 
-    APPLICATION_TYPES = [
-        ("university", "University Application"),
-        ("visa", "Visa Application"),
-        ("scholarship", "Scholarship"),
-        ("loan", "Student Loan"),
-    ]
-
     PAYMENT_STATUS_CHOICES = [
         ("not_paid", "Not Paid"),
         ("pending_verification", "Pending Verification"),
@@ -1282,10 +1239,6 @@ class Application(models.Model):
     ]
 
     student = models.ForeignKey(User, on_delete=models.CASCADE)
-    application_type = models.CharField(max_length=20, choices=APPLICATION_TYPES)
-    university_name = models.CharField(max_length=255, blank=True)
-    course = models.CharField(max_length=255, blank=True)
-    country = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=20, choices=APPLICATION_STATUS, default="pending_payment")
     submission_date = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1317,7 +1270,7 @@ class Application(models.Model):
     official_remarks = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.get_application_type_display()} - {self.student.username}"
+        return f"Application - {self.student.username}"
 
     def get_registration_number(self):
         if self.reference_number:
@@ -1384,7 +1337,6 @@ class ApplicationSupplementalProfile(models.Model):
     passport_expiration_date = models.DateField(null=True, blank=True)
     has_valid_visa = models.BooleanField(null=True, blank=True)
     valid_visa_details = models.TextField(null=True, blank=True)
-    whatsapp_number = models.TextField(null=True, blank=True)
     residential_email = models.EmailField(null=True, blank=True)
 
     # Current address, mtaa-ready.
@@ -1842,7 +1794,7 @@ class Document(models.Model):
 
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES)
-    file = models.FileField(upload_to="documents/", storage=PdfFriendlyCloudinaryStorage())
+    file = models.FileField(upload_to="documents/")
     description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)

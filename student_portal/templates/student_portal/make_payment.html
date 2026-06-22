@@ -257,25 +257,10 @@
             <h3>Application Details</h3>
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label">Application Type</div>
-                    <div class="info-value">{{ application.get_application_type_display }}</div>
-                </div>
-                <div class="info-item">
                     <div class="info-label">Status</div>
                     <div class="info-value">{{ application.get_status_display }}</div>
                 </div>
-                {% if application.university_name %}
-                <div class="info-item">
-                    <div class="info-label">University</div>
-                    <div class="info-value">{{ application.university_name }}</div>
-                </div>
-                {% endif %}
-                {% if application.course %}
-                <div class="info-item">
-                    <div class="info-label">Course</div>
-                    <div class="info-value">{{ application.course }}</div>
-                </div>
-                {% endif %}
+
             </div>
         </div>
 

@@ -38,12 +38,32 @@
                 </div>
 
                 <div>
-                    <label for="{{ form.emergency_gender.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Gender
+                    <label for="{{ form.emergency_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number <span class="text-red-500">*</span>
                     </label>
-                    {{ form.emergency_gender }}
-                    {% if form.emergency_gender.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ form.emergency_gender.errors.0 }}</p>
+                    {{ form.emergency_phone }}
+                    {% if form.emergency_phone.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.emergency_phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.emergency_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                    </label>
+                    {{ form.emergency_email }}
+                    {% if form.emergency_email.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.emergency_email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.emergency_alternative_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Alternative Phone
+                    </label>
+                    {{ form.emergency_alternative_phone }}
+                    {% if form.emergency_alternative_phone.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.emergency_alternative_phone.errors.0 }}</p>
                     {% endif %}
                 </div>
 
@@ -111,10 +131,20 @@
                         {{ form.emergency_mtaa }}
                         {% if form.emergency_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_mtaa.errors.0 }}</p>{% endif %}
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Place / Neighbourhood</label>
+                        {{ form.emergency_place_neighbourhood }}
+                        {% if form.emergency_place_neighbourhood.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_place_neighbourhood.errors.0 }}</p>{% endif %}
+                    </div>
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-                        {{ form.emergency_address }}
-                        {% if form.emergency_address.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_address.errors.0 }}</p>{% endif %}
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Relationship Status</label>
+                        {{ form.emergency_relationship_status }}
+                        {% if form.emergency_relationship_status.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_relationship_status.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        {{ form.emergency_remarks }}
+                        {% if form.emergency_remarks.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_remarks.errors.0 }}</p>{% endif %}
                     </div>
                 </div>
             </div>

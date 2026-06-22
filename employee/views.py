@@ -248,9 +248,7 @@ def student_application_list(request):
             Q(student__username__icontains=search_query)
             | Q(student__first_name__icontains=search_query)
             | Q(student__last_name__icontains=search_query)
-            | Q(university_name__icontains=search_query)
-            | Q(course__icontains=search_query)
-            | Q(country__icontains=search_query)
+        
         )
 
     applications = list(applications_qs)
@@ -355,7 +353,6 @@ def edit_student_application(request, application_id):
         'permanent_mtaa': forms.TextInput(attrs={'class': 'form-input'}),
         'permanent_house_no': forms.TextInput(attrs={'class': 'form-input'}),
         'permanent_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
-        'whatsapp_number': forms.TextInput(attrs={'class': 'form-input'}),
         'residential_email': forms.EmailInput(attrs={'class': 'form-input'}),
         'current_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
         'valid_visa_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
@@ -443,12 +440,6 @@ def edit_student_application(request, application_id):
 
     form_sections = [
         {
-            'key': 'application',
-            'title': 'Application Details',
-            'description': 'Edit the core application details shown in the employee portal.',
-            'bound_fields': [core_form[field_name] for field_name in core_form.fields],
-        },
-        {
             'key': 'personal',
             'title': 'Personal Details',
             'description': 'Update the student personal profile information.',
@@ -490,7 +481,6 @@ def edit_student_application(request, application_id):
         'address',
         'current_address',
         'permanent_address',
-        'emergency_address',
         'valid_visa_details',
         'professional_qualifications',
         'scholarship_details',
@@ -671,21 +661,19 @@ def _create_or_update_student_portal_records(
         user=user,
         defaults={
             'phone_number': text_value('phone'),
-            'whatsapp_number': text_value('whatsapp_number'),
-            'address': text_value('address'),
             'date_of_birth': cleaned_data.get('date_of_birth'),
             'nationality': text_value('nationality'),
             'place_of_birth': text_value('place_of_birth'),
             'marital_status': text_value('marital_status'),
             'native_language': text_value('native_language'),
             'gender': text_value('gender'),
-            'country': mtaa_val('country'),
             'region': mtaa_val('region'),
-            'district': mtaa_val('district'),
             'ward': mtaa_val('ward'),
             'street': mtaa_val('street'),
             'mtaa': mtaa_val('mtaa'),
             'house_no': mtaa_val('house_no'),
+            'city': mtaa_val('city'),
+            'village': mtaa_val('village'),
             'father_name': text_value('father_name'),
             'father_phone': text_value('father_phone'),
             'father_email': text_value('father_email'),
@@ -695,9 +683,13 @@ def _create_or_update_student_portal_records(
             'father_district': mtaa_val('father_district'),
             'father_ward': mtaa_val('father_ward'),
             'father_street': mtaa_val('father_street'),
-            'father_mtaa': mtaa_val('father_mtaa'),
             'father_house_no': mtaa_val('father_house_no'),
-            'father_address': text_value('father_address'),
+            'father_place_neighbourhood': mtaa_val('father_place_neighbourhood'),
+            'father_region_post_code': mtaa_val('father_region_post_code'),
+            'father_district_post_code': mtaa_val('father_district_post_code'),
+            'father_ward_post_code': mtaa_val('father_ward_post_code'),
+            'father_status': text_value('father_status'),
+            'father_relationship': text_value('father_relationship'),
             'mother_name': text_value('mother_name'),
             'mother_phone': text_value('mother_phone'),
             'mother_email': text_value('mother_email'),
@@ -707,53 +699,76 @@ def _create_or_update_student_portal_records(
             'mother_district': mtaa_val('mother_district'),
             'mother_ward': mtaa_val('mother_ward'),
             'mother_street': mtaa_val('mother_street'),
-            'mother_mtaa': mtaa_val('mother_mtaa'),
             'mother_house_no': mtaa_val('mother_house_no'),
-            'mother_address': text_value('mother_address'),
+            'mother_place_neighbourhood': mtaa_val('mother_place_neighbourhood'),
+            'mother_region_post_code': mtaa_val('mother_region_post_code'),
+            'mother_district_post_code': mtaa_val('mother_district_post_code'),
+            'mother_ward_post_code': mtaa_val('mother_ward_post_code'),
+            'mother_status': text_value('mother_status'),
+            'mother_relationship': text_value('mother_relationship'),
             'olevel_school': text_value('olevel_school'),
-            'olevel_country': text_value('olevel_country'),
+            'olevel_school_country': text_value('olevel_school_country'),
             'olevel_school_region': mtaa_val('olevel_school_region'),
             'olevel_school_district': mtaa_val('olevel_school_district'),
             'olevel_school_ward': mtaa_val('olevel_school_ward'),
             'olevel_school_street': mtaa_val('olevel_school_street'),
-            'olevel_school_mtaa': mtaa_val('olevel_school_mtaa'),
             'olevel_school_house_no': mtaa_val('olevel_school_house_no'),
+            'olevel_school_place_neighbourhood': mtaa_val('olevel_school_place_neighbourhood'),
             'olevel_start_year': mtaa_year('olevel_start_year'),
             'olevel_completed_year': mtaa_year('olevel_completed_year'),
             'olevel_candidate_no': text_value('olevel_candidate_no'),
             'olevel_gpa': text_value('olevel_gpa'),
+            'olevel_school_region_post_code': mtaa_val('olevel_school_region_post_code'),
+            'olevel_school_district_post_code': mtaa_val('olevel_school_district_post_code'),
+            'olevel_school_ward_post_code': mtaa_val('olevel_school_ward_post_code'),
+            'olevel_school_type': text_value('olevel_school_type'),
+            'olevel_exam_board': text_value('olevel_exam_board'),
+            'olevel_certificate_no': text_value('olevel_certificate_no'),
+            'olevel_remarks': text_value('olevel_remarks'),
             'alevel_school': text_value('alevel_school'),
-            'alevel_country': text_value('alevel_country'),
+            'alevel_school_country': text_value('alevel_school_country'),
             'alevel_school_region': mtaa_val('alevel_school_region'),
             'alevel_school_district': mtaa_val('alevel_school_district'),
             'alevel_school_ward': mtaa_val('alevel_school_ward'),
             'alevel_school_street': mtaa_val('alevel_school_street'),
-            'alevel_school_mtaa': mtaa_val('alevel_school_mtaa'),
             'alevel_school_house_no': mtaa_val('alevel_school_house_no'),
+            'alevel_school_place_neighbourhood': mtaa_val('alevel_school_place_neighbourhood'),
             'alevel_start_year': mtaa_year('alevel_start_year'),
             'alevel_completed_year': mtaa_year('alevel_completed_year'),
             'alevel_candidate_no': text_value('alevel_candidate_no'),
             'alevel_gpa': text_value('alevel_gpa'),
+            'alevel_school_region_post_code': mtaa_val('alevel_school_region_post_code'),
+            'alevel_school_district_post_code': mtaa_val('alevel_school_district_post_code'),
+            'alevel_school_ward_post_code': mtaa_val('alevel_school_ward_post_code'),
+            'alevel_school_type': text_value('alevel_school_type'),
+            'alevel_exam_board': text_value('alevel_exam_board'),
+            'alevel_certificate_no': text_value('alevel_certificate_no'),
+            'alevel_remarks': text_value('alevel_remarks'),
             'preferred_country_1': text_value('preferred_country_1'),
             'preferred_country_2': text_value('preferred_country_2'),
             'preferred_country_3': text_value('preferred_country_3'),
-            'preferred_country_4': text_value('preferred_country_4'),
             'preferred_program_1': text_value('preferred_program_1'),
             'preferred_program_2': text_value('preferred_program_2'),
             'preferred_program_3': text_value('preferred_program_3'),
-            'preferred_program_4': text_value('preferred_program_4'),
+            'preferred_intake': text_value('preferred_intake'),
             'emergency_contact': text_value('emergency_name'),
+            'emergency_relation': text_value('emergency_relation'),
+            'emergency_occupation': text_value('emergency_occupation'),
+            'emergency_phone': text_value('emergency_phone'),
+            'emergency_email': text_value('emergency_email'),
+            'emergency_alternative_phone': text_value('emergency_alternative_phone'),
             'emergency_country': mtaa_val('emergency_country'),
             'emergency_region': mtaa_val('emergency_region'),
             'emergency_district': mtaa_val('emergency_district'),
             'emergency_ward': mtaa_val('emergency_ward'),
             'emergency_street': mtaa_val('emergency_street'),
-            'emergency_mtaa': mtaa_val('emergency_mtaa'),
+            'emergency_place_neighbourhood': mtaa_val('emergency_place_neighbourhood'),
             'emergency_house_no': mtaa_val('emergency_house_no'),
-            'emergency_address': text_value('emergency_address'),
-            'emergency_occupation': text_value('emergency_occupation'),
-            'emergency_gender': text_value('emergency_gender'),
-            'emergency_relation': text_value('emergency_relation'),
+            'emergency_region_post_code': mtaa_val('emergency_region_post_code'),
+            'emergency_district_post_code': mtaa_val('emergency_district_post_code'),
+            'emergency_ward_post_code': mtaa_val('emergency_ward_post_code'),
+            'emergency_relationship_status': text_value('emergency_relationship_status'),
+            'emergency_remarks': text_value('emergency_remarks'),
             'heard_about_us': text_value('heard_about_us'),
             'heard_about_other': text_value('heard_about_other'),
         },
@@ -782,10 +797,6 @@ def _create_or_update_student_portal_records(
 
     portal_defaults = {
         'student': user,
-        'application_type': 'university',
-        'university_name': '',
-        'course': text_value('preferred_program_1'),
-        'country': text_value('preferred_country_1'),
         'status': 'submitted',
         'is_paid': True,
         'payment_amount': 0,
@@ -812,8 +823,6 @@ def _create_or_update_student_portal_records(
         supplemental_profile.full_name_passport = full_name
     if not supplemental_profile.residential_email:
         supplemental_profile.residential_email = email
-    if not supplemental_profile.whatsapp_number:
-        supplemental_profile.whatsapp_number = text_value('phone')
     if not supplemental_profile.current_address:
         supplemental_profile.current_address = text_value('address')
     if not supplemental_profile.current_country:
@@ -966,7 +975,7 @@ def _build_intake_form_sections(form):
             'title': 'Personal Details',
             'description': 'Start with the same core identity details the student portal collects.',
             'icon': 'fa-user-graduate',
-            'fields': ['full_name', 'gender', 'date_of_birth', 'nationality', 'email', 'phone', 'whatsapp_number', 'place_of_birth', 'marital_status', 'native_language', 'address', 'profile_picture_upload'],
+            'fields': ['full_name', 'gender', 'date_of_birth', 'nationality', 'email', 'phone', 'place_of_birth', 'marital_status', 'native_language', 'profile_picture_upload'],
         },
         {
             'key': 'family_selector',
@@ -983,10 +992,12 @@ def _build_intake_form_sections(form):
             'fields': [
                 'father_name', 'father_phone', 'father_email', 'father_occupation',
                 'father_country', 'father_region', 'father_district', 'father_ward',
-                'father_street', 'father_mtaa', 'father_house_no', 'father_address',
+                'father_street', 'father_house_no', 'father_place_neighbourhood',
+                'father_status', 'father_relationship',
                 'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
                 'mother_country', 'mother_region', 'mother_district', 'mother_ward',
-                'mother_street', 'mother_mtaa', 'mother_house_no', 'mother_address',
+                'mother_street', 'mother_house_no', 'mother_place_neighbourhood',
+                'mother_status', 'mother_relationship',
             ],
         },
         {
@@ -994,7 +1005,11 @@ def _build_intake_form_sections(form):
             'title': 'Emergency / Guardian Details',
             'description': 'This matches the emergency-contact section from the student portal and AWEC form.',
             'icon': 'fa-user-shield',
-            'fields': ['emergency_name', 'emergency_relation', 'emergency_gender', 'emergency_occupation', 'emergency_country', 'emergency_region', 'emergency_district', 'emergency_ward', 'emergency_street', 'emergency_mtaa', 'emergency_house_no', 'emergency_address'],
+            'fields': ['emergency_name', 'emergency_relation', 'emergency_occupation',
+                       'emergency_phone', 'emergency_email', 'emergency_alternative_phone',
+                       'emergency_country', 'emergency_region', 'emergency_district',
+                       'emergency_ward', 'emergency_street', 'emergency_place_neighbourhood',
+                       'emergency_house_no', 'emergency_relationship_status', 'emergency_remarks'],
         },
         {
             'key': 'passport_and_residence',
@@ -1006,7 +1021,7 @@ def _build_intake_form_sections(form):
                 'current_country', 'current_region', 'current_district', 'current_ward',
                 'current_street', 'current_mtaa', 'current_house_no',
                 'current_city', 'current_postal_code', 'current_address',
-                'place_of_birth', 'whatsapp_number', 'residential_email',
+                'place_of_birth', 'residential_email',
                 'permanent_country', 'permanent_region', 'permanent_district',
                 'permanent_ward', 'permanent_street', 'permanent_mtaa',
                 'permanent_house_no', 'permanent_address',
@@ -1019,14 +1034,14 @@ def _build_intake_form_sections(form):
             'title': 'Academic Qualifications',
             'description': 'Follow the student-portal academic flow first, then add any post-secondary history below.',
             'icon': 'fa-school',
-            'fields': ['olevel_school', 'olevel_country', 'olevel_school_region', 'olevel_school_district', 'olevel_school_ward', 'olevel_school_street', 'olevel_school_mtaa', 'olevel_school_house_no', 'olevel_candidate_no', 'olevel_gpa'],
+            'fields': ['olevel_school', 'olevel_school_country', 'olevel_school_region', 'olevel_school_district', 'olevel_school_ward', 'olevel_school_street', 'olevel_school_house_no', 'olevel_school_place_neighbourhood', 'olevel_start_year', 'olevel_completed_year', 'olevel_candidate_no', 'olevel_gpa', 'olevel_school_type', 'olevel_exam_board', 'olevel_certificate_no', 'olevel_remarks'],
         },
         {
             'key': 'alevel',
             'title': 'A-Level Background',
             'description': 'Add A-Level school details when available.',
             'icon': 'fa-building-columns',
-            'fields': ['alevel_school', 'alevel_country', 'alevel_school_region', 'alevel_school_district', 'alevel_school_ward', 'alevel_school_street', 'alevel_school_mtaa', 'alevel_school_house_no', 'alevel_candidate_no', 'alevel_gpa'],
+            'fields': ['alevel_school', 'alevel_school_country', 'alevel_school_region', 'alevel_school_district', 'alevel_school_ward', 'alevel_school_street', 'alevel_school_house_no', 'alevel_school_place_neighbourhood', 'alevel_start_year', 'alevel_completed_year', 'alevel_candidate_no', 'alevel_gpa', 'alevel_school_type', 'alevel_exam_board', 'alevel_certificate_no', 'alevel_remarks'],
         },
         {
             'key': 'post_secondary',
@@ -1928,7 +1943,7 @@ def update_edit(request, pk):
 
 
 @login_required
-@admin_required  # Only admins should be able to delete applications
+@employee_required
 @csrf_protect
 def delete_student_application(request, application_id):
     """Allow admins to delete student applications."""
@@ -2081,17 +2096,9 @@ def export_application_pdf(request, application_id):
     
     app_data = [
         ['Application ID:', str(application.id)],
-        ['Application Type:', application.get_application_type_display()],
         ['Status:', application.get_status_display()],
         ['Submission Date:', application.submission_date.strftime('%Y-%m-%d %H:%M')],
     ]
-    
-    if application.university_name:
-        app_data.append(['University:', application.university_name])
-    if application.course:
-        app_data.append(['Course:', application.course])
-    if application.country:
-        app_data.append(['Country:', application.country])
     
     app_table = Table(app_data, colWidths=[2*inch, 4*inch])
     app_table.setStyle(TableStyle([

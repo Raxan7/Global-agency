@@ -37,19 +37,18 @@ class NormalizedSyncTests(TestCase):
             father_district='Kinondoni',
             father_ward='Msasani',
             father_street='Bagamoyo Road',
-            father_mtaa='Mikocheni',
             father_house_no='12',
             passport_number='A1234567',
             passport_issue_country='Tanzania',
             passport_issue_date='2020-01-15',
-            passport_expiry_date='2030-01-15',
+            passport_expiration_date='2030-01-15',
         )
         profile.sync_normalized_fields()
         self.assertEqual(StudentAddress.objects.filter(student=profile).count(), 1)
         father = profile.get_address('father')
         self.assertIsNotNone(father)
         self.assertEqual(father.country, 'Kenya')
-        self.assertEqual(father.mtaa, 'Mikocheni')
+        self.assertEqual(father.street, 'Bagamoyo Road')
         self.assertEqual(StudentPassport.objects.filter(student=profile).count(), 1)
         passport = profile.get_passport()
         self.assertIsNotNone(passport)
@@ -85,7 +84,6 @@ class NormalizedSyncTests(TestCase):
         user = self._create_user('student4@example.com')
         application = Application.objects.create(
             student=user,
-            application_type='university',
             status='submitted',
         )
         supplemental = ApplicationSupplementalProfile.objects.create(

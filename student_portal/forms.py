@@ -171,11 +171,7 @@ class StrictStudentPasswordResetForm(PasswordResetForm):
 class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
-        fields = ['phone_number', 'address', 'date_of_birth', 'nationality', 'emergency_contact', 'profile_picture']
-        widgets = {
-            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
-            'address': forms.Textarea(attrs={'rows': 3}),
-        }
+        fields = ['phone_number', 'date_of_birth', 'nationality', 'emergency_contact', 'profile_picture']
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
@@ -200,54 +196,58 @@ class PersonalDetailsForm(forms.ModelForm):
         model = StudentProfile
         fields = [
             'full_name', 'gender', 'date_of_birth', 'nationality',
-            'phone_number', 'whatsapp_number', 'place_of_birth',
+            'phone_number', 'place_of_birth',
             'marital_status', 'native_language',
-            'country', 'region', 'district', 'ward', 'street',
-            'house_no', 'address', 'profile_picture',
+            'city', 'region', 'village', 'ward', 'street',
+            'house_no', 'profile_picture',
+            'passport_number', 'passport_issue_date', 'passport_expiration_date',
         ]
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
-            'address': forms.Textarea(attrs={'rows': 2, 'class': 'form-input'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
-            'whatsapp_number': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'nationality': forms.TextInput(attrs={'class': 'form-input'}),
             'place_of_birth': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Town / City of birth'}),
             'native_language': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Swahili'}),
             'marital_status': forms.Select(attrs={'class': 'form-input'}),
             'gender': forms.Select(attrs={'class': 'form-input'}),
-            'country': forms.TextInput(attrs={'class': 'form-input'}),
-            'region': forms.TextInput(attrs={'class': 'form-input'}),
-            'district': forms.TextInput(attrs={'class': 'form-input'}),
-            'ward': forms.TextInput(attrs={'class': 'form-input'}),
-            'street': forms.TextInput(attrs={'class': 'form-input'}),
+            'city': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'City'}),
+            'region': forms.Select(attrs={'class': 'form-input'}),
+            'village': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Village'}),
+            'ward': forms.Select(attrs={'class': 'form-input'}),
+            'street': forms.Select(attrs={'class': 'form-input'}),
             'house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
             'profile_picture': forms.FileInput(attrs={'class': 'form-input'}),
+            'passport_number': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Passport number'}),
+            'passport_issue_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
+            'passport_expiration_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
         }
         labels = {
             'full_name': 'Full Name',
             'date_of_birth': 'Date of Birth',
             'phone_number': 'Phone Number',
-            'whatsapp_number': 'WhatsApp Number',
             'place_of_birth': 'Place of Birth',
             'marital_status': 'Marital Status',
             'native_language': 'Native Language',
             'profile_picture': 'Profile Picture (Optional)',
-            'country': 'Country',
+            'city': 'City',
             'region': 'Region',
-            'district': 'District',
+            'village': 'Village',
             'ward': 'Ward',
             'street': 'Street / Mtaa',
             'house_no': 'House / Plot Number',
-            'address': 'Old-style full address (optional)',
+            'passport_number': 'Passport Number',
+            'passport_issue_date': 'Passport Issued Date',
+            'passport_expiration_date': 'Passport Expiry Date',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.user_id:
             self.initial.setdefault('full_name', self.instance.user.get_full_name())
-        for fname in ['region', 'district', 'ward', 'street']:
-            self.fields[fname].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
-            self.fields[fname].required = False
+        for fname in ['region', 'ward', 'street']:
+            if fname in self.fields:
+                self.fields[fname].widget = forms.Select(choices=[('', '--- Select ---')], attrs={'class': 'form-input'})
+                self.fields[fname].required = False
 
     def save(self, commit=True):
         profile = super().save(commit=False)
@@ -272,10 +272,12 @@ class ParentsDetailsForm(forms.ModelForm):
         fields = [
             'father_name', 'father_phone', 'father_email', 'father_occupation',
             'father_country', 'father_region', 'father_district', 'father_ward',
-            'father_street', 'father_mtaa', 'father_house_no', 'father_address',
+            'father_street', 'father_house_no', 'father_place_neighbourhood',
+            'father_status', 'father_relationship',
             'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
             'mother_country', 'mother_region', 'mother_district', 'mother_ward',
-            'mother_street', 'mother_mtaa', 'mother_house_no', 'mother_address',
+            'mother_street', 'mother_house_no', 'mother_place_neighbourhood',
+            'mother_status', 'mother_relationship',
         ]
         widgets = {
             'father_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': "Father's Full Name"}),
@@ -287,9 +289,10 @@ class ParentsDetailsForm(forms.ModelForm):
             'father_district': forms.TextInput(attrs={'class': 'form-input'}),
             'father_ward': forms.TextInput(attrs={'class': 'form-input'}),
             'father_street': forms.TextInput(attrs={'class': 'form-input'}),
-            'father_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
             'father_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
-            'father_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            'father_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
+            'father_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Status'}),
+            'father_relationship': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Relationship'}),
             'mother_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': "Mother's Full Name"}),
             'mother_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
             'mother_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'mother@example.com'}),
@@ -299,9 +302,10 @@ class ParentsDetailsForm(forms.ModelForm):
             'mother_district': forms.TextInput(attrs={'class': 'form-input'}),
             'mother_ward': forms.TextInput(attrs={'class': 'form-input'}),
             'mother_street': forms.TextInput(attrs={'class': 'form-input'}),
-            'mother_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
             'mother_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
-            'mother_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            'mother_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
+            'mother_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Status'}),
+            'mother_relationship': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Relationship'}),
         }
         labels = {
             'father_name': "Father's Full Name",
@@ -313,9 +317,10 @@ class ParentsDetailsForm(forms.ModelForm):
             'father_district': "Father's District",
             'father_ward': "Father's Ward",
             'father_street': "Father's Street / Mtaa",
-            'father_mtaa': "Father's Mtaa (if different)",
             'father_house_no': "Father's House / Plot Number",
-            'father_address': "Father's Full Address",
+            'father_place_neighbourhood': "Father's Place / Neighbourhood",
+            'father_status': "Father's Status",
+            'father_relationship': "Father's Relationship",
             'mother_name': "Mother's Full Name",
             'mother_phone': "Mother's Phone Number",
             'mother_email': "Mother's Email Address",
@@ -325,9 +330,10 @@ class ParentsDetailsForm(forms.ModelForm):
             'mother_district': "Mother's District",
             'mother_ward': "Mother's Ward",
             'mother_street': "Mother's Street / Mtaa",
-            'mother_mtaa': "Mother's Mtaa (if different)",
             'mother_house_no': "Mother's House / Plot Number",
-            'mother_address': "Mother's Full Address",
+            'mother_place_neighbourhood': "Mother's Place / Neighbourhood",
+            'mother_status': "Mother's Status",
+            'mother_relationship': "Mother's Relationship",
         }
 
     def __init__(self, *args, **kwargs):
@@ -354,71 +360,87 @@ class AcademicQualificationsForm(forms.ModelForm):
         model = StudentProfile
         fields = [
             # O-Level
-            'olevel_school', 'olevel_country',
+            'olevel_school', 'olevel_school_country',
             'olevel_school_region', 'olevel_school_district', 'olevel_school_ward',
-            'olevel_school_street', 'olevel_school_mtaa', 'olevel_school_house_no',
+            'olevel_school_street', 'olevel_school_place_neighbourhood', 'olevel_school_house_no',
             'olevel_start_year', 'olevel_completed_year',
             'olevel_candidate_no', 'olevel_gpa',
+            'olevel_school_type', 'olevel_exam_board', 'olevel_certificate_no', 'olevel_remarks',
             # A-Level
-            'alevel_school', 'alevel_country',
+            'alevel_school', 'alevel_school_country',
             'alevel_school_region', 'alevel_school_district', 'alevel_school_ward',
-            'alevel_school_street', 'alevel_school_mtaa', 'alevel_school_house_no',
+            'alevel_school_street', 'alevel_school_place_neighbourhood', 'alevel_school_house_no',
             'alevel_start_year', 'alevel_completed_year',
             'alevel_candidate_no', 'alevel_gpa',
+            'alevel_school_type', 'alevel_exam_board', 'alevel_certificate_no', 'alevel_remarks',
         ]
         widgets = {
-            # O-Level widgets
             'olevel_school': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Name'}),
-            'olevel_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_school_country': forms.TextInput(attrs={'class': 'form-input'}),
             'olevel_school_region': forms.TextInput(attrs={'class': 'form-input'}),
             'olevel_school_district': forms.TextInput(attrs={'class': 'form-input'}),
             'olevel_school_ward': forms.TextInput(attrs={'class': 'form-input'}),
             'olevel_school_street': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_school_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'olevel_school_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
             'olevel_school_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
             'olevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year (e.g., 2016)'}),
             'olevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2020)'}),
             'olevel_candidate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Candidate Number'}),
             'olevel_gpa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'GPA/Division'}),
-            # A-Level widgets
+            'olevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Type'}),
+            'olevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam Board'}),
+            'olevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate No.'}),
+            'olevel_remarks': forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Remarks'}),
             'alevel_school': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Name'}),
-            'alevel_country': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_school_country': forms.TextInput(attrs={'class': 'form-input'}),
             'alevel_school_region': forms.TextInput(attrs={'class': 'form-input'}),
             'alevel_school_district': forms.TextInput(attrs={'class': 'form-input'}),
             'alevel_school_ward': forms.TextInput(attrs={'class': 'form-input'}),
             'alevel_school_street': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_school_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'alevel_school_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
             'alevel_school_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
             'alevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year (e.g., 2020)'}),
             'alevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2022)'}),
             'alevel_candidate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Candidate Number'}),
             'alevel_gpa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'GPA/Division/Points'}),
+            'alevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Type'}),
+            'alevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam Board'}),
+            'alevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate No.'}),
+            'alevel_remarks': forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Remarks'}),
         }
         labels = {
             'olevel_school': 'O-Level School Name',
-            'olevel_country': 'Country',
+            'olevel_school_country': 'Country',
             'olevel_school_region': 'Region',
             'olevel_school_district': 'District',
             'olevel_school_ward': 'Ward',
-            'olevel_school_street': 'Street / Mtaa',
-            'olevel_school_mtaa': 'Alternate Mtaa Name',
+            'olevel_school_street': 'Street',
+            'olevel_school_place_neighbourhood': 'Place / Neighbourhood',
             'olevel_school_house_no': 'House / Plot Number',
             'olevel_start_year': 'Start Year',
             'olevel_completed_year': 'Year Completed',
-            'olevel_candidate_no': 'Candidate Number',
+            'olevel_candidate_no': 'Index Number',
             'olevel_gpa': 'GPA/Division',
+            'olevel_school_type': 'School Type',
+            'olevel_exam_board': 'Exam Board',
+            'olevel_certificate_no': 'Certificate No.',
+            'olevel_remarks': 'Remarks',
             'alevel_school': 'A-Level School Name',
-            'alevel_country': 'Country',
+            'alevel_school_country': 'Country',
             'alevel_school_region': 'Region',
             'alevel_school_district': 'District',
             'alevel_school_ward': 'Ward',
-            'alevel_school_street': 'Street / Mtaa',
-            'alevel_school_mtaa': 'Alternate Mtaa Name',
+            'alevel_school_street': 'Street',
+            'alevel_school_place_neighbourhood': 'Place / Neighbourhood',
             'alevel_school_house_no': 'House / Plot Number',
             'alevel_start_year': 'Start Year',
             'alevel_completed_year': 'Year Completed',
-            'alevel_candidate_no': 'Candidate Number',
+            'alevel_candidate_no': 'Index Number',
             'alevel_gpa': 'GPA/Division/Points',
+            'alevel_school_type': 'School Type',
+            'alevel_exam_board': 'Exam Board',
+            'alevel_certificate_no': 'Certificate No.',
+            'alevel_remarks': 'Remarks',
         }
 
     def __init__(self, *args, **kwargs):
@@ -434,72 +456,78 @@ class StudyPreferencesForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
         fields = [
+            'preferred_intake',
             'preferred_country_1', 'preferred_program_1',
             'preferred_country_2', 'preferred_program_2',
             'preferred_country_3', 'preferred_program_3',
-            'preferred_country_4', 'preferred_program_4',
         ]
         widgets = {
+            'preferred_intake': forms.Select(attrs={'class': 'form-input'}),
             'preferred_country_1': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '1st Choice Country'}),
             'preferred_program_1': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '1st Choice Program'}),
             'preferred_country_2': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '2nd Choice Country'}),
             'preferred_program_2': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '2nd Choice Program'}),
             'preferred_country_3': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '3rd Choice Country'}),
             'preferred_program_3': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '3rd Choice Program'}),
-            'preferred_country_4': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '4th Choice Country'}),
-            'preferred_program_4': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '4th Choice Program'}),
         }
         labels = {
+            'preferred_intake': 'Preferred Intake',
             'preferred_country_1': 'First Preference - Country',
             'preferred_program_1': 'First Preference - Program',
             'preferred_country_2': 'Second Preference - Country',
             'preferred_program_2': 'Second Preference - Program',
             'preferred_country_3': 'Third Preference - Country',
             'preferred_program_3': 'Third Preference - Program',
-            'preferred_country_4': 'Fourth Preference - Country',
-            'preferred_program_4': 'Fourth Preference - Program',
         }
 
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
         fields = [
-            'emergency_contact', 'emergency_occupation',
-            'emergency_gender', 'emergency_relation',
+            'emergency_contact', 'emergency_relation',
+            'emergency_occupation', 'emergency_phone', 'emergency_email',
+            'emergency_alternative_phone',
             'emergency_country', 'emergency_region', 'emergency_district',
-            'emergency_ward', 'emergency_street', 'emergency_mtaa',
-            'emergency_house_no', 'emergency_address',
+            'emergency_ward', 'emergency_street',
+            'emergency_place_neighbourhood', 'emergency_house_no',
+            'emergency_relationship_status', 'emergency_remarks',
             'heard_about_us', 'heard_about_other',
         ]
         widgets = {
             'emergency_contact': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Emergency Contact Full Name'}),
-            'emergency_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
-            'emergency_gender': forms.Select(attrs={'class': 'form-input'}),
             'emergency_relation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g., Father, Mother, Guardian'}),
+            'emergency_occupation': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Occupation'}),
+            'emergency_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+255...'}),
+            'emergency_email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'emergency@example.com'}),
+            'emergency_alternative_phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Alternative phone'}),
             'emergency_country': forms.TextInput(attrs={'class': 'form-input'}),
             'emergency_region': forms.TextInput(attrs={'class': 'form-input'}),
             'emergency_district': forms.TextInput(attrs={'class': 'form-input'}),
             'emergency_ward': forms.TextInput(attrs={'class': 'form-input'}),
             'emergency_street': forms.TextInput(attrs={'class': 'form-input'}),
-            'emergency_mtaa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Mtaa / street name'}),
+            'emergency_place_neighbourhood': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Place / Neighbourhood'}),
             'emergency_house_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'House / Plot number'}),
-            'emergency_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Full Address'}),
+            'emergency_relationship_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Relationship status'}),
+            'emergency_remarks': forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Remarks'}),
             'heard_about_us': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'How did you hear about us?'}),
             'heard_about_other': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Please specify if "Other"'}),
         }
         labels = {
             'emergency_contact': 'Emergency Contact Name',
-            'emergency_occupation': 'Emergency Contact Occupation',
-            'emergency_gender': 'Emergency Contact Gender',
             'emergency_relation': 'Relationship to You',
+            'emergency_occupation': 'Emergency Contact Occupation',
+            'emergency_phone': 'Phone Number',
+            'emergency_email': 'Email Address',
+            'emergency_alternative_phone': 'Alternative Phone',
             'emergency_country': 'Country',
             'emergency_region': 'Region',
             'emergency_district': 'District',
             'emergency_ward': 'Ward',
-            'emergency_street': 'Street / Mtaa',
-            'emergency_mtaa': 'Alternate Mtaa Name',
+            'emergency_street': 'Street',
+            'emergency_place_neighbourhood': 'Place / Neighbourhood',
             'emergency_house_no': 'House / Plot Number',
-            'emergency_address': 'Emergency Contact Address',
+            'emergency_relationship_status': 'Relationship Status',
+            'emergency_remarks': 'Remarks',
             'heard_about_us': 'How Did You Hear About Us?',
             'heard_about_other': 'Other (Please Specify)',
         }
@@ -656,13 +684,7 @@ class WorkExperienceForm(forms.ModelForm):
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['application_type', 'university_name', 'course', 'country']
-        widgets = {
-            'application_type': forms.Select(attrs={'class': 'form-input'}),
-            'university_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter university name'}),
-            'course': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter course/program'}),
-            'country': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter country'}),
-        }
+        fields = []
 
 class DocumentForm(forms.ModelForm):
     class Meta:

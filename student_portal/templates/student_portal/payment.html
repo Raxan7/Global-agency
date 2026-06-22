@@ -426,7 +426,6 @@
                     <span class="currency">{{ currency }}</span>
                     {{ payment_amount|floatformat:2 }}
                 </div>
-                <p style="opacity: 0.9;">{{ application.get_application_type_display }}</p>
                 <div class="gateway-badge">
                     Powered by ClickPesa
                 </div>
@@ -458,28 +457,6 @@
                 <!-- Application Information -->
                 <div class="application-info">
                     <h3>📋 Application Details</h3>
-                    <div class="info-row">
-                        <span class="info-label">Application Type</span>
-                        <span class="info-value">{{ application.get_application_type_display }}</span>
-                    </div>
-                    {% if application.university_name %}
-                    <div class="info-row">
-                        <span class="info-label">University</span>
-                        <span class="info-value">{{ application.university_name }}</span>
-                    </div>
-                    {% endif %}
-                    {% if application.course %}
-                    <div class="info-row">
-                        <span class="info-label">Course</span>
-                        <span class="info-value">{{ application.course }}</span>
-                    </div>
-                    {% endif %}
-                    {% if application.country %}
-                    <div class="info-row">
-                        <span class="info-label">Country</span>
-                        <span class="info-value">{{ application.country }}</span>
-                    </div>
-                    {% endif %}
                     <div class="info-row">
                         <span class="info-label">Application ID</span>
                         <span class="info-value">#{{ application.id }}</span>

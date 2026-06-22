@@ -140,15 +140,15 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Country</p>
-                        <p class="font-medium">{{ application.olevel_country|default:"Not provided" }}</p>
+                        <p class="font-medium">{{ application.olevel_school_country|default:"Not provided" }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Region</p>
-                        <p class="font-medium">{{ application.olevel_region|default:"Not provided" }}</p>
+                        <p class="font-medium">{{ application.olevel_school_region|default:"Not provided" }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Year</p>
-                        <p class="font-medium">{{ application.olevel_year|default:"Not provided" }}</p>
+                        <p class="font-medium">{{ application.olevel_completed_year|default:"Not provided" }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Candidate No</p>
@@ -158,12 +158,23 @@
                         <p class="text-sm text-gray-600">GPA</p>
                         <p class="font-medium">{{ application.olevel_gpa|default:"Not provided" }}</p>
                     </div>
-                    <div class="space-y-1 sm:col-span-2 lg:col-span-3">
-                        <p class="text-sm text-gray-600">Address</p>
-                        <p class="font-medium">{{ application.olevel_address|default:"Not provided" }}</p>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-600">School Type</p>
+                        <p class="font-medium">{{ application.olevel_school_type|default:"Not provided" }}</p>
                     </div>
-                </div>
-            </div>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-600">Exam Board</p>
+                        <p class="font-medium">{{ application.olevel_exam_board|default:"Not provided" }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-600">Certificate No</p>
+                        <p class="font-medium">{{ application.olevel_certificate_no|default:"Not provided" }}</p>
+                    </div>
+                    <div class="space-y-1 sm:col-span-2 lg:col-span-3">
+                        <p class="text-sm text-gray-600">Remarks</p>
+                        <p class="font-medium">{{ application.olevel_remarks|default:"Not provided" }}</p>
+                    </div>
+
 
             <!-- A-Level -->
             <div>
@@ -175,15 +186,15 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Country</p>
-                        <p class="font-medium">{{ application.alevel_country|default:"Not provided" }}</p>
+                        <p class="font-medium">{{ application.alevel_school_country|default:"Not provided" }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Region</p>
-                        <p class="font-medium">{{ application.alevel_region|default:"Not provided" }}</p>
+                        <p class="font-medium">{{ application.alevel_school_region|default:"Not provided" }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Year</p>
-                        <p class="font-medium">{{ application.alevel_year|default:"Not provided" }}</p>
+                        <p class="font-medium">{{ application.alevel_completed_year|default:"Not provided" }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-sm text-gray-600">Candidate No</p>
@@ -193,9 +204,21 @@
                         <p class="text-sm text-gray-600">GPA</p>
                         <p class="font-medium">{{ application.alevel_gpa|default:"Not provided" }}</p>
                     </div>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-600">School Type</p>
+                        <p class="font-medium">{{ application.alevel_school_type|default:"Not provided" }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-600">Exam Board</p>
+                        <p class="font-medium">{{ application.alevel_exam_board|default:"Not provided" }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-600">Certificate No</p>
+                        <p class="font-medium">{{ application.alevel_certificate_no|default:"Not provided" }}</p>
+                    </div>
                     <div class="space-y-1 sm:col-span-2 lg:col-span-3">
-                        <p class="text-sm text-gray-600">Address</p>
-                        <p class="font-medium">{{ application.alevel_address|default:"Not provided" }}</p>
+                        <p class="text-sm text-gray-600">Remarks</p>
+                        <p class="font-medium">{{ application.alevel_remarks|default:"Not provided" }}</p>
                     </div>
                 </div>
             </div>
@@ -247,16 +270,28 @@
                     <p class="font-medium">{{ application.emergency_relation|default:"Not provided" }}</p>
                 </div>
                 <div class="space-y-1">
-                    <p class="text-sm text-gray-600">Gender</p>
-                    <p class="font-medium">{{ application.emergency_gender|default:"Not provided" }}</p>
-                </div>
-                <div class="space-y-1">
                     <p class="text-sm text-gray-600">Occupation</p>
                     <p class="font-medium">{{ application.emergency_occupation|default:"Not provided" }}</p>
                 </div>
+                <div class="space-y-1">
+                    <p class="text-sm text-gray-600">Phone</p>
+                    <p class="font-medium">{{ application.emergency_phone|default:"Not provided" }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-sm text-gray-600">Email</p>
+                    <p class="font-medium">{{ application.emergency_email|default:"Not provided" }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-sm text-gray-600">Alternative Phone</p>
+                    <p class="font-medium">{{ application.emergency_alternative_phone|default:"Not provided" }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-sm text-gray-600">Relationship Status</p>
+                    <p class="font-medium">{{ application.emergency_relationship_status|default:"Not provided" }}</p>
+                </div>
                 <div class="space-y-1 sm:col-span-2 lg:col-span-3">
-                    <p class="text-sm text-gray-600">Address</p>
-                    <p class="font-medium">{{ application.emergency_address|default:"Not provided" }}</p>
+                    <p class="text-sm text-gray-600">Remarks</p>
+                    <p class="font-medium">{{ application.emergency_remarks|default:"Not provided" }}</p>
                 </div>
                 <div class="space-y-1 sm:col-span-2 lg:col-span-3">
                     <p class="text-sm text-gray-600">Heard About Us</p>

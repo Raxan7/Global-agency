@@ -312,7 +312,7 @@
         <div class="application-card">
             <div class="application-header">
                 <div class="application-type">
-                    {{ application.get_application_type_display }}
+                    Study Abroad Application
                 </div>
                 <span class="application-status status-{{ application.status }}">
                     {{ application.get_status_display }}
@@ -325,10 +325,6 @@
                     <div class="detail-item">
                         <span class="detail-label">Reference Number</span>
                         <div class="detail-value" style="font-weight: bold; color: #0056b3;">{{ application.get_registration_number }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Application Type</span>
-                        <div class="detail-value">{{ application.get_application_type_display }}</div>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Status</span>
@@ -376,24 +372,6 @@
                     <div class="detail-item">
                         <span class="detail-label">Payment Verified</span>
                         <div class="detail-value">{{ application.payment_verified_at|date:"F d, Y H:i" }}</div>
-                    </div>
-                    {% endif %}
-                    {% if application.university_name %}
-                    <div class="detail-item">
-                        <span class="detail-label">University</span>
-                        <div class="detail-value">{{ application.university_name }}</div>
-                    </div>
-                    {% endif %}
-                    {% if application.course %}
-                    <div class="detail-item">
-                        <span class="detail-label">Course/Program</span>
-                        <div class="detail-value">{{ application.course }}</div>
-                    </div>
-                    {% endif %}
-                    {% if application.country %}
-                    <div class="detail-item">
-                        <span class="detail-label">Country</span>
-                        <div class="detail-value">{{ application.country }}</div>
                     </div>
                     {% endif %}
                     <div class="detail-item">

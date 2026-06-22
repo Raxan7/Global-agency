@@ -104,59 +104,71 @@ class StudentApplication(models.Model):
         ('male', 'Male'),
         ('female', 'Female'),
     ])
+    date_of_birth = models.DateField(null=True, blank=True)
+    place_of_birth = models.CharField(max_length=150, blank=True, null=True)
     nationality = models.CharField(max_length=100, default="Tanzanian")
+    native_language = models.CharField(max_length=100, blank=True, null=True)
+    marital_status = models.CharField(max_length=30, blank=True, null=True)
     email = models.EmailField()
     phone = models.CharField(max_length=50)
-    address = models.TextField()
 
     # Step 2: Parents Details
     father_name = models.CharField(max_length=150, blank=True, null=True)
     father_phone = models.CharField(max_length=50, blank=True, null=True)
     father_email = models.EmailField(blank=True, null=True)
     father_occupation = models.CharField(max_length=150, blank=True, null=True)
+    father_place_neighbourhood = models.CharField(max_length=180, blank=True, null=True)
+    father_status = models.CharField(max_length=100, blank=True, null=True)
+    father_relationship = models.CharField(max_length=100, blank=True, null=True)
 
     mother_name = models.CharField(max_length=150, blank=True, null=True)
     mother_phone = models.CharField(max_length=50, blank=True, null=True)
     mother_email = models.EmailField(blank=True, null=True)
     mother_occupation = models.CharField(max_length=150, blank=True, null=True)
+    mother_place_neighbourhood = models.CharField(max_length=180, blank=True, null=True)
+    mother_status = models.CharField(max_length=100, blank=True, null=True)
+    mother_relationship = models.CharField(max_length=100, blank=True, null=True)
 
     # Step 3: Education Background - O-Level
     olevel_school = models.CharField(max_length=150, blank=True, null=True)
-    olevel_country = models.CharField(max_length=100, default="Tanzania")
-    olevel_address = models.CharField(max_length=255, blank=True, null=True)
-    olevel_region = models.CharField(max_length=100, blank=True, null=True)
-    olevel_year = models.CharField(max_length=10, blank=True, null=True)
+    olevel_start_year = models.CharField(max_length=10, blank=True, null=True)
+    olevel_completed_year = models.CharField(max_length=10, blank=True, null=True)
     olevel_candidate_no = models.CharField(max_length=50, blank=True, null=True)
     olevel_gpa = models.CharField(max_length=20, blank=True, null=True)
+    olevel_school_type = models.CharField(max_length=100, blank=True, null=True)
+    olevel_exam_board = models.CharField(max_length=100, blank=True, null=True)
+    olevel_certificate_no = models.CharField(max_length=100, blank=True, null=True)
+    olevel_remarks = models.TextField(blank=True, null=True)
 
     # Step 3: Education Background - A-Level
     alevel_school = models.CharField(max_length=150, blank=True, null=True)
-    alevel_country = models.CharField(max_length=100, default="Tanzania")
-    alevel_address = models.CharField(max_length=255, blank=True, null=True)
-    alevel_region = models.CharField(max_length=100, blank=True, null=True)
-    alevel_year = models.CharField(max_length=10, blank=True, null=True)
+    alevel_start_year = models.CharField(max_length=10, blank=True, null=True)
+    alevel_completed_year = models.CharField(max_length=10, blank=True, null=True)
     alevel_candidate_no = models.CharField(max_length=50, blank=True, null=True)
     alevel_gpa = models.CharField(max_length=20, blank=True, null=True)
+    alevel_school_type = models.CharField(max_length=100, blank=True, null=True)
+    alevel_exam_board = models.CharField(max_length=100, blank=True, null=True)
+    alevel_certificate_no = models.CharField(max_length=100, blank=True, null=True)
+    alevel_remarks = models.TextField(blank=True, null=True)
 
     # Step 4: Study Preferences
+    preferred_intake = models.CharField(max_length=80, blank=True, null=True)
     preferred_country_1 = models.CharField(max_length=100, blank=True, null=True)
     preferred_country_2 = models.CharField(max_length=100, blank=True, null=True)
     preferred_country_3 = models.CharField(max_length=100, blank=True, null=True)
-    preferred_country_4 = models.CharField(max_length=100, blank=True, null=True)
     preferred_program_1 = models.CharField(max_length=100, blank=True, null=True)
     preferred_program_2 = models.CharField(max_length=100, blank=True, null=True)
     preferred_program_3 = models.CharField(max_length=100, blank=True, null=True)
-    preferred_program_4 = models.CharField(max_length=100, blank=True, null=True)
 
     # Step 5: Emergency Contact
     emergency_name = models.CharField(max_length=150)
-    emergency_address = models.TextField()
-    emergency_occupation = models.CharField(max_length=100, blank=True, null=True)
-    emergency_gender = models.CharField(max_length=20, choices=[
-        ('male', 'Male'),
-        ('female', 'Female'),
-    ])
     emergency_relation = models.CharField(max_length=100)
+    emergency_occupation = models.CharField(max_length=100, blank=True, null=True)
+    emergency_phone = models.CharField(max_length=50, blank=True, null=True)
+    emergency_email = models.EmailField(blank=True, null=True)
+    emergency_alternative_phone = models.CharField(max_length=50, blank=True, null=True)
+    emergency_relationship_status = models.CharField(max_length=100, blank=True, null=True)
+    emergency_remarks = models.TextField(blank=True, null=True)
     heard_about_us = models.CharField(max_length=100, blank=True, null=True)
     heard_about_other = models.CharField(max_length=255, blank=True, null=True)
 
@@ -185,9 +197,9 @@ class StudentApplication(models.Model):
                 student_profile, created = StudentProfile.objects.get_or_create(
                     user=student_user,
                     defaults={
-                        'phone': self.phone,
+                        'phone_number': self.phone,
                         'emergency_contact': self.emergency_name,
-                        'emergency_phone': self.phone
+                        'emergency_phone': self.emergency_phone or self.phone
                     }
                 )
                 

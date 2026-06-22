@@ -380,7 +380,7 @@
                         <p class="step-description">{{ section.description }}</p>
                         <div class="form-grid">
                             {% for field in section.bound_fields %}
-                            <div class="form-field {% if field.name == 'address' or field.name == 'current_address' or field.name == 'emergency_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <div class="form-field {% if field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
                                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                                 {{ field }}
                                 {% if field.help_text %}

@@ -23,7 +23,7 @@
             <div class="p-6 border-b border-gray-100">
                 <div class="flex justify-between items-start mb-3">
                     <h3 class="text-lg font-semibold text-gray-900 flex-1">
-                        {{ application.get_application_type_display }}
+                        Study Abroad Application
                     </h3>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide
                         {% if application.status == 'draft' %}bg-yellow-100 text-yellow-800
@@ -42,29 +42,7 @@
             
             <!-- Card Body -->
             <div class="p-6 space-y-4">
-                <!-- Application Details -->
-                <div class="space-y-2 text-sm">
-                    {% if application.university_name %}
-                    <div class="flex items-start">
-                        <i class="fas fa-university text-gray-400 mt-0.5 mr-3 w-4"></i>
-                        <span class="text-gray-700">{{ application.university_name }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if application.course %}
-                    <div class="flex items-start">
-                        <i class="fas fa-book text-gray-400 mt-0.5 mr-3 w-4"></i>
-                        <span class="text-gray-700">{{ application.course }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if application.country %}
-                    <div class="flex items-start">
-                        <i class="fas fa-globe text-gray-400 mt-0.5 mr-3 w-4"></i>
-                        <span class="text-gray-700">{{ application.country }}</span>
-                    </div>
-                    {% endif %}
-                </div>
+
 
                 <!-- Payment Info -->
                 <div class="pt-4 border-t border-gray-100 space-y-2">

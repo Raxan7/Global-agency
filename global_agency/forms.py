@@ -84,11 +84,6 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': '255712345678'
             }),
-            'address': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 2,
-                'placeholder': 'Your residential address'
-            }),
             
             # Parents Details
             'father_name': forms.TextInput(attrs={
@@ -129,21 +124,13 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'School name'
             }),
-            'olevel_country': forms.TextInput(attrs={
+            'olevel_start_year': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Tanzania'
+                'placeholder': 'Start year e.g. 2016'
             }),
-            'olevel_address': forms.TextInput(attrs={
+            'olevel_completed_year': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'School address'
-            }),
-            'olevel_region': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Region'
-            }),
-            'olevel_year': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '2020'
+                'placeholder': 'Year completed e.g. 2020'
             }),
             'olevel_candidate_no': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -153,27 +140,36 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'e.g., 3.5 or Division I'
             }),
-            
+            'olevel_school_type': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'School type'
+            }),
+            'olevel_exam_board': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Exam board'
+            }),
+            'olevel_certificate_no': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Certificate no.'
+            }),
+            'olevel_remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Remarks'
+            }),
+
             # A-Level
             'alevel_school': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'School name'
             }),
-            'alevel_country': forms.TextInput(attrs={
+            'alevel_start_year': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Tanzania'
+                'placeholder': 'Start year e.g. 2020'
             }),
-            'alevel_address': forms.TextInput(attrs={
+            'alevel_completed_year': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'School address'
-            }),
-            'alevel_region': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Region'
-            }),
-            'alevel_year': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '2022'
+                'placeholder': 'Year completed e.g. 2022'
             }),
             'alevel_candidate_no': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -182,6 +178,23 @@ class StudentApplicationForm(forms.ModelForm):
             'alevel_gpa': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'e.g., 3.5 or Division I'
+            }),
+            'alevel_school_type': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'School type'
+            }),
+            'alevel_exam_board': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Exam board'
+            }),
+            'alevel_certificate_no': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Certificate no.'
+            }),
+            'alevel_remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Remarks'
             }),
             
             # Preferences
@@ -197,10 +210,6 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Third choice country'
             }),
-            'preferred_country_4': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Fourth choice country'
-            }),
             'preferred_program_1': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'First choice program'
@@ -213,31 +222,40 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Third choice program'
             }),
-            'preferred_program_4': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Fourth choice program'
-            }),
             
             # Emergency Contact
             'emergency_name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Emergency contact name'
             }),
-            'emergency_address': forms.Textarea(attrs={
+            'emergency_relation': forms.TextInput(attrs={
                 'class': 'form-control',
-                'rows': 2,
-                'placeholder': 'Emergency contact address'
+                'placeholder': 'e.g., Uncle, Aunt, Guardian'
             }),
             'emergency_occupation': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'e.g., Doctor, Teacher'
             }),
-            'emergency_gender': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'emergency_relation': forms.TextInput(attrs={
+            'emergency_phone': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., Uncle, Aunt, Guardian'
+                'placeholder': 'Phone number'
+            }),
+            'emergency_email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email address'
+            }),
+            'emergency_alternative_phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Alternative phone'
+            }),
+            'emergency_relationship_status': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Relationship status'
+            }),
+            'emergency_remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Remarks'
             }),
             'heard_about_us': forms.Select(attrs={
                 'class': 'form-control'

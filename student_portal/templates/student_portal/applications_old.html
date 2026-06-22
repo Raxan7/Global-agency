@@ -309,24 +309,14 @@
             <div class="application-card">
                 <div class="application-header">
                     <div class="application-type">
-                        {{ application.get_application_type_display }}
+                        Application
                     </div>
                     <span class="application-status status-{{ application.status }}">
                         {{ application.get_status_display }}
                     </span>
                 </div>
                 
-                <div class="application-details">
-                    {% if application.university_name %}
-                    <p><strong>University:</strong> {{ application.university_name }}</p>
-                    {% endif %}
-                    {% if application.course %}
-                    <p><strong>Course:</strong> {{ application.course }}</p>
-                    {% endif %}
-                    {% if application.country %}
-                    <p><strong>Country:</strong> {{ application.country }}</p>
-                    {% endif %}
-                </div>
+
 
                 <div class="application-details">
                     <p><strong>Amount:</strong> TZS {{ application.payment_amount|floatformat:0 }}</p>
