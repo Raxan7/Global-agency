@@ -25,7 +25,7 @@ import logging
 import re
 import uuid
 from global_agency.models import ContactMessage, StudentApplication, StudentProfile as GlobalStudentProfile
-from student_portal.models import Application, ApplicationSupplementalProfile, Document, Payment, StudentProfile
+from student_portal.models import Application, ApplicationSupplementalProfile, Document, Payment, ProfessionalQualification, StudentProfile, WorkExperience
 from student_portal.forms import (
     AcademicQualificationsForm,
     ApplicationForm as PortalApplicationForm,
@@ -868,6 +868,60 @@ def _create_or_update_student_portal_records(
 
     supplemental_profile.save()
 
+    # Save Work Experience entries
+    work_entries = [
+        ('work1_', 1),
+        ('work2_', 2),
+    ]
+    for prefix, order in work_entries:
+        company = cleaned_data.get(f'{prefix}company_name')
+        if company:
+            we, _ = WorkExperience.objects.update_or_create(
+                student=student_profile,
+                company_name=company,
+                defaults={
+                    'position': text_value(f'{prefix}position'),
+                    'start_date': cleaned_data.get(f'{prefix}worked_from'),
+                    'end_date': cleaned_data.get(f'{prefix}worked_to'),
+                    'country': text_value(f'{prefix}country'),
+                    'region': text_value(f'{prefix}region'),
+                    'region_post_code': text_value(f'{prefix}region_post_code'),
+                    'district': text_value(f'{prefix}district'),
+                    'district_post_code': text_value(f'{prefix}district_post_code'),
+                    'ward': text_value(f'{prefix}ward'),
+                    'ward_post_code': text_value(f'{prefix}ward_post_code'),
+                    'street': text_value(f'{prefix}street'),
+                    'employment_type': text_value(f'{prefix}employment_type'),
+                    'responsibilities': text_value(f'{prefix}duties'),
+                    'supervisor': text_value(f'{prefix}supervisor'),
+                    'remarks': text_value(f'{prefix}remarks'),
+                },
+            )
+
+    # Save Professional Qualification entries
+    profq_entries = [
+        ('profq1_', 1),
+        ('profq2_', 2),
+        ('profq3_', 3),
+    ]
+    for prefix, order in profq_entries:
+        title = cleaned_data.get(f'{prefix}title')
+        if title:
+            ProfessionalQualification.objects.update_or_create(
+                application=portal_application,
+                order_number=order,
+                defaults={
+                    'qualification_title': title,
+                    'institution': text_value(f'{prefix}institution'),
+                    'institution_address': text_value(f'{prefix}institution_address'),
+                    'country': text_value(f'{prefix}country'),
+                    'period': text_value(f'{prefix}period'),
+                    'start_date': cleaned_data.get(f'{prefix}start_date'),
+                    'finished_date': cleaned_data.get(f'{prefix}finished_date'),
+                    'award_certificate': text_value(f'{prefix}award_certificate'),
+                },
+            )
+
     sync_supplemental = getattr(supplemental_profile, 'sync_normalized_fields', None)
     if sync_supplemental:
         try:
@@ -971,84 +1025,89 @@ def offline_application_create(request):
 def _build_intake_form_sections(form):
     section_specs = [
         {
-            'key': 'personal_details',
-            'title': 'Personal Details',
-            'description': 'Start with the same core identity details the student portal collects.',
-            'icon': 'fa-user-graduate',
-            'fields': ['full_name', 'gender', 'date_of_birth', 'nationality', 'email', 'phone', 'place_of_birth', 'marital_status', 'native_language', 'profile_picture_upload'],
+            'key': 'form_meta',
+            'title': 'Form Header / Application Meta',
+            'description': 'Reference number, application date, and student photo.',
+            'icon': 'fa-file-pen',
+            'fields': ['profile_picture_upload'],
         },
         {
-            'key': 'family_selector',
-            'title': 'Family Setup',
-            'description': 'Choose whether you are entering parents or guardian-only details.',
-            'icon': 'fa-sliders',
-            'fields': ['parent_entry_mode'],
+            'key': 'personal_details',
+            'title': 'Personal Details',
+            'description': 'Full name, gender, date of birth, nationality, passport, and contact information.',
+            'icon': 'fa-user-graduate',
+            'fields': [
+                'full_name', 'gender', 'date_of_birth', 'place_of_birth',
+                'nationality', 'native_language', 'marital_status',
+                'email', 'phone',
+                'passport_number', 'passport_issue_date', 'passport_expiration_date',
+                'city', 'region', 'ward', 'village', 'street', 'house_no',
+            ],
         },
         {
             'key': 'parents',
             'title': 'Parents Details',
-            'description': 'Enter one or both parents when they are available.',
+            'description': 'Enter full details for mother and father.',
             'icon': 'fa-people-roof',
             'fields': [
-                'father_name', 'father_phone', 'father_email', 'father_occupation',
-                'father_country', 'father_region', 'father_district', 'father_ward',
-                'father_street', 'father_house_no', 'father_place_neighbourhood',
-                'father_status', 'father_relationship',
-                'mother_name', 'mother_phone', 'mother_email', 'mother_occupation',
-                'mother_country', 'mother_region', 'mother_district', 'mother_ward',
+                # Mother's Details
+                'mother_name', 'mother_occupation', 'mother_phone', 'mother_email',
+                'mother_country', 'mother_region', 'mother_region_post_code',
+                'mother_district', 'mother_district_post_code',
+                'mother_ward', 'mother_ward_post_code',
                 'mother_street', 'mother_house_no', 'mother_place_neighbourhood',
                 'mother_status', 'mother_relationship',
+                # Father's Details
+                'father_name', 'father_occupation', 'father_phone', 'father_email',
+                'father_country', 'father_region', 'father_region_post_code',
+                'father_district', 'father_district_post_code',
+                'father_ward', 'father_ward_post_code',
+                'father_street', 'father_house_no', 'father_place_neighbourhood',
+                'father_status', 'father_relationship',
             ],
         },
         {
-            'key': 'guardian',
-            'title': 'Emergency / Guardian Details',
-            'description': 'This matches the emergency-contact section from the student portal and AWEC form.',
+            'key': 'emergency_contact',
+            'title': 'Emergency Contact Details',
+            'description': 'Who should be contacted in case of an emergency.',
             'icon': 'fa-user-shield',
-            'fields': ['emergency_name', 'emergency_relation', 'emergency_occupation',
-                       'emergency_phone', 'emergency_email', 'emergency_alternative_phone',
-                       'emergency_country', 'emergency_region', 'emergency_district',
-                       'emergency_ward', 'emergency_street', 'emergency_place_neighbourhood',
-                       'emergency_house_no', 'emergency_relationship_status', 'emergency_remarks'],
-        },
-        {
-            'key': 'passport_and_residence',
-            'title': 'Passport And Residence',
-            'description': 'Fill the AWEC passport and residence details before moving to academic history.',
-            'icon': 'fa-passport',
             'fields': [
-                'full_name_passport',
-                'current_country', 'current_region', 'current_district', 'current_ward',
-                'current_street', 'current_mtaa', 'current_house_no',
-                'current_city', 'current_postal_code', 'current_address',
-                'place_of_birth', 'residential_email',
-                'permanent_country', 'permanent_region', 'permanent_district',
-                'permanent_ward', 'permanent_street', 'permanent_mtaa',
-                'permanent_house_no', 'permanent_address',
-                'passport_number', 'passport_issue_country', 'passport_issue_date',
-                'passport_expiration_date', 'has_valid_visa', 'valid_visa_details',
+                'emergency_name', 'emergency_relation', 'emergency_occupation',
+                'emergency_phone', 'emergency_email',
+                'emergency_house_no',
+                'emergency_country', 'emergency_region', 'emergency_region_post_code',
+                'emergency_district', 'emergency_district_post_code',
+                'emergency_ward', 'emergency_ward_post_code',
+                'emergency_street', 'emergency_place_neighbourhood',
+                'emergency_alternative_phone', 'emergency_relationship_status',
+                'emergency_remarks',
             ],
         },
         {
-            'key': 'olevel',
-            'title': 'Academic Qualifications',
-            'description': 'Follow the student-portal academic flow first, then add any post-secondary history below.',
+            'key': 'education_background',
+            'title': 'Education Background Details',
+            'description': 'A-Level, O-Level, and post-secondary / higher education history.',
             'icon': 'fa-school',
-            'fields': ['olevel_school', 'olevel_school_country', 'olevel_school_region', 'olevel_school_district', 'olevel_school_ward', 'olevel_school_street', 'olevel_school_house_no', 'olevel_school_place_neighbourhood', 'olevel_start_year', 'olevel_completed_year', 'olevel_candidate_no', 'olevel_gpa', 'olevel_school_type', 'olevel_exam_board', 'olevel_certificate_no', 'olevel_remarks'],
-        },
-        {
-            'key': 'alevel',
-            'title': 'A-Level Background',
-            'description': 'Add A-Level school details when available.',
-            'icon': 'fa-building-columns',
-            'fields': ['alevel_school', 'alevel_school_country', 'alevel_school_region', 'alevel_school_district', 'alevel_school_ward', 'alevel_school_street', 'alevel_school_house_no', 'alevel_school_place_neighbourhood', 'alevel_start_year', 'alevel_completed_year', 'alevel_candidate_no', 'alevel_gpa', 'alevel_school_type', 'alevel_exam_board', 'alevel_certificate_no', 'alevel_remarks'],
-        },
-        {
-            'key': 'post_secondary',
-            'title': 'Post-Secondary And English Tests',
-            'description': 'Add certificate, diploma, degree, and English-test details from the AWEC form.',
-            'icon': 'fa-book-open-reader',
             'fields': [
+                # A-Level
+                'alevel_school', 'alevel_candidate_no',
+                'alevel_start_year', 'alevel_completed_year', 'alevel_gpa',
+                'alevel_school_country', 'alevel_school_region', 'alevel_school_region_post_code',
+                'alevel_school_district', 'alevel_school_district_post_code',
+                'alevel_school_ward', 'alevel_school_ward_post_code',
+                'alevel_school_street', 'alevel_school_place_neighbourhood',
+                'alevel_school_type', 'alevel_exam_board', 'alevel_certificate_no',
+                'alevel_remarks',
+                # O-Level
+                'olevel_school', 'olevel_candidate_no',
+                'olevel_start_year', 'olevel_completed_year', 'olevel_gpa',
+                'olevel_school_country', 'olevel_school_region', 'olevel_school_region_post_code',
+                'olevel_school_district', 'olevel_school_district_post_code',
+                'olevel_school_ward', 'olevel_school_ward_post_code',
+                'olevel_school_street', 'olevel_school_place_neighbourhood',
+                'olevel_school_type', 'olevel_exam_board', 'olevel_certificate_no',
+                'olevel_remarks',
+                # Post-Secondary / Higher Education
                 'certificate_institution', 'certificate_field_of_study',
                 'certificate_start_year', 'certificate_completed_year', 'certificate_gpa',
                 'diploma_institution', 'diploma_field_of_study',
@@ -1059,48 +1118,152 @@ def _build_intake_form_sections(form):
                 'master_start_year', 'master_completed_year', 'master_gpa',
                 'phd_institution', 'phd_field_of_study',
                 'phd_start_year', 'phd_completed_year', 'phd_gpa',
-                'professional_qualifications',
-                'professional_qualification_institution',
-                'professional_qualification_country',
-                'professional_qualification_region', 'professional_qualification_district',
-                'professional_qualification_ward', 'professional_qualification_street',
-                'professional_qualification_mtaa',
-                'professional_qualification_start_date',
-                'professional_qualification_completed_date',
-                'professional_qualification_certificate_awarded',
+            ],
+        },
+        {
+            'key': 'professional_qualifications',
+            'title': 'Professional Qualifications / Training',
+            'description': 'Up to three professional qualifications and English language proficiency.',
+            'icon': 'fa-certificate',
+            'fields': [
+                # Qualification 1
+                'profq1_title', 'profq1_institution', 'profq1_institution_address',
+                'profq1_country', 'profq1_period',
+                'profq1_start_date', 'profq1_finished_date', 'profq1_award_certificate',
+                # Qualification 2
+                'profq2_title', 'profq2_institution', 'profq2_institution_address',
+                'profq2_country', 'profq2_period',
+                'profq2_start_date', 'profq2_finished_date', 'profq2_award_certificate',
+                # Qualification 3
+                'profq3_title', 'profq3_institution', 'profq3_institution_address',
+                'profq3_country', 'profq3_period',
+                'profq3_start_date', 'profq3_finished_date', 'profq3_award_certificate',
+                # English Language Proficiency
                 'english_test_name', 'english_test_institution',
                 'english_test_score', 'english_test_year',
                 'english_is_primary_language',
             ],
         },
         {
+            'key': 'employment_history',
+            'title': 'Employment History / Work Experience',
+            'description': 'Previous work experience details.',
+            'icon': 'fa-briefcase',
+            'fields': [
+                # Work Experience 1
+                'work1_company_name', 'work1_position',
+                'work1_worked_from', 'work1_worked_to',
+                'work1_country', 'work1_region', 'work1_region_post_code',
+                'work1_district', 'work1_district_post_code',
+                'work1_ward', 'work1_ward_post_code',
+                'work1_street',
+                'work1_employment_type', 'work1_duties',
+                'work1_supervisor', 'work1_remarks',
+                # Work Experience 2
+                'work2_company_name', 'work2_position',
+                'work2_worked_from', 'work2_worked_to',
+                'work2_country', 'work2_region', 'work2_region_post_code',
+                'work2_district', 'work2_district_post_code',
+                'work2_ward', 'work2_ward_post_code',
+                'work2_street',
+                'work2_employment_type', 'work2_duties',
+                'work2_supervisor', 'work2_remarks',
+            ],
+        },
+        {
             'key': 'study_preferences',
             'title': 'Study Preferences',
-            'description': 'Capture the preferred countries, programs, intake, and accommodation choices.',
+            'description': 'Preferred intake, countries, and programs.',
             'icon': 'fa-compass-drafting',
             'fields': [
+                'preferred_intake',
                 'preferred_country_1', 'preferred_program_1',
                 'preferred_country_2', 'preferred_program_2',
                 'preferred_country_3', 'preferred_program_3',
-                'program_level', 'preferred_intake', 'accommodation_preference',
             ],
         },
         {
-            'key': 'finance_medical',
-            'title': 'Finance, Medical And Referral',
-            'description': 'Complete the remaining AWEC sections before uploads.',
-            'icon': 'fa-hand-holding-dollar',
+            'key': 'student_address',
+            'title': 'Student Address',
+            'description': 'Permanent and current address details.',
+            'icon': 'fa-location-dot',
             'fields': [
-                'education_sponsor', 'estimated_budget_usd', 'scholarship_applied',
-                'scholarship_details', 'has_medical_condition',
-                'medical_condition_details', 'needs_special_assistance',
-                'special_assistance_details', 'heard_about_us', 'heard_about_other',
+                # Permanent Address
+                'permanent_country', 'permanent_region', 'permanent_region_post_code',
+                'permanent_district', 'permanent_district_post_code',
+                'permanent_ward', 'permanent_ward_post_code',
+                'permanent_street', 'permanent_mtaa',
+                'permanent_house_no', 'permanent_place_neighbourhood',
+                'permanent_postal_code', 'permanent_address_status',
+                'permanent_nearest_landmark', 'permanent_duration_at_address',
+                'permanent_address_remarks',
+                # Current Address
+                'current_country', 'current_region', 'current_region_post_code',
+                'current_district', 'current_district_post_code',
+                'current_ward', 'current_ward_post_code',
+                'current_street', 'current_mtaa',
+                'current_house_no', 'current_place_neighbourhood',
+                'current_postal_code', 'current_address_status',
+                'current_nearest_landmark', 'current_duration_at_address',
+                'current_address_remarks',
             ],
         },
         {
-            'key': 'student_assets',
-            'title': 'Uploads And Declaration',
-            'description': 'Finish with the supporting uploads and declaration items that feed the export checklist.',
+            'key': 'other_details',
+            'title': 'Other Details',
+            'description': 'Visa, program level, accommodation, finances, medical, and special assistance.',
+            'icon': 'fa-list',
+            'fields': [
+                'has_valid_visa', 'valid_visa_details',
+                'program_level', 'accommodation_preference',
+                'education_sponsor', 'estimated_budget_usd',
+                'scholarship_applied', 'scholarship_details',
+                'has_medical_condition', 'medical_condition_details',
+                'needs_special_assistance', 'special_assistance_details',
+            ],
+        },
+        {
+            'key': 'how_heard',
+            'title': 'How Did You Hear About Us',
+            'description': 'Referral source.',
+            'icon': 'fa-bullhorn',
+            'fields': [
+                'heard_about_us', 'heard_about_other',
+            ],
+        },
+        {
+            'key': 'declaration',
+            'title': 'Declaration by Applicant',
+            'description': 'Read and accept the declaration before submitting.',
+            'icon': 'fa-file-signature',
+            'fields': [
+                'declaration_applicant_name', 'declaration_date',
+                'declaration_signature_name', 'declaration_agreed',
+            ],
+        },
+        {
+            'key': 'terms',
+            'title': 'Terms and Conditions',
+            'description': 'Accept the terms and conditions.',
+            'icon': 'fa-scale-balanced',
+            'fields': [
+                'terms_accepted',
+            ],
+        },
+        {
+            'key': 'office_use',
+            'title': 'Office Use Only',
+            'description': 'Internal approval section.',
+            'icon': 'fa-stamp',
+            'fields': [
+                'office_director_name', 'office_approval_status',
+                'office_reason',
+            ],
+        },
+        {
+            'key': 'uploads',
+            'title': 'Supporting Documents',
+            'description': 'Upload supporting files.',
             'icon': 'fa-file-arrow-up',
             'fields': [
                 field_name for field_name, _document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP
@@ -1110,7 +1273,7 @@ def _build_intake_form_sections(form):
                 'has_cv_resume', 'has_personal_statement',
                 'has_recommendation_letters', 'has_financial_proof',
                 'has_health_insurance', 'has_other_attachments',
-                'other_attachments_description', 'declaration_agreed',
+                'other_attachments_description',
             ],
         },
     ]

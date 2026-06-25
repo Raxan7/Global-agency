@@ -3,7 +3,7 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block hero_title %}Offline Student Intake{% endblock %}
-{% block hero_copy %}Use the same paced flow as the student portal while keeping the intake offline for staff work.{% endblock %}
+{% block hero_copy %}Full application form following the official blank application flow.{% endblock %}
 
 {% block content %}
 <style>
@@ -139,6 +139,12 @@
         min-height: 110px;
     }
 
+    .form-field input[type="checkbox"] {
+        width: auto;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+
     .field-help {
         margin: 0.4rem 0 0;
         color: #64748b;
@@ -213,6 +219,85 @@
         display: none;
     }
 
+    .subsection-heading {
+        margin: 1.4rem 0 0.6rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        grid-column: 1 / -1;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid #dbe3f0;
+    }
+
+    .subsection-heading:first-child {
+        margin-top: 0;
+    }
+
+    .section-divider {
+        grid-column: 1 / -1;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 0.6rem 0;
+    }
+
+    .declaration-text {
+        grid-column: 1 / -1;
+        background: #f8fbff;
+        border: 1px solid #dbe3f0;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #1e3a5f;
+    }
+
+    .declaration-text ul {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .declaration-text li {
+        margin-bottom: 0.35rem;
+    }
+
+    .terms-box {
+        grid-column: 1 / -1;
+        background: #f8fbff;
+        border: 1px solid #dbe3f0;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        color: #1e3a5f;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .terms-box ul {
+        margin: 0.4rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .terms-box li {
+        margin-bottom: 0.25rem;
+    }
+
+    .form-field.checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .form-field.checkbox-field label {
+        margin-bottom: 0;
+        order: 1;
+    }
+
+    .form-field.checkbox-field input {
+        width: auto;
+        order: 0;
+    }
+
     @media (max-width: 1024px) {
         .intake-shell {
             grid-template-columns: 1fr;
@@ -244,7 +329,7 @@
     <div class="intake-shell">
         <aside class="wizard-nav">
             <h3 class="wizard-title">{{ page_title }}</h3>
-            <p class="wizard-copy">This follows the student portal order, with the AWEC-specific fields slotted into the same guided flow.</p>
+            <p class="wizard-copy">This follows the official blank application form flow.</p>
             <div class="wizard-steps">
                 {% for section in form_sections %}
                 <button type="button" class="wizard-step {% if forloop.first %}active{% endif %}" data-step-target="{{ forloop.counter0 }}" data-section-key="{{ section.key }}">
@@ -287,12 +372,58 @@
 
             <div class="wizard-body">
                 {% for section in form_sections %}
-                <section class="step-panel {% if forloop.first %}active{% endif %} {% if section.key == 'parents' %}family-parent-section{% endif %} {% if section.key == 'guardian' %}family-guardian-section{% endif %}" data-step-panel="{{ forloop.counter0 }}" data-section-key="{{ section.key }}" {% if section.key == 'parents' %}id="parent-fields-block"{% endif %} {% if section.key == 'guardian' %}id="guardian-fields-block"{% endif %}>
+                <section class="step-panel {% if forloop.first %}active{% endif %}" data-step-panel="{{ forloop.counter0 }}" data-section-key="{{ section.key }}">
                     <h3 class="step-heading">{{ section.title }}</h3>
                     <p class="step-description">{{ section.description }}</p>
+
+                    {% if section.key == 'declaration' %}
+                    <div class="declaration-text">
+                        <strong>Declaration by Applicant</strong>
+                        <ul>
+                            <li><strong>Accuracy of Information:</strong> I confirm that all information provided in this application is true, complete, and accurate to the best of my knowledge.</li>
+                            <li><strong>Authorization to Process Information:</strong> I authorize the institution to process my personal and academic information for admission and related purposes.</li>
+                            <li><strong>Responsibility for Application Process:</strong> I understand that I am responsible for ensuring all required documents are submitted correctly and on time.</li>
+                            <li><strong>Compliance with Institutional and National Regulations:</strong> I agree to comply with all institutional policies and national regulations governing my study.</li>
+                            <li><strong>Admission and Program Placement:</strong> I understand that admission and program placement are subject to availability and institutional discretion.</li>
+                            <li><strong>Financial Responsibility:</strong> I acknowledge my financial responsibility for all tuition, fees, and related costs associated with my study.</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if section.key == 'terms' %}
+                    <div class="terms-box">
+                        <strong>Terms and Conditions</strong>
+                        <ul>
+                            <li><strong>Application Process:</strong> All applications are processed in accordance with institutional policies and timelines.</li>
+                            <li><strong>Document Authenticity:</strong> Applicants must submit authentic documents; falsified documents will result in immediate rejection.</li>
+                            <li><strong>Fees and Payments:</strong> All applicable fees must be paid as per the schedule provided by the institution.</li>
+                            <li><strong>Visa Responsibility:</strong> Obtaining a student visa is the responsibility of the applicant; the institution will provide supporting documents.</li>
+                            <li><strong>Refund Policy:</strong> Refunds are governed by the institutional refund policy in effect at the time of application.</li>
+                            <li><strong>Student Responsibilities:</strong> Students must adhere to all institutional rules, regulations, and codes of conduct.</li>
+                            <li><strong>Changes to Application:</strong> Any changes to the application must be communicated in writing to the admissions office.</li>
+                            <li><strong>Liability Limitation:</strong> The institution's liability is limited as defined in the enrollment agreement.</li>
+                            <li><strong>Accommodation and Travel:</strong> Accommodation and travel arrangements are the responsibility of the student unless otherwise arranged.</li>
+                            <li><strong>Data Privacy:</strong> Personal data will be handled in accordance with applicable data protection laws.</li>
+                            <li><strong>Cancellation:</strong> The institution reserves the right to cancel programs or admissions as necessary.</li>
+                            <li><strong>Governing Law:</strong> These terms are governed by the laws of the United Republic of Tanzania.</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if section.key == 'education_background' %}
                     <div class="form-grid">
+                        <h4 class="subsection-heading">ADVANCED LEVEL DETAILS</h4>
                         {% for field in section.bound_fields %}
-                        <div class="form-field {% if field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            {% if field.name == 'alevel_school' or field.name == 'olevel_school' or field.name == 'certificate_institution' %}
+                        <div class="section-divider"></div>
+                            {% endif %}
+                            {% if field.name == 'olevel_school' %}
+                        <h4 class="subsection-heading">ORDINARY LEVEL DETAILS</h4>
+                            {% endif %}
+                            {% if field.name == 'certificate_institution' %}
+                        <h4 class="subsection-heading">POST-SECONDARY / HIGHER EDUCATION</h4>
+                            {% endif %}
+                        <div class="form-field {% if field.name == 'alevel_remarks' or field.name == 'olevel_remarks' or field.name == 'place_of_birth' or field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
                             {% if field.help_text %}
@@ -304,6 +435,147 @@
                         </div>
                         {% endfor %}
                     </div>
+
+                    {% elif section.key == 'parents' %}
+                    <div class="form-grid">
+                        <h4 class="subsection-heading">MOTHER'S DETAILS</h4>
+                        {% for field in section.bound_fields %}
+                            {% if field.name == 'father_name' %}
+                        <div class="section-divider"></div>
+                        <h4 class="subsection-heading">FATHER'S DETAILS</h4>
+                            {% endif %}
+                        <div class="form-field {% if field.name == 'mother_place_neighbourhood' or field.name == 'mother_status' or field.name == 'mother_relationship' or field.name == 'father_place_neighbourhood' or field.name == 'father_status' or field.name == 'father_relationship' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% elif section.key == 'professional_qualifications' %}
+                    <div class="form-grid">
+                        <h4 class="subsection-heading">QUALIFICATION 1</h4>
+                        {% for field in section.bound_fields %}
+                            {% if field.name == 'profq2_title' %}
+                        <div class="section-divider"></div>
+                        <h4 class="subsection-heading">QUALIFICATION 2</h4>
+                            {% endif %}
+                            {% if field.name == 'profq3_title' %}
+                        <div class="section-divider"></div>
+                        <h4 class="subsection-heading">QUALIFICATION 3</h4>
+                            {% endif %}
+                            {% if field.name == 'english_test_name' %}
+                        <div class="section-divider"></div>
+                        <h4 class="subsection-heading">ENGLISH LANGUAGE PROFICIENCY</h4>
+                            {% endif %}
+                        <div class="form-field {% if field.name == 'profq1_institution_address' or field.name == 'profq2_institution_address' or field.name == 'profq3_institution_address' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% elif section.key == 'employment_history' %}
+                    <div class="form-grid">
+                        <h4 class="subsection-heading">WORK EXPERIENCE 1</h4>
+                        {% for field in section.bound_fields %}
+                            {% if field.name == 'work2_company_name' %}
+                        <div class="section-divider"></div>
+                        <h4 class="subsection-heading">WORK EXPERIENCE 2</h4>
+                            {% endif %}
+                        <div class="form-field {% if field.name == 'work1_duties' or field.name == 'work1_remarks' or field.name == 'work2_duties' or field.name == 'work2_remarks' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% elif section.key == 'student_address' %}
+                    <div class="form-grid">
+                        <h4 class="subsection-heading">PERMANENT ADDRESS</h4>
+                        {% for field in section.bound_fields %}
+                            {% if field.name == 'current_country' %}
+                        <div class="section-divider"></div>
+                        <h4 class="subsection-heading">CURRENT ADDRESS</h4>
+                            {% endif %}
+                        <div class="form-field {% if field.name == 'permanent_address_remarks' or field.name == 'current_address_remarks' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% elif section.key == 'declaration' %}
+                    <div class="form-grid">
+                        {% for field in section.bound_fields %}
+                        <div class="form-field {% if field.name == 'declaration_agreed' %}checkbox-field full{% elif field.name == 'declaration_applicant_name' or field.name == 'declaration_signature_name' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% elif section.key == 'terms' %}
+                    <div class="form-grid">
+                        {% for field in section.bound_fields %}
+                        <div class="form-field checkbox-field full">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% else %}
+                    <div class="form-grid">
+                        {% for field in section.bound_fields %}
+                        <div class="form-field {% if field.name == 'place_of_birth' or field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.name == 'valid_visa_details' or field.name == 'office_reason' or field.name == 'declaration_agreed' or field.name == 'terms_accepted' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <p class="field-help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="field-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </section>
                 {% endfor %}
             </div>
@@ -329,35 +601,8 @@
         const prevButton = document.getElementById('wizard-prev');
         const nextButton = document.getElementById('wizard-next');
         const submitButton = document.getElementById('wizard-submit');
-        const modeSelect = document.getElementById('id_parent_entry_mode');
-        const parentBlock = document.getElementById('parent-fields-block');
-        const guardianBlock = document.getElementById('guardian-fields-block');
-        const parentButton = document.querySelector('[data-section-key="parents"]');
-        const guardianButton = document.querySelector('[data-section-key="guardian"]');
 
         let currentStep = 0;
-
-        function updateFamilyBlocks() {
-            if (!modeSelect) {
-                return;
-            }
-            const guardianOnly = modeSelect.value === 'guardian_only';
-            if (parentBlock) {
-                parentBlock.style.display = guardianOnly ? 'none' : '';
-            }
-            if (parentButton) {
-                parentButton.style.display = guardianOnly ? 'none' : '';
-            }
-            if (guardianBlock) {
-                guardianBlock.style.opacity = guardianOnly ? '1' : '0.96';
-            }
-            if (guardianButton) {
-                guardianButton.style.display = '';
-            }
-            if (guardianOnly && currentStep === Number(parentBlock?.dataset.stepPanel || '-1')) {
-                setStep(Math.min(currentStep + 1, stepPanels.length - 1));
-            }
-        }
 
         function setStep(index) {
             currentStep = Math.max(0, Math.min(index, stepPanels.length - 1));
@@ -386,11 +631,6 @@
         nextButton.addEventListener('click', function () {
             setStep(currentStep + 1);
         });
-
-        if (modeSelect) {
-            modeSelect.addEventListener('change', updateFamilyBlocks);
-            updateFamilyBlocks();
-        }
 
         const firstErrorField = document.querySelector('.field-errors');
         if (firstErrorField) {
