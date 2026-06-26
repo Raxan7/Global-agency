@@ -127,21 +127,31 @@
                         {% if form.emergency_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_house_no.errors.0 }}</p>{% endif %}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa (if different)</label>
-                        {{ form.emergency_mtaa }}
-                        {% if form.emergency_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_mtaa.errors.0 }}</p>{% endif %}
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Region Post Code</label>
+                        {{ form.emergency_region_post_code }}
+                        {% if form.emergency_region_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_region_post_code.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">District Post Code</label>
+                        {{ form.emergency_district_post_code }}
+                        {% if form.emergency_district_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_district_post_code.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ward Post Code</label>
+                        {{ form.emergency_ward_post_code }}
+                        {% if form.emergency_ward_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_ward_post_code.errors.0 }}</p>{% endif %}
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Place / Neighbourhood</label>
                         {{ form.emergency_place_neighbourhood }}
                         {% if form.emergency_place_neighbourhood.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_place_neighbourhood.errors.0 }}</p>{% endif %}
                     </div>
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Relationship Status</label>
                         {{ form.emergency_relationship_status }}
                         {% if form.emergency_relationship_status.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_relationship_status.errors.0 }}</p>{% endif %}
                     </div>
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
                         {{ form.emergency_remarks }}
                         {% if form.emergency_remarks.errors %}<p class="text-red-500 text-sm mt-1">{{ form.emergency_remarks.errors.0 }}</p>{% endif %}
@@ -172,6 +182,85 @@
                     </div>
                 </div>
             </div>
+
+            {% with s=supplemental_form %}
+            <!-- Other Details -->
+            <div class="border-t pt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>Other Details
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Has Valid Visa?</label>
+                        {{ s.has_valid_visa }}{% if s.has_valid_visa.errors %}<p class="text-red-500 text-sm mt-1">{{ s.has_valid_visa.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Valid Visa Details</label>
+                        {{ s.valid_visa_details }}{% if s.valid_visa_details.errors %}<p class="text-red-500 text-sm mt-1">{{ s.valid_visa_details.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Program Level</label>
+                        {{ s.program_level }}{% if s.program_level.errors %}<p class="text-red-500 text-sm mt-1">{{ s.program_level.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Accommodation Preference</label>
+                        {{ s.accommodation_preference }}{% if s.accommodation_preference.errors %}<p class="text-red-500 text-sm mt-1">{{ s.accommodation_preference.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Education Sponsor</label>
+                        {{ s.education_sponsor }}{% if s.education_sponsor.errors %}<p class="text-red-500 text-sm mt-1">{{ s.education_sponsor.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estimated Budget (USD)</label>
+                        {{ s.estimated_budget_usd }}{% if s.estimated_budget_usd.errors %}<p class="text-red-500 text-sm mt-1">{{ s.estimated_budget_usd.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Scholarship Applied?</label>
+                        {{ s.scholarship_applied }}{% if s.scholarship_applied.errors %}<p class="text-red-500 text-sm mt-1">{{ s.scholarship_applied.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Scholarship Details</label>
+                        {{ s.scholarship_details }}{% if s.scholarship_details.errors %}<p class="text-red-500 text-sm mt-1">{{ s.scholarship_details.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Has Medical Condition?</label>
+                        {{ s.has_medical_condition }}{% if s.has_medical_condition.errors %}<p class="text-red-500 text-sm mt-1">{{ s.has_medical_condition.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Medical Condition Details</label>
+                        {{ s.medical_condition_details }}{% if s.medical_condition_details.errors %}<p class="text-red-500 text-sm mt-1">{{ s.medical_condition_details.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Needs Special Assistance?</label>
+                        {{ s.needs_special_assistance }}{% if s.needs_special_assistance.errors %}<p class="text-red-500 text-sm mt-1">{{ s.needs_special_assistance.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Special Assistance Details</label>
+                        {{ s.special_assistance_details }}{% if s.special_assistance_details.errors %}<p class="text-red-500 text-sm mt-1">{{ s.special_assistance_details.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Declaration -->
+            <div class="border-t pt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-file-signature text-blue-500 mr-2"></i>Declaration
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="mt-1">
+                            {{ s.declaration_agreed }}
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">
+                                I declare that the information provided above is true, complete, and accurate to the best of my knowledge. I understand that any false statements may result in the rejection of my application.
+                            </label>
+                            {% if s.declaration_agreed.errors %}<p class="text-red-500 text-sm mt-1">{{ s.declaration_agreed.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
 
             <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
                 <p class="text-sm text-blue-800">

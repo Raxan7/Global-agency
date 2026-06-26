@@ -91,14 +91,24 @@
                             {% if form.olevel_school_street.errors %}<p class="text-red-500 text-sm mt-1">{{ form.olevel_school_street.errors.0 }}</p>{% endif %}
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa (if different)</label>
-                            {{ form.olevel_school_mtaa }}
-                            {% if form.olevel_school_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.olevel_school_mtaa.errors.0 }}</p>{% endif %}
-                        </div>
-                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">House / Plot Number</label>
                             {{ form.olevel_school_house_no }}
                             {% if form.olevel_school_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.olevel_school_house_no.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Region Post Code</label>
+                            {{ form.olevel_school_region_post_code }}
+                            {% if form.olevel_school_region_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.olevel_school_region_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">District Post Code</label>
+                            {{ form.olevel_school_district_post_code }}
+                            {% if form.olevel_school_district_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.olevel_school_district_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ward Post Code</label>
+                            {{ form.olevel_school_ward_post_code }}
+                            {% if form.olevel_school_ward_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.olevel_school_ward_post_code.errors.0 }}</p>{% endif %}
                         </div>
                     </div>
                 </div>
@@ -169,17 +179,171 @@
                             {% if form.alevel_school_street.errors %}<p class="text-red-500 text-sm mt-1">{{ form.alevel_school_street.errors.0 }}</p>{% endif %}
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa (if different)</label>
-                            {{ form.alevel_school_mtaa }}
-                            {% if form.alevel_school_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.alevel_school_mtaa.errors.0 }}</p>{% endif %}
-                        </div>
-                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">House / Plot Number</label>
                             {{ form.alevel_school_house_no }}
                             {% if form.alevel_school_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.alevel_school_house_no.errors.0 }}</p>{% endif %}
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Region Post Code</label>
+                            {{ form.alevel_school_region_post_code }}
+                            {% if form.alevel_school_region_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.alevel_school_region_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">District Post Code</label>
+                            {{ form.alevel_school_district_post_code }}
+                            {% if form.alevel_school_district_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.alevel_school_district_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ward Post Code</label>
+                            {{ form.alevel_school_ward_post_code }}
+                            {% if form.alevel_school_ward_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.alevel_school_ward_post_code.errors.0 }}</p>{% endif %}
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Post-Secondary / Higher Education -->
+            <div class="border-t pt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-user-graduate text-blue-500 mr-2"></i>Post-Secondary / Higher Education
+                </h3>
+
+                {% with s=supplemental_form %}
+                <!-- Certificate -->
+                <div class="border-b pb-4 mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Certificate</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                            {{ s.certificate_institution }}{% if s.certificate_institution.errors %}<p class="text-red-500 text-sm mt-1">{{ s.certificate_institution.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                            {{ s.certificate_field_of_study }}{% if s.certificate_field_of_study.errors %}<p class="text-red-500 text-sm mt-1">{{ s.certificate_field_of_study.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Year</label>
+                            {{ s.certificate_start_year }}{% if s.certificate_start_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.certificate_start_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year Completed</label>
+                            {{ s.certificate_completed_year }}{% if s.certificate_completed_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.certificate_completed_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GPA</label>
+                            {{ s.certificate_gpa }}{% if s.certificate_gpa.errors %}<p class="text-red-500 text-sm mt-1">{{ s.certificate_gpa.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diploma -->
+                <div class="border-b pb-4 mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Diploma</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                            {{ s.diploma_institution }}{% if s.diploma_institution.errors %}<p class="text-red-500 text-sm mt-1">{{ s.diploma_institution.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                            {{ s.diploma_field_of_study }}{% if s.diploma_field_of_study.errors %}<p class="text-red-500 text-sm mt-1">{{ s.diploma_field_of_study.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Year</label>
+                            {{ s.diploma_start_year }}{% if s.diploma_start_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.diploma_start_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year Completed</label>
+                            {{ s.diploma_completed_year }}{% if s.diploma_completed_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.diploma_completed_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GPA</label>
+                            {{ s.diploma_gpa }}{% if s.diploma_gpa.errors %}<p class="text-red-500 text-sm mt-1">{{ s.diploma_gpa.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bachelor -->
+                <div class="border-b pb-4 mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Bachelor Degree</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                            {{ s.bachelor_institution }}{% if s.bachelor_institution.errors %}<p class="text-red-500 text-sm mt-1">{{ s.bachelor_institution.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                            {{ s.bachelor_field_of_study }}{% if s.bachelor_field_of_study.errors %}<p class="text-red-500 text-sm mt-1">{{ s.bachelor_field_of_study.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Year</label>
+                            {{ s.bachelor_start_year }}{% if s.bachelor_start_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.bachelor_start_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year Completed</label>
+                            {{ s.bachelor_completed_year }}{% if s.bachelor_completed_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.bachelor_completed_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GPA</label>
+                            {{ s.bachelor_gpa }}{% if s.bachelor_gpa.errors %}<p class="text-red-500 text-sm mt-1">{{ s.bachelor_gpa.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master -->
+                <div class="border-b pb-4 mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Master Degree</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                            {{ s.master_institution }}{% if s.master_institution.errors %}<p class="text-red-500 text-sm mt-1">{{ s.master_institution.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                            {{ s.master_field_of_study }}{% if s.master_field_of_study.errors %}<p class="text-red-500 text-sm mt-1">{{ s.master_field_of_study.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Year</label>
+                            {{ s.master_start_year }}{% if s.master_start_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.master_start_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year Completed</label>
+                            {{ s.master_completed_year }}{% if s.master_completed_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.master_completed_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GPA</label>
+                            {{ s.master_gpa }}{% if s.master_gpa.errors %}<p class="text-red-500 text-sm mt-1">{{ s.master_gpa.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PhD -->
+                <div class="border-b pb-4 mb-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3">PhD</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                            {{ s.phd_institution }}{% if s.phd_institution.errors %}<p class="text-red-500 text-sm mt-1">{{ s.phd_institution.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                            {{ s.phd_field_of_study }}{% if s.phd_field_of_study.errors %}<p class="text-red-500 text-sm mt-1">{{ s.phd_field_of_study.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Year</label>
+                            {{ s.phd_start_year }}{% if s.phd_start_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.phd_start_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year Completed</label>
+                            {{ s.phd_completed_year }}{% if s.phd_completed_year.errors %}<p class="text-red-500 text-sm mt-1">{{ s.phd_completed_year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GPA</label>
+                            {{ s.phd_gpa }}{% if s.phd_gpa.errors %}<p class="text-red-500 text-sm mt-1">{{ s.phd_gpa.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
             </div>
 
             <div class="flex justify-between pt-6 border-t">

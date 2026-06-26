@@ -92,9 +92,19 @@
                             {% if form.father_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_house_no.errors.0 }}</p>{% endif %}
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa Name (if different)</label>
-                            {{ form.father_mtaa }}
-                            {% if form.father_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_mtaa.errors.0 }}</p>{% endif %}
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Region Post Code</label>
+                            {{ form.father_region_post_code }}
+                            {% if form.father_region_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_region_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">District Post Code</label>
+                            {{ form.father_district_post_code }}
+                            {% if form.father_district_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_district_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ward Post Code</label>
+                            {{ form.father_ward_post_code }}
+                            {% if form.father_ward_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.father_ward_post_code.errors.0 }}</p>{% endif %}
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Place / Neighbourhood</label>
@@ -181,9 +191,19 @@
                             {% if form.mother_house_no.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_house_no.errors.0 }}</p>{% endif %}
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mtaa Name (if different)</label>
-                            {{ form.mother_mtaa }}
-                            {% if form.mother_mtaa.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_mtaa.errors.0 }}</p>{% endif %}
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Region Post Code</label>
+                            {{ form.mother_region_post_code }}
+                            {% if form.mother_region_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_region_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">District Post Code</label>
+                            {{ form.mother_district_post_code }}
+                            {% if form.mother_district_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_district_post_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ward Post Code</label>
+                            {{ form.mother_ward_post_code }}
+                            {% if form.mother_ward_post_code.errors %}<p class="text-red-500 text-sm mt-1">{{ form.mother_ward_post_code.errors.0 }}</p>{% endif %}
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Place / Neighbourhood</label>

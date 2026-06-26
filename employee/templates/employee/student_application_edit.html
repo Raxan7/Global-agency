@@ -2,7 +2,7 @@
 
 {% block title %}Edit Application - Employee Portal{% endblock %}
 {% block hero_title %}Edit Student Application{% endblock %}
-{% block hero_copy %}Update the student record in a full multi-section editor that mirrors the offline intake flow.{% endblock %}
+{% block hero_copy %}Edit the full student record across 11 sections matching the blank application form.{% endblock %}
 
 {% block content %}
 <style>
@@ -180,6 +180,86 @@
         display: none;
     }
 
+    .subsection-heading {
+        margin: 1.4rem 0 0.6rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        grid-column: 1 / -1;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid #dbe3f0;
+    }
+
+    .subsection-heading:first-child {
+        margin-top: 0;
+    }
+
+    .section-divider {
+        grid-column: 1 / -1;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 0.6rem 0;
+    }
+
+    .declaration-text {
+        grid-column: 1 / -1;
+        background: #f8fbff;
+        border: 1px solid #dbe3f0;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #1e3a5f;
+        margin-bottom: 1rem;
+    }
+
+    .declaration-text ul {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .declaration-text li {
+        margin-bottom: 0.35rem;
+    }
+
+    .terms-box {
+        grid-column: 1 / -1;
+        background: #f8fbff;
+        border: 1px solid #dbe3f0;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        color: #1e3a5f;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .terms-box ul {
+        margin: 0.4rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .terms-box li {
+        margin-bottom: 0.25rem;
+    }
+
+    .form-field.checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .form-field.checkbox-field label {
+        margin-bottom: 0;
+        order: 1;
+    }
+
+    .form-field.checkbox-field input {
+        width: auto;
+        order: 0;
+    }
+
     @media (max-width: 1024px) {
         .edit-shell {
             grid-template-columns: 1fr;
@@ -210,7 +290,7 @@
     <div class="edit-shell">
         <aside class="edit-nav">
             <h3 class="edit-title">Edit Student Application</h3>
-            <p class="edit-copy">Use the step list to jump between the core application, profile, parents, academics, preferences, emergency contact, and AWEC supplemental data.</p>
+            <p class="edit-copy">Use the step list to jump between personal details, parents, emergency, education, professional qualifications, work history, study preferences, addresses, and declaration.</p>
             <div class="edit-steps">
                 {% for section in form_sections %}
                 <button type="button" class="edit-step {% if forloop.first %}active{% endif %}" data-step-target="{{ forloop.counter0 }}">
@@ -231,9 +311,159 @@
             {% endif %}
 
             {% for section in form_sections %}
-            <section class="step-panel {% if forloop.first %}active{% endif %}" data-step-panel="{{ forloop.counter0 }}">
+            <section class="step-panel {% if forloop.first %}active{% endif %}" data-step-panel="{{ forloop.counter0 }}" data-section-key="{{ section.key }}">
                 <h3 class="step-heading">{{ section.title }}</h3>
                 <p class="step-description">{{ section.description }}</p>
+
+                {% if section.key == 'parents' %}
+                <div class="form-grid">
+                    <h4 class="subsection-heading">MOTHER'S DETAILS</h4>
+                    {% for field in section.bound_fields %}
+                        {% if field.name == 'father_name' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">FATHER'S DETAILS</h4>
+                        {% endif %}
+                    <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif section.key == 'education_background' %}
+                <div class="form-grid">
+                    <h4 class="subsection-heading">ORDINARY LEVEL DETAILS</h4>
+                    {% for field in section.bound_fields %}
+                        {% if field.name == 'alevel_school' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">ADVANCED LEVEL DETAILS</h4>
+                        {% endif %}
+                        {% if field.name == 'certificate_institution' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">POST-SECONDARY / HIGHER EDUCATION</h4>
+                        {% endif %}
+                    <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif section.key == 'professional_qualifications' %}
+                <div class="form-grid">
+                    <h4 class="subsection-heading">PROFESSIONAL QUALIFICATION</h4>
+                    {% for field in section.bound_fields %}
+                        {% if field.name == 'profq1_title' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">QUALIFICATION 1</h4>
+                        {% endif %}
+                        {% if field.name == 'profq2_title' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">QUALIFICATION 2</h4>
+                        {% endif %}
+                        {% if field.name == 'profq3_title' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">QUALIFICATION 3</h4>
+                        {% endif %}
+                        {% if field.name == 'english_test_name' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">ENGLISH LANGUAGE PROFICIENCY</h4>
+                        {% endif %}
+                    <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif section.key == 'employment_history' %}
+                <div class="form-grid">
+                    <h4 class="subsection-heading">WORK EXPERIENCE 1</h4>
+                    {% for field in section.bound_fields %}
+                        {% if field.name == 'work2_company_name' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">WORK EXPERIENCE 2</h4>
+                        {% endif %}
+                    <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif section.key == 'student_address' %}
+                <div class="form-grid">
+                    <h4 class="subsection-heading">PERMANENT ADDRESS</h4>
+                    {% for field in section.bound_fields %}
+                        {% if field.name == 'current_country' %}
+                    <div class="section-divider"></div>
+                    <h4 class="subsection-heading">CURRENT ADDRESS</h4>
+                        {% endif %}
+                    <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif section.key == 'declaration' %}
+                <div class="declaration-text">
+                    <strong>Declaration by Applicant</strong>
+                    <ul>
+                        <li><strong>Accuracy of Information:</strong> I confirm that all information provided in this application is true, complete, and accurate to the best of my knowledge.</li>
+                        <li><strong>Authorization to Process Information:</strong> I authorize the institution to process my personal and academic information for admission and related purposes.</li>
+                        <li><strong>Responsibility for Application Process:</strong> I understand that I am responsible for ensuring all required documents are submitted correctly and on time.</li>
+                        <li><strong>Compliance with Institutional and National Regulations:</strong> I agree to comply with all institutional policies and national regulations governing my study.</li>
+                        <li><strong>Admission and Program Placement:</strong> I understand that admission and program placement are subject to availability and institutional discretion.</li>
+                        <li><strong>Financial Responsibility:</strong> I acknowledge my financial responsibility for all tuition, fees, and related costs associated with my study.</li>
+                    </ul>
+                </div>
+                <div class="form-grid">
+                    {% for field in section.bound_fields %}
+                    <div class="form-field {% if field.name == 'declaration_agreed' or field.name == 'declaration_applicant_name' or field.name == 'declaration_signature_name' %}full{% elif field.name == 'terms_accepted' %}checkbox-field full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="field-help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
                 <div class="form-grid">
                     {% for field in section.bound_fields %}
                     <div class="form-field {% if field.name in full_width_fields or field.field.widget.input_type == 'textarea' or field.field.widget.input_type == 'file' %}full{% endif %}">
@@ -248,6 +478,7 @@
                     </div>
                     {% endfor %}
                 </div>
+                {% endif %}
             </section>
             {% endfor %}
 

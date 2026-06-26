@@ -394,6 +394,32 @@ def edit_student_application(request, application_id):
         widgets=supplemental_widgets,
     )
 
+    # Look up linked offline intake from global_agency for work/profq/declaration fields
+    offline_intake = StudentApplication.objects.filter(portal_application=application).first()
+    if offline_intake is None:
+        offline_intake = StudentApplication(portal_application=application)
+
+    OFFLINE_INTAKE_EDIT_FIELDS = [
+        'declaration_applicant_name', 'declaration_date', 'declaration_signature_name', 'terms_accepted',
+        'work1_company_name', 'work1_position', 'work1_worked_from', 'work1_worked_to',
+        'work1_country', 'work1_region', 'work1_district', 'work1_ward', 'work1_street',
+        'work1_employment_type', 'work1_duties', 'work1_supervisor', 'work1_remarks',
+        'work2_company_name', 'work2_position', 'work2_worked_from', 'work2_worked_to',
+        'work2_country', 'work2_region', 'work2_district', 'work2_ward', 'work2_street',
+        'work2_employment_type', 'work2_duties', 'work2_supervisor', 'work2_remarks',
+        'profq1_title', 'profq1_institution', 'profq1_institution_address',
+        'profq1_country', 'profq1_period', 'profq1_start_date', 'profq1_finished_date', 'profq1_award_certificate',
+        'profq2_title', 'profq2_institution', 'profq2_institution_address',
+        'profq2_country', 'profq2_period', 'profq2_start_date', 'profq2_finished_date', 'profq2_award_certificate',
+        'profq3_title', 'profq3_institution', 'profq3_institution_address',
+        'profq3_country', 'profq3_period', 'profq3_start_date', 'profq3_finished_date', 'profq3_award_certificate',
+    ]
+
+    OfflineIntakeEditForm = modelform_factory(
+        StudentApplication,
+        fields=OFFLINE_INTAKE_EDIT_FIELDS,
+    )
+
     if request.method == 'POST':
         core_form = PortalApplicationForm(request.POST, instance=application)
         personal_form = PersonalDetailsForm(request.POST, request.FILES, instance=student_profile)
@@ -402,6 +428,7 @@ def edit_student_application(request, application_id):
         preferences_form = StudyPreferencesForm(request.POST, instance=student_profile)
         emergency_form = EmergencyContactForm(request.POST, instance=student_profile)
         supplemental_form = SupplementalProfileForm(request.POST, instance=supplemental_profile)
+        offline_intake_form = OfflineIntakeEditForm(request.POST, instance=offline_intake)
 
         forms_to_save = [
             core_form,
@@ -411,6 +438,7 @@ def edit_student_application(request, application_id):
             preferences_form,
             emergency_form,
             supplemental_form,
+            offline_intake_form,
         ]
 
         if all(form.is_valid() for form in forms_to_save):
@@ -424,6 +452,9 @@ def edit_student_application(request, application_id):
                 supplemental_instance = supplemental_form.save(commit=False)
                 supplemental_instance.application = application
                 supplemental_instance.save()
+                offline_intake_instance = offline_intake_form.save(commit=False)
+                offline_intake_instance.portal_application = application
+                offline_intake_instance.save()
 
             messages.success(request, 'Student application updated successfully.')
             return redirect('employee:student_application_detail', application_id=application_id)
@@ -437,56 +468,174 @@ def edit_student_application(request, application_id):
         preferences_form = StudyPreferencesForm(instance=student_profile)
         emergency_form = EmergencyContactForm(instance=student_profile)
         supplemental_form = SupplementalProfileForm(instance=supplemental_profile)
+        offline_intake_form = OfflineIntakeEditForm(instance=offline_intake)
+
+    # Field lists for each section
+    PERSONAL_DETAILS_FIELDS = ['full_name', 'gender', 'date_of_birth', 'nationality', 'phone_number', 'place_of_birth', 'marital_status', 'native_language', 'profile_picture']
+    PERSONAL_PASSPORT_FIELDS = ['passport_number', 'passport_issue_date', 'passport_expiration_date']
+    SUPPLEMENTAL_PASSPORT_FIELDS = ['full_name_passport', 'residential_email', 'has_valid_visa', 'valid_visa_details']
+
+    EMERGENCY_CONTACT_FIELDS = [
+        'emergency_contact', 'emergency_relation', 'emergency_occupation',
+        'emergency_phone', 'emergency_email', 'emergency_alternative_phone',
+        'emergency_country', 'emergency_region', 'emergency_district', 'emergency_ward', 'emergency_street',
+        'emergency_region_post_code', 'emergency_district_post_code', 'emergency_ward_post_code',
+        'emergency_place_neighbourhood', 'emergency_house_no',
+        'emergency_relationship_status', 'emergency_remarks',
+    ]
+
+    POST_SECONDARY_FIELDS = [
+        'certificate_institution', 'certificate_field_of_study', 'certificate_start_year', 'certificate_completed_year', 'certificate_gpa',
+        'diploma_institution', 'diploma_field_of_study', 'diploma_start_year', 'diploma_completed_year', 'diploma_gpa',
+        'bachelor_institution', 'bachelor_field_of_study', 'bachelor_start_year', 'bachelor_completed_year', 'bachelor_gpa',
+        'master_institution', 'master_field_of_study', 'master_start_year', 'master_completed_year', 'master_gpa',
+        'phd_institution', 'phd_field_of_study', 'phd_start_year', 'phd_completed_year', 'phd_gpa',
+    ]
+
+    SUPPLEMENTAL_PROFQ_FIELDS = [
+        'professional_qualifications', 'professional_qualification_institution',
+        'professional_qualification_country', 'professional_qualification_region',
+        'professional_qualification_district', 'professional_qualification_ward',
+        'professional_qualification_street', 'professional_qualification_mtaa',
+        'professional_qualification_start_date', 'professional_qualification_completed_date',
+        'professional_qualification_certificate_awarded',
+    ]
+
+    WORK_EXPERIENCE_FIELDS = [
+        'work1_company_name', 'work1_position', 'work1_worked_from', 'work1_worked_to',
+        'work1_country', 'work1_region', 'work1_district', 'work1_ward', 'work1_street',
+        'work1_employment_type', 'work1_duties', 'work1_supervisor', 'work1_remarks',
+        'work2_company_name', 'work2_position', 'work2_worked_from', 'work2_worked_to',
+        'work2_country', 'work2_region', 'work2_district', 'work2_ward', 'work2_street',
+        'work2_employment_type', 'work2_duties', 'work2_supervisor', 'work2_remarks',
+    ]
+
+    OFFLINE_PROFQ_FIELDS = [
+        'profq1_title', 'profq1_institution', 'profq1_institution_address',
+        'profq1_country', 'profq1_period', 'profq1_start_date', 'profq1_finished_date', 'profq1_award_certificate',
+        'profq2_title', 'profq2_institution', 'profq2_institution_address',
+        'profq2_country', 'profq2_period', 'profq2_start_date', 'profq2_finished_date', 'profq2_award_certificate',
+        'profq3_title', 'profq3_institution', 'profq3_institution_address',
+        'profq3_country', 'profq3_period', 'profq3_start_date', 'profq3_finished_date', 'profq3_award_certificate',
+    ]
+
+    STUDY_PREFERENCES_SUPPLEMENTAL = ['program_level', 'preferred_intake', 'accommodation_preference']
+
+    STUDENT_ADDRESS_FIELDS = [
+        'permanent_country', 'permanent_region', 'permanent_district', 'permanent_ward',
+        'permanent_street', 'permanent_mtaa', 'permanent_house_no', 'permanent_address',
+        'current_country', 'current_region', 'current_district', 'current_ward',
+        'current_street', 'current_mtaa', 'current_house_no',
+        'current_city', 'current_postal_code', 'current_address',
+    ]
+
+    OTHER_DETAILS_FIELDS = [
+        'education_sponsor', 'estimated_budget_usd', 'scholarship_applied', 'scholarship_details',
+        'has_medical_condition', 'medical_condition_details', 'needs_special_assistance',
+        'special_assistance_details', 'english_test_name', 'english_test_institution',
+        'english_test_score', 'english_test_year', 'english_is_primary_language',
+    ]
+
+    DECLARATION_OFFLINE_FIELDS = ['declaration_applicant_name', 'declaration_date', 'declaration_signature_name', 'terms_accepted']
+
+    HOW_HEARD_FIELDS = ['heard_about_us', 'heard_about_other']
+
+    def bfields(form, field_list):
+        return [form[f] for f in field_list if f in form.fields]
 
     form_sections = [
         {
-            'key': 'personal',
+            'key': 'personal_details',
             'title': 'Personal Details',
-            'description': 'Update the student personal profile information.',
-            'bound_fields': [personal_form[field_name] for field_name in personal_form.fields],
+            'description': 'Update personal information and passport details.',
+            'bound_fields': bfields(personal_form, PERSONAL_DETAILS_FIELDS)
+                + bfields(personal_form, PERSONAL_PASSPORT_FIELDS)
+                + bfields(supplemental_form, SUPPLEMENTAL_PASSPORT_FIELDS),
         },
         {
             'key': 'parents',
-            'title': 'Parents Details',
-            'description': 'Update the family contact details.',
-            'bound_fields': [parents_form[field_name] for field_name in parents_form.fields],
+            'title': "Parents' Details",
+            'description': "Update parents'/guardians contact information (including address and post code).",
+            'bound_fields': bfields(parents_form, parents_form.fields),
         },
         {
-            'key': 'academic',
-            'title': 'Academic Qualifications',
-            'description': 'Edit O-Level and A-Level history.',
-            'bound_fields': [academic_form[field_name] for field_name in academic_form.fields],
+            'key': 'emergency_contact',
+            'title': 'Emergency Contact Details',
+            'description': 'Update emergency contact information with full address.',
+            'bound_fields': bfields(emergency_form, EMERGENCY_CONTACT_FIELDS),
         },
         {
-            'key': 'preferences',
+            'key': 'education_background',
+            'title': 'Education Background',
+            'description': 'Update A-Level, O-Level, and post-secondary / higher education.',
+            'bound_fields': bfields(academic_form, academic_form.fields)
+                + bfields(supplemental_form, POST_SECONDARY_FIELDS),
+        },
+        {
+            'key': 'professional_qualifications',
+            'title': 'Professional Qualifications / Training',
+            'description': 'Update professional qualifications, training, and English proficiency.',
+            'bound_fields': bfields(supplemental_form, SUPPLEMENTAL_PROFQ_FIELDS)
+                + bfields(offline_intake_form, OFFLINE_PROFQ_FIELDS)
+                + [supplemental_form['english_test_name'], supplemental_form['english_test_institution'],
+                   supplemental_form['english_test_score'], supplemental_form['english_test_year'],
+                   supplemental_form['english_is_primary_language']],
+        },
+        {
+            'key': 'employment_history',
+            'title': 'Employment History / Work Experience',
+            'description': 'Update work experience records.',
+            'bound_fields': bfields(offline_intake_form, WORK_EXPERIENCE_FIELDS),
+        },
+        {
+            'key': 'study_preferences',
             'title': 'Study Preferences',
-            'description': 'Update preferred countries and programs.',
-            'bound_fields': [preferences_form[field_name] for field_name in preferences_form.fields],
+            'description': 'Update preferred intakes, programs, accommodation, and sponsorship.',
+            'bound_fields': bfields(preferences_form, preferences_form.fields)
+                + bfields(supplemental_form, STUDY_PREFERENCES_SUPPLEMENTAL),
         },
         {
-            'key': 'emergency',
-            'title': 'Emergency Contact',
-            'description': 'Maintain emergency and referral details.',
-            'bound_fields': [emergency_form[field_name] for field_name in emergency_form.fields],
+            'key': 'student_address',
+            'title': 'Student Address',
+            'description': 'Update permanent and current address details (supplemental).',
+            'bound_fields': bfields(supplemental_form, STUDENT_ADDRESS_FIELDS),
         },
         {
-            'key': 'supplemental',
-            'title': 'AWEC Supplemental Details',
-            'description': 'Edit passport, education, finance, and declaration data.',
-            'bound_fields': [supplemental_form[field_name] for field_name in supplemental_form.fields],
+            'key': 'other_details',
+            'title': 'Other Details',
+            'description': 'Update visa, scholarship, medical, and English proficiency info.',
+            'bound_fields': bfields(supplemental_form, OTHER_DETAILS_FIELDS),
+        },
+        {
+            'key': 'how_heard',
+            'title': 'How Did You Hear About Us',
+            'description': 'Update referral source information.',
+            'bound_fields': bfields(emergency_form, HOW_HEARD_FIELDS),
+        },
+        {
+            'key': 'declaration',
+            'title': 'Declaration by Applicant',
+            'description': 'Update declaration, applicant name, date, and terms acceptance.',
+            'bound_fields': [supplemental_form['declaration_agreed']] + bfields(offline_intake_form, DECLARATION_OFFLINE_FIELDS),
         },
     ]
 
     full_width_fields = {
-        'address',
-        'current_address',
-        'permanent_address',
-        'valid_visa_details',
         'professional_qualifications',
         'scholarship_details',
         'medical_condition_details',
         'special_assistance_details',
         'other_attachments_description',
+        'valid_visa_details',
+        'current_address',
+        'permanent_address',
+        'profq1_institution_address',
+        'profq2_institution_address',
+        'profq3_institution_address',
+        'work1_duties',
+        'work1_remarks',
+        'work2_duties',
+        'work2_remarks',
         'description',
         'responsibilities',
         'achievements',
@@ -499,12 +648,7 @@ def edit_student_application(request, application_id):
             'application': application,
             'form_sections': form_sections,
             'core_form': core_form,
-            'personal_form': personal_form,
-            'parents_form': parents_form,
-            'academic_form': academic_form,
-            'preferences_form': preferences_form,
-            'emergency_form': emergency_form,
-            'supplemental_form': supplemental_form,
+            'offline_intake_form': offline_intake_form,
             'full_width_fields': full_width_fields,
         },
     )

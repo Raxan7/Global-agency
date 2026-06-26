@@ -4,6 +4,8 @@ from django.core.cache import cache
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django import forms
+from django.forms import modelform_factory
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
@@ -12,7 +14,7 @@ from django.conf import settings
 from django.utils import timezone
 import json
 from datetime import datetime
-from .models import StudentProfile, Application, Document, Message, Payment, WorkExperience
+from .models import StudentProfile, Application, ApplicationSupplementalProfile, Document, Message, Payment, WorkExperience
 from .forms import (StudentProfileForm, DocumentForm, ApplicationForm, 
                     PersonalDetailsForm, ParentsDetailsForm, AcademicQualificationsForm,
                     StudyPreferencesForm, EmergencyContactForm, WorkExperienceForm)
@@ -129,6 +131,92 @@ def student_profile(request):
     response['Expires'] = '0'
     return response
 
+# ---------------------------------------------------------------------------
+# Helper – get/create an Application + SupplementalProfile for the student
+# ---------------------------------------------------------------------------
+HIGHER_ED_FIELDS = [
+    'certificate_institution', 'certificate_field_of_study',
+    'certificate_start_year', 'certificate_completed_year', 'certificate_gpa',
+    'diploma_institution', 'diploma_field_of_study',
+    'diploma_start_year', 'diploma_completed_year', 'diploma_gpa',
+    'bachelor_institution', 'bachelor_field_of_study',
+    'bachelor_start_year', 'bachelor_completed_year', 'bachelor_gpa',
+    'master_institution', 'master_field_of_study',
+    'master_start_year', 'master_completed_year', 'master_gpa',
+    'phd_institution', 'phd_field_of_study',
+    'phd_start_year', 'phd_completed_year', 'phd_gpa',
+    'professional_qualifications',
+    'english_test_name', 'english_test_institution',
+    'english_test_score', 'english_test_year',
+    'english_is_primary_language',
+]
+
+OTHER_DETAILS_FIELDS = [
+    'has_valid_visa', 'valid_visa_details',
+    'program_level', 'accommodation_preference',
+    'education_sponsor', 'estimated_budget_usd',
+    'scholarship_applied', 'scholarship_details',
+    'has_medical_condition', 'medical_condition_details',
+    'needs_special_assistance', 'special_assistance_details',
+    'declaration_agreed',
+]
+
+
+def _get_or_create_supplemental_application(user):
+    """Get an existing pending Application or create a new draft one.
+    Returns (application, supplemental_profile, created)."""
+    application = Application.objects.filter(
+        student=user, status='pending_payment'
+    ).first()
+    created = False
+    if not application:
+        application = Application(
+            student=user,
+            status='pending_payment',
+            payment_amount=5000
+        )
+        application.save()
+        created = True
+    supplemental, _ = ApplicationSupplementalProfile.objects.get_or_create(
+        application=application
+    )
+    return application, supplemental, created
+
+
+def _supplemental_widget_overrides(field_names):
+    """Return a dict of widget overrides for the given supplemental field names."""
+    widgets = {}
+    for fname in field_names:
+        if fname in ('passport_issue_date', 'passport_expiration_date',
+                      'professional_qualification_start_date',
+                      'professional_qualification_completed_date'):
+            widgets[fname] = forms.DateInput(attrs={'class': 'form-input', 'type': 'date'})
+        elif fname.endswith('_details') or fname in (
+            'professional_qualifications', 'valid_visa_details',
+            'education_sponsor', 'estimated_budget_usd',
+            'scholarship_details', 'medical_condition_details',
+            'special_assistance_details', 'other_attachments_description',
+        ):
+            widgets[fname] = forms.Textarea(attrs={'class': 'form-input', 'rows': 3})
+        elif fname in ('english_is_primary_language', 'has_valid_visa',
+                       'scholarship_applied', 'has_medical_condition',
+                       'needs_special_assistance', 'declaration_agreed'):
+            widgets[fname] = forms.Select(attrs={'class': 'form-input'}, choices=[
+                ('', '---------'), (True, 'Yes'), (False, 'No'),
+            ])
+        elif fname in ('program_level', 'accommodation_preference', 'preferred_intake',
+                       'english_test_name'):
+            pass  
+        elif fname.endswith('_start_year') or fname.endswith('_completed_year'):
+            widgets[fname] = forms.NumberInput(attrs={
+                'class': 'form-input', 'min': 1900, 'max': 2100,
+                'placeholder': 'e.g. 2020',
+            })
+        else:
+            widgets[fname] = forms.TextInput(attrs={'class': 'form-input'})
+    return widgets
+
+
 # Profile Section Views
 @login_required
 @csrf_protect
@@ -181,20 +269,35 @@ def parents_details(request):
 def academic_qualifications(request):
     """Academic qualifications form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
-    
+
+    application, supplemental, _ = _get_or_create_supplemental_application(request.user)
+
+    HigherEdForm = modelform_factory(
+        ApplicationSupplementalProfile,
+        fields=HIGHER_ED_FIELDS,
+        widgets=_supplemental_widget_overrides(HIGHER_ED_FIELDS),
+    )
+
     if request.method == 'POST':
         form = AcademicQualificationsForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
+        supplemental_form = HigherEdForm(request.POST, instance=supplemental)
+        if form.is_valid() and supplemental_form.is_valid():
+            with transaction.atomic():
+                form.save()
+                sup = supplemental_form.save(commit=False)
+                sup.application = application
+                sup.save()
             messages.success(request, 'Academic qualifications saved successfully!')
             return redirect('student_portal:study_preferences')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = AcademicQualificationsForm(instance=profile)
-    
+        supplemental_form = HigherEdForm(instance=supplemental)
+
     context = {
         'form': form,
+        'supplemental_form': supplemental_form,
         'profile_completion': profile.get_completion_percentage(),
     }
     return render(request, 'student_portal/academic_qualifications.html', context)
@@ -227,20 +330,35 @@ def study_preferences(request):
 def emergency_contact(request):
     """Emergency contact form view"""
     profile, created = StudentProfile.objects.get_or_create(user=request.user)
-    
+
+    application, supplemental, _ = _get_or_create_supplemental_application(request.user)
+
+    OtherDetailsForm = modelform_factory(
+        ApplicationSupplementalProfile,
+        fields=OTHER_DETAILS_FIELDS,
+        widgets=_supplemental_widget_overrides(OTHER_DETAILS_FIELDS),
+    )
+
     if request.method == 'POST':
         form = EmergencyContactForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
+        supplemental_form = OtherDetailsForm(request.POST, instance=supplemental)
+        if form.is_valid() and supplemental_form.is_valid():
+            with transaction.atomic():
+                form.save()
+                sup = supplemental_form.save(commit=False)
+                sup.application = application
+                sup.save()
             messages.success(request, 'Emergency contact information saved successfully! Your profile is now complete.')
             return redirect('student_portal:dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = EmergencyContactForm(instance=profile)
-    
+        supplemental_form = OtherDetailsForm(instance=supplemental)
+
     context = {
         'form': form,
+        'supplemental_form': supplemental_form,
         'profile_completion': profile.get_completion_percentage(),
     }
     return render(request, 'student_portal/emergency_contact.html', context)
@@ -399,34 +517,47 @@ def application_detail(request, application_id):
 @csrf_protect
 def create_application(request):
     """Create application view"""
-    # Ensure student profile exists
     StudentProfile.objects.get_or_create(user=request.user)
-    
+
+    application, supplemental, _ = _get_or_create_supplemental_application(request.user)
+
+    ALL_SUPPLEMENTAL_FIELDS = list(set(HIGHER_ED_FIELDS + OTHER_DETAILS_FIELDS))
+    SupplementalForm = modelform_factory(
+        ApplicationSupplementalProfile,
+        fields=ALL_SUPPLEMENTAL_FIELDS,
+        widgets=_supplemental_widget_overrides(ALL_SUPPLEMENTAL_FIELDS),
+    )
+
     if request.method == 'POST':
         form = ApplicationForm(request.POST)
-        if form.is_valid():
+        supplemental_form = SupplementalForm(request.POST, instance=supplemental)
+        if form.is_valid() and supplemental_form.is_valid():
             try:
-                application = form.save(commit=False)
-                application.student = request.user
-                application.status = 'pending_payment'
-                application.payment_amount = 5000  # Set payment amount
-                application.save()
-            
+                with transaction.atomic():
+                    form.save(commit=False)
+                    application.student = request.user
+                    application.status = 'pending_payment'
+                    application.payment_amount = 5000
+                    application.save()
+
+                    sup = supplemental_form.save(commit=False)
+                    sup.application = application
+                    sup.save()
+
                 return redirect('student_portal:payment', application_id=application.id)
-                
+
             except Exception as e:
                 messages.error(request, f'Error creating application: {str(e)}')
         else:
-            # Form is invalid - display errors
             error_messages = []
-            for field, errors in form.errors.items():
-                for error in errors:
-                    if field == '__all__':
-                        error_messages.append(error)
-                    else:
-                        field_name = form.fields[field].label if field in form.fields else field
-                        error_messages.append(f"{field_name}: {error}")
-            
+            for form_obj in [form, supplemental_form]:
+                for field, errors in form_obj.errors.items():
+                    for error in errors:
+                        if field == '__all__':
+                            error_messages.append(error)
+                        else:
+                            field_name = form_obj.fields[field].label if field in form_obj.fields else field
+                            error_messages.append(f"{field_name}: {error}")
             if error_messages:
                 messages.error(request, 'Please correct the following errors:')
                 for error_msg in error_messages:
@@ -435,9 +566,14 @@ def create_application(request):
                 messages.error(request, 'Please correct the errors below.')
     else:
         form = ApplicationForm()
-    
-    # Add cache control
-    response = render(request, 'student_portal/create_application.html', {'form': form})
+        supplemental_form = SupplementalForm(instance=supplemental)
+
+    context = {
+        'form': form,
+        'supplemental_form': supplemental_form,
+        'application': application,
+    }
+    response = render(request, 'student_portal/create_application.html', context)
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'

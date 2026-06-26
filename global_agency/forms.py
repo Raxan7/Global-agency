@@ -264,4 +264,323 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Please specify'
             }),
+
+            # Personal Details - additional fields
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'place_of_birth': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Place of birth'
+            }),
+            'native_language': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Swahili'
+            }),
+            'marital_status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+
+            # Parents Details - additional fields
+            'father_place_neighbourhood': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Place/Neighbourhood'
+            }),
+            'father_status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'father_relationship': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Relationship with applicant'
+            }),
+            'mother_place_neighbourhood': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Place/Neighbourhood'
+            }),
+            'mother_status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'mother_relationship': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Relationship with applicant'
+            }),
+
+            # Study Preferences
+            'preferred_intake': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., September 2026'
+            }),
+
+            # Declaration
+            'declaration_applicant_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Full name of applicant'
+            }),
+            'declaration_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'declaration_signature_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Type your full name as signature'
+            }),
+            'terms_accepted': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox'
+            }),
+
+            # Office Use
+            'office_director_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': "Director's name"
+            }),
+            'office_approval_status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'office_reason': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Reason/Notes'
+            }),
+
+            # Work Experience 1
+            'work1_company_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Company name'
+            }),
+            'work1_position': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Position held'
+            }),
+            'work1_worked_from': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'work1_worked_to': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'work1_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
+            'work1_region': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Region'
+            }),
+            'work1_region_post_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Post code'
+            }),
+            'work1_district': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'District'
+            }),
+            'work1_district_post_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Post code'
+            }),
+            'work1_ward': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ward'
+            }),
+            'work1_ward_post_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Post code'
+            }),
+            'work1_street': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Street'
+            }),
+            'work1_employment_type': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Full-time, Part-time'
+            }),
+            'work1_duties': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe your duties'
+            }),
+            'work1_supervisor': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': "Supervisor's name"
+            }),
+            'work1_remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Remarks'
+            }),
+
+            # Work Experience 2
+            'work2_company_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Company name'
+            }),
+            'work2_position': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Position held'
+            }),
+            'work2_worked_from': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'work2_worked_to': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'work2_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
+            'work2_region': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Region'
+            }),
+            'work2_region_post_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Post code'
+            }),
+            'work2_district': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'District'
+            }),
+            'work2_district_post_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Post code'
+            }),
+            'work2_ward': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ward'
+            }),
+            'work2_ward_post_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Post code'
+            }),
+            'work2_street': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Street'
+            }),
+            'work2_employment_type': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Full-time, Part-time'
+            }),
+            'work2_duties': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe your duties'
+            }),
+            'work2_supervisor': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': "Supervisor's name"
+            }),
+            'work2_remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Remarks'
+            }),
+
+            # Professional Qualification 1
+            'profq1_title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Qualification title'
+            }),
+            'profq1_institution': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Institution name'
+            }),
+            'profq1_institution_address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Institution address'
+            }),
+            'profq1_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
+            'profq1_period': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 3 years'
+            }),
+            'profq1_start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'profq1_finished_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'profq1_award_certificate': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Award/Certificate no.'
+            }),
+
+            # Professional Qualification 2
+            'profq2_title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Qualification title'
+            }),
+            'profq2_institution': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Institution name'
+            }),
+            'profq2_institution_address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Institution address'
+            }),
+            'profq2_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
+            'profq2_period': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 2 years'
+            }),
+            'profq2_start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'profq2_finished_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'profq2_award_certificate': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Award/Certificate no.'
+            }),
+
+            # Professional Qualification 3
+            'profq3_title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Qualification title'
+            }),
+            'profq3_institution': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Institution name'
+            }),
+            'profq3_institution_address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Institution address'
+            }),
+            'profq3_country': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Country'
+            }),
+            'profq3_period': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 1 year'
+            }),
+            'profq3_start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'profq3_finished_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'profq3_award_certificate': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Award/Certificate no.'
+            }),
         }

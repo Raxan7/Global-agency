@@ -5,285 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Application - Student Portal</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            line-height: 1.6;
-        }
-        .header {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-        }
-        .header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .nav-menu {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin: 0.5rem 0;
-        }
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-            font-size: 0.9rem;
-        }
-        .nav-menu a:hover {
-            background-color: rgba(255,255,255,0.2);
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin: 0.5rem 0;
-            font-size: 0.9rem;
-        }
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        .form-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-weight: bold;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 0.65rem;
-        }
-        .btn-primary {
-            background: #007bff;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-        }
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        .application-type-info {
-            background: #e7f3ff;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid #007bff;
-        }
-        .required-field::after {
-            content: " *";
-            color: #dc3545;
-        }
-        .hidden {
-            display: none;
-        }
-        .payment-notice {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            border-left: 4px solid #fdcb6e;
-        }
-        .payment-notice h4 {
-            color: #856404;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .payment-notice p {
-            color: #856404;
-            margin: 0;
-        }
-        .payment-amount {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #e17055;
-            margin: 0.5rem 0;
-        }
-        .error-messages {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid #dc3545;
-        }
-        .error-messages ul {
-            margin: 0.5rem 0 0 1.5rem;
-        }
-        .error-messages li {
-            margin-bottom: 0.25rem;
-        }
-        
-        /* Mobile-specific styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f8f9fa; line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex-wrap: wrap; }
+        .header h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .nav-menu { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0; }
+        .nav-menu a { color: white; text-decoration: none; padding: 0.5rem; border-radius: 4px; transition: background-color 0.3s; font-size: 0.9rem; }
+        .nav-menu a:hover { background-color: rgba(255,255,255,0.2); }
+        .user-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0; font-size: 0.9rem; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .form-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: bold; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>"); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 0.65rem; }
+        .btn-primary { background: #007bff; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: background-color 0.3s; width: 100%; margin-bottom: 1rem; }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-secondary { background: #6c757d; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; border: none; cursor: pointer; display: inline-block; width: 100%; text-align: center; }
+        .btn-secondary:hover { background: #545b62; }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .payment-notice { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1.5rem; margin: 2rem 0; border-left: 4px solid #fdcb6e; }
+        .payment-notice h4 { color: #856404; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .payment-notice p { color: #856404; margin: 0; }
+        .payment-amount { font-size: 1.2rem; font-weight: bold; color: #e17055; margin: 0.5rem 0; }
+        .error-messages { background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #dc3545; }
+        .error-messages ul { margin: 0.5rem 0 0 1.5rem; }
+        .error-messages li { margin-bottom: 0.25rem; }
+        .field-errors { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; }
+        .success-message { background: #d1edff; color: #0c5460; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #007bff; }
+        .btn-logout { background: #dc3545; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; margin-left: 1rem; display: inline-block; }
+        .button-group { margin-top: 2rem; }
+        .section-title { font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; }
+        .sub-section { margin-bottom: 1rem; border-bottom: 1px solid #f3f4f6; padding-bottom: 1rem; }
+        .sub-title { font-weight: 600; color: #374151; margin-bottom: 0.75rem; }
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 1rem;
-            }
-            .header h1 {
-                font-size: 1.25rem;
-            }
-            .nav-menu {
-                width: 100%;
-                justify-content: space-between;
-                margin: 0.5rem 0;
-            }
-            .nav-menu a {
-                padding: 0.5rem;
-                font-size: 0.9rem;
-            }
-            .user-info {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .container {
-                margin: 1rem auto;
-                padding: 0 0.5rem;
-            }
-            .form-card {
-                padding: 1rem;
-            }
-            .payment-notice {
-                padding: 1rem;
-            }
+            .header { flex-direction: column; align-items: flex-start; padding: 1rem; }
+            .header h1 { font-size: 1.25rem; }
+            .nav-menu { width: 100%; justify-content: space-between; margin: 0.5rem 0; }
+            .nav-menu a { padding: 0.5rem; font-size: 0.9rem; }
+            .user-info { width: 100%; justify-content: space-between; }
+            .container { margin: 1rem auto; padding: 0 0.5rem; }
+            .form-card { padding: 1rem; }
+            .payment-notice { padding: 1rem; }
         }
-        
         @media (max-width: 480px) {
-            .nav-menu {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            .nav-menu a {
-                width: 100%;
-                text-align: center;
-            }
-            .user-info {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            .btn-logout {
-                width: 100%;
-                text-align: center;
-                margin-left: 0 !important;
-                margin-top: 0.5rem;
-            }
+            .nav-menu { flex-direction: column; gap: 0.5rem; }
+            .nav-menu a { width: 100%; text-align: center; }
+            .user-info { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .btn-logout { width: 100%; text-align: center; margin-left: 0 !important; margin-top: 0.5rem; }
         }
-        
         @media (min-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr 1fr;
-            }
-            .btn-primary {
-                width: auto;
-                margin-bottom: 0;
-            }
-            .btn-secondary {
-                width: auto;
-            }
-            .button-group {
-                display: flex;
-                gap: 1rem;
-            }
-        }
-        
-        .btn-logout {
-            background: #dc3545;
-            color: white;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-left: 1rem;
-            display: inline-block;
-        }
-        
-        .button-group {
-            margin-top: 2rem;
-        }
-        
-        .field-errors {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        .success-message {
-            background: #d1edff;
-            color: #0c5460;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid #007bff;
+            .form-row { grid-template-columns: 1fr 1fr; }
+            .btn-primary { width: auto; margin-bottom: 0; }
+            .btn-secondary { width: auto; }
+            .button-group { display: flex; gap: 1rem; }
         }
     </style>
 </head>
@@ -307,21 +83,22 @@
         <div class="form-card">
             <h2 style="margin-bottom: 2rem; color: #333;">Create New Application</h2>
 
-            <!-- Display Django messages -->
             {% if messages %}
                 {% for message in messages %}
-                    <div class="{% if message.tags == 'success' %}success-message{% else %}error-messages{% endif %}">
-                        {{ message }}
-                    </div>
+                    <div class="{% if message.tags == 'success' %}success-message{% else %}error-messages{% endif %}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
 
-            <!-- Display form errors -->
-            {% if form.errors %}
+            {% if form.errors or supplemental_form.errors %}
                 <div class="error-messages">
                     <strong>Please fix the following errors:</strong>
                     <ul>
                         {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for field in supplemental_form %}
                             {% for error in field.errors %}
                                 <li><strong>{{ field.label }}:</strong> {{ error }}</li>
                             {% endfor %}
@@ -335,17 +112,103 @@
 
             <form method="post" id="application-form">
                 {% csrf_token %}
-                
+                {% with s=supplemental_form %}
 
+                <div style="margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
+                    <h3 class="section-title"><i class="fas fa-user-graduate"></i> Post-Secondary / Higher Education</h3>
 
+                    <div class="sub-section">
+                        <h4 class="sub-title">Certificate</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Institution</label>{{ s.certificate_institution }}</div>
+                            <div class="form-group"><label>Field of Study</label>{{ s.certificate_field_of_study }}</div>
+                            <div class="form-group"><label>Start Year</label>{{ s.certificate_start_year }}</div>
+                            <div class="form-group"><label>Year Completed</label>{{ s.certificate_completed_year }}</div>
+                            <div class="form-group"><label>GPA</label>{{ s.certificate_gpa }}</div>
+                        </div>
+                    </div>
 
+                    <div class="sub-section">
+                        <h4 class="sub-title">Diploma</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Institution</label>{{ s.diploma_institution }}</div>
+                            <div class="form-group"><label>Field of Study</label>{{ s.diploma_field_of_study }}</div>
+                            <div class="form-group"><label>Start Year</label>{{ s.diploma_start_year }}</div>
+                            <div class="form-group"><label>Year Completed</label>{{ s.diploma_completed_year }}</div>
+                            <div class="form-group"><label>GPA</label>{{ s.diploma_gpa }}</div>
+                        </div>
+                    </div>
 
-                <!-- PAYMENT NOTICE SECTION -->
+                    <div class="sub-section">
+                        <h4 class="sub-title">Bachelor Degree</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Institution</label>{{ s.bachelor_institution }}</div>
+                            <div class="form-group"><label>Field of Study</label>{{ s.bachelor_field_of_study }}</div>
+                            <div class="form-group"><label>Start Year</label>{{ s.bachelor_start_year }}</div>
+                            <div class="form-group"><label>Year Completed</label>{{ s.bachelor_completed_year }}</div>
+                            <div class="form-group"><label>GPA</label>{{ s.bachelor_gpa }}</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h4 class="sub-title">Master Degree</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Institution</label>{{ s.master_institution }}</div>
+                            <div class="form-group"><label>Field of Study</label>{{ s.master_field_of_study }}</div>
+                            <div class="form-group"><label>Start Year</label>{{ s.master_start_year }}</div>
+                            <div class="form-group"><label>Year Completed</label>{{ s.master_completed_year }}</div>
+                            <div class="form-group"><label>GPA</label>{{ s.master_gpa }}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="sub-title">PhD</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Institution</label>{{ s.phd_institution }}</div>
+                            <div class="form-group"><label>Field of Study</label>{{ s.phd_field_of_study }}</div>
+                            <div class="form-group"><label>Start Year</label>{{ s.phd_start_year }}</div>
+                            <div class="form-group"><label>Year Completed</label>{{ s.phd_completed_year }}</div>
+                            <div class="form-group"><label>GPA</label>{{ s.phd_gpa }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
+                    <h3 class="section-title"><i class="fas fa-clipboard-list"></i> Other Details</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Program Level</label>{{ s.program_level }}</div>
+                        <div class="form-group"><label>Accommodation Preference</label>{{ s.accommodation_preference }}</div>
+                        <div class="form-group"><label>Education Sponsor</label>{{ s.education_sponsor }}</div>
+                        <div class="form-group"><label>Estimated Budget (USD)</label>{{ s.estimated_budget_usd }}</div>
+                        <div class="form-group"><label>Has Valid Visa?</label>{{ s.has_valid_visa }}</div>
+                        <div class="form-group"><label>Valid Visa Details</label>{{ s.valid_visa_details }}</div>
+                        <div class="form-group"><label>Scholarship Applied?</label>{{ s.scholarship_applied }}</div>
+                        <div class="form-group"><label>Scholarship Details</label>{{ s.scholarship_details }}</div>
+                        <div class="form-group"><label>Has Medical Condition?</label>{{ s.has_medical_condition }}</div>
+                        <div class="form-group"><label>Medical Condition Details</label>{{ s.medical_condition_details }}</div>
+                        <div class="form-group"><label>Needs Special Assistance?</label>{{ s.needs_special_assistance }}</div>
+                        <div class="form-group"><label>Special Assistance Details</label>{{ s.special_assistance_details }}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
+                    <h3 class="section-title"><i class="fas fa-file-signature"></i> Declaration</h3>
+                    <div class="form-group" style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                        <div style="margin-top: 0.25rem;">{{ s.declaration_agreed }}</div>
+                        <div>
+                            <label style="font-size: 0.875rem; color: #374151; cursor: pointer;">
+                                I declare that the information provided above is true, complete, and accurate to the best of my knowledge. I understand that any false statements may result in the rejection of my application.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {% endwith %}
+
                 <div class="payment-notice">
                     <h4><i class="fas fa-money-bill-wave"></i> Payment Required</h4>
                     <div class="payment-amount">Service Charge: TZS 5,000</div>
-                    <p><strong>Important:</strong> A service charge of <strong>TZS 5,000</strong> is required to submit your application. 
-                    After filling this form, you will be redirected to the payment page. Your application will only be processed after successful payment.</p>
+                    <p><strong>Important:</strong> A service charge of <strong>TZS 5,000</strong> is required to submit your application. After filling this form, you will be redirected to the payment page. Your application will only be processed after successful payment.</p>
                     <p style="margin-top: 0.5rem;"><strong>No payment = No application submission</strong></p>
                 </div>
 
@@ -356,7 +219,6 @@
             </form>
         </div>
     </div>
-
 
 </body>
 </html>

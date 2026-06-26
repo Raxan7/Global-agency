@@ -15,7 +15,7 @@
       padding: 0; 
     }
     .container { 
-      max-width: 650px; 
+      max-width: 720px; 
       margin: 1rem auto; 
       padding: 1.25rem; 
       background: #ffffff; 
@@ -42,6 +42,15 @@
       font-size: 1rem;
       font-weight: 600;
     }
+    .subsection-title {
+      color: #1a56db;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
     .step { 
       display: none; 
       animation: fadeIn 0.3s ease-in;
@@ -62,8 +71,14 @@
       gap: 1.25rem;
       margin-bottom: 1.25rem;
     }
+    .field-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
     @media (max-width: 768px) {
-      .field-row {
+      .field-row, .field-row-3 {
         grid-template-columns: 1fr;
       }
     }
@@ -137,6 +152,7 @@
       justify-content: center; 
       gap: 10px; 
       margin-bottom: 2rem; 
+      flex-wrap: wrap;
     }
     .dot { 
       width: 12px; 
@@ -150,6 +166,9 @@
       background: #1a56db;
       transform: scale(1.3);
       box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.2);
+    }
+    .dot.completed {
+      background: #059669;
     }
     .errorlist { 
       color: #dc2626; 
@@ -215,15 +234,55 @@
     }
     .declaration-box label {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       font-weight: 500;
       cursor: pointer;
     }
     .declaration-box input[type="checkbox"] {
       width: auto;
       margin-right: 0.75rem;
+      margin-top: 0.25rem;
       cursor: pointer;
       transform: scale(1.2);
+    }
+    .declaration-text {
+      background: #f9fafb;
+      padding: 1.25rem;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: #374151;
+    }
+    .terms-text {
+      background: #f9fafb;
+      padding: 1.25rem;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #374151;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin-top: 0.25rem;
+      cursor: pointer;
+      transform: scale(1.2);
+    }
+    .checkbox-group label {
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 0;
     }
   </style>
 </head>
@@ -232,15 +291,12 @@
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{% url 'global_agency:home' %}" class="flex items-center space-x-2">
                         <i class="fas fa-graduation-cap text-green-600 text-2xl"></i>
                         <span class="text-xl font-bold text-gray-900">Africa Western Education</span>
                     </a>
                 </div>
-
-                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{% url 'global_agency:home' %}" class="text-gray-700 hover:text-green-600 font-medium transition duration-300">Home</a>
                     <a href="{% url 'global_agency:tcu_services' %}" class="text-gray-700 hover:text-green-600 font-medium transition duration-300">TCU Services</a>
@@ -249,8 +305,6 @@
                     <a href="{% url 'global_agency:register' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition duration-300">Apply Now</a>
                     <a href="{% url 'global_agency:contact' %}" class="text-gray-700 hover:text-green-600 font-medium transition duration-300">Contact</a>
                 </div>
-
-                <!-- Mobile menu button -->
                 <div class="md:hidden">
                     <button type="button" class="text-gray-700 hover:text-green-600 focus:outline-none focus:text-green-600">
                         <i class="fas fa-bars text-xl"></i>
@@ -258,8 +312,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Menu -->
         <div class="md:hidden hidden bg-white border-t">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="{% url 'global_agency:home' %}" class="block px-3 py-2 text-gray-700 hover:text-green-600 font-medium">Home</a>
@@ -274,7 +326,7 @@
 
   <div class="container">
     <h2>Study Abroad Application</h2>
-    <p class="form-subtitle">Complete your application in 6 simple steps</p>
+    <p class="form-subtitle">Complete your application form</p>
 
     {% if messages %}
       <div class="messages">
@@ -291,22 +343,28 @@
       <span class="dot"></span>
       <span class="dot"></span>
       <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
     </div>
 
     <form method="post" enctype="multipart/form-data" id="applicationForm">
       {% csrf_token %}
       {{ form.non_field_errors }}
 
-      <!-- Step 1: Personal -->
+      <!-- Step 1: Personal Details -->
       <div class="step active" id="step-1">
-        <h3>Personal Information</h3>
-        
+        <h3>Personal Details</h3>
+
         <div class="field-group">
           {{ form.full_name.errors }}
           <label for="{{ form.full_name.id_for_label }}" class="required">Full Name</label>
           {{ form.full_name }}
-          <div class="field-error" id="full_name_error">Please enter a valid full name (letters and spaces only)</div>
-          <div class="field-valid" id="full_name_valid">Full name is valid</div>
+          <div class="field-error" id="full_name_error">Please enter a valid full name</div>
+          <div class="field-valid" id="full_name_valid">Valid</div>
         </div>
 
         <div class="field-row">
@@ -316,16 +374,40 @@
             {{ form.gender }}
             <div class="field-error" id="gender_error">Please select a gender</div>
           </div>
+          <div class="field-group">
+            {{ form.date_of_birth.errors }}
+            <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+            {{ form.date_of_birth }}
+            <div class="field-error" id="date_of_birth_error">Please enter a valid date</div>
+          </div>
+        </div>
 
+        <div class="field-group">
+          {{ form.place_of_birth.errors }}
+          <label for="{{ form.place_of_birth.id_for_label }}">Place of Birth</label>
+          {{ form.place_of_birth }}
+        </div>
+
+        <div class="field-row">
           <div class="field-group">
             {{ form.nationality.errors }}
             <label for="{{ form.nationality.id_for_label }}" class="required">Nationality</label>
             {{ form.nationality }}
             <div class="field-error" id="nationality_error">Please select a nationality</div>
           </div>
+          <div class="field-group">
+            {{ form.native_language.errors }}
+            <label for="{{ form.native_language.id_for_label }}">Native Language</label>
+            {{ form.native_language }}
+          </div>
         </div>
 
         <div class="field-row">
+          <div class="field-group">
+            {{ form.marital_status.errors }}
+            <label for="{{ form.marital_status.id_for_label }}">Marital Status</label>
+            {{ form.marital_status }}
+          </div>
           <div class="field-group">
             {{ form.email.errors }}
             <label for="{{ form.email.id_for_label }}" class="required">Email Address</label>
@@ -334,291 +416,873 @@
             <div class="field-error" id="email_error">Please enter a valid email address</div>
             <div class="field-valid" id="email_valid">Email is valid</div>
           </div>
-
-          <div class="field-group">
-            {{ form.phone.errors }}
-            <label for="{{ form.phone.id_for_label }}" class="required">Phone Number</label>
-            {{ form.phone }}
-            <div class="field-hint">Format: 10-15 digits (e.g., 255712345678)</div>
-            <div class="field-error" id="phone_error">Please enter a valid phone number (digits only, 10-15 digits)</div>
-            <div class="field-valid" id="phone_valid">Phone number is valid</div>
-          </div>
         </div>
 
+        <div class="field-group">
+          {{ form.phone.errors }}
+          <label for="{{ form.phone.id_for_label }}" class="required">Phone Number</label>
+          {{ form.phone }}
+          <div class="field-hint">Format: 10-15 digits (e.g., 255712345678)</div>
+          <div class="field-error" id="phone_error">Please enter a valid phone number</div>
+          <div class="field-valid" id="phone_valid">Phone number is valid</div>
+        </div>
       </div>
 
-      <!-- Step 2: Parents -->
+      <!-- Step 2: Parents Details -->
       <div class="step" id="step-2">
         <h3>Parents Details</h3>
-        
-        <div class="field-row">
-          <div class="field-group">
-            <label for="{{ form.father_name.id_for_label }}">Father's Name</label>
-            {{ form.father_name }}
-            <div class="field-error" id="father_name_error">Please enter a valid name (letters and spaces only)</div>
-            <div class="field-valid" id="father_name_valid">Name is valid</div>
-          </div>
 
-          <div class="field-group">
-            <label for="{{ form.father_phone.id_for_label }}">Father's Phone</label>
-            {{ form.father_phone }}
-            <div class="field-hint">Format: 10-15 digits (e.g., 255712345678)</div>
-            <div class="field-error" id="father_phone_error">Please enter a valid phone number (digits only, 10-15 digits)</div>
-            <div class="field-valid" id="father_phone_valid">Phone number is valid</div>
-          </div>
+        <div class="subsection-title">MOTHER'S DETAILS</div>
+
+        <div class="field-group">
+          {{ form.mother_name.errors }}
+          <label for="{{ form.mother_name.id_for_label }}">Mother's Name</label>
+          {{ form.mother_name }}
+          <div class="field-error" id="mother_name_error">Please enter a valid name</div>
+          <div class="field-valid" id="mother_name_valid">Valid</div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label for="{{ form.father_email.id_for_label }}">Father's Email</label>
-            {{ form.father_email }}
-            <div class="field-hint">Example: father@example.com</div>
-            <div class="field-error" id="father_email_error">Please enter a valid email address</div>
-            <div class="field-valid" id="father_email_valid">Email is valid</div>
-          </div>
-
-          <div class="field-group">
-            <label for="{{ form.father_occupation.id_for_label }}">Father's Occupation</label>
-            {{ form.father_occupation }}
-            <div class="field-hint">e.g., Teacher, Engineer, Business Owner</div>
-            <div class="field-error" id="father_occupation_error">Please enter the occupation</div>
-          </div>
-        </div>
-
-        <div class="field-row">
-          <div class="field-group">
-            <label for="{{ form.mother_name.id_for_label }}">Mother's Name</label>
-            {{ form.mother_name }}
-            <div class="field-error" id="mother_name_error">Please enter a valid name (letters and spaces only)</div>
-            <div class="field-valid" id="mother_name_valid">Name is valid</div>
-          </div>
-
-          <div class="field-group">
-            <label for="{{ form.mother_phone.id_for_label }}">Mother's Phone</label>
-            {{ form.mother_phone }}
-            <div class="field-hint">Format: 10-15 digits (e.g., 255712345678)</div>
-            <div class="field-error" id="mother_phone_error">Please enter a valid phone number (digits only, 10-15 digits)</div>
-            <div class="field-valid" id="mother_phone_valid">Phone number is valid</div>
-          </div>
-        </div>
-
-        <div class="field-row">
-          <div class="field-group">
-            <label for="{{ form.mother_email.id_for_label }}">Mother's Email</label>
-            {{ form.mother_email }}
-            <div class="field-hint">Example: mother@example.com</div>
-            <div class="field-error" id="mother_email_error">Please enter a valid email address</div>
-            <div class="field-valid" id="mother_email_valid">Email is valid</div>
-          </div>
-
-          <div class="field-group">
+            {{ form.mother_occupation.errors }}
             <label for="{{ form.mother_occupation.id_for_label }}">Mother's Occupation</label>
             {{ form.mother_occupation }}
             <div class="field-hint">e.g., Teacher, Nurse, Homemaker</div>
-            <div class="field-error" id="mother_occupation_error">Please enter the occupation</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Step 3: O-Level -->
-      <div class="step" id="step-3">
-        <h3>O-Level Education</h3>
-        
-        <div class="field-group">
-          <label for="{{ form.olevel_school.id_for_label }}" class="required">School</label>
-          {{ form.olevel_school }}
-          <div class="field-error" id="olevel_school_error">Please enter your school name</div>
-          <div class="field-valid" id="olevel_school_valid">School name is valid</div>
-        </div>
-
           <div class="field-group">
-          <label for="{{ form.olevel_start_year.id_for_label }}" class="required">Start Year</label>
-          {{ form.olevel_start_year }}
-          <div class="field-hint">Format: YYYY (e.g., 2016)</div>
-          <div class="field-error" id="olevel_start_year_error">Please enter a valid year (e.g., 2016)</div>
-          <div class="field-valid" id="olevel_start_year_valid">Year is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.olevel_completed_year.id_for_label }}" class="required">Completed Year</label>
-          {{ form.olevel_completed_year }}
-          <div class="field-hint">Format: YYYY (e.g., 2020)</div>
-          <div class="field-error" id="olevel_completed_year_error">Please enter a valid year (e.g., 2020)</div>
-          <div class="field-valid" id="olevel_completed_year_valid">Year is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.olevel_candidate_no.id_for_label }}" class="required">Candidate Number</label>
-          {{ form.olevel_candidate_no }}
-          <div class="field-hint">Format: SXXXX/YYYY/NNNN (e.g., S1234/2020/0001)</div>
-          <div class="field-error" id="olevel_candidate_no_error">Please enter a valid candidate number in format SXXXX/YYYY/NNNN</div>
-          <div class="field-valid" id="olevel_candidate_no_valid">Candidate number is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.olevel_gpa.id_for_label }}" class="required">GPA/Division</label>
-          {{ form.olevel_gpa }}
-          <div class="field-hint">Examples: 3.5, First Class, Division I</div>
-          <div class="field-error" id="olevel_gpa_error">Please enter a valid GPA/Division (e.g., 3.5, First Class)</div>
-          <div class="field-valid" id="olevel_gpa_valid">GPA/Division is valid</div>
-        </div>
-      </div>
-
-      <!-- Step 4: A-Level -->
-      <div class="step" id="step-4">
-        <h3>A-Level Education</h3>
-        
-        <div class="field-group">
-          <label for="{{ form.alevel_school.id_for_label }}">School</label>
-          {{ form.alevel_school }}
-          <div class="field-error" id="alevel_school_error">Please enter a valid school name</div>
-          <div class="field-valid" id="alevel_school_valid">School name is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.alevel_start_year.id_for_label }}">Start Year</label>
-          {{ form.alevel_start_year }}
-          <div class="field-hint">Format: YYYY (e.g., 2020)</div>
-          <div class="field-error" id="alevel_start_year_error">Please enter a valid year</div>
-          <div class="field-valid" id="alevel_start_year_valid">Year is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.alevel_completed_year.id_for_label }}">Completed Year</label>
-          {{ form.alevel_completed_year }}
-          <div class="field-hint">Format: YYYY (e.g., 2022)</div>
-          <div class="field-error" id="alevel_completed_year_error">Please enter a valid year (e.g., 2022)</div>
-          <div class="field-valid" id="alevel_completed_year_valid">Year is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.alevel_candidate_no.id_for_label }}">Candidate Number</label>
-          {{ form.alevel_candidate_no }}
-          <div class="field-hint">Format: SXXXX/YYYY/NNNN (e.g., S1234/2022/0001)</div>
-          <div class="field-error" id="alevel_candidate_no_error">Please enter a valid candidate number in format SXXXX/YYYY/NNNN</div>
-          <div class="field-valid" id="alevel_candidate_no_valid">Candidate number is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.alevel_gpa.id_for_label }}">GPA/Division</label>
-          {{ form.alevel_gpa }}
-          <div class="field-hint">Examples: 3.5, First Class, Division I</div>
-          <div class="field-error" id="alevel_gpa_error">Please enter a valid GPA/Division (e.g., 3.5, First Class)</div>
-          <div class="field-valid" id="alevel_gpa_valid">GPA/Division is valid</div>
-        </div>
-      </div>
-
-      <!-- Step 5: Preferences -->
-      <div class="step" id="step-5">
-        <h3>Study Preferences</h3>
-        
-        <div class="field-group">
-          <label for="{{ form.preferred_country_1.id_for_label }}" class="required">Preferred Country 1</label>
-          {{ form.preferred_country_1 }}
-          <div class="field-error" id="preferred_country_1_error">Please select a country</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.preferred_country_2.id_for_label }}">Preferred Country 2</label>
-          {{ form.preferred_country_2 }}
-          <div class="field-error" id="preferred_country_2_error">Please select a country</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.preferred_country_3.id_for_label }}">Preferred Country 3</label>
-          {{ form.preferred_country_3 }}
-          <div class="field-error" id="preferred_country_3_error">Please select a country</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.preferred_program_1.id_for_label }}" class="required">Preferred Program 1</label>
-          {{ form.preferred_program_1 }}
-          <div class="field-error" id="preferred_program_1_error">Please enter your preferred program</div>
-          <div class="field-valid" id="preferred_program_1_valid">Program is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.preferred_program_2.id_for_label }}">Preferred Program 2</label>
-          {{ form.preferred_program_2 }}
-          <div class="field-error" id="preferred_program_2_error">Please enter a valid program name</div>
-          <div class="field-valid" id="preferred_program_2_valid">Program is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.preferred_program_3.id_for_label }}">Preferred Program 3</label>
-          {{ form.preferred_program_3 }}
-          <div class="field-error" id="preferred_program_3_error">Please enter a valid program name</div>
-          <div class="field-valid" id="preferred_program_3_valid">Program is valid</div>
-        </div>
-      </div>
-
-      <!-- Step 6: Emergency & Submit -->
-      <div class="step" id="step-6">
-        <h3>Emergency Contact & Submit</h3>
-        
-        <div class="field-group">
-            <label for="{{ form.emergency_name.id_for_label }}" class="required">Emergency Contact Name</label>
-            {{ form.emergency_name }}
-            <div class="field-error" id="emergency_name_error">Please enter a valid name (letters and spaces only)</div>
-            <div class="field-valid" id="emergency_name_valid">Name is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.emergency_phone.id_for_label }}" class="required">Phone Number</label>
-          {{ form.emergency_phone }}
-          <div class="field-error" id="emergency_phone_error">Please enter a phone number</div>
-          <div class="field-valid" id="emergency_phone_valid">Phone number is valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.emergency_email.id_for_label }}">Email Address</label>
-          {{ form.emergency_email }}
+            {{ form.mother_phone.errors }}
+            <label for="{{ form.mother_phone.id_for_label }}">Mother's Phone</label>
+            {{ form.mother_phone }}
+            <div class="field-hint">Format: 10-15 digits</div>
+            <div class="field-error" id="mother_phone_error">Please enter a valid phone number</div>
+          </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label for="{{ form.emergency_occupation.id_for_label }}" class="required">Occupation</label>
-            {{ form.emergency_occupation }}
-            <div class="field-hint">e.g., Doctor, Teacher, Business Owner</div>
-            <div class="field-error" id="emergency_occupation_error">Please enter the occupation</div>
+            {{ form.mother_email.errors }}
+            <label for="{{ form.mother_email.id_for_label }}">Mother's Email</label>
+            {{ form.mother_email }}
+            <div class="field-hint">Example: mother@example.com</div>
           </div>
-
           <div class="field-group">
+            {{ form.mother_place_neighbourhood.errors }}
+            <label for="{{ form.mother_place_neighbourhood.id_for_label }}">Place/Neighbourhood</label>
+            {{ form.mother_place_neighbourhood }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.mother_status.errors }}
+            <label for="{{ form.mother_status.id_for_label }}">Mother's Status</label>
+            {{ form.mother_status }}
+          </div>
+          <div class="field-group">
+            {{ form.mother_relationship.errors }}
+            <label for="{{ form.mother_relationship.id_for_label }}">Relationship with Applicant</label>
+            {{ form.mother_relationship }}
+          </div>
+        </div>
+
+        <div class="subsection-title">FATHER'S DETAILS</div>
+
+        <div class="field-group">
+          {{ form.father_name.errors }}
+          <label for="{{ form.father_name.id_for_label }}">Father's Name</label>
+          {{ form.father_name }}
+          <div class="field-error" id="father_name_error">Please enter a valid name</div>
+          <div class="field-valid" id="father_name_valid">Valid</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.father_occupation.errors }}
+            <label for="{{ form.father_occupation.id_for_label }}">Father's Occupation</label>
+            {{ form.father_occupation }}
+            <div class="field-hint">e.g., Teacher, Engineer, Business Owner</div>
+          </div>
+          <div class="field-group">
+            {{ form.father_phone.errors }}
+            <label for="{{ form.father_phone.id_for_label }}">Father's Phone</label>
+            {{ form.father_phone }}
+            <div class="field-hint">Format: 10-15 digits</div>
+            <div class="field-error" id="father_phone_error">Please enter a valid phone number</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.father_email.errors }}
+            <label for="{{ form.father_email.id_for_label }}">Father's Email</label>
+            {{ form.father_email }}
+            <div class="field-hint">Example: father@example.com</div>
+          </div>
+          <div class="field-group">
+            {{ form.father_place_neighbourhood.errors }}
+            <label for="{{ form.father_place_neighbourhood.id_for_label }}">Place/Neighbourhood</label>
+            {{ form.father_place_neighbourhood }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.father_status.errors }}
+            <label for="{{ form.father_status.id_for_label }}">Father's Status</label>
+            {{ form.father_status }}
+          </div>
+          <div class="field-group">
+            {{ form.father_relationship.errors }}
+            <label for="{{ form.father_relationship.id_for_label }}">Relationship with Applicant</label>
+            {{ form.father_relationship }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Emergency Contact Details -->
+      <div class="step" id="step-3">
+        <h3>Emergency Contact Details</h3>
+
+        <div class="field-group">
+          {{ form.emergency_name.errors }}
+          <label for="{{ form.emergency_name.id_for_label }}" class="required">Emergency Contact Name</label>
+          {{ form.emergency_name }}
+          <div class="field-error" id="emergency_name_error">Please enter a valid name</div>
+          <div class="field-valid" id="emergency_name_valid">Valid</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.emergency_relation.errors }}
             <label for="{{ form.emergency_relation.id_for_label }}" class="required">Relationship to You</label>
             {{ form.emergency_relation }}
             <div class="field-hint">e.g., Uncle, Aunt, Guardian</div>
-            <div class="field-error" id="emergency_relation_error">Please enter your relationship to the emergency contact</div>
-            <div class="field-valid" id="emergency_relation_valid">Relationship is valid</div>
+            <div class="field-error" id="emergency_relation_error">Please enter relationship</div>
           </div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.emergency_relationship_status.id_for_label }}">Relationship Status</label>
-          {{ form.emergency_relationship_status }}
-          <div class="field-error" id="emergency_relationship_status_error">Please enter the relationship status</div>
-          <div class="field-valid" id="emergency_relationship_status_valid">Valid</div>
-        </div>
-
-        <div class="field-group">
-          <label for="{{ form.emergency_remarks.id_for_label }}">Remarks</label>
-          {{ form.emergency_remarks }}
-          <div class="field-error" id="emergency_remarks_error">Please enter remarks</div>
-          <div class="field-valid" id="emergency_remarks_valid">Valid</div>
+          <div class="field-group">
+            {{ form.emergency_occupation.errors }}
+            <label for="{{ form.emergency_occupation.id_for_label }}">Occupation</label>
+            {{ form.emergency_occupation }}
+            <div class="field-hint">e.g., Doctor, Teacher</div>
+          </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
+            {{ form.emergency_phone.errors }}
+            <label for="{{ form.emergency_phone.id_for_label }}" class="required">Phone Number</label>
+            {{ form.emergency_phone }}
+            <div class="field-error" id="emergency_phone_error">Please enter a phone number</div>
+            <div class="field-valid" id="emergency_phone_valid">Valid</div>
+          </div>
+          <div class="field-group">
+            {{ form.emergency_email.errors }}
+            <label for="{{ form.emergency_email.id_for_label }}">Email Address</label>
+            {{ form.emergency_email }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.emergency_alternative_phone.errors }}
+          <label for="{{ form.emergency_alternative_phone.id_for_label }}">Alternative Phone</label>
+          {{ form.emergency_alternative_phone }}
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.emergency_relationship_status.errors }}
+            <label for="{{ form.emergency_relationship_status.id_for_label }}">Relationship Status</label>
+            {{ form.emergency_relationship_status }}
+          </div>
+          <div class="field-group">
+            {{ form.emergency_remarks.errors }}
+            <label for="{{ form.emergency_remarks.id_for_label }}">Remarks</label>
+            {{ form.emergency_remarks }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: O-Level Education -->
+      <div class="step" id="step-4">
+        <h3>O-Level Education</h3>
+
+        <div class="field-group">
+          {{ form.olevel_school.errors }}
+          <label for="{{ form.olevel_school.id_for_label }}">School</label>
+          {{ form.olevel_school }}
+          <div class="field-error" id="olevel_school_error">Please enter your school name</div>
+          <div class="field-valid" id="olevel_school_valid">Valid</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.olevel_start_year.errors }}
+            <label for="{{ form.olevel_start_year.id_for_label }}">Start Year</label>
+            {{ form.olevel_start_year }}
+            <div class="field-hint">Format: YYYY (e.g., 2016)</div>
+            <div class="field-error" id="olevel_start_year_error">Please enter a valid year</div>
+          </div>
+          <div class="field-group">
+            {{ form.olevel_completed_year.errors }}
+            <label for="{{ form.olevel_completed_year.id_for_label }}">Completed Year</label>
+            {{ form.olevel_completed_year }}
+            <div class="field-hint">Format: YYYY (e.g., 2020)</div>
+            <div class="field-error" id="olevel_completed_year_error">Please enter a valid year</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.olevel_candidate_no.errors }}
+            <label for="{{ form.olevel_candidate_no.id_for_label }}">Candidate Number</label>
+            {{ form.olevel_candidate_no }}
+            <div class="field-hint">Format: SXXXX/YYYY/NNNN</div>
+            <div class="field-error" id="olevel_candidate_no_error">Please enter a valid candidate number</div>
+          </div>
+          <div class="field-group">
+            {{ form.olevel_gpa.errors }}
+            <label for="{{ form.olevel_gpa.id_for_label }}">GPA/Division</label>
+            {{ form.olevel_gpa }}
+            <div class="field-hint">e.g., 3.5, Division I</div>
+            <div class="field-error" id="olevel_gpa_error">Please enter GPA/Division</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.olevel_school_type.errors }}
+            <label for="{{ form.olevel_school_type.id_for_label }}">School Type</label>
+            {{ form.olevel_school_type }}
+          </div>
+          <div class="field-group">
+            {{ form.olevel_exam_board.errors }}
+            <label for="{{ form.olevel_exam_board.id_for_label }}">Exam Board</label>
+            {{ form.olevel_exam_board }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.olevel_certificate_no.errors }}
+            <label for="{{ form.olevel_certificate_no.id_for_label }}">Certificate No.</label>
+            {{ form.olevel_certificate_no }}
+          </div>
+          <div class="field-group">
+            {{ form.olevel_remarks.errors }}
+            <label for="{{ form.olevel_remarks.id_for_label }}">Remarks</label>
+            {{ form.olevel_remarks }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: A-Level Education -->
+      <div class="step" id="step-5">
+        <h3>A-Level Education</h3>
+
+        <div class="field-group">
+          {{ form.alevel_school.errors }}
+          <label for="{{ form.alevel_school.id_for_label }}">School</label>
+          {{ form.alevel_school }}
+          <div class="field-error" id="alevel_school_error">Please enter a valid school name</div>
+          <div class="field-valid" id="alevel_school_valid">Valid</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.alevel_start_year.errors }}
+            <label for="{{ form.alevel_start_year.id_for_label }}">Start Year</label>
+            {{ form.alevel_start_year }}
+            <div class="field-hint">Format: YYYY (e.g., 2020)</div>
+            <div class="field-error" id="alevel_start_year_error">Please enter a valid year</div>
+          </div>
+          <div class="field-group">
+            {{ form.alevel_completed_year.errors }}
+            <label for="{{ form.alevel_completed_year.id_for_label }}">Completed Year</label>
+            {{ form.alevel_completed_year }}
+            <div class="field-hint">Format: YYYY (e.g., 2022)</div>
+            <div class="field-error" id="alevel_completed_year_error">Please enter a valid year</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.alevel_candidate_no.errors }}
+            <label for="{{ form.alevel_candidate_no.id_for_label }}">Candidate Number</label>
+            {{ form.alevel_candidate_no }}
+            <div class="field-hint">Format: SXXXX/YYYY/NNNN</div>
+            <div class="field-error" id="alevel_candidate_no_error">Please enter a valid candidate number</div>
+          </div>
+          <div class="field-group">
+            {{ form.alevel_gpa.errors }}
+            <label for="{{ form.alevel_gpa.id_for_label }}">GPA/Division</label>
+            {{ form.alevel_gpa }}
+            <div class="field-hint">e.g., 3.5, Division I</div>
+            <div class="field-error" id="alevel_gpa_error">Please enter GPA/Division</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.alevel_school_type.errors }}
+            <label for="{{ form.alevel_school_type.id_for_label }}">School Type</label>
+            {{ form.alevel_school_type }}
+          </div>
+          <div class="field-group">
+            {{ form.alevel_exam_board.errors }}
+            <label for="{{ form.alevel_exam_board.id_for_label }}">Exam Board</label>
+            {{ form.alevel_exam_board }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.alevel_certificate_no.errors }}
+            <label for="{{ form.alevel_certificate_no.id_for_label }}">Certificate No.</label>
+            {{ form.alevel_certificate_no }}
+          </div>
+          <div class="field-group">
+            {{ form.alevel_remarks.errors }}
+            <label for="{{ form.alevel_remarks.id_for_label }}">Remarks</label>
+            {{ form.alevel_remarks }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6: Professional Qualifications -->
+      <div class="step" id="step-6">
+        <h3>Professional Qualifications</h3>
+
+        <div class="subsection-title">QUALIFICATION 1</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq1_title.errors }}
+            <label for="{{ form.profq1_title.id_for_label }}">Title</label>
+            {{ form.profq1_title }}
+          </div>
+          <div class="field-group">
+            {{ form.profq1_institution.errors }}
+            <label for="{{ form.profq1_institution.id_for_label }}">Institution</label>
+            {{ form.profq1_institution }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.profq1_institution_address.errors }}
+          <label for="{{ form.profq1_institution_address.id_for_label }}">Institution Address</label>
+          {{ form.profq1_institution_address }}
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq1_country.errors }}
+            <label for="{{ form.profq1_country.id_for_label }}">Country</label>
+            {{ form.profq1_country }}
+          </div>
+          <div class="field-group">
+            {{ form.profq1_period.errors }}
+            <label for="{{ form.profq1_period.id_for_label }}">Period</label>
+            {{ form.profq1_period }}
+            <div class="field-hint">e.g., 3 years</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq1_start_date.errors }}
+            <label for="{{ form.profq1_start_date.id_for_label }}">Start Date</label>
+            {{ form.profq1_start_date }}
+          </div>
+          <div class="field-group">
+            {{ form.profq1_finished_date.errors }}
+            <label for="{{ form.profq1_finished_date.id_for_label }}">Finished Date</label>
+            {{ form.profq1_finished_date }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.profq1_award_certificate.errors }}
+          <label for="{{ form.profq1_award_certificate.id_for_label }}">Award/Certificate No.</label>
+          {{ form.profq1_award_certificate }}
+        </div>
+
+        <div class="subsection-title">QUALIFICATION 2</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq2_title.errors }}
+            <label for="{{ form.profq2_title.id_for_label }}">Title</label>
+            {{ form.profq2_title }}
+          </div>
+          <div class="field-group">
+            {{ form.profq2_institution.errors }}
+            <label for="{{ form.profq2_institution.id_for_label }}">Institution</label>
+            {{ form.profq2_institution }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.profq2_institution_address.errors }}
+          <label for="{{ form.profq2_institution_address.id_for_label }}">Institution Address</label>
+          {{ form.profq2_institution_address }}
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq2_country.errors }}
+            <label for="{{ form.profq2_country.id_for_label }}">Country</label>
+            {{ form.profq2_country }}
+          </div>
+          <div class="field-group">
+            {{ form.profq2_period.errors }}
+            <label for="{{ form.profq2_period.id_for_label }}">Period</label>
+            {{ form.profq2_period }}
+            <div class="field-hint">e.g., 2 years</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq2_start_date.errors }}
+            <label for="{{ form.profq2_start_date.id_for_label }}">Start Date</label>
+            {{ form.profq2_start_date }}
+          </div>
+          <div class="field-group">
+            {{ form.profq2_finished_date.errors }}
+            <label for="{{ form.profq2_finished_date.id_for_label }}">Finished Date</label>
+            {{ form.profq2_finished_date }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.profq2_award_certificate.errors }}
+          <label for="{{ form.profq2_award_certificate.id_for_label }}">Award/Certificate No.</label>
+          {{ form.profq2_award_certificate }}
+        </div>
+
+        <div class="subsection-title">QUALIFICATION 3</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq3_title.errors }}
+            <label for="{{ form.profq3_title.id_for_label }}">Title</label>
+            {{ form.profq3_title }}
+          </div>
+          <div class="field-group">
+            {{ form.profq3_institution.errors }}
+            <label for="{{ form.profq3_institution.id_for_label }}">Institution</label>
+            {{ form.profq3_institution }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.profq3_institution_address.errors }}
+          <label for="{{ form.profq3_institution_address.id_for_label }}">Institution Address</label>
+          {{ form.profq3_institution_address }}
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq3_country.errors }}
+            <label for="{{ form.profq3_country.id_for_label }}">Country</label>
+            {{ form.profq3_country }}
+          </div>
+          <div class="field-group">
+            {{ form.profq3_period.errors }}
+            <label for="{{ form.profq3_period.id_for_label }}">Period</label>
+            {{ form.profq3_period }}
+            <div class="field-hint">e.g., 1 year</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.profq3_start_date.errors }}
+            <label for="{{ form.profq3_start_date.id_for_label }}">Start Date</label>
+            {{ form.profq3_start_date }}
+          </div>
+          <div class="field-group">
+            {{ form.profq3_finished_date.errors }}
+            <label for="{{ form.profq3_finished_date.id_for_label }}">Finished Date</label>
+            {{ form.profq3_finished_date }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.profq3_award_certificate.errors }}
+          <label for="{{ form.profq3_award_certificate.id_for_label }}">Award/Certificate No.</label>
+          {{ form.profq3_award_certificate }}
+        </div>
+      </div>
+
+      <!-- Step 7: Employment History -->
+      <div class="step" id="step-7">
+        <h3>Employment History</h3>
+
+        <div class="subsection-title">WORK EXPERIENCE 1</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_company_name.errors }}
+            <label for="{{ form.work1_company_name.id_for_label }}">Company Name</label>
+            {{ form.work1_company_name }}
+          </div>
+          <div class="field-group">
+            {{ form.work1_position.errors }}
+            <label for="{{ form.work1_position.id_for_label }}">Position</label>
+            {{ form.work1_position }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_worked_from.errors }}
+            <label for="{{ form.work1_worked_from.id_for_label }}">Worked From</label>
+            {{ form.work1_worked_from }}
+          </div>
+          <div class="field-group">
+            {{ form.work1_worked_to.errors }}
+            <label for="{{ form.work1_worked_to.id_for_label }}">Worked To</label>
+            {{ form.work1_worked_to }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_country.errors }}
+            <label for="{{ form.work1_country.id_for_label }}">Country</label>
+            {{ form.work1_country }}
+          </div>
+          <div class="field-group">
+            {{ form.work1_region.errors }}
+            <label for="{{ form.work1_region.id_for_label }}">Region</label>
+            {{ form.work1_region }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_region_post_code.errors }}
+            <label for="{{ form.work1_region_post_code.id_for_label }}">Region Post Code</label>
+            {{ form.work1_region_post_code }}
+          </div>
+          <div class="field-group">
+            {{ form.work1_district.errors }}
+            <label for="{{ form.work1_district.id_for_label }}">District</label>
+            {{ form.work1_district }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_district_post_code.errors }}
+            <label for="{{ form.work1_district_post_code.id_for_label }}">District Post Code</label>
+            {{ form.work1_district_post_code }}
+          </div>
+          <div class="field-group">
+            {{ form.work1_ward.errors }}
+            <label for="{{ form.work1_ward.id_for_label }}">Ward</label>
+            {{ form.work1_ward }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_ward_post_code.errors }}
+            <label for="{{ form.work1_ward_post_code.id_for_label }}">Ward Post Code</label>
+            {{ form.work1_ward_post_code }}
+          </div>
+          <div class="field-group">
+            {{ form.work1_street.errors }}
+            <label for="{{ form.work1_street.id_for_label }}">Street</label>
+            {{ form.work1_street }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work1_employment_type.errors }}
+            <label for="{{ form.work1_employment_type.id_for_label }}">Employment Type</label>
+            {{ form.work1_employment_type }}
+            <div class="field-hint">e.g., Full-time, Part-time</div>
+          </div>
+          <div class="field-group">
+            {{ form.work1_supervisor.errors }}
+            <label for="{{ form.work1_supervisor.id_for_label }}">Supervisor</label>
+            {{ form.work1_supervisor }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.work1_duties.errors }}
+          <label for="{{ form.work1_duties.id_for_label }}">Duties</label>
+          {{ form.work1_duties }}
+        </div>
+
+        <div class="field-group">
+          {{ form.work1_remarks.errors }}
+          <label for="{{ form.work1_remarks.id_for_label }}">Remarks</label>
+          {{ form.work1_remarks }}
+        </div>
+
+        <div class="subsection-title">WORK EXPERIENCE 2</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_company_name.errors }}
+            <label for="{{ form.work2_company_name.id_for_label }}">Company Name</label>
+            {{ form.work2_company_name }}
+          </div>
+          <div class="field-group">
+            {{ form.work2_position.errors }}
+            <label for="{{ form.work2_position.id_for_label }}">Position</label>
+            {{ form.work2_position }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_worked_from.errors }}
+            <label for="{{ form.work2_worked_from.id_for_label }}">Worked From</label>
+            {{ form.work2_worked_from }}
+          </div>
+          <div class="field-group">
+            {{ form.work2_worked_to.errors }}
+            <label for="{{ form.work2_worked_to.id_for_label }}">Worked To</label>
+            {{ form.work2_worked_to }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_country.errors }}
+            <label for="{{ form.work2_country.id_for_label }}">Country</label>
+            {{ form.work2_country }}
+          </div>
+          <div class="field-group">
+            {{ form.work2_region.errors }}
+            <label for="{{ form.work2_region.id_for_label }}">Region</label>
+            {{ form.work2_region }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_region_post_code.errors }}
+            <label for="{{ form.work2_region_post_code.id_for_label }}">Region Post Code</label>
+            {{ form.work2_region_post_code }}
+          </div>
+          <div class="field-group">
+            {{ form.work2_district.errors }}
+            <label for="{{ form.work2_district.id_for_label }}">District</label>
+            {{ form.work2_district }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_district_post_code.errors }}
+            <label for="{{ form.work2_district_post_code.id_for_label }}">District Post Code</label>
+            {{ form.work2_district_post_code }}
+          </div>
+          <div class="field-group">
+            {{ form.work2_ward.errors }}
+            <label for="{{ form.work2_ward.id_for_label }}">Ward</label>
+            {{ form.work2_ward }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_ward_post_code.errors }}
+            <label for="{{ form.work2_ward_post_code.id_for_label }}">Ward Post Code</label>
+            {{ form.work2_ward_post_code }}
+          </div>
+          <div class="field-group">
+            {{ form.work2_street.errors }}
+            <label for="{{ form.work2_street.id_for_label }}">Street</label>
+            {{ form.work2_street }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.work2_employment_type.errors }}
+            <label for="{{ form.work2_employment_type.id_for_label }}">Employment Type</label>
+            {{ form.work2_employment_type }}
+            <div class="field-hint">e.g., Full-time, Part-time</div>
+          </div>
+          <div class="field-group">
+            {{ form.work2_supervisor.errors }}
+            <label for="{{ form.work2_supervisor.id_for_label }}">Supervisor</label>
+            {{ form.work2_supervisor }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.work2_duties.errors }}
+          <label for="{{ form.work2_duties.id_for_label }}">Duties</label>
+          {{ form.work2_duties }}
+        </div>
+
+        <div class="field-group">
+          {{ form.work2_remarks.errors }}
+          <label for="{{ form.work2_remarks.id_for_label }}">Remarks</label>
+          {{ form.work2_remarks }}
+        </div>
+      </div>
+
+      <!-- Step 8: Study Preferences -->
+      <div class="step" id="step-8">
+        <h3>Study Preferences</h3>
+
+        <div class="field-group">
+          {{ form.preferred_intake.errors }}
+          <label for="{{ form.preferred_intake.id_for_label }}">Preferred Intake</label>
+          {{ form.preferred_intake }}
+          <div class="field-hint">e.g., September 2026</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.preferred_country_1.errors }}
+            <label for="{{ form.preferred_country_1.id_for_label }}">Preferred Country 1</label>
+            {{ form.preferred_country_1 }}
+          </div>
+          <div class="field-group">
+            {{ form.preferred_program_1.errors }}
+            <label for="{{ form.preferred_program_1.id_for_label }}">Preferred Program 1</label>
+            {{ form.preferred_program_1 }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.preferred_country_2.errors }}
+            <label for="{{ form.preferred_country_2.id_for_label }}">Preferred Country 2</label>
+            {{ form.preferred_country_2 }}
+          </div>
+          <div class="field-group">
+            {{ form.preferred_program_2.errors }}
+            <label for="{{ form.preferred_program_2.id_for_label }}">Preferred Program 2</label>
+            {{ form.preferred_program_2 }}
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.preferred_country_3.errors }}
+            <label for="{{ form.preferred_country_3.id_for_label }}">Preferred Country 3</label>
+            {{ form.preferred_country_3 }}
+          </div>
+          <div class="field-group">
+            {{ form.preferred_program_3.errors }}
+            <label for="{{ form.preferred_program_3.id_for_label }}">Preferred Program 3</label>
+            {{ form.preferred_program_3 }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9: How Did You Hear About Us -->
+      <div class="step" id="step-9">
+        <h3>How Did You Hear About Us</h3>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.heard_about_us.errors }}
             <label for="{{ form.heard_about_us.id_for_label }}" class="required">How did you hear about us?</label>
             {{ form.heard_about_us }}
-            <div class="field-error" id="heard_about_us_error">Please select how you heard about us</div>
+            <div class="field-error" id="heard_about_us_error">Please select an option</div>
           </div>
-
           <div class="field-group">
+            {{ form.heard_about_other.errors }}
             <label for="{{ form.heard_about_other.id_for_label }}">If other, please specify</label>
             {{ form.heard_about_other }}
-            <div class="field-error" id="heard_about_other_error">Please specify how you heard about us</div>
-            <div class="field-valid" id="heard_about_other_valid">Specification is valid</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Step 10: Declaration by Applicant -->
+      <div class="step" id="step-10">
+        <h3>Declaration by Applicant</h3>
+
+        <div class="declaration-text">
+          <p><strong>DECLARATION</strong></p>
+          <p>I, the undersigned, declare that the information provided in this application form is true, complete, and accurate to the best of my knowledge. I understand that any false or misleading information may result in the rejection of my application or dismissal from the program.</p>
+          <p>I hereby authorize Africa Western Education to process my personal data for the purposes of admission, registration, and communication related to my application and studies.</p>
+          <p>I agree to abide by the rules and regulations of Africa Western Education and the institution I may be admitted to.</p>
+        </div>
+
+        <div class="field-group">
+          {{ form.declaration_applicant_name.errors }}
+          <label for="{{ form.declaration_applicant_name.id_for_label }}">Applicant Name</label>
+          {{ form.declaration_applicant_name }}
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.declaration_date.errors }}
+            <label for="{{ form.declaration_date.id_for_label }}">Date</label>
+            {{ form.declaration_date }}
+          </div>
+          <div class="field-group">
+            {{ form.declaration_signature_name.errors }}
+            <label for="{{ form.declaration_signature_name.id_for_label }}">Signature (type your name)</label>
+            {{ form.declaration_signature_name }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 11: Terms and Conditions -->
+      <div class="step" id="step-11">
+        <h3>Terms and Conditions</h3>
+
+        <div class="terms-text">
+          <p><strong>TERMS AND CONDITIONS</strong></p>
+          <ol>
+            <li>All information provided must be accurate and truthful.</li>
+            <li>Africa Western Education reserves the right to verify any information provided in this application.</li>
+            <li>Submission of this application does not guarantee admission to any program or institution.</li>
+            <li>Applicants are responsible for ensuring they meet the entry requirements of their chosen programs.</li>
+            <li>Africa Western Education may contact the applicant using the contact information provided in this form.</li>
+            <li>The applicant agrees to receive communications regarding their application and related services.</li>
+            <li>Personal data will be handled in accordance with our Privacy Policy.</li>
+            <li>Africa Western Education is not liable for any decisions made by partner institutions regarding admission.</li>
+          </ol>
+        </div>
+
+        <div class="checkbox-group">
+          {{ form.terms_accepted }}
+          <label for="{{ form.terms_accepted.id_for_label }}">
+            I have read and agree to the Terms and Conditions
+          </label>
+        </div>
+        {% if form.terms_accepted.errors %}
+          <div class="field-error" style="display:block;">{{ form.terms_accepted.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Step 12: Office Use Only -->
+      <div class="step" id="step-12">
+        <h3>Office Use Only</h3>
+
+        <div class="field-row">
+          <div class="field-group">
+            {{ form.office_director_name.errors }}
+            <label for="{{ form.office_director_name.id_for_label }}">Director's Name</label>
+            {{ form.office_director_name }}
+          </div>
+          <div class="field-group">
+            {{ form.office_approval_status.errors }}
+            <label for="{{ form.office_approval_status.id_for_label }}">Approval Status</label>
+            {{ form.office_approval_status }}
+          </div>
+        </div>
+
+        <div class="field-group">
+          {{ form.office_reason.errors }}
+          <label for="{{ form.office_reason.id_for_label }}">Reason/Notes</label>
+          {{ form.office_reason }}
         </div>
 
         <div class="declaration-box">
@@ -656,15 +1320,8 @@
   const nextBtn = document.getElementById('nextBtn');
   const submitBtn = document.getElementById('submitBtn');
   const declaration = document.getElementById('declaration_check');
+  const termsCheck = document.getElementById('{{ form.terms_accepted.id_for_label }}');
   let current = 0;
-
-  // Common occupations list
-  const commonOccupations = [
-    "Accountant", "Architect", "Business Owner", "Civil Servant", "Doctor", 
-    "Engineer", "Farmer", "Homemaker", "Lawyer", "Lecturer", "Manager", 
-    "Nurse", "Police Officer", "Salesperson", "Teacher", "Technician", 
-    "Unemployed", "Other"
-  ];
 
   // Validation functions
   function validateName(name) {
@@ -707,17 +1364,14 @@
     const validElement = document.getElementById(`${field.id}_valid`);
     let isValid = false;
 
-    // Clear previous states
     field.classList.remove('input-error', 'input-valid');
     if (errorElement) errorElement.style.display = 'none';
     if (validElement) validElement.style.display = 'none';
 
-    // Skip validation for empty optional fields
     if (!field.hasAttribute('required') && value === '') {
       return true;
     }
 
-    // Validate based on field type
     switch(type) {
       case 'name':
         isValid = validateName(value);
@@ -747,7 +1401,6 @@
         isValid = validateRequired(value);
     }
 
-    // Update UI based on validation result
     if (!isValid && value !== '') {
       field.classList.add('input-error');
       if (errorElement) errorElement.style.display = 'block';
@@ -769,22 +1422,25 @@
       if (field.hasAttribute('required') || field.value.trim() !== '') {
         let validationType = 'required';
         
-        // Determine validation type based on field ID or type
-        if (field.type === 'email' || field.id.includes('email')) {
+        if (field.type === 'email' || (field.id && field.id.includes('email'))) {
           validationType = 'email';
-        } else if (field.type === 'tel' || field.id.includes('phone')) {
+        } else if (field.type === 'tel' || (field.id && field.id.includes('phone'))) {
           validationType = 'phone';
         } else if (field.tagName === 'SELECT') {
           validationType = 'select';
-        } else if (field.id.includes('year')) {
+        } else if (field.id && field.id.includes('year')) {
           validationType = 'year';
-        } else if (field.id.includes('gpa')) {
+        } else if (field.id && field.id.includes('gpa')) {
           validationType = 'gpa';
-        } else if (field.id.includes('candidate_no')) {
+        } else if (field.id && field.id.includes('candidate_no')) {
           validationType = 'candidate';
-        } else if (field.id.includes('name') || field.id.includes('school') || 
+        } else if (field.id && (field.id.includes('name') || field.id.includes('school') || 
                    field.id.includes('address') || field.id.includes('occupation') ||
-                   field.id.includes('program') || field.id.includes('relation')) {
+                   field.id.includes('program') || field.id.includes('relation') ||
+                   field.id.includes('institution') || field.id.includes('company') ||
+                   field.id.includes('position') || field.id.includes('supervisor') ||
+                   field.id.includes('duties') || field.id.includes('title') ||
+                   field.id.includes('country'))) {
           validationType = field.id.includes('name') ? 'name' : 'required';
         }
         
@@ -799,7 +1455,11 @@
 
   function show(i){
     steps.forEach((s, idx)=> s.classList.toggle('active', idx===i));
-    dots.forEach((d, idx)=> d.classList.toggle('active', idx===i));
+    dots.forEach((d, idx)=> {
+      d.classList.toggle('active', idx===i);
+      if (idx < i) d.classList.add('completed');
+      else d.classList.remove('completed');
+    });
     prevBtn.style.display = i === 0 ? 'none' : 'inline-block';
     nextBtn.style.display = i === steps.length-1 ? 'none' : 'inline-block';
   }
@@ -822,26 +1482,30 @@
     }
   });
 
-  // Add validation on input for real-time feedback
+  // Add validation on blur for real-time feedback
   document.querySelectorAll('input, select, textarea').forEach(field => {
     field.addEventListener('blur', function() {
       let validationType = 'required';
       
-      if (this.type === 'email' || this.id.includes('email')) {
+      if (this.type === 'email' || (this.id && this.id.includes('email'))) {
         validationType = 'email';
-      } else if (this.type === 'tel' || this.id.includes('phone')) {
+      } else if (this.type === 'tel' || (this.id && this.id.includes('phone'))) {
         validationType = 'phone';
       } else if (this.tagName === 'SELECT') {
         validationType = 'select';
-      } else if (this.id.includes('year')) {
+      } else if (this.id && this.id.includes('year')) {
         validationType = 'year';
-      } else if (this.id.includes('gpa')) {
+      } else if (this.id && this.id.includes('gpa')) {
         validationType = 'gpa';
-      } else if (this.id.includes('candidate_no')) {
+      } else if (this.id && this.id.includes('candidate_no')) {
         validationType = 'candidate';
-      } else if (this.id.includes('name') || this.id.includes('school') || 
+      } else if (this.id && (this.id.includes('name') || this.id.includes('school') || 
                  this.id.includes('address') || this.id.includes('occupation') ||
-                 this.id.includes('program') || this.id.includes('relation')) {
+                 this.id.includes('program') || this.id.includes('relation') ||
+                 this.id.includes('institution') || this.id.includes('company') ||
+                 this.id.includes('position') || this.id.includes('supervisor') ||
+                 this.id.includes('duties') || this.id.includes('title') ||
+                 this.id.includes('country'))) {
         validationType = this.id.includes('name') ? 'name' : 'required';
       }
       
@@ -849,15 +1513,20 @@
     });
   });
 
-  declaration.addEventListener('change', function(){ 
-    submitBtn.disabled = !this.checked; 
-  });
+  if (declaration) {
+    declaration.addEventListener('change', function(){ 
+      submitBtn.disabled = !this.checked; 
+    });
+  }
+
+  if (termsCheck) {
+    termsCheck.addEventListener('change', function(){});
+  }
 
   // Form submission validation
   document.getElementById('applicationForm').addEventListener('submit', function(e) {
     let allValid = true;
     
-    // Validate all steps
     for (let i = 0; i < steps.length; i++) {
       if (!validateStep(i)) {
         allValid = false;
@@ -867,7 +1536,6 @@
     if (!allValid) {
       e.preventDefault();
       alert('Please correct all errors before submitting the form.');
-      // Go to the first step with errors
       for (let i = 0; i < steps.length; i++) {
         if (!validateStep(i)) {
           current = i;
@@ -881,20 +1549,23 @@
   // Show first step
   show(current);
 
-  // Optional: scroll into view for each step
+  // Scroll into view for each step
   steps.forEach(s => s.addEventListener('transitionend', ()=> s.scrollIntoView({behavior:'smooth'})));
 
   // Mobile menu toggle
   const mobileMenuButton = document.querySelector('.md:hidden button');
-  
-  mobileMenuButton.addEventListener('click', function() {
-    const menu = document.querySelector('.md-hidden');
-    if (menu.classList.contains('hidden')) {
-      menu.classList.remove('hidden');
-    } else {
-      menu.classList.add('hidden');
-    }
-  });
+  if (mobileMenuButton) {
+    mobileMenuButton.addEventListener('click', function() {
+      const menu = document.querySelector('.md-hidden');
+      if (menu) {
+        if (menu.classList.contains('hidden')) {
+          menu.classList.remove('hidden');
+        } else {
+          menu.classList.add('hidden');
+        }
+      }
+    });
+  }
 })();
 </script>
 </body>
