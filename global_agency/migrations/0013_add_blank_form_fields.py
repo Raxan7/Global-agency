@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='declaration_applicant_name',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='declaration_signature_name',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='office_director_name',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq1_institution',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq1_period',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq1_title',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq2_institution',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq2_period',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq2_title',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -138,7 +138,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq3_institution',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -148,7 +148,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq3_period',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -158,7 +158,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='profq3_title',
-            field=models.CharField(blank=True, max_length=255, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -168,7 +168,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work1_company_name',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -178,7 +178,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work1_district',
-            field=models.CharField(blank=True, max_length=120, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -193,17 +193,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work1_employment_type',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work1_position',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work1_region',
-            field=models.CharField(blank=True, max_length=120, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -218,17 +218,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work1_street',
-            field=models.CharField(blank=True, max_length=180, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work1_supervisor',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work1_ward',
-            field=models.CharField(blank=True, max_length=120, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -248,7 +248,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work2_company_name',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -258,7 +258,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work2_district',
-            field=models.CharField(blank=True, max_length=120, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -273,17 +273,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work2_employment_type',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work2_position',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work2_region',
-            field=models.CharField(blank=True, max_length=120, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
@@ -298,17 +298,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentapplication',
             name='work2_street',
-            field=models.CharField(blank=True, max_length=180, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work2_supervisor',
-            field=models.CharField(blank=True, max_length=200, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
             name='work2_ward',
-            field=models.CharField(blank=True, max_length=120, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='studentapplication',
