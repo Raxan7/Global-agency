@@ -1831,19 +1831,27 @@ def contact_messages(request):
     """View all contact messages and consultations"""
     profile = UserProfile.objects.get(user=request.user)
 
-    all_messages = ContactMessage.objects.all().order_by('-created_at')
+    current_tab = request.GET.get('tab', 'all')
+
+    # Base queryset — exclude blocked unless viewing spam
+    if current_tab == 'spam':
+        base = ContactMessage.objects.filter(is_blocked=True)
+    else:
+        base = ContactMessage.objects.filter(is_blocked=False)
+
+    base = base.order_by('-created_at')
 
     # Filter by handled status if provided
     status_filter = request.GET.get('status')
     if status_filter == 'new':
-        all_messages = all_messages.filter(handled=False)
+        base = base.filter(handled=False)
     elif status_filter == 'replied':
-        all_messages = all_messages.filter(handled=True)
+        base = base.filter(handled=True)
 
     # Search functionality
     search_query = request.GET.get('search')
     if search_query:
-        all_messages = all_messages.filter(
+        base = base.filter(
             Q(name__icontains=search_query) |
             Q(email__icontains=search_query) |
             Q(phone__icontains=search_query) |
@@ -1851,14 +1859,22 @@ def contact_messages(request):
             Q(message__icontains=search_query)
         )
 
-    consultations = all_messages.exclude(destination__isnull=True).exclude(destination__exact='')
-    contact_messages = all_messages.filter(Q(destination__isnull=True) | Q(destination__exact=''))
+    if current_tab == 'spam':
+        consultations = base.none()
+        contact_messages_list = base
+        spam_messages = base
+    else:
+        consultations = base.exclude(destination__isnull=True).exclude(destination__exact='')
+        contact_messages_list = base.filter(Q(destination__isnull=True) | Q(destination__exact=''))
+        spam_messages = ContactMessage.objects.none()
     
     context = {
-        'contact_messages': contact_messages,
+        'contact_messages': contact_messages_list,
         'consultations': consultations,
+        'spam_messages': spam_messages,
         'status_filter': status_filter,
         'search_query': search_query,
+        'current_tab': current_tab,
         'is_admin': profile.is_admin(),
     }
     return render(request, 'employee/contact_messages.html', context)
@@ -1879,6 +1895,63 @@ def update_message_status(request, message_id):
             messages.success(request, f'Message status updated to {label}.')
         else:
             messages.error(request, 'Invalid status selected.')
+
+    return redirect('employee:contact_messages')
+
+
+@login_required
+@employee_required
+@csrf_protect
+def block_message(request, message_id):
+    """Toggle block/unblock a contact message"""
+    message = get_object_or_404(ContactMessage, id=message_id)
+    if request.method == 'POST':
+        message.is_blocked = not message.is_blocked
+        message.save(update_fields=['is_blocked'])
+        label = 'blocked' if message.is_blocked else 'unblocked'
+        messages.success(request, f'Message from {message.name} has been {label}.')
+    return redirect('employee:contact_messages')
+
+
+@login_required
+@employee_required
+@csrf_protect
+def delete_message(request, message_id):
+    """Delete a single contact message"""
+    message = get_object_or_404(ContactMessage, id=message_id)
+    if request.method == 'POST':
+        name = message.name
+        message.delete()
+        messages.success(request, f'Message from {name} has been deleted.')
+    return redirect('employee:contact_messages')
+
+
+@login_required
+@employee_required
+@csrf_protect
+def bulk_message_action(request):
+    """Handle bulk actions (block, unblock, delete) on messages"""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        message_ids = request.POST.getlist('message_ids')
+        if not message_ids:
+            messages.warning(request, 'No messages selected.')
+            return redirect('employee:contact_messages')
+
+        qs = ContactMessage.objects.filter(id__in=message_ids)
+
+        if action == 'block':
+            count = qs.update(is_blocked=True)
+            messages.success(request, f'{count} message(s) blocked.')
+        elif action == 'unblock':
+            count = qs.update(is_blocked=False)
+            messages.success(request, f'{count} message(s) unblocked.')
+        elif action == 'delete':
+            count = qs.count()
+            qs.delete()
+            messages.success(request, f'{count} message(s) deleted.')
+        else:
+            messages.error(request, 'Invalid action.')
 
     return redirect('employee:contact_messages')
 

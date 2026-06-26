@@ -83,6 +83,7 @@ class ContactMessage(models.Model):
     message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     handled = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)
     reply_subject = models.CharField(max_length=255, blank=True)
     reply_message = models.TextField(blank=True, null=True)
     replied_at = models.DateTimeField(blank=True, null=True)
