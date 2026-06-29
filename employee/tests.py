@@ -274,7 +274,6 @@ class OfflineStudentIntakeTests(TestCase):
             'emergency_relation': 'Mother',
             'heard_about_us': 'Referral',
             'profile_picture_upload': SimpleUploadedFile('profile.gif', VALID_GIF_BYTES, content_type='image/gif'),
-            'passport_document': SimpleUploadedFile('passport.pdf', b'%PDF-1.4 employee passport', content_type='application/pdf'),
         }
 
         response = self.client.post(reverse('employee:offline_application_create'), payload)
@@ -283,7 +282,6 @@ class OfflineStudentIntakeTests(TestCase):
         student_profile = StudentProfile.objects.get(user=student_user)
         portal_application = Application.objects.get(student=student_user)
         supplemental_profile = ApplicationSupplementalProfile.objects.get(application=portal_application)
-        passport_documents = Document.objects.filter(student=student_user, document_type='passport')
 
         self.assertRedirects(
             response,
@@ -291,10 +289,6 @@ class OfflineStudentIntakeTests(TestCase):
             fetch_redirect_response=False,
         )
         self.assertTrue(student_profile.profile_picture.name)
-        self.assertEqual(passport_documents.count(), 1)
-        self.assertTrue(passport_documents.first().file.name)
-        self.assertTrue(supplemental_profile.has_passport_copy)
-
     def test_employee_can_create_partial_offline_application_without_core_details(self):
         self.client.login(username='employee@example.com', password='EmployeePass123!')
 
@@ -673,7 +667,7 @@ class PartnerPortalTests(TestCase):
         self.assertEqual(response['Content-Type'], 'application/pdf')
         self.assertTrue(response.content.startswith(b'%PDF'))
 
-    def test_partner_can_upload_student_image_documents_and_supplemental_fields(self):
+    def test_partner_can_upload_student_image_and_supplemental_fields(self):
         self._activate_and_approve_partner()
 
         payload = self.student_payload.copy()
@@ -695,8 +689,6 @@ class PartnerPortalTests(TestCase):
             }
         )
         payload['profile_picture_upload'] = SimpleUploadedFile('profile.gif', VALID_GIF_BYTES, content_type='image/gif')
-        payload['passport_document'] = SimpleUploadedFile('passport.pdf', b'pdfcontent', content_type='application/pdf')
-        payload['academic_transcript_document'] = SimpleUploadedFile('transcript.pdf', b'pdfcontent', content_type='application/pdf')
 
         response = self.client.post(reverse('employee:partner_application_create'), payload)
 
@@ -704,69 +696,9 @@ class PartnerPortalTests(TestCase):
         portal_application = Application.objects.get(student__username='amina@example.com')
         student_profile = StudentProfile.objects.get(user=portal_application.student)
         supplemental_profile = ApplicationSupplementalProfile.objects.get(application=portal_application)
-        documents = Document.objects.filter(student=portal_application.student)
 
         self.assertTrue(student_profile.profile_picture.name)
         self.assertEqual(supplemental_profile.passport_number, 'TZ1234567')
         self.assertTrue(supplemental_profile.declaration_agreed)
-        self.assertTrue(supplemental_profile.has_passport_photo)
-        self.assertTrue(supplemental_profile.has_passport_copy)
-        self.assertEqual(documents.count(), 2)
 
-    def test_partner_edit_without_new_upload_keeps_existing_document(self):
-        self._activate_and_approve_partner()
 
-        create_payload = self.student_payload.copy()
-        create_payload['passport_document'] = SimpleUploadedFile(
-            'passport-initial.pdf',
-            b'%PDF-1.4 initial passport',
-            content_type='application/pdf',
-        )
-        self.client.post(reverse('employee:partner_application_create'), create_payload)
-
-        application = StudentApplication.objects.get(email='amina@example.com')
-        existing_document = Document.objects.get(student=application.student_user, document_type='passport')
-        existing_name = existing_document.file.name
-
-        response = self.client.post(
-            reverse('employee:partner_application_edit', kwargs={'pk': application.id}),
-            self.student_payload,
-        )
-
-        document_after_edit = Document.objects.get(student=application.student_user, document_type='passport')
-        self.assertRedirects(response, reverse('employee:partner_dashboard'), fetch_redirect_response=False)
-        self.assertEqual(Document.objects.filter(student=application.student_user, document_type='passport').count(), 1)
-        self.assertEqual(document_after_edit.file.name, existing_name)
-
-    def test_partner_edit_new_upload_replaces_existing_document_type(self):
-        self._activate_and_approve_partner()
-
-        create_payload = self.student_payload.copy()
-        create_payload['passport_document'] = SimpleUploadedFile(
-            'passport-initial.pdf',
-            b'%PDF-1.4 initial passport',
-            content_type='application/pdf',
-        )
-        self.client.post(reverse('employee:partner_application_create'), create_payload)
-
-        application = StudentApplication.objects.get(email='amina@example.com')
-        first_document = Document.objects.get(student=application.student_user, document_type='passport')
-        first_name = first_document.file.name
-
-        edit_payload = self.student_payload.copy()
-        edit_payload['passport_document'] = SimpleUploadedFile(
-            'passport-updated.pdf',
-            b'%PDF-1.4 updated passport',
-            content_type='application/pdf',
-        )
-
-        response = self.client.post(
-            reverse('employee:partner_application_edit', kwargs={'pk': application.id}),
-            edit_payload,
-        )
-
-        updated_document = Document.objects.get(student=application.student_user, document_type='passport')
-        self.assertRedirects(response, reverse('employee:partner_dashboard'), fetch_redirect_response=False)
-        self.assertEqual(Document.objects.filter(student=application.student_user, document_type='passport').count(), 1)
-        self.assertTrue(updated_document.file.name)
-        self.assertNotEqual(updated_document.file.name, first_name)

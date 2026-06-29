@@ -195,7 +195,7 @@ def _supplemental_widget_overrides(field_names):
             'professional_qualifications', 'valid_visa_details',
             'education_sponsor', 'estimated_budget_usd',
             'scholarship_details', 'medical_condition_details',
-            'special_assistance_details', 'other_attachments_description',
+            'special_assistance_details',
         ):
             widgets[fname] = forms.Textarea(attrs={'class': 'form-input', 'rows': 3})
         elif fname in ('english_is_primary_language', 'has_valid_visa',

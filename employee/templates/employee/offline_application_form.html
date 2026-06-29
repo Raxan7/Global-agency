@@ -424,7 +424,7 @@
                             {% if field.name == 'certificate_institution' %}
                         <h4 class="subsection-heading">POST-SECONDARY / HIGHER EDUCATION</h4>
                             {% endif %}
-                        <div class="form-field {% if field.name == 'alevel_remarks' or field.name == 'olevel_remarks' or field.name == 'place_of_birth' or field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <div class="form-field {% if field.name == 'alevel_remarks' or field.name == 'olevel_remarks' or field.name == 'place_of_birth' or field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
                             {% if field.help_text %}
@@ -546,20 +546,6 @@
                     </div>
 
                     {% elif section.key == 'uploads' %}
-                    <div class="form-grid">
-                        {% for field in section.bound_fields %}
-                        <div class="form-field checkbox-field full">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                            <p class="field-help">{{ field.help_text }}</p>
-                            {% endif %}
-                            {% if field.errors %}
-                            <div class="field-errors">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
                     <div class="section-divider"></div>
                     <h4 style="margin: 1rem 0 0.5rem; font-size: 1.1rem;">Upload New Documents</h4>
                     <p style="color: var(--muted); margin-bottom: 1rem;">Select a document type and upload the file. Click "Add Document" to upload more files.</p>
@@ -605,7 +591,7 @@
                     {% else %}
                     <div class="form-grid">
                         {% for field in section.bound_fields %}
-                        <div class="form-field {% if field.name == 'place_of_birth' or field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.name == 'valid_visa_details' or field.name == 'office_reason' or field.name == 'declaration_agreed' or field.name == 'terms_accepted' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
+                        <div class="form-field {% if field.name == 'place_of_birth' or field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'valid_visa_details' or field.name == 'office_reason' or field.name == 'declaration_agreed' or field.name == 'terms_accepted' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
                             {% if field.help_text %}

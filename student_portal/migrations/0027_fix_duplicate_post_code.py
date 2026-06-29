@@ -10,20 +10,40 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='applicationsupplementaladdress',
-            name='post_code',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='applicationsupplementaladdress',
+                    name='post_code',
+                ),
+            ],
         ),
-        migrations.RemoveField(
-            model_name='applicationsupplementalprofile',
-            name='current_post_code',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='applicationsupplementalprofile',
+                    name='current_post_code',
+                ),
+            ],
         ),
-        migrations.RemoveField(
-            model_name='applicationsupplementalprofile',
-            name='permanent_post_code',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='applicationsupplementalprofile',
+                    name='permanent_post_code',
+                ),
+            ],
         ),
-        migrations.RemoveField(
-            model_name='studentaddress',
-            name='post_code',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='studentaddress',
+                    name='post_code',
+                ),
+            ],
         ),
     ]

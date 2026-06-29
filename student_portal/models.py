@@ -1471,19 +1471,6 @@ class ApplicationSupplementalProfile(models.Model):
     needs_special_assistance = models.BooleanField(null=True, blank=True)
     special_assistance_details = models.TextField(null=True, blank=True)
 
-    # Document checklist
-    has_passport_photo = models.BooleanField(null=True, blank=True)
-    has_passport_copy = models.BooleanField(null=True, blank=True)
-    has_academic_certificates = models.BooleanField(null=True, blank=True)
-    has_academic_transcripts = models.BooleanField(null=True, blank=True)
-    has_english_test_results = models.BooleanField(null=True, blank=True)
-    has_cv_resume = models.BooleanField(null=True, blank=True)
-    has_personal_statement = models.BooleanField(null=True, blank=True)
-    has_recommendation_letters = models.BooleanField(null=True, blank=True)
-    has_financial_proof = models.BooleanField(null=True, blank=True)
-    has_health_insurance = models.BooleanField(null=True, blank=True)
-    has_other_attachments = models.BooleanField(null=True, blank=True)
-    other_attachments_description = models.TextField(null=True, blank=True)
     declaration_agreed = models.BooleanField(null=True, blank=True)
 
     serial_number = models.CharField(max_length=100, null=True, blank=True)

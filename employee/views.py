@@ -35,9 +35,6 @@ from student_portal.forms import (
     StudyPreferencesForm,
 )
 from .forms import (
-    DOCUMENT_FLAG_FIELD_MAP,
-    DOCUMENT_TYPE_FLAG_MAP,
-    DOCUMENT_UPLOAD_FIELD_MAP,
     SUPPLEMENTAL_FIELD_NAMES,
     OfflineStudentIntakeForm,
     PartnerRegistrationForm,
@@ -372,7 +369,7 @@ def edit_student_application(request, application_id):
         'scholarship_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
         'medical_condition_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
         'special_assistance_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
-        'other_attachments_description': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+
         'english_test_name': forms.TextInput(attrs={'class': 'form-input'}),
         'english_test_institution': forms.TextInput(attrs={'class': 'form-input'}),
         'english_test_score': forms.TextInput(attrs={'class': 'form-input'}),
@@ -627,7 +624,6 @@ def edit_student_application(request, application_id):
         'scholarship_details',
         'medical_condition_details',
         'special_assistance_details',
-        'other_attachments_description',
         'valid_visa_details',
         'current_address',
         'permanent_address',
@@ -978,9 +974,6 @@ def _create_or_update_student_portal_records(
         year = portal_application.created_at.year if portal_application.created_at else timezone.now().year
         supplemental_profile.serial_number = f'AWECO/INT/REG/TZ/DSM/{year}8{portal_application.id:03d}'
 
-    if profile_picture:
-        supplemental_profile.has_passport_photo = True
-
     if document_formset:
         for doc_form in document_formset:
             if not doc_form.cleaned_data or doc_form.cleaned_data.get('DELETE'):
@@ -1014,9 +1007,6 @@ def _create_or_update_student_portal_records(
                 document_record.file.name,
                 document_record.file.url,
             )
-            supplemental_flag = DOCUMENT_TYPE_FLAG_MAP.get(document_type)
-            if supplemental_flag:
-                setattr(supplemental_profile, supplemental_flag, True)
 
     supplemental_profile.save()
 
@@ -1421,21 +1411,14 @@ def _build_intake_form_sections(form):
             'title': 'Supporting Documents',
             'description': 'Upload supporting files.',
             'icon': 'fa-file-arrow-up',
-            'fields': [
-                'has_passport_copy', 'has_passport_photo', 'has_academic_certificates',
-                'has_academic_transcripts', 'has_english_test_results',
-                'has_cv_resume', 'has_personal_statement',
-                'has_recommendation_letters', 'has_financial_proof',
-                'has_health_insurance', 'has_other_attachments',
-                'other_attachments_description',
-            ],
+            'fields': [],
         },
     ]
 
     sections = []
     for spec in section_specs:
         available_fields = [field_name for field_name in spec['fields'] if field_name in form.fields]
-        if not available_fields:
+        if not available_fields and spec['key'] != 'uploads':
             continue
         bound_fields = [form[field_name] for field_name in available_fields]
         sections.append({

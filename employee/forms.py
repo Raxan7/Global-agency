@@ -120,16 +120,11 @@ SUPPLEMENTAL_FIELD_GROUPS = [
     ),
     (
         'awec_declaration',
-        'Declaration And Checklist',
-        'Track uploaded-document coverage and the applicant declaration.',
+        'Declaration',
+        'Applicant declaration.',
         'fa-file-signature',
         [
-            'has_passport_copy', 'has_passport_photo', 'has_academic_certificates',
-            'has_academic_transcripts', 'has_english_test_results',
-            'has_cv_resume', 'has_personal_statement',
-            'has_recommendation_letters', 'has_financial_proof',
-            'has_health_insurance', 'has_other_attachments',
-            'other_attachments_description', 'declaration_agreed',
+            'declaration_agreed',
         ],
     ),
 ]
@@ -139,56 +134,6 @@ SUPPLEMENTAL_FIELD_NAMES = [
     for _, _, _, _, field_names in SUPPLEMENTAL_FIELD_GROUPS
     for field_name in field_names
 ]
-
-DOCUMENT_UPLOAD_FIELD_MAP = [
-    ('passport_document', 'passport', 'Passport copy'),
-    ('passport_photo_document', 'passport_photo', 'Passport photo'),
-    ('ordinary_level_document', 'ordinary_level', 'O-Level certificate'),
-    ('advanced_level_document', 'advanced_level', 'A-Level certificate'),
-    ('academic_transcript_document', 'academic_transcript', 'Academic transcripts'),
-    ('degree_certificate_document', 'degree_certificate', 'Degree / diploma certificates'),
-    ('application_form_document', 'application_form', 'Application form'),
-    ('recommendation_letter_document', 'recommendation_letter', 'Recommendation letter(s)'),
-    ('sop_document', 'sop', 'Statement of Purpose / Motivation Letter'),
-    ('cv_document', 'cv', 'CV / resume'),
-    ('language_test_document', 'language_test', 'English proficiency test'),
-    ('proof_of_funds_document', 'proof_of_funds', 'Proof of funds'),
-    ('health_insurance_document', 'health_insurance', 'Health insurance'),
-]
-
-DOCUMENT_FLAG_FIELD_MAP = {
-    'passport_document': 'has_passport_copy',
-    'passport_photo_document': 'has_passport_photo',
-    'ordinary_level_document': 'has_academic_certificates',
-    'advanced_level_document': 'has_academic_certificates',
-    'academic_transcript_document': 'has_academic_transcripts',
-    'degree_certificate_document': 'has_academic_certificates',
-    'application_form_document': 'has_other_attachments',
-    'recommendation_letter_document': 'has_recommendation_letters',
-    'sop_document': 'has_personal_statement',
-    'cv_document': 'has_cv_resume',
-    'language_test_document': 'has_english_test_results',
-    'proof_of_funds_document': 'has_financial_proof',
-    'health_insurance_document': 'has_health_insurance',
-}
-
-DOCUMENT_TYPE_FLAG_MAP = {
-    'passport': 'has_passport_copy',
-    'passport_photo': 'has_passport_photo',
-    'ordinary_level': 'has_academic_certificates',
-    'advanced_level': 'has_academic_certificates',
-    'academic_transcript': 'has_academic_transcripts',
-    'degree_certificate': 'has_academic_certificates',
-    'application_form': 'has_other_attachments',
-    'recommendation_letter': 'has_recommendation_letters',
-    'sop': 'has_personal_statement',
-    'cv': 'has_cv_resume',
-    'language_test': 'has_english_test_results',
-    'proof_of_funds': 'has_financial_proof',
-    'health_insurance': 'has_health_insurance',
-    'financial_documents': 'has_other_attachments',
-}
-
 
 class SupportingDocumentForm(forms.Form):
     document_type = forms.ChoiceField(
@@ -208,7 +153,6 @@ SupportingDocumentFormSet = formset_factory(
     can_delete=True,
     can_delete_extra=True,
 )
-
 
 SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
     'full_name_passport',
