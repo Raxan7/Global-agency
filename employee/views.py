@@ -36,11 +36,13 @@ from student_portal.forms import (
 )
 from .forms import (
     DOCUMENT_FLAG_FIELD_MAP,
+    DOCUMENT_TYPE_FLAG_MAP,
     DOCUMENT_UPLOAD_FIELD_MAP,
     SUPPLEMENTAL_FIELD_NAMES,
     OfflineStudentIntakeForm,
     PartnerRegistrationForm,
     PortalUpdateForm,
+    SupportingDocumentFormSet,
 )
 from .models import PortalUpdate, UserProfile
 from .decorators import employee_required, admin_required, partner_required
@@ -717,6 +719,7 @@ def _create_or_update_student_portal_records(
     portal_application=None,
     reset_password=True,
     uploaded_files=None,
+    document_formset=None,
 ):
     def text_value(key):
         return cleaned_data.get(key) or ''
@@ -978,17 +981,22 @@ def _create_or_update_student_portal_records(
     if profile_picture:
         supplemental_profile.has_passport_photo = True
 
-    for field_name, document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP:
-        uploaded_document = (uploaded_files or {}).get(field_name)
-        if uploaded_document:
-            existing_documents = Document.objects.filter(student=user, document_type=document_type).order_by('-uploaded_at')
-            existing_document = existing_documents.first()
-            if existing_document:
-                existing_documents.exclude(pk=existing_document.pk).delete()
-                persist_field_file(existing_document.file, uploaded_document, f'documents/{document_type}')
-                existing_document.description = f'Uploaded through the {uploader_label} intake workflow.'
-                existing_document.is_verified = False
-                existing_document.save(update_fields=['file', 'description', 'is_verified'])
+    if document_formset:
+        for doc_form in document_formset:
+            if not doc_form.cleaned_data or doc_form.cleaned_data.get('DELETE'):
+                continue
+            document_type = doc_form.cleaned_data.get('document_type')
+            uploaded_document = doc_form.cleaned_data.get('file')
+            if not document_type or not uploaded_document:
+                continue
+            existing_docs = Document.objects.filter(student=user, document_type=document_type).order_by('-uploaded_at')
+            existing_doc = existing_docs.first()
+            if existing_doc:
+                existing_docs.exclude(pk=existing_doc.pk).delete()
+                persist_field_file(existing_doc.file, uploaded_document, f'documents/{document_type}')
+                existing_doc.description = f'Uploaded through the {uploader_label} intake workflow.'
+                existing_doc.is_verified = False
+                existing_doc.save(update_fields=['file', 'description', 'is_verified'])
             else:
                 document = Document(
                     student=user,
@@ -997,7 +1005,7 @@ def _create_or_update_student_portal_records(
                 )
                 persist_field_file(document.file, uploaded_document, f'documents/{document_type}')
                 document.save()
-            document_record = existing_document if existing_document else document
+            document_record = existing_doc if existing_doc else document
             logger.info(
                 'Saved document via %s for %s: type=%s name=%s url=%s',
                 document_record.file.storage.__class__.__name__,
@@ -1006,7 +1014,7 @@ def _create_or_update_student_portal_records(
                 document_record.file.name,
                 document_record.file.url,
             )
-            supplemental_flag = DOCUMENT_FLAG_FIELD_MAP.get(field_name)
+            supplemental_flag = DOCUMENT_TYPE_FLAG_MAP.get(document_type)
             if supplemental_flag:
                 setattr(supplemental_profile, supplemental_flag, True)
 
@@ -1084,6 +1092,8 @@ def offline_application_create(request):
     supplemental_instance = None
     student_profile_instance = None
     existing_documents = []
+    document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')
+
     if request.method == 'POST':
         form = OfflineStudentIntakeForm(
             request.POST,
@@ -1092,7 +1102,7 @@ def offline_application_create(request):
             student_profile_instance=student_profile_instance,
             existing_documents=existing_documents,
         )
-        if form.is_valid():
+        if form.is_valid() and document_formset.is_valid():
             try:
                 with transaction.atomic():
                     offline_application = form.save(commit=False)
@@ -1105,6 +1115,7 @@ def offline_application_create(request):
                         form.cleaned_data,
                         request.user,
                         uploaded_files=request.FILES,
+                        document_formset=document_formset,
                     )
 
                     offline_application.student_user = student_user
@@ -1162,6 +1173,7 @@ def offline_application_create(request):
             'submit_label': 'Save student and create account',
             'current_profile_picture': getattr(form, 'current_profile_picture', None),
             'existing_documents': form.existing_documents_by_type,
+            'document_formset': document_formset,
         },
     )
 
@@ -1410,8 +1422,6 @@ def _build_intake_form_sections(form):
             'description': 'Upload supporting files.',
             'icon': 'fa-file-arrow-up',
             'fields': [
-                field_name for field_name, _document_type, _label in DOCUMENT_UPLOAD_FIELD_MAP
-            ] + [
                 'has_passport_copy', 'has_passport_photo', 'has_academic_certificates',
                 'has_academic_transcripts', 'has_english_test_results',
                 'has_cv_resume', 'has_personal_statement',
@@ -1598,9 +1608,11 @@ def partner_dashboard(request):
 @partner_required
 @csrf_protect
 def partner_application_create(request):
+    document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')
+
     if request.method == 'POST':
         form = OfflineStudentIntakeForm(request.POST, request.FILES)
-        if form.is_valid():
+        if form.is_valid() and document_formset.is_valid():
             try:
                 with transaction.atomic():
                     offline_application = form.save(commit=False)
@@ -1613,6 +1625,7 @@ def partner_application_create(request):
                         form.cleaned_data,
                         request.user,
                         uploaded_files=request.FILES,
+                        document_formset=document_formset,
                     )
 
                     offline_application.student_user = student_user
@@ -1665,6 +1678,7 @@ def partner_application_create(request):
             'submit_label': 'Save student record',
             'current_profile_picture': getattr(form, 'current_profile_picture', None),
             'existing_documents': form.existing_documents_by_type,
+            'document_formset': document_formset,
         },
     )
 
@@ -1687,6 +1701,8 @@ def partner_application_edit(request, pk):
         if application.student_user else Document.objects.none()
     )
 
+    document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')
+
     if request.method == 'POST':
         form = OfflineStudentIntakeForm(
             request.POST,
@@ -1696,7 +1712,7 @@ def partner_application_edit(request, pk):
             student_profile_instance=student_profile_instance,
             existing_documents=existing_documents,
         )
-        if form.is_valid():
+        if form.is_valid() and document_formset.is_valid():
             try:
                 with transaction.atomic():
                     offline_application = form.save(commit=False)
@@ -1712,6 +1728,7 @@ def partner_application_edit(request, pk):
                         portal_application=application.portal_application,
                         reset_password=False,
                         uploaded_files=request.FILES,
+                        document_formset=document_formset,
                     )
 
                     offline_application.student_user = student_user
@@ -1759,6 +1776,7 @@ def partner_application_edit(request, pk):
             'application': application,
             'current_profile_picture': getattr(form, 'current_profile_picture', None),
             'existing_documents': form.existing_documents_by_type,
+            'document_formset': document_formset,
         },
     )
 

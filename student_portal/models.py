@@ -781,7 +781,6 @@ class StudentAddress(models.Model):
     ward_post_code = models.CharField(max_length=30, blank=True)
     house_no = models.CharField(max_length=80, blank=True)
     postal_code = models.CharField(max_length=30, blank=True)
-    post_code = models.CharField(max_length=30, blank=True)
 
     street = models.TextField(blank=True)
     mtaa = models.TextField(blank=True)
@@ -1355,7 +1354,6 @@ class ApplicationSupplementalProfile(models.Model):
     current_place_neighbourhood = models.CharField(max_length=180, null=True, blank=True)
     current_house_no = models.CharField(max_length=80, null=True, blank=True)
     current_postal_code = models.TextField(null=True, blank=True)
-    current_post_code = models.CharField(max_length=30, null=True, blank=True)
     current_address = models.TextField(null=True, blank=True)
     current_address_status = models.CharField(max_length=120, null=True, blank=True)
     current_nearest_landmark = models.CharField(max_length=255, null=True, blank=True)
@@ -1379,7 +1377,6 @@ class ApplicationSupplementalProfile(models.Model):
     permanent_place_neighbourhood = models.CharField(max_length=180, null=True, blank=True)
     permanent_house_no = models.CharField(max_length=80, null=True, blank=True)
     permanent_postal_code = models.CharField(max_length=30, null=True, blank=True)
-    permanent_post_code = models.CharField(max_length=30, null=True, blank=True)
     permanent_address = models.TextField(null=True, blank=True)
     permanent_address_status = models.CharField(max_length=120, null=True, blank=True)
     permanent_nearest_landmark = models.CharField(max_length=255, null=True, blank=True)
@@ -1568,7 +1565,6 @@ class ApplicationSupplementalAddress(models.Model):
     ward_post_code = models.CharField(max_length=30, blank=True)
     house_no = models.CharField(max_length=80, blank=True)
     postal_code = models.CharField(max_length=30, blank=True)
-    post_code = models.CharField(max_length=30, blank=True)
     duration_at_address = models.CharField(max_length=120, blank=True)
     address_status = models.CharField(max_length=120, blank=True)
 
@@ -1612,7 +1608,6 @@ def _sync_supplemental_profile_normalized(supplemental: "ApplicationSupplemental
                 "ward_post_code": _attr(supplemental, "current_ward_post_code"),
                 "house_no": _attr(supplemental, "current_house_no"),
                 "postal_code": _attr(supplemental, "current_postal_code"),
-                "post_code": _attr(supplemental, "current_post_code"),
                 "duration_at_address": _attr(supplemental, "current_duration_at_address"),
                 "address_status": _attr(supplemental, "current_address_status"),
                 "street": _attr(supplemental, "current_street"),
@@ -1639,7 +1634,6 @@ def _sync_supplemental_profile_normalized(supplemental: "ApplicationSupplemental
                 "ward_post_code": _attr(supplemental, "permanent_ward_post_code"),
                 "house_no": _attr(supplemental, "permanent_house_no"),
                 "postal_code": _attr(supplemental, "permanent_postal_code"),
-                "post_code": _attr(supplemental, "permanent_post_code"),
                 "duration_at_address": _attr(supplemental, "permanent_duration_at_address"),
                 "address_status": _attr(supplemental, "permanent_address_status"),
                 "street": _attr(supplemental, "permanent_street"),

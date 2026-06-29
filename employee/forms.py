@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import formset_factory
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
@@ -7,7 +8,7 @@ from django.utils.html import strip_tags
 from urllib.parse import urlparse
 
 from global_agency.models import StudentApplication
-from student_portal.models import ApplicationSupplementalProfile, StudentProfile
+from student_portal.models import ApplicationSupplementalProfile, StudentProfile, Document
 
 from .models import PortalUpdate, PortalUpdateAttachment, PortalUpdateImage
 
@@ -170,6 +171,44 @@ DOCUMENT_FLAG_FIELD_MAP = {
     'proof_of_funds_document': 'has_financial_proof',
     'health_insurance_document': 'has_health_insurance',
 }
+
+DOCUMENT_TYPE_FLAG_MAP = {
+    'passport': 'has_passport_copy',
+    'passport_photo': 'has_passport_photo',
+    'ordinary_level': 'has_academic_certificates',
+    'advanced_level': 'has_academic_certificates',
+    'academic_transcript': 'has_academic_transcripts',
+    'degree_certificate': 'has_academic_certificates',
+    'application_form': 'has_other_attachments',
+    'recommendation_letter': 'has_recommendation_letters',
+    'sop': 'has_personal_statement',
+    'cv': 'has_cv_resume',
+    'language_test': 'has_english_test_results',
+    'proof_of_funds': 'has_financial_proof',
+    'health_insurance': 'has_health_insurance',
+    'financial_documents': 'has_other_attachments',
+}
+
+
+class SupportingDocumentForm(forms.Form):
+    document_type = forms.ChoiceField(
+        choices=Document.DOCUMENT_TYPES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Document Type',
+    )
+    file = forms.FileField(
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input'}),
+        label='File',
+    )
+
+
+SupportingDocumentFormSet = formset_factory(
+    SupportingDocumentForm,
+    extra=1,
+    can_delete=True,
+    can_delete_extra=True,
+)
+
 
 SINGLE_LINE_SUPPLEMENTAL_TEXT_FIELDS = {
     'full_name_passport',
@@ -548,19 +587,6 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         help_text='Upload the student photo that should appear in the portal and employee review pages.',
         label='Student image',
     )
-    passport_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    passport_photo_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    ordinary_level_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    advanced_level_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    academic_transcript_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    degree_certificate_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    application_form_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    recommendation_letter_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    sop_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    cv_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    language_test_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    proof_of_funds_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
-    health_insurance_document = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-input'}))
     parent_entry_mode = forms.ChoiceField(
         required=False,
         initial='guardian_only',
@@ -586,10 +612,6 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         self.existing_documents_by_type = {}
         for document in self.existing_documents:
             self.existing_documents_by_type.setdefault(document.document_type, document)
-
-        for field_name, _doc_type, label in DOCUMENT_UPLOAD_FIELD_MAP:
-            self.fields[field_name].label = label
-            self.fields[field_name].help_text = f'Upload the {label.lower()} file if it is available.'
 
         # Collect mtaa field names for the supplemental group
         mtaa_select_field_names = {f'current_{s}' for s in ['region', 'district', 'ward', 'street']}

@@ -378,6 +378,47 @@
                     <section class="step-panel {% if forloop.first %}active{% endif %} {% if section.key == 'parents' %}family-parent-section{% endif %} {% if section.key == 'guardian' %}family-guardian-section{% endif %}" data-step-panel="{{ forloop.counter0 }}" data-section-key="{{ section.key }}" {% if section.key == 'parents' %}id="parent-fields-block"{% endif %} {% if section.key == 'guardian' %}id="guardian-fields-block"{% endif %}>
                         <h3 class="step-heading">{{ section.title }}</h3>
                         <p class="step-description">{{ section.description }}</p>
+                        {% if section.key == 'uploads' %}
+                        <div class="form-grid">
+                            {% for field in section.bound_fields %}
+                            <div class="form-field checkbox-field full">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                <p class="field-help">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% if field.errors %}
+                                <div class="field-errors">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="section-divider"></div>
+                        <h4 style="margin: 1rem 0 0.5rem; font-size: 1.1rem;">Upload New Documents</h4>
+                        <p style="color: var(--muted); margin-bottom: 1rem;">Select a document type and upload the file. Click "Add Document" to upload more files.</p>
+                        {{ document_formset.management_form }}
+                        <div id="document-formset-container">
+                            {% for doc_form in document_formset %}
+                            <div class="document-form-row" style="display: flex; gap: 0.75rem; align-items: flex-end; margin-bottom: 0.75rem; padding: 0.75rem; background: var(--surface-soft); border-radius: 12px; border: 1px solid var(--line);">
+                                <div style="flex: 1; min-width: 180px;">
+                                    <label style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">{{ doc_form.document_type.label }}</label>
+                                    {{ doc_form.document_type }}
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">{{ doc_form.file.label }}</label>
+                                    {{ doc_form.file }}
+                                </div>
+                                {% if doc_form.DELETE %}
+                                <div style="display: flex; align-items: center; gap: 0.35rem; padding-bottom: 0.25rem;">
+                                    <label for="{{ doc_form.DELETE.id_for_label }}" style="font-size: 0.82rem; font-weight: 600; color: var(--danger); cursor: pointer;">Remove</label>
+                                    {{ doc_form.DELETE }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" id="add-document-row" class="btn btn-secondary btn-sm" style="margin-top: 0.25rem;"><i class="fas fa-plus"></i> Add Document</button>
+                        {% else %}
                         <div class="form-grid">
                             {% for field in section.bound_fields %}
                             <div class="form-field {% if field.name == 'address' or field.name == 'current_address' or field.name == 'parent_entry_mode' or field.name == 'professional_qualifications' or field.name == 'scholarship_details' or field.name == 'medical_condition_details' or field.name == 'special_assistance_details' or field.name == 'other_attachments_description' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'textarea' %}full{% endif %}">
@@ -392,6 +433,7 @@
                             </div>
                             {% endfor %}
                         </div>
+                        {% endif %}
                     </section>
                     {% endfor %}
 
@@ -483,6 +525,62 @@
                 setStep(errorStep >= 0 ? errorStep : 0);
             } else {
                 setStep(0);
+            }
+
+            // Dynamic document formset rows
+            const docContainer = document.getElementById('document-formset-container');
+            const addDocBtn = document.getElementById('add-document-row');
+            const totalForms = document.querySelector('[name="documents-TOTAL_FORMS"]');
+
+            if (docContainer && addDocBtn && totalForms) {
+                function updateDeleteVisibility() {
+                    const rows = docContainer.querySelectorAll('.document-form-row');
+                    rows.forEach(function (row, index) {
+                        const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+                        if (deleteCheckbox) {
+                            if (index === 0 && rows.length === 1) {
+                                deleteCheckbox.closest('div').style.visibility = 'hidden';
+                            } else {
+                                deleteCheckbox.closest('div').style.visibility = 'visible';
+                            }
+                        }
+                    });
+                }
+
+                addDocBtn.addEventListener('click', function () {
+                    const count = parseInt(totalForms.value);
+                    const template = docContainer.querySelector('.document-form-row');
+                    const newRow = template.cloneNode(true);
+                    newRow.querySelectorAll('input, select, textarea').forEach(function (input) {
+                        var name = input.name.replace(/-\d+-/g, '-' + count + '-');
+                        var id = input.id.replace(/-\d+-/g, '-' + count + '-');
+                        input.name = name;
+                        input.id = id;
+                        if (input.type !== 'file') {
+                            input.value = '';
+                        } else {
+                            input.value = '';
+                        }
+                    });
+                    newRow.querySelectorAll('label').forEach(function (label) {
+                        var htmlFor = label.getAttribute('for');
+                        if (htmlFor) {
+                            label.setAttribute('for', htmlFor.replace(/-\d+-/g, '-' + count + '-'));
+                        }
+                    });
+                    docContainer.appendChild(newRow);
+                    totalForms.value = count + 1;
+                    updateDeleteVisibility();
+                });
+
+                docContainer.addEventListener('change', function (e) {
+                    if (e.target.type === 'checkbox' && e.target.name.indexOf('-DELETE') > -1) {
+                        const row = e.target.closest('.document-form-row');
+                        row.style.display = e.target.checked ? 'none' : '';
+                    }
+                });
+
+                updateDeleteVisibility();
             }
         });
     </script>
