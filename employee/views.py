@@ -1078,13 +1078,24 @@ def _create_or_update_student_portal_records(
 @employee_required
 @csrf_protect
 def offline_application_create(request):
-    """Capture an offline application on behalf of a student."""
-    supplemental_instance = None
+    """Capture an offline application on behalf of a student with step-by-step draft saving."""
+    draft_id = request.GET.get('draft') or request.POST.get('draft_id')
+    draft = None
+    if draft_id:
+        try:
+            draft = StudentApplication.objects.get(id=draft_id, is_draft=True)
+        except StudentApplication.DoesNotExist:
+            draft = None
+
+    supplemental_instance = getattr(draft, 'portal_application', None)
     student_profile_instance = None
     existing_documents = []
     document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')
 
     if request.method == 'POST':
+        wizard_step = request.POST.get('wizard_step')
+        save_draft = request.POST.get('save_draft')
+
         form = OfflineStudentIntakeForm(
             request.POST,
             request.FILES,
@@ -1092,78 +1103,127 @@ def offline_application_create(request):
             student_profile_instance=student_profile_instance,
             existing_documents=existing_documents,
         )
-        if form.is_valid() and document_formset.is_valid():
-            try:
-                with transaction.atomic():
-                    offline_application = form.save(commit=False)
-                    (
-                        student_user,
-                        _student_profile,
-                        portal_application,
-                        default_password,
-                    ) = _create_or_update_student_portal_records(
-                        form.cleaned_data,
-                        request.user,
-                        uploaded_files=request.FILES,
-                        document_formset=document_formset,
-                    )
 
-                    offline_application.student_user = student_user
-                    offline_application.portal_application = portal_application
-                    offline_application.created_by = request.user
-                    offline_application.account_created = True
-                    offline_application.username = student_user.username
-                    offline_application.temporary_password = default_password
-                    offline_application.save()
-            except IntegrityError as e:
-                logger.exception(
-                    'Offline intake database integrity error for %s. Files=%s',
-                    form.cleaned_data.get('email'),
-                    list(request.FILES.keys()),
-                )
-                messages.error(request, f'A database error occurred: {e}. This might be due to duplicate data or a missing reference. Please check the input.')
-                # The transaction.atomic() block will automatically roll back on exception
-            except ValidationError as e:
-                messages.error(request, f'Validation error during offline intake: {e.message_dict or e.messages}')
-            except Exception as e:
-                logger.exception(
-                    'Offline intake upload failed for %s. Files=%s',
-                    form.cleaned_data.get('email'),
-                    list(request.FILES.keys()),
-                )
-                messages.error(request, 'The upload failed while saving to Cloudinary. Please try again with a valid file.')
-            else:
-                messages.success(
-                    request,
-                    f'Offline application saved for {student_user.get_full_name() or student_user.username}. '
-                    f'Login username: {student_user.username} | Default password: {default_password}',
-                )
-                return redirect('employee:student_application_detail', application_id=portal_application.id)
+        step_specs = _build_intake_form_sections(form)
+        step_keys = [s['key'] for s in step_specs]
+
+        if wizard_step and wizard_step != 'uploads':
+            if wizard_step in step_keys:
+                current_section = next((s for s in step_specs if s['key'] == wizard_step), None)
+                if current_section:
+                    step_fields = current_section.get('fields', [])
+                    if not draft:
+                        draft = StudentApplication.objects.create(
+                            is_draft=True,
+                            current_step=0,
+                            created_by=request.user,
+                        )
+                    for field_name in step_fields:
+                        if field_name in request.POST and hasattr(draft, field_name):
+                            setattr(draft, field_name, request.POST.get(field_name))
+                    current_idx = step_keys.index(wizard_step)
+                    draft.current_step = current_idx + 1
+                    draft.save()
+                    messages.success(request, f'Step "{current_section["title"]}" saved!')
+                    if save_draft:
+                        return redirect(f'{request.path}?draft={draft.id}')
+                    next_step = current_idx + 1
+                    if next_step < len(step_keys) and step_keys[next_step] != 'uploads':
+                        return redirect(f'{request.path}?step={step_keys[next_step]}&draft={draft.id}')
+                    elif next_step < len(step_keys):
+                        return redirect(f'{request.path}?step={step_keys[next_step]}&draft={draft.id}')
+                    else:
+                        return redirect(f'{request.path}?draft={draft.id}')
         else:
-            logger.warning(
-                'Offline intake form invalid for %s. Errors=%s Files=%s',
-                form['email'].value(),
-                form.errors.as_json(),
-                list(request.FILES.keys()),
-            )
+            if form.is_valid() and document_formset.is_valid():
+                try:
+                    with transaction.atomic():
+                        offline_application = form.save(commit=False)
+                        if draft:
+                            offline_application.id = draft.id
+                            offline_application.is_draft = False
+                        (
+                            student_user,
+                            _student_profile,
+                            portal_application,
+                            default_password,
+                        ) = _create_or_update_student_portal_records(
+                            form.cleaned_data,
+                            request.user,
+                            uploaded_files=request.FILES,
+                            document_formset=document_formset,
+                        )
+
+                        offline_application.student_user = student_user
+                        offline_application.portal_application = portal_application
+                        offline_application.created_by = request.user
+                        offline_application.account_created = True
+                        offline_application.username = student_user.username
+                        offline_application.temporary_password = default_password
+                        offline_application.save()
+                except IntegrityError as e:
+                    logger.exception(
+                        'Offline intake database integrity error for %s. Files=%s',
+                        form.cleaned_data.get('email'),
+                        list(request.FILES.keys()),
+                    )
+                    messages.error(request, f'A database error occurred: {e}. This might be due to duplicate data or a missing reference. Please check the input.')
+                except ValidationError as e:
+                    messages.error(request, f'Validation error during offline intake: {e.message_dict or e.messages}')
+                except Exception as e:
+                    logger.exception(
+                        'Offline intake upload failed for %s. Files=%s',
+                        form.cleaned_data.get('email'),
+                        list(request.FILES.keys()),
+                    )
+                    messages.error(request, 'The upload failed while saving to Cloudinary. Please try again with a valid file.')
+                else:
+                    messages.success(
+                        request,
+                        f'Offline application saved for {student_user.get_full_name() or student_user.username}. '
+                        f'Login username: {student_user.username} | Default password: {default_password}',
+                    )
+                    return redirect('employee:student_application_detail', application_id=portal_application.id)
+            else:
+                logger.warning(
+                    'Offline intake form invalid for %s. Errors=%s Files=%s',
+                    form['email'].value(),
+                    form.errors.as_json(),
+                    list(request.FILES.keys()),
+                )
     else:
-        form = OfflineStudentIntakeForm(
-            supplemental_instance=supplemental_instance,
-            student_profile_instance=student_profile_instance,
-            existing_documents=existing_documents,
-        )
+            initial_data = {}
+            if draft:
+                for field in StudentApplication._meta.get_fields():
+                    if field.name in [f.name for f in StudentApplication._meta.get_fields()]:
+                        val = getattr(draft, field.name, None)
+                        if val is not None:
+                            initial_data[field.name] = val
+            form = OfflineStudentIntakeForm(
+                initial=initial_data,
+                supplemental_instance=supplemental_instance,
+                student_profile_instance=student_profile_instance,
+                existing_documents=existing_documents,
+            )
+
+    form_sections = _build_intake_form_sections(form)
+    step_keys = [s['key'] for s in form_sections]
+    resume_step = request.GET.get('step')
 
     return render(
         request,
         'employee/offline_application_form.html',
         {
             'form': form,
-            'form_sections': _build_intake_form_sections(form),
+            'form_sections': form_sections,
             'page_title': 'Add offline application',
             'submit_label': 'Save student and create account',
             'current_profile_picture': getattr(form, 'current_profile_picture', None),
             'existing_documents': form.existing_documents_by_type,
             'document_formset': document_formset,
+            'step_keys': step_keys,
+            'resume_step': resume_step,
+            'draft_id': draft.id if draft else None,
         },
     )
 
@@ -1594,74 +1654,123 @@ def partner_application_create(request):
     document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')
 
     if request.method == 'POST':
+        wizard_step = request.POST.get('wizard_step')
         form = OfflineStudentIntakeForm(request.POST, request.FILES)
-        if form.is_valid() and document_formset.is_valid():
-            try:
-                with transaction.atomic():
-                    offline_application = form.save(commit=False)
-                    (
-                        student_user,
-                        _student_profile,
-                        portal_application,
-                        default_password,
-                    ) = _create_or_update_student_portal_records(
-                        form.cleaned_data,
-                        request.user,
-                        uploaded_files=request.FILES,
-                        document_formset=document_formset,
+        if wizard_step and wizard_step != 'uploads':
+            step_specs = _build_intake_form_sections(form)
+            current_section = next((s for s in step_specs if s['key'] == wizard_step), None)
+            if current_section:
+                step_fields = current_section.get('fields', [])
+                draft_id = request.POST.get('draft_id')
+                if draft_id:
+                    draft = StudentApplication.objects.filter(id=draft_id, is_draft=True).first()
+                else:
+                    draft = StudentApplication.objects.create(
+                        is_draft=True, current_step=0, created_by=request.user
                     )
-
-                    offline_application.student_user = student_user
-                    offline_application.portal_application = portal_application
-                    offline_application.created_by = request.user
-                    offline_application.account_created = True
-                    offline_application.username = student_user.username
-                    offline_application.temporary_password = default_password
-                    offline_application.save()
-            except IntegrityError as e:
-                logger.exception(
-                    'Partner create database integrity error for %s. Partner=%s Files=%s',
-                    form.cleaned_data.get('email'),
-                    request.user.username,
-                    list(request.FILES.keys()),
-                )
-                messages.error(request, f'A database error occurred: {e}. This might be due to duplicate data or a missing reference. Please check the input.')
-                # The transaction.atomic() block will automatically roll back on exception
-            except ValidationError as e:
-                messages.error(request, f'Validation error during partner application create: {e.message_dict or e.messages}')
-            except Exception as e:
-                logger.exception(
-                    'Partner create upload failed for %s. Partner=%s Files=%s',
-                    form.cleaned_data.get('email'),
-                    request.user.username,
-                    list(request.FILES.keys()),
-                )
-                messages.error(request, 'The upload failed while saving to Cloudinary. Please use a valid PDF/image file and try again.')
-            else:
-                messages.success(request, f'Student record created for {student_user.get_full_name() or student_user.username}.')
-                return redirect('employee:partner_dashboard')
+                # Save step fields directly from POST
+                for field_name in step_fields:
+                    if field_name in request.POST and hasattr(draft, field_name):
+                        setattr(draft, field_name, request.POST.get(field_name))
+                step_keys = [s['key'] for s in step_specs]
+                current_idx = step_keys.index(wizard_step)
+                draft.current_step = current_idx + 1
+                draft.save()
+                messages.success(request, f'Step "{current_section["title"]}" saved!')
+                next_step = current_idx + 1
+                if next_step < len(step_keys):
+                    return redirect(f'{request.path}?step={step_keys[next_step]}&draft={draft.id}')
+                return redirect(f'{request.path}?draft={draft.id}')
         else:
-            logger.warning(
-                'Partner create form invalid for %s. Partner=%s Errors=%s Files=%s',
-                form['email'].value(),
-                request.user.username,
-                form.errors.as_json(),
-                list(request.FILES.keys()),
-            )
+            if form.is_valid() and document_formset.is_valid():
+                try:
+                    with transaction.atomic():
+                        offline_application = form.save(commit=False)
+                        draft_id = request.POST.get('draft_id')
+                        if draft_id:
+                            draft = StudentApplication.objects.filter(id=draft_id, is_draft=True).first()
+                            if draft:
+                                offline_application.id = draft.id
+                                offline_application.is_draft = False
+                        (
+                            student_user,
+                            _student_profile,
+                            portal_application,
+                            default_password,
+                        ) = _create_or_update_student_portal_records(
+                            form.cleaned_data,
+                            request.user,
+                            uploaded_files=request.FILES,
+                            document_formset=document_formset,
+                        )
+
+                        offline_application.student_user = student_user
+                        offline_application.portal_application = portal_application
+                        offline_application.created_by = request.user
+                        offline_application.account_created = True
+                        offline_application.username = student_user.username
+                        offline_application.temporary_password = default_password
+                        offline_application.save()
+                except IntegrityError as e:
+                    logger.exception(
+                        'Partner create database integrity error for %s. Partner=%s Files=%s',
+                        form.cleaned_data.get('email'),
+                        request.user.username,
+                        list(request.FILES.keys()),
+                    )
+                    messages.error(request, f'A database error occurred: {e}. This might be due to duplicate data or a missing reference. Please check the input.')
+                except ValidationError as e:
+                    messages.error(request, f'Validation error during partner application create: {e.message_dict or e.messages}')
+                except Exception as e:
+                    logger.exception(
+                        'Partner create upload failed for %s. Partner=%s Files=%s',
+                        form.cleaned_data.get('email'),
+                        request.user.username,
+                        list(request.FILES.keys()),
+                    )
+                    messages.error(request, 'The upload failed while saving to Cloudinary. Please use a valid PDF/image file and try again.')
+                else:
+                    messages.success(request, f'Student record created for {student_user.get_full_name() or student_user.username}.')
+                    return redirect('employee:partner_dashboard')
+            else:
+                logger.warning(
+                    'Partner create form invalid for %s. Partner=%s Errors=%s Files=%s',
+                    form['email'].value(),
+                    request.user.username,
+                    form.errors.as_json(),
+                    list(request.FILES.keys()),
+                )
     else:
-        form = OfflineStudentIntakeForm()
+        draft_id = request.GET.get('draft')
+        initial_data = {}
+        if draft_id:
+            draft = StudentApplication.objects.filter(id=draft_id, is_draft=True).first()
+            if draft:
+                for field in StudentApplication._meta.get_fields():
+                    val = getattr(draft, field.name, None)
+                    if val is not None:
+                        initial_data[field.name] = val
+        form = OfflineStudentIntakeForm(initial=initial_data)
+
+    step_specs = _build_intake_form_sections(form)
+    step_keys = [s['key'] for s in step_specs]
+    resume_step = request.GET.get('step')
+    draft_id = request.GET.get('draft')
 
     return render(
         request,
         'partner/student_form.html',
         {
             'form': form,
-            'form_sections': _build_intake_form_sections(form),
+            'form_sections': step_specs,
             'page_title': 'Add student record',
             'submit_label': 'Save student record',
             'current_profile_picture': getattr(form, 'current_profile_picture', None),
             'existing_documents': form.existing_documents_by_type,
             'document_formset': document_formset,
+            'step_keys': step_keys,
+            'resume_step': resume_step,
+            'draft_id': draft_id,
         },
     )
 
@@ -1687,6 +1796,7 @@ def partner_application_edit(request, pk):
     document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')
 
     if request.method == 'POST':
+        wizard_step = request.POST.get('wizard_step')
         form = OfflineStudentIntakeForm(
             request.POST,
             request.FILES,
@@ -1695,51 +1805,72 @@ def partner_application_edit(request, pk):
             student_profile_instance=student_profile_instance,
             existing_documents=existing_documents,
         )
-        if form.is_valid() and document_formset.is_valid():
-            try:
-                with transaction.atomic():
-                    offline_application = form.save(commit=False)
-                    (
-                        student_user,
-                        _student_profile,
-                        portal_application,
-                        _default_password,
-                    ) = _create_or_update_student_portal_records(
-                        form.cleaned_data,
-                        request.user,
-                        existing_user=application.student_user,
-                        portal_application=application.portal_application,
-                        reset_password=False,
-                        uploaded_files=request.FILES,
-                        document_formset=document_formset,
-                    )
+        if wizard_step and wizard_step != 'uploads':
+            step_specs = _build_intake_form_sections(form)
+            current_section = next((s for s in step_specs if s['key'] == wizard_step), None)
+            if current_section:
+                step_fields = current_section.get('fields', [])
+                # Save step fields directly from POST
+                for field_name in step_fields:
+                    if field_name in request.POST and hasattr(application, field_name):
+                        setattr(application, field_name, request.POST.get(field_name))
+                step_keys = [s['key'] for s in step_specs]
+                current_idx = step_keys.index(wizard_step)
+                application.current_step = current_idx + 1
+                application.is_draft = True
+                application.save()
+                messages.success(request, f'Step "{current_section["title"]}" saved!')
+                next_step = current_idx + 1
+                if next_step < len(step_keys):
+                    return redirect(f'{request.path}?step={step_keys[next_step]}')
+                return redirect(f'{request.path}')
+        else:
+            if form.is_valid() and document_formset.is_valid():
+                try:
+                    with transaction.atomic():
+                        offline_application = form.save(commit=False)
+                        (
+                            student_user,
+                            _student_profile,
+                            portal_application,
+                            _default_password,
+                        ) = _create_or_update_student_portal_records(
+                            form.cleaned_data,
+                            request.user,
+                            existing_user=application.student_user,
+                            portal_application=application.portal_application,
+                            reset_password=False,
+                            uploaded_files=request.FILES,
+                            document_formset=document_formset,
+                        )
 
-                    offline_application.student_user = student_user
-                    offline_application.portal_application = portal_application
-                    offline_application.created_by = request.user
-                    offline_application.account_created = True
-                    offline_application.username = student_user.username
-                    offline_application.temporary_password = application.temporary_password
-                    offline_application.save()
-            except Exception:
-                logger.exception(
-                    'Partner edit upload failed for application=%s partner=%s files=%s',
+                        offline_application.student_user = student_user
+                        offline_application.portal_application = portal_application
+                        offline_application.created_by = request.user
+                        offline_application.account_created = True
+                        offline_application.username = student_user.username
+                        offline_application.temporary_password = application.temporary_password
+                        offline_application.is_draft = False
+                        offline_application.save()
+                except Exception:
+                    logger.exception(
+                        'Partner edit upload failed for application=%s partner=%s files=%s',
+                        application.pk,
+                        request.user.username,
+                        list(request.FILES.keys()),
+                    )
+                    messages.error(request, 'The upload failed while saving to Cloudinary. Please use a valid PDF/image file and try again.')
+                else:
+                    messages.success(request, 'Student record updated successfully.')
+                    return redirect('employee:partner_dashboard')
+            else:
+                logger.warning(
+                    'Partner edit form invalid for application=%s partner=%s errors=%s files=%s',
                     application.pk,
                     request.user.username,
+                    form.errors.as_json(),
                     list(request.FILES.keys()),
                 )
-                messages.error(request, 'The upload failed while saving to Cloudinary. Please use a valid PDF/image file and try again.')
-            else:
-                messages.success(request, 'Student record updated successfully.')
-                return redirect('employee:partner_dashboard')
-        else:
-            logger.warning(
-                'Partner edit form invalid for application=%s partner=%s errors=%s files=%s',
-                application.pk,
-                request.user.username,
-                form.errors.as_json(),
-                list(request.FILES.keys()),
-            )
     else:
         form = OfflineStudentIntakeForm(
             instance=application,
@@ -1748,18 +1879,25 @@ def partner_application_edit(request, pk):
             existing_documents=existing_documents,
         )
 
+    step_specs = _build_intake_form_sections(form)
+    step_keys = [s['key'] for s in step_specs]
+    resume_step = request.GET.get('step')
+
     return render(
         request,
         'partner/student_form.html',
         {
             'form': form,
-            'form_sections': _build_intake_form_sections(form),
+            'form_sections': step_specs,
             'page_title': 'Edit student record',
             'submit_label': 'Update student record',
-            'application': application,
             'current_profile_picture': getattr(form, 'current_profile_picture', None),
             'existing_documents': form.existing_documents_by_type,
             'document_formset': document_formset,
+            'step_keys': step_keys,
+            'resume_step': resume_step,
+            'draft_id': None,
+            'application': application,
         },
     )
 

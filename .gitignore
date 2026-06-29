@@ -65,3 +65,4 @@ test_checksum.py
 test_checksum_headers.py
 
 db.sqlite3
+media/

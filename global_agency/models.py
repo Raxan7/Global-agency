@@ -254,6 +254,10 @@ class StudentApplication(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_student_applications')
     portal_application = models.ForeignKey('student_portal.Application', on_delete=models.SET_NULL, null=True, blank=True, related_name='offline_intakes')
+
+    # Draft tracking
+    current_step = models.IntegerField(default=0, help_text="Last completed wizard step index (0 = not started)")
+    is_draft = models.BooleanField(default=True, help_text="Whether this is an in-progress draft or finalized submission")
     
     # Account creation fields
     account_created = models.BooleanField(default=False)

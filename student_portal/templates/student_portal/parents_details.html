@@ -228,9 +228,14 @@
                 <a href="{% url 'student_portal:personal_details' %}" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition">
                     <i class="fas fa-arrow-left mr-2"></i>Previous
                 </a>
-                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-                    Save & Continue <i class="fas fa-arrow-right ml-2"></i>
-                </button>
+                <div class="flex gap-3">
+                    <button type="submit" name="save_draft" value="1" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition">
+                        <i class="fas fa-save mr-2"></i>Save & Finish Later
+                    </button>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                        Save & Continue <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
             </div>
         </form>
     </div>

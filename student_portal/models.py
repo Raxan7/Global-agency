@@ -507,6 +507,9 @@ class StudentProfile(models.Model):
     study_preferences_complete = models.BooleanField(default=False)
     emergency_contact_complete = models.BooleanField(default=False)
 
+    # Draft resumption tracking
+    current_step = models.CharField(max_length=50, blank=True, null=True, help_text="Last completed step name for draft resumption")
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

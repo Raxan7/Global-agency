@@ -326,6 +326,8 @@
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+    <input type="hidden" name="wizard_step" id="wizard-step-input" value="{{ form_sections.0.key }}">
+    {% if draft_id %}<input type="hidden" name="draft_id" value="{{ draft_id }}">{% endif %}
 
     <div class="intake-shell">
         <aside class="wizard-nav">
@@ -613,7 +615,10 @@
                     <button type="button" class="wizard-btn" id="wizard-prev" hidden>Back</button>
                     <div class="wizard-actions-right">
                         <a href="{% url 'employee:student_application_list' %}" class="wizard-btn" style="text-decoration: none;">Cancel</a>
-                        <button type="button" class="wizard-btn" id="wizard-next">Next Step</button>
+                        <button type="submit" name="save_draft" value="1" class="wizard-btn" id="wizard-save-draft" hidden>
+                            <i class="fas fa-save"></i> Save Draft
+                        </button>
+                        <button type="submit" class="wizard-btn" id="wizard-next" name="save_continue" value="1">Save &amp; Continue</button>
                         <button type="submit" class="wizard-btn primary" id="wizard-submit" hidden>{{ submit_label }}</button>
                     </div>
                 </div>
@@ -624,11 +629,14 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
         const stepButtons = Array.from(document.querySelectorAll('[data-step-target]'));
         const stepPanels = Array.from(document.querySelectorAll('[data-step-panel]'));
         const prevButton = document.getElementById('wizard-prev');
         const nextButton = document.getElementById('wizard-next');
         const submitButton = document.getElementById('wizard-submit');
+        const saveDraftButton = document.getElementById('wizard-save-draft');
+        const wizardStepInput = document.getElementById('wizard-step-input');
 
         let currentStep = 0;
 
@@ -641,9 +649,14 @@
                 button.classList.toggle('active', buttonIndex === currentStep);
             });
             prevButton.hidden = currentStep === 0;
-            nextButton.hidden = currentStep === stepPanels.length - 1;
-            submitButton.hidden = currentStep !== stepPanels.length - 1;
+            const isLastStep = currentStep === stepPanels.length - 1;
+            nextButton.hidden = isLastStep;
+            submitButton.hidden = !isLastStep;
+            saveDraftButton.hidden = false;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (wizardStepInput) {
+                wizardStepInput.value = stepPanels[currentStep].dataset.sectionKey;
+            }
         }
 
         stepButtons.forEach((button) => {
@@ -656,20 +669,46 @@
             setStep(currentStep - 1);
         });
 
-        nextButton.addEventListener('click', function () {
-            setStep(currentStep + 1);
+        nextButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (wizardStepInput) {
+                wizardStepInput.value = stepPanels[currentStep].dataset.sectionKey;
+            }
+            form.submit();
         });
 
-        const firstErrorField = document.querySelector('.field-errors');
-        if (firstErrorField) {
-            const errorStep = stepPanels.findIndex((panel) => panel.contains(firstErrorField));
-            if (errorStep >= 0) {
-                setStep(errorStep);
+        submitButton.addEventListener('click', function (e) {
+            // Clear wizard_step for final submission
+            wizardStepInput.value = '';
+        });
+
+        saveDraftButton.addEventListener('click', function () {
+            if (wizardStepInput) {
+                wizardStepInput.value = stepPanels[currentStep].dataset.sectionKey;
+            }
+        });
+
+        // Resume to saved step if specified
+        const resumeStep = '{{ resume_step|default:"" }}';
+        if (resumeStep) {
+            const resumeIndex = stepPanels.findIndex(function (panel) {
+                return panel.dataset.sectionKey === resumeStep;
+            });
+            if (resumeIndex >= 0) {
+                setStep(resumeIndex);
+            }
+        } else {
+            const firstErrorField = document.querySelector('.field-errors');
+            if (firstErrorField) {
+                const errorStep = stepPanels.findIndex((panel) => panel.contains(firstErrorField));
+                if (errorStep >= 0) {
+                    setStep(errorStep);
+                } else {
+                    setStep(0);
+                }
             } else {
                 setStep(0);
             }
-        } else {
-            setStep(0);
         }
     });
 

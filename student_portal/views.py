@@ -79,6 +79,16 @@ def student_login(request):
     return render(request, 'student_portal/login.html')
 
 # ALL OTHER VIEWS
+STEP_URL_MAP = {
+    'personal_details': 'student_portal:personal_details',
+    'parents_details': 'student_portal:parents_details',
+    'academic_qualifications': 'student_portal:academic_qualifications',
+    'study_preferences': 'student_portal:study_preferences',
+    'emergency_contact': 'student_portal:emergency_contact',
+}
+
+STEP_ORDER = ['personal_details', 'parents_details', 'academic_qualifications', 'study_preferences', 'emergency_contact']
+
 @login_required(login_url='student_portal:login')
 def student_dashboard(request):
     """Student dashboard view"""
@@ -90,11 +100,32 @@ def student_dashboard(request):
     documents = Document.objects.filter(student=request.user)
     unread_messages = Message.objects.filter(student=request.user, is_read=False)
     
+    # Resume draft logic
+    resume_step = None
+    resume_step_name = None
+    if profile.current_step:
+        try:
+            idx = STEP_ORDER.index(profile.current_step)
+            if idx < len(STEP_ORDER) - 1:
+                resume_step = STEP_ORDER[idx + 1]
+                resume_step_name = resume_step.replace('_', ' ').title()
+            elif profile.current_step == 'emergency_contact':
+                resume_step = None
+        except ValueError:
+            resume_step = 'personal_details'
+            resume_step_name = 'Personal Details'
+    elif profile.current_step is None:
+        resume_step = 'personal_details'
+        resume_step_name = 'Personal Details'
+    
     context = {
         'applications': applications,
         'documents_count': documents.count(),
         'unread_messages_count': unread_messages.count(),
         'profile_completion': profile.get_completion_percentage(),
+        'resume_step': resume_step,
+        'resume_step_name': resume_step_name,
+        'resume_step_url': STEP_URL_MAP.get(resume_step) if resume_step else None,
     }
     
     # Add cache control to prevent back button after logout
@@ -228,7 +259,11 @@ def personal_details(request):
         form = PersonalDetailsForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            profile.current_step = 'personal_details'
+            profile.save(update_fields=['current_step'])
             messages.success(request, 'Personal details saved successfully!')
+            if request.POST.get('save_draft'):
+                return redirect('student_portal:dashboard')
             return redirect('student_portal:parents_details')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -251,7 +286,11 @@ def parents_details(request):
         form = ParentsDetailsForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
+            profile.current_step = 'parents_details'
+            profile.save(update_fields=['current_step'])
             messages.success(request, 'Parents details saved successfully!')
+            if request.POST.get('save_draft'):
+                return redirect('student_portal:dashboard')
             return redirect('student_portal:academic_qualifications')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -287,7 +326,11 @@ def academic_qualifications(request):
                 sup = supplemental_form.save(commit=False)
                 sup.application = application
                 sup.save()
+            profile.current_step = 'academic_qualifications'
+            profile.save(update_fields=['current_step'])
             messages.success(request, 'Academic qualifications saved successfully!')
+            if request.POST.get('save_draft'):
+                return redirect('student_portal:dashboard')
             return redirect('student_portal:study_preferences')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -312,7 +355,11 @@ def study_preferences(request):
         form = StudyPreferencesForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
+            profile.current_step = 'study_preferences'
+            profile.save(update_fields=['current_step'])
             messages.success(request, 'Study preferences saved successfully!')
+            if request.POST.get('save_draft'):
+                return redirect('student_portal:dashboard')
             return redirect('student_portal:emergency_contact')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -348,7 +395,11 @@ def emergency_contact(request):
                 sup = supplemental_form.save(commit=False)
                 sup.application = application
                 sup.save()
+            profile.current_step = 'emergency_contact'
+            profile.save(update_fields=['current_step'])
             messages.success(request, 'Emergency contact information saved successfully! Your profile is now complete.')
+            if request.POST.get('save_draft'):
+                return redirect('student_portal:dashboard')
             return redirect('student_portal:dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
