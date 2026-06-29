@@ -1,598 +1,202 @@
+{% extends 'employee/base.html' %}
 {% load security_tags %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documents - Employee Portal</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8f9fa; 
-            line-height: 1.6; 
-            color: #333;
-        }
-        
-        /* Header Styles */
-        .header { 
-            background: linear-gradient(135deg, #28a745, #20c997); 
-            color: white; 
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .welcome-text {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        /* Navigation */
-        .nav-menu { 
-            display: flex; 
-            gap: 1rem; 
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .nav-menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        .nav-menu a:hover { 
-            background-color: rgba(255,255,255,0.2); 
-            transform: translateY(-2px);
-        }
-        .nav-menu a.active { 
-            background: rgba(255,255,255,0.25); 
-            font-weight: bold;
-        }
-        
-        /* Main Container */
-        .container { 
-            max-width: 1400px; 
-            margin: 2rem auto; 
-            padding: 0 2rem; 
-        }
-        
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .page-header h2 {
-            color: #333;
-            font-size: 1.8rem;
-        }
-        
-        /* Filters and Search */
-        .filters { 
-            background: white; 
-            padding: 1.5rem; 
-            border-radius: 8px; 
-            margin-bottom: 2rem; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-        }
-        .search-box { 
-            display: flex; 
-            gap: 1rem; 
-            margin-bottom: 1.5rem; 
-            flex-wrap: wrap;
-        }
-        .search-box input { 
-            flex: 1; 
-            padding: 0.75rem; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            min-width: 140px;
-            max-width: 100%;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        .search-box input:focus {
-            outline: none;
-            border-color: #28a745;
-            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
-        }
-        .doc-type-filters { 
-            display: flex; 
-            gap: 0.5rem; 
-            flex-wrap: wrap; 
-            align-items: center;
-        }
-        .filter-btn { 
-            padding: 0.5rem 1rem; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            background: white; 
-            cursor: pointer; 
-            text-decoration: none; 
-            color: #333;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        .filter-btn.active { 
-            background: #28a745; 
-            color: white; 
-            border-color: #28a745; 
-        }
-        .filter-btn:hover { 
-            background: #e9ecef; 
-            transform: translateY(-2px);
-        }
-        .filter-btn.active:hover {
-            background: #218838;
-        }
-        
-        /* Table Styles */
-        .table-container {
-            background: white; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse;
-        }
-        th, td { 
-            padding: 1rem; 
-            text-align: left; 
-            border-bottom: 1px solid #dee2e6; 
-        }
-        th { 
-            background: #f8f9fa; 
-            font-weight: bold; 
-            color: #495057; 
-            position: sticky;
-            top: 0;
-        }
-        tr { 
-            transition: background-color 0.2s ease;
-        }
-        tr:hover { 
-            background: #f8f9fa; 
-        }
-        
-        /* Buttons */
-        .btn { 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            text-decoration: none; 
-            display: inline-block; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .btn-primary { 
-            background: #007bff; 
-            color: white; 
-        }
-        .btn-primary:hover {
-            background: #0069d9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-        }
-        .btn-success { 
-            background: #28a745; 
-            color: white; 
-        }
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(40,167,69,0.3);
-        }
-        .btn-sm { 
-            padding: 0.4rem 0.8rem; 
-            font-size: 0.875rem; 
-        }
-        .btn-group {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        /* Status Badges */
-        .verified-badge { 
-            color: #28a745; 
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .verified-badge::before {
-            content: "✓";
-            font-weight: bold;
-        }
-        .pending-badge { 
-            color: #dc3545; 
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .pending-badge::before {
-            content: "●";
-            font-size: 0.8rem;
-        }
-        
-        /* Empty State */
-        .empty-state { 
-            text-align: center; 
-            padding: 3rem; 
-            color: #666; 
-        }
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            color: #495057;
-        }
-        
-        /* Statistics Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #28a745;
-            margin-bottom: 0.5rem;
-        }
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        /* Document Type Icons */
-        .doc-type-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: #e9ecef;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-            font-weight: bold;
-            color: #495057;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .nav-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .nav-menu a {
-                flex: 1;
-                text-align: center;
-                margin-bottom: 0.5rem;
-            }
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .page-header h2 {
-                margin-bottom: 1rem;
-            }
-            .search-box {
-                flex-direction: column;
-            }
-            .search-box input {
-                min-width: 100%;
-            }
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            .btn-group {
-                flex-direction: column;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 1rem;
-            }
-            .header {
-                padding: 1rem;
-            }
-            .doc-type-filters {
-                justify-content: center;
-            }
-        }
-        
-        /* Loading Animation */
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .loading {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        
-        /* Pagination Styles */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-            gap: 0.5rem;
-        }
-        .pagination a, .pagination span {
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #007bff;
-        }
-        .pagination .current {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <div>
-                <h1>Employee Portal</h1>
-                <div class="welcome-text">Welcome, {{ user.get_full_name|default:user.username }}</div>
-            </div>
-            <nav class="nav-menu">
-                <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
-                <a href="{% url 'employee:student_application_list' %}">Student Applications</a>
-                <a href="{% url 'employee:document_list' %}" class="active">Documents</a>
-                <a href="{% url 'employee:contact_messages' %}">Contact Messages</a>
-                <a href="{% url 'admin:index' %}">Admin</a>
-                <a href="{% url 'employee:employee_logout' %}">Logout</a>
-            </nav>
-        </div>
+
+{% block title %}Documents - Employee Portal{% endblock %}
+{% block nav_documents %}active{% endblock %}
+{% block hero_title %}Student Documents{% endblock %}
+{% block hero_copy %}View, verify, and manage student-uploaded documents across all applications.{% endblock %}
+
+{% block content %}
+<style>
+    .verified-badge {
+        color: #16a34a;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .verified-badge::before {
+        content: "✓";
+        font-weight: bold;
+    }
+    .pending-badge {
+        color: #dc2626;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .pending-badge::before {
+        content: "●";
+        font-size: 0.8rem;
+    }
+    .doc-type-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: #e9ecef;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        font-weight: bold;
+        color: #495057;
+        flex-shrink: 0;
+    }
+    .doc-type-cell {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2>Student Documents</h2>
+        <p>All documents uploaded by students through the portal, organized by type and verification status.</p>
     </div>
+    <button class="btn btn-success" id="exportBtn"><i class="fas fa-download"></i> Export List</button>
+</div>
 
-    <div class="container">
-        <div class="page-header">
-            <h2>Student Documents</h2>
-            <div class="btn-group">
-                <button class="btn btn-success" id="exportBtn">Export List</button>
-            </div>
-        </div>
-        
-        <!-- Filters and Search -->
-        <div class="filters">
-            <form method="get" class="search-box">
-                <input type="text" name="search" placeholder="Search by student name, document type, or description..." value="{{ search_query|default:'' }}">
-                <button type="submit" class="btn btn-success">Search</button>
-                {% if search_query or doc_type_filter %}
-                <a href="{% url 'employee:document_list' %}" class="btn" style="background: #6c757d; color: white;">Clear Filters</a>
-                {% endif %}
-            </form>
-            
-            <div class="doc-type-filters">
-                <strong>Filter by Document Type:</strong>
-                <a href="{% url 'employee:document_list' %}" class="filter-btn {% if not doc_type_filter %}active{% endif %}">All</a>
-                <a href="?doc_type=passport" class="filter-btn {% if doc_type_filter == 'passport' %}active{% endif %}">Passport</a>
-                <a href="?doc_type=passport_photo" class="filter-btn {% if doc_type_filter == 'passport_photo' %}active{% endif %}">Passport Photos</a>
-                <a href="?doc_type=academic_transcript" class="filter-btn {% if doc_type_filter == 'academic_transcript' %}active{% endif %}">Transcripts</a>
-                <a href="?doc_type=degree_certificate" class="filter-btn {% if doc_type_filter == 'degree_certificate' %}active{% endif %}">Degree Certificates</a>
-                <a href="?doc_type=application_form" class="filter-btn {% if doc_type_filter == 'application_form' %}active{% endif %}">Application Forms</a>
-                <a href="?doc_type=recommendation_letter" class="filter-btn {% if doc_type_filter == 'recommendation_letter' %}active{% endif %}">Recommendation Letters</a>
-                <a href="?doc_type=proof_of_funds" class="filter-btn {% if doc_type_filter == 'proof_of_funds' %}active{% endif %}">Proof of Funds</a>
-                <a href="?doc_type=health_insurance" class="filter-btn {% if doc_type_filter == 'health_insurance' %}active{% endif %}">Health Insurance</a>
-                <a href="?doc_type=financial_documents" class="filter-btn {% if doc_type_filter == 'financial_documents' %}active{% endif %}">Legacy Financial Docs</a>
-            </div>
-        </div>
-
-        <!-- Documents Table -->
-        <div class="table-container">
-            {% if documents %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Document Type</th>
-                        <th>File Name</th>
-                        <th>Description</th>
-                        <th>Uploaded</th>
-                        <th>Verification</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for doc in documents %}
-                    <tr>
-                        <td>
-                            <strong>{{ doc.student.get_full_name|default:doc.student.username }}</strong><br>
-                            <small>{{ doc.student.email }}</small>
-                        </td>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <span class="doc-type-icon">
-                                    {% if doc.document_type == 'passport' %}P
-                                    {% elif doc.document_type == 'passport_photo' %}PP
-                                    {% elif doc.document_type == 'academic_transcript' %}T
-                                    {% elif doc.document_type == 'degree_certificate' %}D
-                                    {% elif doc.document_type == 'application_form' %}AF
-                                    {% elif doc.document_type == 'recommendation_letter' %}R
-                                    {% elif doc.document_type == 'proof_of_funds' %}PF
-                                    {% elif doc.document_type == 'health_insurance' %}HI
-                                    {% elif doc.document_type == 'financial_documents' %}F
-                                    {% else %}D{% endif %}
-                                </span>
-                                <strong>{{ doc.get_document_type_display }}</strong>
-                            </div>
-                        </td>
-                        <td>
-                            {{ doc.file.name|slice:"12:" }}<br>
-                            <small style="color: #666;">{{ doc.file.size|filesizeformat }}</small>
-                        </td>
-                        <td>
-                            {% if doc.description %}
-                                {{ doc.description|truncatewords:10 }}
-                            {% else %}
-                                <span style="color: #999;">No description</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
-                        <td>
-                            {% if doc.is_verified %}
-                                <span class="verified-badge">Verified</span>
-                            {% else %}
-                                <span class="pending-badge">Pending</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="{{ doc.file.url|safe_href }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">View</a>
-                                <a href="{% url 'employee:student_application_list' %}?search={{ doc.student.username }}" class="btn btn-success btn-sm">Student Apps</a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">
-                <h3>No Documents Found</h3>
-                <p>{% if search_query or doc_type_filter %}Try adjusting your search criteria{% else %}No documents have been uploaded yet.{% endif %}</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Pagination (if applicable) -->
-        {% if is_paginated %}
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}">First</a>
-                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}">Previous</a>
-            {% endif %}
-            
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}">Next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}">Last</a>
-            {% endif %}
-        </div>
+<div class="filters">
+    <form method="get" class="search-box">
+        <input type="text" name="search" placeholder="Search by student name, document type, or description..." value="{{ search_query|default:'' }}">
+        <button type="submit" class="btn btn-success"><i class="fas fa-search"></i> Search</button>
+        {% if search_query or doc_type_filter %}
+        <a href="{% url 'employee:document_list' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Clear Filters</a>
         {% endif %}
+    </form>
 
-        <!-- Document Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ total_documents }}</div>
-                <div class="stat-label">Total Documents</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ verified_documents }}</div>
-                <div class="stat-label">Verified Documents</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ pending_documents }}</div>
-                <div class="stat-label">Pending Verification</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ documents.count }}</div>
-                <div class="stat-label">Currently Displayed</div>
-            </div>
-        </div>
+    <div class="doc-type-filters">
+        <strong>Filter by Document Type:</strong>
+        <a href="{% url 'employee:document_list' %}" class="filter-btn {% if not doc_type_filter %}active{% endif %}">All</a>
+        <a href="?doc_type=passport" class="filter-btn {% if doc_type_filter == 'passport' %}active{% endif %}">Passport</a>
+        <a href="?doc_type=passport_photo" class="filter-btn {% if doc_type_filter == 'passport_photo' %}active{% endif %}">Passport Photos</a>
+        <a href="?doc_type=academic_transcript" class="filter-btn {% if doc_type_filter == 'academic_transcript' %}active{% endif %}">Transcripts</a>
+        <a href="?doc_type=degree_certificate" class="filter-btn {% if doc_type_filter == 'degree_certificate' %}active{% endif %}">Degree Certificates</a>
+        <a href="?doc_type=application_form" class="filter-btn {% if doc_type_filter == 'application_form' %}active{% endif %}">Application Forms</a>
+        <a href="?doc_type=recommendation_letter" class="filter-btn {% if doc_type_filter == 'recommendation_letter' %}active{% endif %}">Recommendation Letters</a>
+        <a href="?doc_type=proof_of_funds" class="filter-btn {% if doc_type_filter == 'proof_of_funds' %}active{% endif %}">Proof of Funds</a>
+        <a href="?doc_type=health_insurance" class="filter-btn {% if doc_type_filter == 'health_insurance' %}active{% endif %}">Health Insurance</a>
+        <a href="?doc_type=financial_documents" class="filter-btn {% if doc_type_filter == 'financial_documents' %}active{% endif %}">Legacy Financial Docs</a>
     </div>
+</div>
 
-    <script>
-        // Add loading states for better UX
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simulate loading for demonstration
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach(card => {
-                card.classList.add('loading');
+<div class="section">
+    {% if documents %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Document Type</th>
+                <th>File Name</th>
+                <th>Description</th>
+                <th>Uploaded</th>
+                <th>Verification</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>
+                    <strong>{{ doc.student.get_full_name|default:doc.student.username }}</strong><br>
+                    <small style="color: var(--muted);">{{ doc.student.email }}</small>
+                </td>
+                <td>
+                    <div class="doc-type-cell">
+                        <span class="doc-type-icon">
+                            {% if doc.document_type == 'passport' %}P
+                            {% elif doc.document_type == 'passport_photo' %}PP
+                            {% elif doc.document_type == 'academic_transcript' %}T
+                            {% elif doc.document_type == 'degree_certificate' %}D
+                            {% elif doc.document_type == 'application_form' %}AF
+                            {% elif doc.document_type == 'recommendation_letter' %}R
+                            {% elif doc.document_type == 'proof_of_funds' %}PF
+                            {% elif doc.document_type == 'health_insurance' %}HI
+                            {% elif doc.document_type == 'financial_documents' %}F
+                            {% else %}D{% endif %}
+                        </span>
+                        <strong>{{ doc.get_document_type_display }}</strong>
+                    </div>
+                </td>
+                <td>
+                    {{ doc.file.name|slice:"12:" }}<br>
+                    <small style="color: var(--muted);">{{ doc.file.size|filesizeformat }}</small>
+                </td>
+                <td>
+                    {% if doc.description %}
+                        {{ doc.description|truncatewords:10 }}
+                    {% else %}
+                        <span style="color: #999;">No description</span>
+                    {% endif %}
+                </td>
+                <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if doc.is_verified %}
+                        <span class="verified-badge">Verified</span>
+                    {% else %}
+                        <span class="pending-badge">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{{ doc.file.url|safe_href }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
+                        <a href="{% url 'employee:student_application_list' %}?search={{ doc.student.username }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i> Student Apps</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <h3>No Documents Found</h3>
+        <p>{% if search_query or doc_type_filter %}Try adjusting your search criteria{% else %}No documents have been uploaded yet.{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}"><i class="fas fa-angle-double-left"></i></a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}"><i class="fas fa-angle-left"></i></a>
+    {% endif %}
+    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}"><i class="fas fa-angle-right"></i></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if doc_type_filter %}&doc_type={{ doc_type_filter }}{% endif %}"><i class="fas fa-angle-double-right"></i></a>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_documents }}</div>
+        <div class="stat-label">Total Documents</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ verified_documents }}</div>
+        <div class="stat-label">Verified Documents</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ pending_documents }}</div>
+        <div class="stat-label">Pending Verification</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ documents.count }}</div>
+        <div class="stat-label">Currently Displayed</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                alert('Export functionality would be implemented here. This could generate a CSV or PDF report of the current document list.');
             });
-            
-            // Remove loading animation after a short delay
-            setTimeout(() => {
-                statCards.forEach(card => {
-                    card.classList.remove('loading');
-                });
-            }, 1000);
-            
-            // Export button functionality
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) {
-                exportBtn.addEventListener('click', function() {
-                    alert('Export functionality would be implemented here. This could generate a CSV or PDF report of the current document list.');
-                });
-            }
-            
-            // Add click animation to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Add ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size/2;
-                    const y = e.clientY - rect.top - size/2;
-                    
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    ripple.classList.add('ripple');
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+        }
+    });
+</script>
+{% endblock %}

@@ -1,781 +1,325 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Applications - Employee Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8f9fa; 
-            line-height: 1.6; 
-            color: #333;
-        }
-        
-        /* Header Styles */
-        .header { 
-            background: linear-gradient(135deg, #28a745, #20c997); 
-            color: white; 
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .welcome-text {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        /* Navigation */
-        .nav-menu { 
-            display: flex; 
-            gap: 1rem; 
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .nav-menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        .nav-menu a:hover { 
-            background-color: rgba(255,255,255,0.2); 
-            transform: translateY(-2px);
-        }
-        .nav-menu a.active { 
-            background: rgba(255,255,255,0.25); 
-            font-weight: bold;
-        }
-        
-        /* Main Container */
-        .container { 
-            max-width: 1400px; 
-            margin: 2rem auto; 
-            padding: 0 2rem; 
-        }
-        
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .page-header h2 {
-            color: #333;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Filters and Search */
-        .filters { 
-            background: white; 
-            padding: 1.5rem; 
-            border-radius: 12px; 
-            margin-bottom: 2rem; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            position: relative;
-            overflow: hidden;
-        }
-        .filters::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
-        }
-        .search-box { 
-            display: flex; 
-            gap: 1rem; 
-            margin-bottom: 1.5rem; 
-            flex-wrap: wrap;
-        }
-        .search-box input { 
-            flex: 1; 
-            padding: 0.75rem 1rem; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            min-width: 150px;
-            max-width: 100%;
-        }
-        .search-box input:focus {
-            outline: none;
-            border-color: #28a745;
-            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
-        }
-        .status-filters { 
-            display: flex; 
-            gap: 0.5rem; 
-            flex-wrap: wrap; 
-            align-items: center;
-        }
-        .status-btn { 
-            padding: 0.5rem 1rem; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            background: white; 
-            cursor: pointer; 
-            text-decoration: none; 
-            color: #333;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .status-btn.active { 
-            background: #28a745; 
-            color: white; 
-            border-color: #28a745; 
-        }
-        .status-btn:hover { 
-            background: #e9ecef; 
-            transform: translateY(-2px);
-        }
-        .status-btn.active:hover {
-            background: #218838;
-        }
-        
-        /* Table Container */
-        .table-container {
-            background: white; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 2rem;
-            position: relative;
-        }
-        .table-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse;
-        }
-        th, td { 
-            padding: 1rem; 
-            text-align: left; 
-            border-bottom: 1px solid #dee2e6; 
-        }
-        th { 
-            background: #f8f9fa; 
-            font-weight: bold; 
-            color: #495057; 
-            position: sticky;
-            top: 0;
-        }
-        tr { 
-            transition: background-color 0.2s ease;
-        }
-        tr:hover { 
-            background: #f8f9fa; 
-        }
-        
-        /* Status Badges */
-        .status-badge { 
-            padding: 0.4rem 0.8rem; 
-            border-radius: 20px; 
-            font-size: 0.875rem; 
-            font-weight: bold; 
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .status-pending_payment { background: #6c757d; color: white; }
-        .status-submitted { background: #17a2b8; color: white; }
-        .status-under_review { background: #ffc107; color: black; }
-        .status-approved { background: #28a745; color: white; }
-        .status-rejected { background: #dc3545; color: white; }
-        .status-selected { background: #6610f2; color: white; }
-        
-        /* Buttons */
-        .btn { 
-            padding: 0.5rem 1rem; 
-            border-radius: 6px; 
-            text-decoration: none; 
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: none; 
-            cursor: pointer; 
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .btn-primary { 
-            background: #007bff; 
-            color: white; 
-        }
-        .btn-primary:hover {
-            background: #0069d9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-        }
-        .btn-secondary { 
-            background: #6c757d; 
-            color: white; 
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(108,117,125,0.3);
-        }
-        .btn-success { 
-            background: #28a745; 
-            color: white; 
-        }
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(40,167,69,0.3);
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(220,53,69,0.3);
-        }
-        .btn-sm { 
-            padding: 0.4rem 0.8rem; 
-            font-size: 0.875rem; 
-        }
-        
-        /* Empty State */
-        .empty-state { 
-            text-align: center; 
-            padding: 3rem; 
-            color: #666; 
-        }
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            color: #495057;
-        }
-        
-        /* Application Type */
-        .application-type { 
-            font-weight: bold; 
-            color: #495057; 
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+{% extends 'employee/base.html' %}
 
-        .source-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.7rem;
-            border-radius: 14px;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-        .source-partner {
-            background: #e8f5e9;
-            color: #1b5e20;
-        }
-        .source-direct {
-            background: #e3f2fd;
-            color: #0d47a1;
-        }
-        
-        /* Statistics Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #28a745;
-            margin-bottom: 0.5rem;
-        }
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        /* Payment Status */
-        .payment-paid {
-            color: #28a745;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .payment-paid::before {
-            content: "✓";
-            font-weight: bold;
-        }
-        .payment-pending {
-            color: #dc3545;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .payment-pending::before {
-            content: "●";
-            font-size: 0.8rem;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .nav-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .nav-menu a {
-                flex: 1;
-                text-align: center;
-                margin-bottom: 0.5rem;
-            }
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .page-header h2 {
-                margin-bottom: 1rem;
-            }
-            .search-box {
-                flex-direction: column;
-            }
-            .search-box input {
-                min-width: 100%;
-            }
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 1rem;
-            }
-            .header {
-                padding: 1rem;
-            }
-            .status-filters {
-                justify-content: center;
-            }
-        }
-        
-        /* Loading Animation */
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .loading {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        
-        /* Pagination Styles */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-            gap: 0.5rem;
-        }
-        .pagination a, .pagination span {
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #007bff;
-        }
-        .pagination .current {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
+{% block title %}Student Applications - Employee Portal{% endblock %}
+{% block nav_applications %}active{% endblock %}
+{% block hero_title %}Student Portal Applications{% endblock %}
+{% block hero_copy %}Review, filter, and manage all student applications submitted through the student portal or added offline by staff and partners.{% endblock %}
 
-        /* More menu */
-        .more-btn { cursor: pointer; }
-        .more-menu .dropdown-item { display: block; color: #111; text-decoration: none; }
-        .more-menu .dropdown-item:hover { background: #f8f9fa; }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <div>
-                <h1>Employee Portal</h1>
-                <div class="welcome-text">Welcome, {{ user.get_full_name|default:user.username }}</div>
-            </div>
-            <nav class="nav-menu">
-                <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
-                <a href="{% url 'employee:student_application_list' %}" class="active">Student Applications</a>
-                <a href="{% url 'employee:document_list' %}">Documents</a>
-                <a href="{% url 'employee:contact_messages' %}">Contact Messages</a>
-                <a href="{% url 'admin:index' %}">Admin</a>
-                <a href="{% url 'employee:employee_logout' %}">Logout</a>
-            </nav>
-        </div>
+{% block content %}
+<style>
+    .source-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 14px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+    .source-partner {
+        background: #e8f5e9;
+        color: #1b5e20;
+    }
+    .source-direct {
+        background: #e3f2fd;
+        color: #0d47a1;
+    }
+    .payment-paid {
+        color: #16a34a;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .payment-paid::before {
+        content: "✓";
+        font-weight: bold;
+    }
+    .payment-pending {
+        color: #dc2626;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .payment-pending::before {
+        content: "●";
+        font-size: 0.8rem;
+    }
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        background: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #495057;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    .student-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .more-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 36px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 0.25rem;
+        min-width: 160px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+        z-index: 50;
+    }
+    .more-menu .dropdown-item {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    .more-menu .dropdown-item:hover {
+        background: #f1f5f9;
+    }
+    .more-menu .dropdown-item.danger {
+        color: #dc2626;
+    }
+    .more-container {
+        position: relative;
+    }
+    .ref-number {
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: var(--primary);
+        font-weight: bold;
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2><i class="fas fa-file-alt"></i> Student Portal Applications</h2>
+        <p>Manage all incoming applications from students, partners, and offline intake.</p>
     </div>
+    <div class="action-buttons">
+        <a href="{% url 'employee:offline_application_create' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Add Offline Application
+        </a>
+        <a href="{% url 'employee:export_empty_application_pdf' %}" class="btn btn-secondary">
+            <i class="fas fa-file-pdf"></i> Download Blank Form
+        </a>
+        <button class="btn btn-success" id="exportBtn">
+            <i class="fas fa-download"></i> Export List
+        </button>
+    </div>
+</div>
 
-    <div class="container">
-        <div class="page-header">
-            <h2><i class="fas fa-file-alt"></i> Student Portal Applications</h2>
-            <div class="quick-actions">
-                <a href="{% url 'employee:offline_application_create' %}" class="btn btn-primary">
-                    <i class="fas fa-user-plus"></i> Add Offline Application
-                </a>
-                <a href="{% url 'employee:export_empty_application_pdf' %}" class="btn btn-secondary">
-                    <i class="fas fa-file-pdf"></i> Download Blank Form
-                </a>
-                <button class="btn btn-success" id="exportBtn">
-                    <i class="fas fa-download"></i> Export List
-                </button>
-                <button class="btn btn-primary" id="refreshBtn">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
-        </div>
-        
-        <!-- Filters and Search -->
-        <div class="filters">
-            <form method="get" class="search-box">
-                <input type="text" name="search" placeholder="Search by student name, university, course, country..." value="{{ search_query|default:'' }}">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-search"></i> Search
-                </button>
-                {% if search_query or status_filter %}
-                <a href="{% url 'employee:student_application_list' %}" class="btn" style="background: #6c757d; color: white;">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-                {% endif %}
-            </form>
-            
-            <div class="status-filters">
-                <strong>Filter by Status:</strong>
-                <a href="{% url 'employee:student_application_list' %}" class="status-btn {% if not status_filter %}active{% endif %}">
-                    <i class="fas fa-layer-group"></i> All
-                </a>
-                <a href="?status=pending_payment" class="status-btn {% if status_filter == 'pending_payment' %}active{% endif %}">
-                    <i class="fas fa-clock"></i> Pending Payment
-                </a>
-                <a href="?status=submitted" class="status-btn {% if status_filter == 'submitted' %}active{% endif %}">
-                    <i class="fas fa-paper-plane"></i> Submitted
-                </a>
-                <a href="?status=under_review" class="status-btn {% if status_filter == 'under_review' %}active{% endif %}">
-                    <i class="fas fa-search"></i> Under Review
-                </a>
-                <a href="?status=approved" class="status-btn {% if status_filter == 'approved' %}active{% endif %}">
-                    <i class="fas fa-check-circle"></i> Approved
-                </a>
-                <a href="?status=rejected" class="status-btn {% if status_filter == 'rejected' %}active{% endif %}">
-                    <i class="fas fa-times-circle"></i> Rejected
-                </a>
-                <a href="?status=selected" class="status-btn {% if status_filter == 'selected' %}active{% endif %}">
-                    <i class="fas fa-star"></i> Selected
-                </a>
-            </div>
-        </div>
+<div class="filters">
+    <form method="get" class="search-box">
+        <input type="text" name="search" placeholder="Search by student name, university, course, country..." value="{{ search_query|default:'' }}">
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-search"></i> Search
+        </button>
+        {% if search_query or status_filter %}
+        <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+    </form>
 
-        <!-- Applications Table -->
-        <div class="table-container">
-            {% if applications %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reference</th>
-                        <th>Student</th>
-                        <th>Payment Status</th>
-                        <th>Submission Source</th>
-                        <th>Application Status</th>
-                        <th>Submitted Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for app in applications %}
-                    <tr>
-                        <td>
-                            <span style="font-family: monospace; font-size: 0.8rem; color: #0056b3; font-weight: bold;">
-                                {{ app.get_registration_number }}
-                            </span>
-                        </td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <div style="width: 40px; height: 40px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #495057; font-weight: bold;">
-                                    {{ app.student.get_full_name|default:app.student.username|slice:":1"|upper }}
-                                </div>
-                                <div>
-                                    <strong>{{ app.student.get_full_name|default:app.student.username }}</strong><br>
-                                    <small>{{ app.student.email }}</small><br>
-                                    <small style="color: #666;">ID: {{ app.id }}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            {% if app.is_paid %}
-                                <span class="payment-paid">Paid</span>
-                            {% else %}
-                                <span class="payment-pending">Pending</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if app.partner_intake and app.partner_intake.created_by %}
-                                <span class="source-badge source-partner"><i class="fas fa-handshake"></i> Partner Entry</span>
-                                <div><small><strong>{{ app.partner_intake.created_by.get_full_name|default:app.partner_intake.created_by.username }}</strong></small></div>
-                                <div><small style="color: #666;">{{ app.partner_intake.created_by.email }}</small></div>
-                                {% if app.partner_intake.created_by.userprofile.phone_number %}
-                                <div><small style="color: #666;">{{ app.partner_intake.created_by.userprofile.phone_number }}</small></div>
-                                {% endif %}
-                            {% else %}
-                                <span class="source-badge source-direct"><i class="fas fa-user-graduate"></i> Student Portal</span>
-                                <div><small style="color: #666;">Self-submitted</small></div>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="status-badge status-{{ app.status }}">
-                                <i class="fas fa-circle"></i> {{ app.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <div>{{ app.created_at|date:"M d, Y" }}</div>
-                            <small style="color: #666;">{{ app.created_at|date:"H:i" }}</small>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="{% url 'employee:student_application_detail' app.id %}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                <form method="post" action="{% url 'employee:delete_student_application' app.id %}" style="display:inline; margin:0;" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
+    <div class="status-filters">
+        <strong>Filter by Status:</strong>
+        <a href="{% url 'employee:student_application_list' %}" class="status-btn {% if not status_filter %}active{% endif %}">
+            <i class="fas fa-layer-group"></i> All
+        </a>
+        <a href="?status=pending_payment" class="status-btn {% if status_filter == 'pending_payment' %}active{% endif %}">
+            <i class="fas fa-clock"></i> Pending Payment
+        </a>
+        <a href="?status=submitted" class="status-btn {% if status_filter == 'submitted' %}active{% endif %}">
+            <i class="fas fa-paper-plane"></i> Submitted
+        </a>
+        <a href="?status=under_review" class="status-btn {% if status_filter == 'under_review' %}active{% endif %}">
+            <i class="fas fa-search"></i> Under Review
+        </a>
+        <a href="?status=approved" class="status-btn {% if status_filter == 'approved' %}active{% endif %}">
+            <i class="fas fa-check-circle"></i> Approved
+        </a>
+        <a href="?status=rejected" class="status-btn {% if status_filter == 'rejected' %}active{% endif %}">
+            <i class="fas fa-times-circle"></i> Rejected
+        </a>
+        <a href="?status=selected" class="status-btn {% if status_filter == 'selected' %}active{% endif %}">
+            <i class="fas fa-star"></i> Selected
+        </a>
+    </div>
+</div>
+
+<div class="section">
+    {% if applications %}
+    <table>
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Student</th>
+                <th>Payment Status</th>
+                <th>Submission Source</th>
+                <th>Application Status</th>
+                <th>Submitted Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>
+                    <span class="ref-number">{{ app.get_registration_number }}</span>
+                </td>
+                <td>
+                    <div class="student-info">
+                        <div class="avatar-circle">{{ app.student.get_full_name|default:app.student.username|slice:":1"|upper }}</div>
+                        <div>
+                            <strong>{{ app.student.get_full_name|default:app.student.username }}</strong><br>
+                            <small style="color: var(--muted);">{{ app.student.email }}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    {% if app.is_paid %}
+                        <span class="payment-paid">Paid</span>
+                    {% else %}
+                        <span class="payment-pending">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if app.partner_intake and app.partner_intake.created_by %}
+                        <span class="source-badge source-partner"><i class="fas fa-handshake"></i> Partner Entry</span>
+                        <div><small><strong>{{ app.partner_intake.created_by.get_full_name|default:app.partner_intake.created_by.username }}</strong></small></div>
+                    {% else %}
+                        <span class="source-badge source-direct"><i class="fas fa-user-graduate"></i> Student Portal</span>
+                        <div><small style="color: var(--muted);">Self-submitted</small></div>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="status-badge status-{{ app.status }}">
+                        <i class="fas fa-circle"></i> {{ app.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <div>{{ app.created_at|date:"M d, Y" }}</div>
+                    <small style="color: var(--muted);">{{ app.created_at|date:"H:i" }}</small>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{% url 'employee:student_application_detail' app.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <form method="post" action="{% url 'employee:delete_student_application' app.id %}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                        <div class="more-container">
+                            <button type="button" class="btn btn-sm" style="background: #e2e8f0; color: #334155;" aria-expanded="false" data-more-btn>
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="more-menu" data-more-menu>
+                                <a href="{% url 'employee:student_application_detail' app.id %}" class="dropdown-item"><i class="fas fa-eye" style="width:18px;"></i> View</a>
+                                <a href="{% url 'employee:edit_student_application' app.id %}" class="dropdown-item"><i class="fas fa-edit" style="width:18px;"></i> Edit</a>
+                                <a href="{% url 'employee:export_single_application_pdf' app.id %}" target="_blank" class="dropdown-item"><i class="fas fa-file-pdf" style="width:18px;"></i> Export PDF</a>
+                                <hr style="border: none; border-top: 1px solid var(--line); margin: 0.25rem 0;">
+                                <form method="post" action="{% url 'employee:delete_student_application' app.id %}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i> Delete
+                                    <button type="submit" class="dropdown-item danger" style="border:none; background:none; cursor:pointer; width:100%; text-align:left; font:inherit; font-size:0.9rem; padding:0.5rem 0.75rem; border-radius:8px;">
+                                        <i class="fas fa-trash" style="width:18px;"></i> Delete
                                     </button>
                                 </form>
-                                <div class="more-container" style="position: relative;">
-                                    <button type="button" class="btn btn-sm more-btn" aria-expanded="false" aria-controls="more-menu-{{ app.id }}" style="background: #e9ecef; color: #495057;">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <div id="more-menu-{{ app.id }}" class="more-menu" style="display:none; position:absolute; right:0; top:36px; background:white; border:1px solid #ddd; border-radius:8px; padding:0.25rem; min-width:160px; box-shadow:0 8px 20px rgba(0,0,0,0.08); z-index:50;">
-                                        <a href="{% url 'employee:student_application_detail' app.id %}" class="dropdown-item" style="display:block; padding:0.5rem 0.75rem; color:#111; text-decoration:none;"> <i class="fas fa-eye" style="width:18px;"></i> View</a>
-                                        <a href="{% url 'employee:edit_student_application' app.id %}" class="dropdown-item" style="display:block; padding:0.5rem 0.75rem; color:#111; text-decoration:none;"> <i class="fas fa-edit" style="width:18px;"></i> Edit</a>
-                                        <a href="{% url 'employee:export_single_application_pdf' app.id %}" target="_blank" class="dropdown-item" style="display:block; padding:0.5rem 0.75rem; color:#111; text-decoration:none;"> <i class="fas fa-file-pdf" style="width:18px;"></i> Export PDF</a>
-                                        <div class="dropdown-divider" style="height:1px; background:#e9ecef; margin:0.25rem 0;"></div>
-                                        <form method="post" action="{% url 'employee:delete_student_application' app.id %}" style="margin:0;" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
-                                            {% csrf_token %}
-                                            <button type="submit" class="dropdown-item" style="display:block; width:100%; padding:0.5rem 0.75rem; color:#dc3545; text-decoration:none; border:none; background:none; cursor:pointer; text-align:left; font-size:inherit; font-family:inherit;">
-                                                <i class="fas fa-trash" style="width:18px;"></i> Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">
-                <h3><i class="fas fa-file-exclamation" style="font-size: 3rem; margin-bottom: 1rem; color: #6c757d;"></i></h3>
-                <h3>No Applications Found</h3>
-                <p>{% if search_query or status_filter %}Try adjusting your search criteria{% else %}No student applications have been submitted yet.{% endif %}</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Pagination (if applicable) -->
-        {% if is_paginated %}
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">First</a>
-                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
-            {% endif %}
-            
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last</a>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- Application Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ total_applications }}</div>
-                <div class="stat-label">Total Applications</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ pending_reviews }}</div>
-                <div class="stat-label">Pending Review</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ approved_applications }}</div>
-                <div class="stat-label">Approved</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ displayed_count }}</div>
-                <div class="stat-label">Currently Displayed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ partner_submitted_count }}</div>
-                <div class="stat-label">Partner Submitted</div>
-            </div>
-        </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <h3><i class="fas fa-file-exclamation" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: var(--muted); display:block;"></i></h3>
+        <h3>No Applications Found</h3>
+        <p>{% if search_query or status_filter %}Try adjusting your search criteria{% else %}No student applications have been submitted yet.{% endif %}</p>
     </div>
+    {% endif %}
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add loading states for better UX
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach(card => {
-                card.classList.add('loading');
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-double-left"></i></a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-left"></i></a>
+    {% endif %}
+    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-right"></i></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-double-right"></i></a>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_applications }}</div>
+        <div class="stat-label">Total Applications</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ pending_reviews }}</div>
+        <div class="stat-label">Pending Review</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ approved_applications }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ displayed_count }}</div>
+        <div class="stat-label">Currently Displayed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ partner_submitted_count }}</div>
+        <div class="stat-label">Partner Submitted</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                alert('Export functionality would be implemented here. This could generate a CSV or PDF report of the current application list.');
             });
-            
-            // Remove loading animation after a short delay
-            setTimeout(() => {
-                statCards.forEach(card => {
-                    card.classList.remove('loading');
-                });
-            }, 1000);
-            
-            // Export button functionality
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) {
-                exportBtn.addEventListener('click', function() {
-                    alert('Export functionality would be implemented here. This could generate a CSV or PDF report of the current application list.');
-                });
-            }
-            
-            // Refresh button functionality
-            const refreshBtn = document.getElementById('refreshBtn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', function() {
-                    window.location.reload();
-                });
-            }
-            
-            // Add click animation to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Add ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size/2;
-                    const y = e.clientY - rect.top - size/2;
-                    
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    ripple.classList.add('ripple');
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
+        }
+
+        var moreButtons = document.querySelectorAll('[data-more-btn]');
+        moreButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var menu = this.parentElement.querySelector('[data-more-menu]');
+                var expanded = this.getAttribute('aria-expanded') === 'true';
+                document.querySelectorAll('[data-more-menu]').forEach(function(m) { m.style.display = 'none'; });
+                document.querySelectorAll('[data-more-btn]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+                if (!expanded) {
+                    menu.style.display = 'block';
+                    this.setAttribute('aria-expanded', 'true');
+                }
             });
-
-                // Toggle 'More' dropdown menus
-                const moreButtons = document.querySelectorAll('.more-btn');
-                moreButtons.forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const menu = this.parentElement.querySelector('.more-menu');
-                        const expanded = this.getAttribute('aria-expanded') === 'true';
-                        // Close other menus
-                        document.querySelectorAll('.more-menu').forEach(m => { m.style.display = 'none'; });
-                        document.querySelectorAll('.more-btn').forEach(b => { b.setAttribute('aria-expanded', 'false'); });
-                        if (!expanded) {
-                            menu.style.display = 'block';
-                            this.setAttribute('aria-expanded', 'true');
-                            // prevent clicks inside menu from closing it
-                            menu.addEventListener('click', function(ev) { ev.stopPropagation(); });
-                        }
-                    });
-                });
-
-                // Close menus when clicking outside
-                document.addEventListener('click', function() {
-                    document.querySelectorAll('.more-menu').forEach(m => { m.style.display = 'none'; });
-                    document.querySelectorAll('.more-btn').forEach(b => { b.setAttribute('aria-expanded', 'false'); });
-                });
         });
-    </script>
-</body>
-</html>
+
+        document.addEventListener('click', function() {
+            document.querySelectorAll('[data-more-menu]').forEach(function(m) { m.style.display = 'none'; });
+            document.querySelectorAll('[data-more-btn]').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,530 +1,278 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Dashboard</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8f9fa; 
-            line-height: 1.6; 
-            color: #333;
-        }
-        
-        /* Header Styles */
-        .header { 
-            background: linear-gradient(135deg, #28a745, #20c997); 
-            color: white; 
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .welcome-text {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        /* Navigation */
-        .nav-menu { 
-            display: flex; 
-            gap: 1rem; 
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .nav-menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        .nav-menu a:hover { 
-            background-color: rgba(255,255,255,0.2); 
-            transform: translateY(-2px);
-        }
-        
-        /* Main Container */
-        .container { 
-            max-width: 1200px; 
-            margin: 2rem auto; 
-            padding: 0 2rem; 
-        }
-        
-        /* Stats Grid */
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 1.5rem; 
-            margin-bottom: 2rem; 
-        }
-        .stat-card { 
-            background: white; 
-            padding: 1.5rem; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
-        }
-        .stat-number { 
-            font-size: 2.2rem; 
-            font-weight: bold; 
-            color: #28a745; 
-            margin-bottom: 0.5rem;
-        }
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        /* Section Styles */
-        .section { 
-            background: white; 
-            padding: 1.5rem; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-            margin-bottom: 2rem; 
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .section h3 {
-            color: #333;
-            font-size: 1.4rem;
-        }
-        
-        /* Table Styles */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 1rem; 
-        }
-        th, td { 
-            padding: 0.75rem; 
-            text-align: left; 
-            border-bottom: 1px solid #dee2e6; 
-        }
-        th { 
-            background: #f8f9fa; 
-            font-weight: bold; 
-            color: #495057;
-        }
-        tr {
-            transition: background-color 0.2s ease;
-        }
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        /* Status Badges */
-        .status-badge { 
-            padding: 0.25rem 0.75rem; 
-            border-radius: 20px; 
-            font-size: 0.875rem; 
-            font-weight: bold; 
-            display: inline-block;
-        }
-        .status-submitted { background: #17a2b8; color: white; }
-        .status-under_review { background: #ffc107; color: black; }
-        .status-approved { background: #28a745; color: white; }
-        
-        /* Buttons */
-        .btn { 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            text-decoration: none; 
-            display: inline-block; 
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-primary { 
-            background: #007bff; 
-            color: white; 
-        }
-        .btn-primary:hover {
-            background: #0069d9;
-            transform: translateY(-2px);
-        }
-        .btn-success { 
-            background: #28a745; 
-            color: white; 
-        }
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center; 
-            color: #666; 
-            padding: 2rem;
-            font-style: italic;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .nav-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .nav-menu a {
-                flex: 1;
-                text-align: center;
-                margin-bottom: 0.5rem;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .section-header .btn {
-                margin-top: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .container {
-                padding: 0 1rem;
-            }
-            .header {
-                padding: 1rem;
-            }
-        }
-        
-        /* Loading Animation */
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .loading {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <div>
-                <h1>Employee Dashboard</h1>
-                <div class="welcome-text">Welcome, {{ user.get_full_name|default:user.username }}</div>
-            </div>
-            <nav class="nav-menu">
-                <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
-                <a href="{% url 'employee:student_application_list' %}">Student Applications</a>
-                <a href="{% url 'employee:update_management' %}">Updates</a>
-                <a href="{% url 'employee:document_list' %}">Documents</a>
-                <a href="{% url 'employee:contact_messages' %}">Contact Messages</a>
-                <a href="{% url 'admin:index' %}">Admin</a>
-                <a href="{% url 'employee:employee_logout' %}">Logout</a>
-            </nav>
-        </div>
-    </div>
+{% extends 'employee/base.html' %}
 
-    <div class="container">
+{% block title %}Dashboard - Employee Portal{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block hero_title %}Employee Dashboard{% endblock %}
+{% block hero_copy %}Welcome, {{ user.get_full_name|default:user.username }} — manage applications, student support, and public-facing content from one place.{% endblock %}
+
+{% block content %}
+<style>
+    .quick-link-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .quick-link-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0.75rem;
+        border-radius: 18px;
+        background: #f8fbff;
+        border: 1px solid var(--line);
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .quick-link-card:hover {
+        background: #eef4ff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    .quick-link-card i {
+        font-size: 1.4rem;
+        color: var(--primary);
+    }
+
+    .partner-name {
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .partner-email {
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+
+    .inline-form {
+        display: inline;
+        margin: 0;
+    }
+</style>
+
+<div class="page-head">
+    <div>
         <h2>Dashboard Overview</h2>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ applications_count }}</div>
-                <div class="stat-label">Total Applications</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ pending_reviews }}</div>
-                <div class="stat-label">Pending Reviews</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ messages_count }}</div>
-                <div class="stat-label">Contact Messages</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ documents_count }}</div>
-                <div class="stat-label">Documents</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ updates_count }}</div>
-                <div class="stat-label">Website Updates</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ upcoming_events_count }}</div>
-                <div class="stat-label">Upcoming Events</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ pending_partner_count }}</div>
-                <div class="stat-label">Pending Partners</div>
-            </div>
-        </div>
+        <p>Key metrics and pending items at a glance.</p>
+    </div>
+</div>
 
-        <div class="section">
-            <div class="section-header">
-                <h3>Pending Partner Approvals</h3>
-            </div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ applications_count }}</div>
+        <div class="stat-label">Total Applications</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ pending_reviews }}</div>
+        <div class="stat-label">Pending Reviews</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ messages_count }}</div>
+        <div class="stat-label">Contact Messages</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ documents_count }}</div>
+        <div class="stat-label">Documents</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ updates_count }}</div>
+        <div class="stat-label">Website Updates</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ upcoming_events_count }}</div>
+        <div class="stat-label">Upcoming Events</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ pending_partner_count }}</div>
+        <div class="stat-label">Pending Partners</div>
+    </div>
+</div>
 
-            {% if pending_partner_profiles %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Partner</th>
-                        <th>Email Status</th>
-                        <th>Registered</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for partner in pending_partner_profiles %}
-                    <tr>
-                        <td>
-                            <strong>{{ partner.user.get_full_name|default:partner.user.username }}</strong><br>
-                            <small>{{ partner.user.email }}</small>
-                        </td>
-                        <td>
-                            {% if partner.user.is_active %}
-                            <span class="status-badge status-approved">Email Verified</span>
-                            {% else %}
-                            <span class="status-badge status-under_review">Waiting for Email Verification</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ partner.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <form method="post" action="{% url 'employee:approve_partner_account' partner.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success">Approve</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p class="empty-state">No partner accounts are waiting for approval.</p>
-            {% endif %}
-        </div>
+<div class="section">
+    <div class="section-header">
+        <h3>Pending Partner Approvals</h3>
+    </div>
 
-        <div class="section">
-            <div class="section-header">
-                <h3>Public Updates Studio</h3>
-                <a href="{% url 'employee:update_management' %}" class="btn btn-success">Manage Updates</a>
-            </div>
+    {% if pending_partner_profiles %}
+    <table>
+        <thead>
+            <tr>
+                <th>Partner</th>
+                <th>Email Status</th>
+                <th>Registered</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for partner in pending_partner_profiles %}
+            <tr>
+                <td>
+                    <div class="partner-name">{{ partner.user.get_full_name|default:partner.user.username }}</div>
+                    <div class="partner-email">{{ partner.user.email }}</div>
+                </td>
+                <td>
+                    {% if partner.user.is_active %}
+                    <span class="status-badge status-approved">Email Verified</span>
+                    {% else %}
+                    <span class="status-badge status-under_review">Waiting for Email Verification</span>
+                    {% endif %}
+                </td>
+                <td>{{ partner.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <form method="post" action="{% url 'employee:approve_partner_account' partner.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Approve</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No partner accounts are waiting for approval.</div>
+    {% endif %}
+</div>
 
-            <p style="margin-bottom: 1rem; color: #666;">Publish blogs, image stories, and events for the public website. {{ published_updates_count }} update{{ published_updates_count|pluralize }} {{ published_updates_count|pluralize:"is,are" }} currently live.</p>
+<div class="section">
+    <div class="section-header">
+        <h3>Public Updates Studio</h3>
+        <a href="{% url 'employee:update_management' %}" class="btn btn-success">Manage Updates</a>
+    </div>
 
-            {% if recent_updates %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Homepage</th>
-                        <th>Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in recent_updates %}
-                    <tr>
-                        <td>
-                            <strong>{{ item.title }}</strong><br>
-                            <small>{{ item.excerpt|truncatechars:80 }}</small>
-                        </td>
-                        <td>{{ item.get_content_type_display }}</td>
-                        <td>
-                            <span class="status-badge {% if item.status == 'published' %}status-approved{% else %}status-under_review{% endif %}">
-                                {{ item.get_status_display }}
-                            </span>
-                        </td>
-                        <td>{% if item.featured_on_homepage %}Featured{% else %}Hub only{% endif %}</td>
-                        <td>{{ item.updated_at|date:"M d, Y" }}</td>
-                        <td>
-                            <a href="{% url 'employee:update_edit' item.id %}" class="btn btn-primary">Edit</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p class="empty-state">No public updates have been created yet.</p>
-            {% endif %}
-        </div>
+    <p style="margin-bottom: 1rem; color: var(--muted);">Publish blogs, image stories, and events for the public website. {{ published_updates_count }} update{{ published_updates_count|pluralize }} {{ published_updates_count|pluralize:"is,are" }} currently live.</p>
 
-        <!-- Recent Student Portal Applications -->
-        <div class="section">
-            <div class="section-header">
-                <h3>Recent Student Portal Applications</h3>
-                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <a href="{% url 'employee:offline_application_create' %}" class="btn btn-primary">Add Offline Application</a>
-                    <a href="{% url 'employee:student_application_list' %}" class="btn btn-success">View All Applications</a>
-                </div>
-            </div>
-            
-            {% if student_applications %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Type</th>
-                        <th>Details</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for app in student_applications|slice:":5" %}
-                    <tr>
-                        <td>
-                            <strong>{{ app.student.get_full_name|default:app.student.username }}</strong><br>
-                            <small>{{ app.student.email }}</small>
-                        </td>
-                        <td>Application</td>
-                        <td>—</td>
-                        <td>
-                            <span class="status-badge status-{{ app.status }}">
-                                {{ app.get_status_display }}
-                            </span>
-                        </td>
-                        <td>{{ app.created_at|date:"M d, Y" }}</td>
-                        <td style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <a href="{% url 'employee:student_application_detail' app.id %}" class="btn btn-primary">View</a>
-                            <a href="{% url 'employee:edit_student_application' app.id %}" class="btn btn-primary" style="background: #0f766e;">Edit</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p class="empty-state">No student applications found.</p>
-            {% endif %}
-        </div>
+    {% if recent_updates %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Homepage</th>
+                <th>Updated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in recent_updates %}
+            <tr>
+                <td>
+                    <strong>{{ item.title }}</strong><br>
+                    <small style="color: var(--muted);">{{ item.excerpt|truncatechars:80 }}</small>
+                </td>
+                <td>{{ item.get_content_type_display }}</td>
+                <td>
+                    <span class="status-badge {% if item.status == 'published' %}status-approved{% else %}status-under_review{% endif %}">
+                        {{ item.get_status_display }}
+                    </span>
+                </td>
+                <td>{% if item.featured_on_homepage %}Featured{% else %}Hub only{% endif %}</td>
+                <td>{{ item.updated_at|date:"M d, Y" }}</td>
+                <td>
+                    <a href="{% url 'employee:update_edit' item.id %}" class="btn btn-primary">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No public updates have been created yet.</div>
+    {% endif %}
+</div>
 
-        <!-- Recent Documents -->
-        <div class="section">
-            <div class="section-header">
-                <h3>Recent Documents</h3>
-                <a href="{% url 'employee:document_list' %}" class="btn btn-success">View All Documents</a>
-            </div>
-            
-            {% if documents %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Document Type</th>
-                        <th>File Name</th>
-                        <th>Uploaded</th>
-                        <th>Verified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for doc in documents %}
-                    <tr>
-                        <td>{{ doc.student.get_full_name|default:doc.student.username }}</td>
-                        <td>{{ doc.get_document_type_display }}</td>
-                        <td>{{ doc.file.name|slice:"20:" }}</td>
-                        <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
-                        <td>
-                            {% if doc.is_verified %}
-                            <span style="color: #28a745; font-weight: bold;">✓ Verified</span>
-                            {% else %}
-                            <span style="color: #dc3545; font-weight: bold;">Pending</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p class="empty-state">No documents found.</p>
-            {% endif %}
+<div class="section">
+    <div class="section-header">
+        <h3>Recent Student Portal Applications</h3>
+        <div class="action-buttons">
+            <a href="{% url 'employee:offline_application_create' %}" class="btn btn-primary">Add Offline Application</a>
+            <a href="{% url 'employee:student_application_list' %}" class="btn btn-success">View All Applications</a>
         </div>
     </div>
 
-    <script>
-        // Add loading states for better UX
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simulate loading for demonstration
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach(card => {
-                card.classList.add('loading');
-            });
-            
-            // Remove loading animation after a short delay
-            setTimeout(() => {
-                statCards.forEach(card => {
-                    card.classList.remove('loading');
-                });
-            }, 1000);
-            
-            // Add click animation to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Add ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size/2;
-                    const y = e.clientY - rect.top - size/2;
-                    
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    ripple.classList.add('ripple');
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+    {% if student_applications %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Type</th>
+                <th>Details</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in student_applications|slice:":5" %}
+            <tr>
+                <td>
+                    <strong>{{ app.student.get_full_name|default:app.student.username }}</strong><br>
+                    <small style="color: var(--muted);">{{ app.student.email }}</small>
+                </td>
+                <td>Application</td>
+                <td>—</td>
+                <td>
+                    <span class="status-badge status-{{ app.status }}">
+                        {{ app.get_status_display }}
+                    </span>
+                </td>
+                <td>{{ app.created_at|date:"M d, Y" }}</td>
+                <td class="action-buttons">
+                    <a href="{% url 'employee:student_application_detail' app.id %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'employee:edit_student_application' app.id %}" class="btn btn-primary" style="background: #0f766e;">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No student applications found.</div>
+    {% endif %}
+</div>
+
+<div class="section">
+    <div class="section-header">
+        <h3>Recent Documents</h3>
+        <a href="{% url 'employee:document_list' %}" class="btn btn-success">View All Documents</a>
+    </div>
+
+    {% if documents %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Document Type</th>
+                <th>File Name</th>
+                <th>Uploaded</th>
+                <th>Verified</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.student.get_full_name|default:doc.student.username }}</td>
+                <td>{{ doc.get_document_type_display }}</td>
+                <td>{{ doc.file.name|slice:"20:" }}</td>
+                <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if doc.is_verified %}
+                    <span style="color: #16a34a; font-weight: bold;">✓ Verified</span>
+                    {% else %}
+                    <span style="color: #dc2626; font-weight: bold;">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No documents found.</div>
+    {% endif %}
+</div>
+{% endblock %}

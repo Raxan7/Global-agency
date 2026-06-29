@@ -1,762 +1,614 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Messages - Employee Portal</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'employee/base.html' %}
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
-            line-height: 1.5;
-        }
+{% block title %}Contact Messages - Employee Portal{% endblock %}
+{% block nav_messages %}active{% endblock %}
+{% block hero_title %}Contact Messages & Consultations{% endblock %}
+{% block hero_copy %}Manage incoming inquiries, consultation requests, and spam from the public website contact forms.{% endblock %}
 
-        .header {
-            background: linear-gradient(135deg, #0f766e, #0284c7);
-            color: #fff;
-            padding: 16px;
-        }
+{% block content %}
+<style>
+    .message-card {
+        background: var(--surface);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        border-left: 4px solid #94a3b8;
+        padding: 1.1rem;
+        margin-bottom: 0.85rem;
+        position: relative;
+    }
+    .message-card.consultation {
+        border-left-color: #0284c7;
+    }
+    .message-card.contact {
+        border-left-color: #16a34a;
+    }
+    .message-card.spam {
+        border-left-color: #dc2626;
+        opacity: 0.85;
+    }
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+    .message-header h3 {
+        margin: 0;
+        font-size: 1.05rem;
+    }
+    .meta {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+    .status {
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .status.new { background: #fee2e2; color: #991b1b; }
+    .status.replied { background: #dcfce7; color: #166534; }
+    .status.blocked { background: #fef3c7; color: #92400e; }
+    .message-body {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 0.85rem;
+        margin: 10px 0;
+        white-space: pre-wrap;
+        font-size: 0.95rem;
+    }
+    .details {
+        font-size: 0.88rem;
+        margin-bottom: 6px;
+        color: #374151;
+    }
+    .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .actions form {
+        display: inline-block;
+    }
+    .reply-panel {
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #f8fafc;
+        overflow: hidden;
+    }
+    .reply-panel summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 10px 14px;
+        font-weight: 700;
+        color: var(--text);
+    }
+    .reply-panel summary::-webkit-details-marker {
+        display: none;
+    }
+    .reply-form {
+        padding: 0 14px 14px;
+    }
+    .reply-form label {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 700;
+        margin: 10px 0 6px;
+        color: #334155;
+    }
+    .reply-form input,
+    .reply-form textarea {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 10px;
+        font: inherit;
+        background: var(--surface);
+    }
+    .reply-form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    .reply-history {
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+    }
+    .reply-history h4 {
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+    }
+    .messages-alert {
+        padding: 10px 14px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    .alert-warning {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+    }
+    .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+    .tab-btn {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 999px;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        text-decoration: none;
+        color: var(--text);
+        transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+        border-color: var(--primary);
+        color: var(--primary);
+        font-weight: 700;
+        background: #ecfdf5;
+    }
+    .tab-btn:hover {
+        background: #f1f5f9;
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 12px;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 0.85rem;
+        background: var(--surface);
+        transition: all 0.2s ease;
+    }
+    .chip.active {
+        background: var(--text);
+        border-color: var(--text);
+        color: #fff;
+    }
+    .chip:hover {
+        background: #f1f5f9;
+    }
+    .chip.active:hover {
+        background: var(--text);
+    }
+    .checkbox-col {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .checkbox-col input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--primary);
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    .bulk-bar {
+        display: none;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px 14px;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        margin-bottom: 14px;
+    }
+    .bulk-bar label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0369a1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    .bulk-bar label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+        cursor: pointer;
+    }
+    .empty {
+        background: var(--surface);
+        border-radius: 18px;
+        padding: 20px;
+        text-align: center;
+        color: var(--muted);
+        box-shadow: var(--shadow);
+    }
+    .btn-whatsapp {
+        background: #059669;
+        color: #fff;
+    }
+    .btn-whatsapp:hover {
+        background: #047857;
+    }
 
-        .header h1 {
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
+    @media (max-width: 768px) {
+        .actions { flex-direction: column; align-items: stretch; }
+        .actions form { width: 100%; }
+        .actions form .btn { width: 100%; }
+        .message-header { flex-direction: column; }
+    }
+</style>
 
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
+<div class="filters">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages-alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-        .nav-menu a {
-            color: #fff;
-            text-decoration: none;
-            background: rgba(255, 255, 255, 0.12);
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
+    <form method="get" class="search-box">
+        {% if current_tab %}<input type="hidden" name="tab" value="{{ current_tab }}">{% endif %}
+        <input type="text" name="search" placeholder="Search by name, email, phone, destination, or message" value="{{ search_query|default:'' }}">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+        {% if search_query or status_filter %}
+            <a href="{% url 'employee:contact_messages' %}{% if current_tab != 'all' %}?tab={{ current_tab }}{% endif %}" class="btn btn-secondary"><i class="fas fa-times"></i> Clear</a>
+        {% endif %}
+    </form>
 
-        .nav-menu a.active,
-        .nav-menu a:hover {
-            background: rgba(255, 255, 255, 0.24);
-        }
+    <div class="status-filters" style="margin-top: 0;">
+        <strong>Status:</strong>
+        <a href="{% url 'employee:contact_messages' %}{% if current_tab != 'all' %}?tab={{ current_tab }}{% endif %}" class="chip {% if not status_filter %}active{% endif %}">All</a>
+        <a href="?status=new{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if current_tab != 'all' %}&tab={{ current_tab }}{% endif %}" class="chip {% if status_filter == 'new' %}active{% endif %}">New/Pending</a>
+        <a href="?status=replied{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if current_tab != 'all' %}&tab={{ current_tab }}{% endif %}" class="chip {% if status_filter == 'replied' %}active{% endif %}">Replied/Handled</a>
+    </div>
+</div>
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 16px;
-        }
+<div class="tabs">
+    <a href="{% url 'employee:contact_messages' %}{% if search_query %}?search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'all' or not current_tab %}active{% endif %}">All</a>
+    <a href="?tab=consultations{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'consultations' %}active{% endif %}">Consultations</a>
+    <a href="?tab=contacts{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'contacts' %}active{% endif %}">Contact Forms</a>
+    <a href="?tab=spam{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'spam' %}active{% endif %}">Spam</a>
+</div>
 
-        .panel {
-            background: #fff;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-            margin-bottom: 14px;
-        }
+<form method="post" action="{% url 'employee:bulk_message_action' %}" id="bulk-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" id="bulk-action-input" value="">
 
-        .search-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .search-row input {
-            flex: 1;
-            min-width: 140px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 10px;
-            max-width: 100%;
-        }
-
-        .btn {
-            border: 0;
-            border-radius: 8px;
-            padding: 9px 12px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary { background: #2563eb; color: #fff; }
-        .btn-secondary { background: #6b7280; color: #fff; }
-        .btn-success { background: #16a34a; color: #fff; }
-        .btn-whatsapp { background: #059669; color: #fff; }
-        .btn-danger { background: #dc2626; color: #fff; }
-        .btn-warning { background: #d97706; color: #fff; }
-
-        .filters {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .chip {
-            border: 1px solid #d1d5db;
-            border-radius: 999px;
-            padding: 6px 12px;
-            text-decoration: none;
-            color: #111827;
-            font-size: 13px;
-            background: #fff;
-        }
-
-        .chip.active {
-            background: #111827;
-            border-color: #111827;
-            color: #fff;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
-        }
-
-        .tab-btn {
-            border: 1px solid #d1d5db;
-            background: #fff;
-            border-radius: 999px;
-            padding: 8px 14px;
-            cursor: pointer;
-            font-size: 13px;
-            text-decoration: none;
-            color: #1f2937;
-        }
-
-        .tab-btn.active {
-            border-color: #0284c7;
-            color: #0284c7;
-            font-weight: 700;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .message-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-            border-left: 4px solid #94a3b8;
-            padding: 14px;
-            margin-bottom: 12px;
-            position: relative;
-        }
-
-        .message-card.consultation {
-            border-left-color: #0284c7;
-        }
-
-        .message-card.contact {
-            border-left-color: #16a34a;
-        }
-
-        .message-card.spam {
-            border-left-color: #dc2626;
-            opacity: 0.85;
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-
-        .meta {
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .status {
-            border-radius: 999px;
-            padding: 4px 10px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .status.new { background: #fee2e2; color: #991b1b; }
-        .status.replied { background: #dcfce7; color: #166534; }
-        .status.blocked { background: #fef3c7; color: #92400e; }
-
-        .message-body {
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            white-space: pre-wrap;
-        }
-
-        .details {
-            font-size: 13px;
-            margin-bottom: 10px;
-            color: #374151;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .actions form {
-            display: inline-block;
-        }
-
-        .reply-panel {
-            margin-top: 12px;
-            border: 1px solid #dbe4ea;
-            border-radius: 10px;
-            background: #f8fafc;
-            overflow: hidden;
-        }
-
-        .reply-panel summary {
-            cursor: pointer;
-            list-style: none;
-            padding: 12px 14px;
-            font-weight: 700;
-            color: #0f172a;
-        }
-
-        .reply-panel summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .reply-form {
-            padding: 0 14px 14px;
-        }
-
-        .reply-form label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin: 10px 0 6px;
-            color: #334155;
-        }
-
-        .reply-form input,
-        .reply-form textarea {
-            width: 100%;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px;
-            font: inherit;
-            background: #fff;
-        }
-
-        .reply-form textarea {
-            min-height: 140px;
-            resize: vertical;
-        }
-
-        .reply-history {
-            margin-top: 12px;
-            padding: 12px;
-            border-radius: 10px;
-            background: #ecfdf5;
-            border: 1px solid #bbf7d0;
-        }
-
-        .reply-history h4 {
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .messages-alert {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #86efac;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-        }
-
-        .alert-warning {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fde68a;
-        }
-
-        .empty {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            color: #6b7280;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-        }
-
-        .checkbox-col {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .checkbox-col input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #0284c7;
-        }
-
-        .bulk-bar {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-            padding: 10px 14px;
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 10px;
-            margin-bottom: 14px;
-        }
-
-        .bulk-bar label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #0369a1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .bulk-bar label input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #0284c7;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .container { margin: 12px auto; }
-            .nav-menu a { font-size: 12px; }
-            .btn { width: 100%; text-align: center; }
-            .actions { flex-direction: column; align-items: stretch; }
-            .actions form { width: 100%; }
-            .actions form .btn { width: 100%; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Employee Portal</h1>
-        <nav class="nav-menu">
-            <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
-            <a href="{% url 'employee:student_application_list' %}">Student Applications</a>
-            <a href="{% url 'employee:document_list' %}">Documents</a>
-            <a href="{% url 'employee:contact_messages' %}" class="active">Contact Messages</a>
-            <a href="{% url 'admin:index' %}">Admin</a>
-            <a href="{% url 'employee:employee_logout' %}">Logout</a>
-        </nav>
-        <div>Welcome, {{ user.get_full_name|default:user.username }}</div>
+    <div class="bulk-bar" id="bulk-bar">
+        <label>
+            <input type="checkbox" id="select-all" onchange="toggleAll(this)">
+            Select All
+        </label>
+        <button type="button" class="btn btn-danger" onclick="submitBulk('delete')"><i class="fas fa-trash"></i> Delete Selected</button>
+        <button type="button" class="btn btn-warning" onclick="submitBulk('block')"><i class="fas fa-ban"></i> Block Selected</button>
+        {% if current_tab == 'spam' %}
+        <button type="button" class="btn btn-success" onclick="submitBulk('unblock')"><i class="fas fa-check"></i> Unblock Selected</button>
+        {% endif %}
     </div>
 
-    <div class="container">
-        <div class="panel">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="messages-alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
-                        {{ message }}
+    <div id="tab-all" class="tab-content {% if current_tab == 'all' or not current_tab %}active{% endif %}">
+        {% if consultations or contact_messages %}
+            {% for consultation in consultations %}
+                <div class="message-card consultation">
+                    <div class="checkbox-col">
+                        <input type="checkbox" name="message_ids" value="{{ consultation.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
+                        <div style="flex:1">
+                            <div class="message-header">
+                                <div>
+                                    <h3>Consultation Request</h3>
+                                    <div class="meta">
+                                        {{ consultation.name }} ({{ consultation.email }})
+                                        {% if consultation.phone %} | {{ consultation.phone }}{% endif %}
+                                        | {{ consultation.created_at|date:"M d, Y H:i" }}
+                                    </div>
+                                </div>
+                                <span class="status {% if consultation.handled %}replied{% else %}new{% endif %}">
+                                    {% if consultation.handled %}Replied{% else %}New{% endif %}
+                                </span>
+                            </div>
+                            <div class="details">Preferred Destination: {{ consultation.destination|default:"Not specified" }}</div>
+                            <div class="message-body">{{ consultation.message|default:"No additional message provided." }}</div>
+                            <div class="actions">
+                                <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="handled" value="{% if consultation.handled %}0{% else %}1{% endif %}">
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        {% if consultation.handled %}Mark as New{% else %}Mark as Replied{% endif %}
+                                    </button>
+                                </form>
+                                {% if consultation.phone %}
+                                    <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'whatsapp' %}" target="_blank">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-whatsapp btn-sm"><i class="fab fa-whatsapp"></i> Reply via WhatsApp</button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="{% url 'employee:block_message' consultation.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Block</button>
+                                </form>
+                                <form method="post" action="{% url 'employee:delete_message' consultation.id %}" onsubmit="return confirm('Delete this message from {{ consultation.name|escapejs }}?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </div>
+                            <details class="reply-panel">
+                                <summary>Reply from within the system</summary>
+                                <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'email' %}" class="reply-form">
+                                    {% csrf_token %}
+                                    <label for="consultation-subject-{{ consultation.id }}">Subject</label>
+                                    <input id="consultation-subject-{{ consultation.id }}" type="text" name="subject" value="Re: Your Consultation Request - Africa Western Education">
+                                    <label for="consultation-reply-{{ consultation.id }}">Reply message</label>
+                                    <textarea id="consultation-reply-{{ consultation.id }}" name="reply_message" placeholder="Write your reply here..." required>{% if consultation.reply_message %}{{ consultation.reply_message }}{% else %}Thank you for contacting Africa Western Education regarding your consultation request.{% endif %}</textarea>
+                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-paper-plane"></i> Send from info@africawesterneducation.com</button>
+                                </form>
+                            </details>
+                            {% if consultation.reply_message %}
+                                <div class="reply-history">
+                                    <h4>Last sent reply</h4>
+                                    <div class="meta">
+                                        Subject: {{ consultation.reply_subject|default:"(No subject)" }}
+                                        {% if consultation.replied_at %} | Sent {{ consultation.replied_at|date:"M d, Y H:i" }}{% endif %}
+                                        {% if consultation.replied_by %} | By {{ consultation.replied_by.get_full_name|default:consultation.replied_by.username }}{% endif %}
+                                    </div>
+                                    <div class="message-body">{{ consultation.reply_message }}</div>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                {% endfor %}
-            {% endif %}
+                </div>
+            {% endfor %}
 
-            <form method="get" class="search-row">
-                {% if current_tab %}<input type="hidden" name="tab" value="{{ current_tab }}">{% endif %}
-                <input type="text" name="search" placeholder="Search by name, email, phone, destination, or message" value="{{ search_query|default:'' }}">
-                <button type="submit" class="btn btn-primary">Search</button>
-                {% if search_query or status_filter %}
-                    <a href="{% url 'employee:contact_messages' %}{% if current_tab != 'all' %}?tab={{ current_tab }}{% endif %}" class="btn btn-secondary">Clear</a>
-                {% endif %}
-            </form>
-
-            <div class="filters">
-                <strong>Status:</strong>
-                <a href="{% url 'employee:contact_messages' %}{% if current_tab != 'all' %}?tab={{ current_tab }}{% endif %}" class="chip {% if not status_filter %}active{% endif %}">All</a>
-                <a href="?status=new{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if current_tab != 'all' %}&tab={{ current_tab }}{% endif %}" class="chip {% if status_filter == 'new' %}active{% endif %}">New/Pending</a>
-                <a href="?status=replied{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if current_tab != 'all' %}&tab={{ current_tab }}{% endif %}" class="chip {% if status_filter == 'replied' %}active{% endif %}">Replied/Handled</a>
-            </div>
-        </div>
-
-        <div class="tabs">
-            <a href="{% url 'employee:contact_messages' %}{% if search_query %}?search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'all' or not current_tab %}active{% endif %}">All</a>
-            <a href="?tab=consultations{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'consultations' %}active{% endif %}">Consultations</a>
-            <a href="?tab=contacts{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'contacts' %}active{% endif %}">Contact Forms</a>
-            <a href="?tab=spam{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" class="tab-btn {% if current_tab == 'spam' %}active{% endif %}">Spam</a>
-        </div>
-
-        <form method="post" action="{% url 'employee:bulk_message_action' %}" id="bulk-form">
-            {% csrf_token %}
-            <input type="hidden" name="action" id="bulk-action-input" value="">
-
-            <div class="bulk-bar" id="bulk-bar" style="display:none;">
-                <label>
-                    <input type="checkbox" id="select-all" onchange="toggleAll(this)">
-                    Select All
-                </label>
-                <button type="button" class="btn btn-danger" onclick="submitBulk('delete')">Delete Selected</button>
-                <button type="button" class="btn btn-warning" onclick="submitBulk('block')">Block Selected</button>
-                {% if current_tab == 'spam' %}
-                <button type="button" class="btn btn-success" onclick="submitBulk('unblock')">Unblock Selected</button>
-                {% endif %}
-            </div>
-
-            <div id="tab-all" class="tab-content {% if current_tab == 'all' or not current_tab %}active{% endif %}">
-                {% if consultations or contact_messages %}
-                    {% for consultation in consultations %}
-                        <div class="message-card consultation">
-                            <div class="checkbox-col">
-                                <input type="checkbox" name="message_ids" value="{{ consultation.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
-                                <div style="flex:1">
-                                    <div class="message-header">
-                                        <div>
-                                            <h3>Consultation Request</h3>
-                                            <div class="meta">
-                                                {{ consultation.name }} ({{ consultation.email }})
-                                                {% if consultation.phone %} | {{ consultation.phone }}{% endif %}
-                                                | {{ consultation.created_at|date:"M d, Y H:i" }}
-                                            </div>
-                                        </div>
-                                        <span class="status {% if consultation.handled %}replied{% else %}new{% endif %}">
-                                            {% if consultation.handled %}Replied{% else %}New{% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="details">
-                                        Preferred Destination: {{ consultation.destination|default:"Not specified" }}
-                                    </div>
-                                    <div class="message-body">{{ consultation.message|default:"No additional message provided." }}</div>
-
-                                    <div class="actions">
-                                        <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="handled" value="{% if consultation.handled %}0{% else %}1{% endif %}">
-                                            <button type="submit" class="btn btn-secondary">
-                                                {% if consultation.handled %}Mark as New{% else %}Mark as Replied{% endif %}
-                                            </button>
-                                        </form>
-
-                                        {% if consultation.phone %}
-                                            <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'whatsapp' %}" target="_blank">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-whatsapp">Reply via WhatsApp</button>
-                                            </form>
-                                        {% endif %}
-
-                                        <form method="post" action="{% url 'employee:block_message' consultation.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-warning">Block</button>
-                                        </form>
-
-                                        <form method="post" action="{% url 'employee:delete_message' consultation.id %}" onsubmit="return confirm('Delete this message from {{ consultation.name|escapejs }}?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-
-                                    <details class="reply-panel">
-                                        <summary>Reply from within the system</summary>
-                                        <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'email' %}" class="reply-form">
-                                            {% csrf_token %}
-                                            <label for="consultation-subject-{{ consultation.id }}">Subject</label>
-                                            <input id="consultation-subject-{{ consultation.id }}" type="text" name="subject" value="Re: Your Consultation Request - Africa Western Education">
-                                            <label for="consultation-reply-{{ consultation.id }}">Reply message</label>
-                                            <textarea id="consultation-reply-{{ consultation.id }}" name="reply_message" placeholder="Write your reply here..." required>{% if consultation.reply_message %}{{ consultation.reply_message }}{% else %}Thank you for contacting Africa Western Education regarding your consultation request.{% endif %}</textarea>
-                                            <button type="submit" class="btn btn-success">Send from info@africawesterneducation.com</button>
-                                        </form>
-                                    </details>
-
-                                    {% if consultation.reply_message %}
-                                        <div class="reply-history">
-                                            <h4>Last sent reply</h4>
-                                            <div class="meta">
-                                                Subject: {{ consultation.reply_subject|default:"(No subject)" }}
-                                                {% if consultation.replied_at %} | Sent {{ consultation.replied_at|date:"M d, Y H:i" }}{% endif %}
-                                                {% if consultation.replied_by %} | By {{ consultation.replied_by.get_full_name|default:consultation.replied_by.username }}{% endif %}
-                                            </div>
-                                            <div class="message-body">{{ consultation.reply_message }}</div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-
-                    {% for message in contact_messages %}
-                        <div class="message-card contact">
-                            <div class="checkbox-col">
-                                <input type="checkbox" name="message_ids" value="{{ message.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
-                                <div style="flex:1">
-                                    <div class="message-header">
-                                        <div>
-                                            <h3>Contact Form Message</h3>
-                                            <div class="meta">
-                                                {{ message.name }} ({{ message.email }})
-                                                {% if message.phone %} | {{ message.phone }}{% endif %}
-                                                | {{ message.created_at|date:"M d, Y H:i" }}
-                                            </div>
-                                        </div>
-                                        <span class="status {% if message.handled %}replied{% else %}new{% endif %}">
-                                            {% if message.handled %}Replied{% else %}New{% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="message-body">{{ message.message|default:"No message content." }}</div>
-
-                                    <div class="actions">
-                                        <form method="post" action="{% url 'employee:update_message_status' message.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="handled" value="{% if message.handled %}0{% else %}1{% endif %}">
-                                            <button type="submit" class="btn btn-secondary">
-                                                {% if message.handled %}Mark as New{% else %}Mark as Replied{% endif %}
-                                            </button>
-                                        </form>
-
-                                        {% if message.phone %}
-                                            <form method="post" action="{% url 'employee:reply_to_message' message.id 'whatsapp' %}" target="_blank">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-whatsapp">Reply via WhatsApp</button>
-                                            </form>
-                                        {% endif %}
-
-                                        <form method="post" action="{% url 'employee:block_message' message.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-warning">Block</button>
-                                        </form>
-
-                                        <form method="post" action="{% url 'employee:delete_message' message.id %}" onsubmit="return confirm('Delete this message from {{ message.name|escapejs }}?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-
-                                    <details class="reply-panel">
-                                        <summary>Reply from within the system</summary>
-                                        <form method="post" action="{% url 'employee:reply_to_message' message.id 'email' %}" class="reply-form">
-                                            {% csrf_token %}
-                                            <label for="message-subject-{{ message.id }}">Subject</label>
-                                            <input id="message-subject-{{ message.id }}" type="text" name="subject" value="Re: Your Message - Africa Western Education">
-                                            <label for="message-reply-{{ message.id }}">Reply message</label>
-                                            <textarea id="message-reply-{{ message.id }}" name="reply_message" placeholder="Write your reply here..." required>{% if message.reply_message %}{{ message.reply_message }}{% else %}Thank you for contacting Africa Western Education.{% endif %}</textarea>
-                                            <button type="submit" class="btn btn-success">Send from info@africawesterneducation.com</button>
-                                        </form>
-                                    </details>
-
-                                    {% if message.reply_message %}
-                                        <div class="reply-history">
-                                            <h4>Last sent reply</h4>
-                                            <div class="meta">
-                                                Subject: {{ message.reply_subject|default:"(No subject)" }}
-                                                {% if message.replied_at %} | Sent {{ message.replied_at|date:"M d, Y H:i" }}{% endif %}
-                                                {% if message.replied_by %} | By {{ message.replied_by.get_full_name|default:message.replied_by.username }}{% endif %}
-                                            </div>
-                                            <div class="message-body">{{ message.reply_message }}</div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty">No messages found for the selected filters.</div>
-                {% endif %}
-            </div>
-
-            <div id="tab-consultations" class="tab-content {% if current_tab == 'consultations' %}active{% endif %}">
-                {% if consultations %}
-                    {% for consultation in consultations %}
-                        <div class="message-card consultation">
-                            <div class="checkbox-col">
-                                <input type="checkbox" name="message_ids" value="{{ consultation.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
-                                <div style="flex:1">
-                                    <div class="message-header">
-                                        <div>
-                                            <h3>Consultation Request</h3>
-                                            <div class="meta">{{ consultation.name }} ({{ consultation.email }}) | {{ consultation.created_at|date:"M d, Y H:i" }}</div>
-                                        </div>
-                                        <span class="status {% if consultation.handled %}replied{% else %}new{% endif %}">{% if consultation.handled %}Replied{% else %}New{% endif %}</span>
-                                    </div>
-                                    <div class="details">Preferred Destination: {{ consultation.destination|default:"Not specified" }}</div>
-                                    <div class="message-body">{{ consultation.message|default:"No additional message provided." }}</div>
-                                    <div class="actions">
-                                        <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="handled" value="{% if consultation.handled %}0{% else %}1{% endif %}">
-                                            <button type="submit" class="btn btn-secondary">{% if consultation.handled %}Mark as New{% else %}Mark as Replied{% endif %}</button>
-                                        </form>
-                                        {% if consultation.phone %}
-                                            <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'whatsapp' %}" target="_blank">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-whatsapp">Reply via WhatsApp</button>
-                                            </form>
-                                        {% endif %}
-                                        <form method="post" action="{% url 'employee:block_message' consultation.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-warning">Block</button>
-                                        </form>
-                                        <form method="post" action="{% url 'employee:delete_message' consultation.id %}" onsubmit="return confirm('Delete this message from {{ consultation.name|escapejs }}?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
+            {% for message in contact_messages %}
+                <div class="message-card contact">
+                    <div class="checkbox-col">
+                        <input type="checkbox" name="message_ids" value="{{ message.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
+                        <div style="flex:1">
+                            <div class="message-header">
+                                <div>
+                                    <h3>Contact Form Message</h3>
+                                    <div class="meta">
+                                        {{ message.name }} ({{ message.email }})
+                                        {% if message.phone %} | {{ message.phone }}{% endif %}
+                                        | {{ message.created_at|date:"M d, Y H:i" }}
                                     </div>
                                 </div>
+                                <span class="status {% if message.handled %}replied{% else %}new{% endif %}">
+                                    {% if message.handled %}Replied{% else %}New{% endif %}
+                                </span>
                             </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty">No consultation requests found.</div>
-                {% endif %}
-            </div>
-
-            <div id="tab-contacts" class="tab-content {% if current_tab == 'contacts' %}active{% endif %}">
-                {% if contact_messages %}
-                    {% for message in contact_messages %}
-                        <div class="message-card contact">
-                            <div class="checkbox-col">
-                                <input type="checkbox" name="message_ids" value="{{ message.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
-                                <div style="flex:1">
-                                    <div class="message-header">
-                                        <div>
-                                            <h3>Contact Form Message</h3>
-                                            <div class="meta">{{ message.name }} ({{ message.email }}) | {{ message.created_at|date:"M d, Y H:i" }}</div>
-                                        </div>
-                                        <span class="status {% if message.handled %}replied{% else %}new{% endif %}">{% if message.handled %}Replied{% else %}New{% endif %}</span>
+                            <div class="message-body">{{ message.message|default:"No message content." }}</div>
+                            <div class="actions">
+                                <form method="post" action="{% url 'employee:update_message_status' message.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="handled" value="{% if message.handled %}0{% else %}1{% endif %}">
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        {% if message.handled %}Mark as New{% else %}Mark as Replied{% endif %}
+                                    </button>
+                                </form>
+                                {% if message.phone %}
+                                    <form method="post" action="{% url 'employee:reply_to_message' message.id 'whatsapp' %}" target="_blank">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-whatsapp btn-sm"><i class="fab fa-whatsapp"></i> Reply via WhatsApp</button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="{% url 'employee:block_message' message.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Block</button>
+                                </form>
+                                <form method="post" action="{% url 'employee:delete_message' message.id %}" onsubmit="return confirm('Delete this message from {{ message.name|escapejs }}?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </div>
+                            <details class="reply-panel">
+                                <summary>Reply from within the system</summary>
+                                <form method="post" action="{% url 'employee:reply_to_message' message.id 'email' %}" class="reply-form">
+                                    {% csrf_token %}
+                                    <label for="message-subject-{{ message.id }}">Subject</label>
+                                    <input id="message-subject-{{ message.id }}" type="text" name="subject" value="Re: Your Message - Africa Western Education">
+                                    <label for="message-reply-{{ message.id }}">Reply message</label>
+                                    <textarea id="message-reply-{{ message.id }}" name="reply_message" placeholder="Write your reply here..." required>{% if message.reply_message %}{{ message.reply_message }}{% else %}Thank you for contacting Africa Western Education.{% endif %}</textarea>
+                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-paper-plane"></i> Send from info@africawesterneducation.com</button>
+                                </form>
+                            </details>
+                            {% if message.reply_message %}
+                                <div class="reply-history">
+                                    <h4>Last sent reply</h4>
+                                    <div class="meta">
+                                        Subject: {{ message.reply_subject|default:"(No subject)" }}
+                                        {% if message.replied_at %} | Sent {{ message.replied_at|date:"M d, Y H:i" }}{% endif %}
+                                        {% if message.replied_by %} | By {{ message.replied_by.get_full_name|default:message.replied_by.username }}{% endif %}
                                     </div>
-                                    <div class="message-body">{{ message.message|default:"No message content." }}</div>
-                                    <div class="actions">
-                                        <form method="post" action="{% url 'employee:update_message_status' message.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="handled" value="{% if message.handled %}0{% else %}1{% endif %}">
-                                            <button type="submit" class="btn btn-secondary">{% if message.handled %}Mark as New{% else %}Mark as Replied{% endif %}</button>
-                                        </form>
-                                        {% if message.phone %}
-                                            <form method="post" action="{% url 'employee:reply_to_message' message.id 'whatsapp' %}" target="_blank">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-whatsapp">Reply via WhatsApp</button>
-                                            </form>
-                                        {% endif %}
-                                        <form method="post" action="{% url 'employee:block_message' message.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-warning">Block</button>
-                                        </form>
-                                        <form method="post" action="{% url 'employee:delete_message' message.id %}" onsubmit="return confirm('Delete this message from {{ message.name|escapejs }}?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
+                                    <div class="message-body">{{ message.reply_message }}</div>
                                 </div>
-                            </div>
+                            {% endif %}
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty">No contact form messages found.</div>
-                {% endif %}
-            </div>
-
-            <div id="tab-spam" class="tab-content {% if current_tab == 'spam' %}active{% endif %}">
-                {% if spam_messages %}
-                    {% for message in spam_messages %}
-                        <div class="message-card spam">
-                            <div class="checkbox-col">
-                                <input type="checkbox" name="message_ids" value="{{ message.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
-                                <div style="flex:1">
-                                    <div class="message-header">
-                                        <div>
-                                            <h3>{% if message.destination %}Consultation Request{% else %}Contact Form Message{% endif %}</h3>
-                                            <div class="meta">
-                                                {{ message.name }} ({{ message.email }})
-                                                {% if message.phone %} | {{ message.phone }}{% endif %}
-                                                | {{ message.created_at|date:"M d, Y H:i" }}
-                                            </div>
-                                        </div>
-                                        <span class="status blocked">Blocked</span>
-                                    </div>
-                                    {% if message.destination %}
-                                        <div class="details">Preferred Destination: {{ message.destination|default:"Not specified" }}</div>
-                                    {% endif %}
-                                    <div class="message-body">{{ message.message|default:"No message content." }}</div>
-                                    <div class="actions">
-                                        <form method="post" action="{% url 'employee:block_message' message.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-success">Unblock</button>
-                                        </form>
-                                        <form method="post" action="{% url 'employee:delete_message' message.id %}" onsubmit="return confirm('Permanently delete this blocked message?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty">No blocked messages.</div>
-                {% endif %}
-            </div>
-        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">No messages found for the selected filters.</div>
+        {% endif %}
     </div>
 
-    <script>
-        function toggleAll(master) {
-            document.querySelectorAll('.msg-checkbox').forEach(function(cb) {
-                cb.checked = master.checked;
-            });
-            toggleBulkBar();
-        }
+    <div id="tab-consultations" class="tab-content {% if current_tab == 'consultations' %}active{% endif %}">
+        {% if consultations %}
+            {% for consultation in consultations %}
+                <div class="message-card consultation">
+                    <div class="checkbox-col">
+                        <input type="checkbox" name="message_ids" value="{{ consultation.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
+                        <div style="flex:1">
+                            <div class="message-header">
+                                <div>
+                                    <h3>Consultation Request</h3>
+                                    <div class="meta">{{ consultation.name }} ({{ consultation.email }}) | {{ consultation.created_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                                <span class="status {% if consultation.handled %}replied{% else %}new{% endif %}">{% if consultation.handled %}Replied{% else %}New{% endif %}</span>
+                            </div>
+                            <div class="details">Preferred Destination: {{ consultation.destination|default:"Not specified" }}</div>
+                            <div class="message-body">{{ consultation.message|default:"No additional message provided." }}</div>
+                            <div class="actions">
+                                <form method="post" action="{% url 'employee:update_message_status' consultation.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="handled" value="{% if consultation.handled %}0{% else %}1{% endif %}">
+                                    <button type="submit" class="btn btn-secondary btn-sm">{% if consultation.handled %}Mark as New{% else %}Mark as Replied{% endif %}</button>
+                                </form>
+                                {% if consultation.phone %}
+                                    <form method="post" action="{% url 'employee:reply_to_message' consultation.id 'whatsapp' %}" target="_blank">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-whatsapp btn-sm"><i class="fab fa-whatsapp"></i> Reply via WhatsApp</button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="{% url 'employee:block_message' consultation.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Block</button>
+                                </form>
+                                <form method="post" action="{% url 'employee:delete_message' consultation.id %}" onsubmit="return confirm('Delete this message from {{ consultation.name|escapejs }}?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">No consultation requests found.</div>
+        {% endif %}
+    </div>
 
-        function toggleBulkBar() {
-            var checked = document.querySelectorAll('.msg-checkbox:checked');
-            var bar = document.getElementById('bulk-bar');
-            bar.style.display = checked.length > 0 ? 'flex' : 'none';
-        }
+    <div id="tab-contacts" class="tab-content {% if current_tab == 'contacts' %}active{% endif %}">
+        {% if contact_messages %}
+            {% for message in contact_messages %}
+                <div class="message-card contact">
+                    <div class="checkbox-col">
+                        <input type="checkbox" name="message_ids" value="{{ message.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
+                        <div style="flex:1">
+                            <div class="message-header">
+                                <div>
+                                    <h3>Contact Form Message</h3>
+                                    <div class="meta">{{ message.name }} ({{ message.email }}) | {{ message.created_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                                <span class="status {% if message.handled %}replied{% else %}new{% endif %}">{% if message.handled %}Replied{% else %}New{% endif %}</span>
+                            </div>
+                            <div class="message-body">{{ message.message|default:"No message content." }}</div>
+                            <div class="actions">
+                                <form method="post" action="{% url 'employee:update_message_status' message.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="handled" value="{% if message.handled %}0{% else %}1{% endif %}">
+                                    <button type="submit" class="btn btn-secondary btn-sm">{% if message.handled %}Mark as New{% else %}Mark as Replied{% endif %}</button>
+                                </form>
+                                {% if message.phone %}
+                                    <form method="post" action="{% url 'employee:reply_to_message' message.id 'whatsapp' %}" target="_blank">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-whatsapp btn-sm"><i class="fab fa-whatsapp"></i> Reply via WhatsApp</button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="{% url 'employee:block_message' message.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Block</button>
+                                </form>
+                                <form method="post" action="{% url 'employee:delete_message' message.id %}" onsubmit="return confirm('Delete this message from {{ message.name|escapejs }}?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">No contact form messages found.</div>
+        {% endif %}
+    </div>
 
-        function submitBulk(action) {
-            document.getElementById('bulk-action-input').value = action;
-            if (action === 'delete') {
-                var count = document.querySelectorAll('.msg-checkbox:checked').length;
-                if (!confirm('Delete ' + count + ' selected message(s)?')) {
-                    return;
-                }
-            }
-            document.getElementById('bulk-form').submit();
-        }
+    <div id="tab-spam" class="tab-content {% if current_tab == 'spam' %}active{% endif %}">
+        {% if spam_messages %}
+            {% for message in spam_messages %}
+                <div class="message-card spam">
+                    <div class="checkbox-col">
+                        <input type="checkbox" name="message_ids" value="{{ message.id }}" class="msg-checkbox" onchange="toggleBulkBar()">
+                        <div style="flex:1">
+                            <div class="message-header">
+                                <div>
+                                    <h3>{% if message.destination %}Consultation Request{% else %}Contact Form Message{% endif %}</h3>
+                                    <div class="meta">{{ message.name }} ({{ message.email }}) | {{ message.created_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                                <span class="status blocked">Blocked</span>
+                            </div>
+                            {% if message.destination %}
+                                <div class="details">Preferred Destination: {{ message.destination|default:"Not specified" }}</div>
+                            {% endif %}
+                            <div class="message-body">{{ message.message|default:"No message content." }}</div>
+                            <div class="actions">
+                                <form method="post" action="{% url 'employee:block_message' message.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Unblock</button>
+                                </form>
+                                <form method="post" action="{% url 'employee:delete_message' message.id %}" onsubmit="return confirm('Permanently delete this blocked message?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">No blocked messages.</div>
+        {% endif %}
+    </div>
+</form>
 
+<script>
+    function toggleAll(master) {
+        document.querySelectorAll('.msg-checkbox').forEach(function(cb) {
+            cb.checked = master.checked;
+        });
         toggleBulkBar();
-    </script>
-</body>
-</html>
+    }
+
+    function toggleBulkBar() {
+        var checked = document.querySelectorAll('.msg-checkbox:checked');
+        var bar = document.getElementById('bulk-bar');
+        bar.style.display = checked.length > 0 ? 'flex' : 'none';
+    }
+
+    function submitBulk(action) {
+        document.getElementById('bulk-action-input').value = action;
+        if (action === 'delete') {
+            var count = document.querySelectorAll('.msg-checkbox:checked').length;
+            if (!confirm('Delete ' + count + ' selected message(s)?')) {
+                return;
+            }
+        }
+        document.getElementById('bulk-form').submit();
+    }
+
+    toggleBulkBar();
+</script>
+{% endblock %}

@@ -1,1267 +1,908 @@
+{% extends 'employee/base.html' %}
 {% load security_tags %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Details - Employee Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8f9fa; 
-            line-height: 1.6; 
-            color: #333;
-        }
-        
-        /* Header Styles */
-        .header { 
-            background: linear-gradient(135deg, #28a745, #20c997); 
-            color: white; 
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .welcome-text {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        /* Navigation */
-        .nav-menu { 
-            display: flex; 
-            gap: 1rem; 
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        .nav-menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        .nav-menu a:hover { 
-            background-color: rgba(255,255,255,0.2); 
-            transform: translateY(-2px);
-        }
-        
-        /* Main Container */
-        .container { 
-            max-width: 1200px; 
-            margin: 2rem auto; 
-            padding: 0 2rem; 
-        }
-        
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .page-header h2 {
-            color: #333;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Card Styles */
-        .card { 
-            background: white; 
-            padding: 2rem; 
-            border-radius: 12px; 
-            margin-bottom: 2rem; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
-        }
-        
-        /* Status Badges */
-        .status-badge { 
-            padding: 0.5rem 1.5rem; 
-            border-radius: 20px; 
-            font-size: 1rem; 
-            font-weight: bold; 
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .status-pending_payment { background: #6c757d; color: white; }
-        .status-submitted { background: #17a2b8; color: white; }
-        .status-under_review { background: #ffc107; color: black; }
-        .status-approved { background: #28a745; color: white; }
-        .status-rejected { background: #dc3545; color: white; }
-        .status-selected { background: #6610f2; color: white; }
-        
-        /* Buttons */
-        .btn { 
-            padding: 0.5rem 1rem; 
-            border-radius: 6px; 
-            text-decoration: none; 
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: none; 
-            cursor: pointer; 
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .btn-primary { 
-            background: #007bff; 
-            color: white; 
-        }
-        .btn-primary:hover {
-            background: #0069d9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-        }
-        .btn-success { 
-            background: #28a745; 
-            color: white; 
-        }
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(40,167,69,0.3);
-        }
-        .btn-secondary { 
-            background: #6c757d; 
-            color: white; 
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(220,53,69,0.3);
-        }
-        .btn-sm { 
-            padding: 0.4rem 0.8rem; 
-            font-size: 0.875rem; 
-        }
-        
-        /* Info Grid */
-        .info-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 1.5rem; 
-            margin: 1.5rem 0; 
-        }
-        .info-item { 
-            padding: 1.5rem; 
-            background: #f8f9fa; 
-            border-radius: 8px; 
-            border-left: 4px solid #28a745;
-            transition: transform 0.3s ease;
-        }
-        .info-item:hover {
-            transform: translateX(5px);
-        }
-        .info-label { 
-            font-weight: bold; 
-            color: #495057; 
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Document Items */
-        .document-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 1.5rem; 
-            border: 1px solid #e9ecef; 
-            border-radius: 8px; 
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-        .document-item:hover {
-            border-color: #007bff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        /* Payment Items */
-        .payment-item { 
-            padding: 1.5rem; 
-            background: #f8f9fa; 
-            border-radius: 8px; 
-            margin-bottom: 1rem;
-            border-left: 4px solid #17a2b8;
-        }
-        
-        /* Status Badges */
-        .verified-badge { 
-            color: #28a745; 
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .verified-badge::before {
-            content: "✓";
-            font-weight: bold;
-        }
-        .pending-badge { 
-            color: #dc3545; 
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .pending-badge::before {
-            content: "●";
-            font-size: 0.8rem;
-        }
-        
-        /* Form Elements */
-        select {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        select:focus {
-            outline: none;
-            border-color: #28a745;
-            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
-        }
-        
-        /* Application Header */
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        
-        /* Progress Bar */
-        .progress-container {
-            margin: 1.5rem 0;
-        }
-        .progress-bar {
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #28a745, #20c997);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-        .progress-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-        
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .nav-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .nav-menu a {
-                flex: 1;
-                text-align: center;
-                margin-bottom: 0.5rem;
-            }
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .page-header .btn {
-                margin-top: 1rem;
-            }
-            .app-header {
-                flex-direction: column;
-            }
-            .status-badge {
-                margin-top: 1rem;
-            }
-            .document-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 1rem;
-            }
-            .header {
-                padding: 1rem;
-            }
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Loading Animation */
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .loading {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        
-        /* Timeline */
-        .timeline {
-            position: relative;
-            margin: 1.5rem 0;
-        }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #e9ecef;
-        }
-        .timeline-item {
-            position: relative;
-            padding-left: 2rem;
-            margin-bottom: 1.5rem;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #28a745;
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px #28a745;
-        }
-        .timeline-date {
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <div>
-                <h1>Employee Portal</h1>
-                <div class="welcome-text">Welcome, {{ user.get_full_name|default:user.username }}</div>
+
+{% block title %}Application Details - Employee Portal{% endblock %}
+{% block nav_applications %}active{% endblock %}
+{% block hero_title %}Application Details{% endblock %}
+{% block hero_copy %}Review student application details, manage status, documents, and payments.{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .detail-card {
+        background: var(--surface);
+        border: 1px solid rgba(219, 227, 240, 0.9);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .detail-card h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.2rem;
+        margin: 1.2rem 0;
+    }
+    .info-item {
+        padding: 1.2rem;
+        background: #f8fafc;
+        border-radius: 14px;
+        border-left: 4px solid var(--primary);
+        transition: transform 0.2s ease;
+    }
+    .info-item:hover {
+        transform: translateX(4px);
+    }
+    .info-label {
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .status-badge {
+        padding: 0.5rem 1.2rem;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .status-badge.status-pending_payment { background: #e2e8f0; color: #475569; }
+    .status-badge.status-submitted { background: #dbeafe; color: #1d4ed8; }
+    .status-badge.status-under_review { background: #fef3c7; color: #92400e; }
+    .status-badge.status-approved { background: #dcfce7; color: #166534; }
+    .status-badge.status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-badge.status-selected { background: #ede9fe; color: #5b21b6; }
+    .document-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.2rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+    .document-item:hover {
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .payment-item {
+        padding: 1.2rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #0284c7;
+    }
+    .verified-badge {
+        color: #16a34a;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .verified-badge::before {
+        content: "✓";
+        font-weight: bold;
+    }
+    .pending-badge {
+        color: #dc2626;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .pending-badge::before {
+        content: "●";
+        font-size: 0.8rem;
+    }
+    .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.2rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .progress-container {
+        margin: 1.2rem 0;
+    }
+    .progress-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), #0f4c81);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+    .timeline {
+        position: relative;
+        margin: 1.2rem 0;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--line);
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1.2rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px var(--primary);
+    }
+    .timeline-date {
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+    .profile-placeholder {
+        width: 150px;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), #0f4c81);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: 3px solid var(--primary);
+    }
+    .profile-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: 3px solid var(--primary);
+    }
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-box {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    @media (max-width: 768px) {
+        .app-header { flex-direction: column; }
+        .document-item { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+        .profile-img, .profile-placeholder { width: 120px; height: 120px; }
+    }
+</style>
+
+<div class="page-head">
+    <div>
+        <h2><i class="fas fa-file-alt"></i> Application Details</h2>
+        <p>Application #{{ application.id }} · Ref: {{ application.get_registration_number }}</p>
+    </div>
+    <div class="action-buttons">
+        <a href="{% url 'employee:export_single_application_pdf' application.id %}" class="btn btn-primary" target="_blank">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+        <a href="{% url 'employee:export_empty_application_pdf' %}" class="btn btn-secondary">
+            <i class="fas fa-file-pdf"></i> Blank Form
+        </a>
+        <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-success">
+            <i class="fas fa-edit"></i> Edit Application
+        </a>
+        <form method="post" action="{% url 'employee:delete_student_application' application.id %}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </form>
+        <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="detail-card">
+    <div class="app-header">
+        <div>
+            <h3 style="margin:0;">Application #{{ application.id }}</h3>
+            <p style="color: var(--primary); margin-top: 0.25rem; font-weight: bold;">
+                <i class="fas fa-hashtag"></i> Ref: {{ application.get_registration_number }}
+            </p>
+            <p style="color: var(--muted); margin-top: 0.25rem;">
+                <i class="far fa-calendar"></i> Submitted on {{ application.created_at|date:"F d, Y" }}
+            </p>
+        </div>
+        <span class="status-badge status-{{ application.status }}">
+            <i class="fas fa-circle"></i> {{ application.get_status_display }}
+        </span>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:
+                {% if application.status == 'pending_payment' %}20%
+                {% elif application.status == 'submitted' %}40%
+                {% elif application.status == 'under_review' %}60%
+                {% elif application.status == 'approved' %}80%
+                {% elif application.status == 'selected' %}100%
+                {% else %}10%{% endif %}">
             </div>
-            <nav class="nav-menu">
-                <a href="{% url 'employee:employee_dashboard' %}">Dashboard</a>
-                <a href="{% url 'employee:student_application_list' %}">Student Applications</a>
-                <a href="{% url 'employee:document_list' %}">Documents</a>
-                <a href="{% url 'employee:contact_messages' %}">Contact Messages</a>
-                <a href="{% url 'admin:index' %}">Admin</a>
-                <a href="{% url 'employee:employee_logout' %}">Logout</a>
-            </nav>
+        </div>
+        <div class="progress-labels">
+            <span>Submitted</span>
+            <span>Under Review</span>
+            <span>Approved</span>
+            <span>Completed</span>
         </div>
     </div>
 
-    <div class="container">
-        <div class="page-header">
-            <h2><i class="fas fa-file-alt"></i> Application Details</h2>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <a href="{% url 'employee:export_single_application_pdf' application.id %}" class="btn btn-primary" target="_blank">
-                    <i class="fas fa-file-pdf"></i> Export PDF
-                </a>
-                <a href="{% url 'employee:export_empty_application_pdf' %}" class="btn btn-secondary">
-                    <i class="fas fa-file-pdf"></i> Blank Form
-                </a>
-                <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-edit"></i> Edit Application
-                </a>
-                <form method="post" action="{% url 'employee:delete_student_application' application.id %}" style="display:inline; margin:0;" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </form>
-                <a href="{% url 'employee:student_application_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Applications
-                </a>
+    <form method="post" action="{% url 'employee:update_student_application_status' application.id %}">
+        {% csrf_token %}
+        <div style="margin: 1.2rem 0; padding: 1.2rem; border: 1px solid var(--line); border-radius: 16px; background: #f8fafc;">
+            <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Application Status</label>
+                    <select name="status" class="form-select">
+                        {% for status_value, status_label in application.APPLICATION_STATUS %}
+                        <option value="{{ status_value }}" {% if application.status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Eligibility</label>
+                    <select name="official_eligibility" class="form-select">
+                        {% for value, label in application.OFFICE_ELIGIBILITY_CHOICES %}
+                        <option value="{{ value }}" {% if application.official_eligibility == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Documents Verified</label>
+                    <select name="official_documents_verified" class="form-select">
+                        <option value="" {% if application.official_documents_verified == None %}selected{% endif %}>---------</option>
+                        <option value="true" {% if application.official_documents_verified == True %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if application.official_documents_verified == False %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Admission Status</label>
+                    <select name="official_admission_status" class="form-select">
+                        {% for value, label in application.OFFICE_ADMISSION_STATUS_CHOICES %}
+                        <option value="{{ value }}" {% if application.official_admission_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Visa Status</label>
+                    <select name="official_visa_status" class="form-select">
+                        {% for value, label in application.OFFICE_VISA_STATUS_CHOICES %}
+                        <option value="{{ value }}" {% if application.official_visa_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Final Decision</label>
+                    <select name="official_final_decision" class="form-select">
+                        {% for value, label in application.OFFICE_FINAL_DECISION_CHOICES %}
+                        <option value="{{ value }}" {% if application.official_final_decision == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Status Feedback For Student And Partner</label>
+                <textarea name="employee_status_note" rows="4" class="form-textarea">{{ application.employee_status_note }}</textarea>
+            </div>
+            <div style="margin-top: 1rem;">
+                <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Official Remarks</label>
+                <textarea name="official_remarks" rows="3" class="form-textarea">{{ application.official_remarks }}</textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-sync-alt"></i> Save Status And Feedback
+                </button>
+                {% if application.status_updated_by %}
+                <span style="color: var(--muted);">
+                    Last update by {{ application.status_updated_by.get_full_name|default:application.status_updated_by.username }}
+                    on {{ application.status_updated_at|date:"M d, Y H:i" }}
+                </span>
+                {% endif %}
             </div>
         </div>
+    </form>
 
-        <!-- Application Overview -->
-        <div class="card">
-            <div class="app-header">
-                <div>
-                    <h3>Application #{{ application.id }}</h3>
-                    <p style="color: #0056b3; margin-top: 0.25rem; font-weight: bold;">
-                        <i class="fas fa-hashtag"></i> Ref: {{ application.get_registration_number }}
-                    </p>
-                    <p style="color: #666; margin-top: 0.25rem;">
-                        <i class="far fa-calendar"></i> Submitted on {{ application.created_at|date:"F d, Y" }}
-                    </p>
-                </div>
-                <span class="status-badge status-{{ application.status }}">
-                    <i class="fas fa-circle"></i> {{ application.get_status_display }}
+    {% if application.employee_status_note or application.official_remarks %}
+    <div style="margin: 1rem 0; padding: 1rem 1.2rem; border-radius: 14px; background: #eff6ff; border: 1px solid #bfdbfe;">
+        <h4 style="margin-bottom: 0.6rem; color: #1d4ed8;"><i class="fas fa-reply"></i> Latest Shared Feedback</h4>
+        {% if application.employee_status_note %}
+        <p style="margin: 0 0 0.6rem; color: #1e293b;">{{ application.employee_status_note|linebreaksbr }}</p>
+        {% endif %}
+        {% if application.official_remarks %}
+        <p style="margin: 0; color: #475569;"><strong>Office Remarks:</strong> {{ application.official_remarks|linebreaksbr }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-user-graduate"></i> Student Information</div>
+            <div><strong>Name:</strong> {{ application.student.get_full_name|default:application.student.username }}</div>
+            <div><strong>Email:</strong> {{ application.student.email }}</div>
+            <div><strong>Username:</strong> {{ application.student.username }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-route"></i> Submission Source</div>
+            {% if partner_intake and partner_intake.created_by and partner_intake.created_by.userprofile.role == 'partner' %}
+            <div style="margin-bottom: 0.4rem;"><strong style="color: #1b5e20;">Partner Submitted Application</strong></div>
+            <div><strong>Partner Name:</strong> {{ partner_intake.created_by.get_full_name|default:partner_intake.created_by.username }}</div>
+            <div><strong>Partner Email:</strong> {{ partner_intake.created_by.email }}</div>
+            {% if partner_intake.created_by.userprofile.phone_number %}
+            <div><strong>Partner Phone:</strong> {{ partner_intake.created_by.userprofile.phone_number }}</div>
+            {% endif %}
+            <div><strong>Partner Intake Date:</strong> {{ partner_intake.created_at|date:"M d, Y H:i" }}</div>
+            {% elif partner_intake and partner_intake.created_by %}
+            <div><strong>Offline Entry by Staff:</strong> {{ partner_intake.created_by.get_full_name|default:partner_intake.created_by.username }}</div>
+            <div><strong>Entry Date:</strong> {{ partner_intake.created_at|date:"M d, Y H:i" }}</div>
+            {% else %}
+            <div><strong>Student Portal Direct Submission</strong></div>
+            <div style="color: var(--muted);">Submitted directly by the student account.</div>
+            {% endif %}
+        </div>
+        <div class="info-item">
+            <div class="info-label"><i class="fas fa-money-bill-wave"></i> Payment Information</div>
+            <div><strong>Status:</strong>
+                {% if application.payment_status == 'paid' %}
+                <span class="verified-badge"><i class="fas fa-check-circle"></i> Paid & Verified</span>
+                {% elif application.payment_status == 'pending_verification' %}
+                <span class="pending-badge"><i class="fas fa-clock"></i> Pending Verification</span>
+                {% elif application.payment_status == 'rejected' %}
+                <span style="background: #dc2626; color: white; padding: 0.3rem 0.8rem; border-radius: 15px;">
+                    <i class="fas fa-times-circle"></i> Payment Rejected
                 </span>
-            </div>
-
-            <!-- Application Progress -->
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 
-                        {% if application.status == 'pending_payment' %}20%
-                        {% elif application.status == 'submitted' %}40%
-                        {% elif application.status == 'under_review' %}60%
-                        {% elif application.status == 'approved' %}80%
-                        {% elif application.status == 'selected' %}100%
-                        {% else %}10%{% endif %}">
-                    </div>
-                </div>
-                <div class="progress-labels">
-                    <span>Submitted</span>
-                    <span>Under Review</span>
-                    <span>Approved</span>
-                    <span>Completed</span>
-                </div>
-            </div>
-
-            <!-- Status Update Form -->
-            <form method="post" action="{% url 'employee:update_student_application_status' application.id %}">
-                {% csrf_token %}<div style="margin: 1.5rem 0; padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">
-                    <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-                        <div>
-                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Application Status</label>
-                            <select name="status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
-                                {% for status_value, status_label in application.APPLICATION_STATUS %}
-                                <option value="{{ status_value }}" {% if application.status == status_value %}selected{% endif %}>
-                                    {{ status_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Eligibility</label>
-                            <select name="official_eligibility" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
-                                {% for value, label in application.OFFICE_ELIGIBILITY_CHOICES %}
-                                <option value="{{ value }}" {% if application.official_eligibility == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Documents Verified</label>
-                            <select name="official_documents_verified" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
-                                <option value="" {% if application.official_documents_verified == None %}selected{% endif %}>---------</option>
-                                <option value="true" {% if application.official_documents_verified == True %}selected{% endif %}>Yes</option>
-                                <option value="false" {% if application.official_documents_verified == False %}selected{% endif %}>No</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Admission Status</label>
-                            <select name="official_admission_status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
-                                {% for value, label in application.OFFICE_ADMISSION_STATUS_CHOICES %}
-                                <option value="{{ value }}" {% if application.official_admission_status == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Visa Status</label>
-                            <select name="official_visa_status" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
-                                {% for value, label in application.OFFICE_VISA_STATUS_CHOICES %}
-                                <option value="{{ value }}" {% if application.official_visa_status == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Final Decision</label>
-                            <select name="official_final_decision" style="padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
-                                {% for value, label in application.OFFICE_FINAL_DECISION_CHOICES %}
-                                <option value="{{ value }}" {% if application.official_final_decision == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Status Feedback For Student And Partner</label>
-                        <textarea name="employee_status_note" rows="4" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 10px;">{{ application.employee_status_note }}</textarea>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.45rem;">Official Remarks</label>
-                        <textarea name="official_remarks" rows="3" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 10px;">{{ application.official_remarks }}</textarea>
-                    </div>
-                    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-sync-alt"></i> Save Status And Feedback
-                        </button>
-                        {% if application.status_updated_by %}
-                        <span style="color: #64748b;">
-                            Last update by {{ application.status_updated_by.get_full_name|default:application.status_updated_by.username }}
-                            on {{ application.status_updated_at|date:"M d, Y H:i" }}
-                        </span>
-                        {% endif %}
-                    </div>
-                </div>
-            </form>
-
-            {% if application.employee_status_note or application.official_remarks %}
-            <div style="margin: 1rem 0 0; padding: 1rem 1.2rem; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe;">
-                <h4 style="margin-bottom: 0.6rem; color: #1d4ed8;"><i class="fas fa-reply"></i> Latest Shared Feedback</h4>
-                {% if application.employee_status_note %}
-                <p style="margin: 0 0 0.6rem; color: #1e293b;">{{ application.employee_status_note|linebreaksbr }}</p>
+                {% else %}
+                <span class="pending-badge"><i class="fas fa-exclamation-circle"></i> Unpaid</span>
                 {% endif %}
-                {% if application.official_remarks %}
-                <p style="margin: 0; color: #475569;"><strong>Office Remarks:</strong> {{ application.official_remarks|linebreaksbr }}</p>
+            </div>
+            {% if application.payment_amount %}
+            <div><strong>Amount:</strong> TZS {{ application.payment_amount|floatformat:0 }}</div>
+            {% endif %}
+            {% if application.mpesa_account_name %}
+            <div><strong>M-PESA Account Name:</strong> {{ application.mpesa_account_name }}</div>
+            {% endif %}
+            {% if application.payment_verified_at %}
+            <div><strong>Verified:</strong> {{ application.payment_verified_at|date:"M d, Y H:i" }}</div>
+            {% endif %}
+            {% if application.payment_verified_by %}
+            <div><strong>Verified By:</strong> {{ application.payment_verified_by.get_full_name }}</div>
+            {% endif %}
+            <div><strong>Submitted:</strong> {{ application.submission_date|date:"M d, Y" }}</div>
+
+            {% if application.payment_status == 'pending_verification' and application.mpesa_reference %}
+            <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                <strong><i class="fas fa-exclamation-triangle"></i> Action Required:</strong>
+                <p style="margin: 0.5rem 0;">Student has submitted M-PESA payment details. Please verify and confirm.</p>
+                <form method="POST" action="{% url 'employee:verify_payment' application.id %}" style="display: inline-block; margin-right: 0.5rem;">
+                    {% csrf_token %}<input type="hidden" name="action" value="verify">
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Confirm that you have verified the M-PESA payment?')">
+                        <i class="fas fa-check"></i> Verify Payment
+                    </button>
+                </form>
+                <button type="button" class="btn" style="background: #dc2626; color: white;" onclick="showRejectModal()">
+                    <i class="fas fa-times"></i> Reject Payment
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="action-buttons" style="margin-top: 0.5rem;">
+        <a href="#" class="btn btn-primary"><i class="fas fa-envelope"></i> Contact Student</a>
+        <a href="#" class="btn btn-secondary"><i class="fas fa-print"></i> Print</a>
+        <a href="#" class="btn btn-success"><i class="fas fa-download"></i> Export Details</a>
+        <form method="post" action="{% url 'employee:delete_student_application' application.id %}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+        </form>
+    </div>
+</div>
+
+{% if student_profile %}
+<div class="detail-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <h3><i class="fas fa-user-circle"></i> Student Profile Information</h3>
+        <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-success"><i class="fas fa-edit"></i> Edit Profile</a>
+    </div>
+
+    <div style="display: flex; gap: 2rem; margin: 1.2rem 0; flex-wrap: wrap; align-items: flex-start;">
+        <div style="flex-shrink: 0; text-align: center;">
+            {% if student_profile.profile_picture %}
+            <img src="{{ student_profile.profile_picture.url }}" alt="{{ application.student.get_full_name }}" class="profile-img">
+            {% else %}
+            <div class="profile-placeholder">
+                <i class="fas fa-user" style="font-size: 3.5rem; color: white;"></i>
+            </div>
+            {% endif %}
+            <div style="margin-top: 0.75rem; text-align: center;">
+                <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">{{ application.student.get_full_name|default:application.student.username }}</strong>
+                <small style="color: var(--muted);">{{ application.student.email }}</small>
+            </div>
+        </div>
+        <div class="flex-fill-min">
+            <h4 style="margin-top: 0; color: var(--primary); margin-bottom: 0.75rem;">
+                <i class="fas fa-info-circle"></i> Quick Information
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 10px; border-left: 3px solid var(--primary);">
+                    <strong style="font-size: 0.85rem; color: var(--muted); text-transform: uppercase;">Username</strong>
+                    <div>{{ application.student.username }}</div>
+                </div>
+                {% if student_profile.phone_number %}
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 10px; border-left: 3px solid #0284c7;">
+                    <strong style="font-size: 0.85rem; color: var(--muted); text-transform: uppercase;"><i class="fas fa-phone"></i> Phone</strong>
+                    <div>{{ student_profile.phone_number }}</div>
+                </div>
+                {% endif %}
+                {% if student_profile.date_of_birth %}
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 10px; border-left: 3px solid #f59e0b;">
+                    <strong style="font-size: 0.85rem; color: var(--muted); text-transform: uppercase;"><i class="fas fa-birthday-cake"></i> Date of Birth</strong>
+                    <div>{{ student_profile.date_of_birth|date:"F d, Y" }}</div>
+                </div>
+                {% endif %}
+                {% if student_profile.nationality %}
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 10px; border-left: 3px solid #e91e63;">
+                    <strong style="font-size: 0.85rem; color: var(--muted); text-transform: uppercase;"><i class="fas fa-flag"></i> Nationality</strong>
+                    <div>{{ student_profile.nationality }}</div>
+                </div>
+                {% endif %}
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 10px; border-left: 3px solid #7c3aed;">
+                    <strong style="font-size: 0.85rem; color: var(--muted); text-transform: uppercase;"><i class="fas fa-chart-pie"></i> Profile Completion</strong>
+                    <div style="font-size: 1.3rem; color: var(--primary); font-weight: bold;">{{ student_profile.get_completion_percentage }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr style="margin: 1.2rem 0; border: none; border-top: 1px solid var(--line);">
+
+    <div style="margin-top: 1.2rem;">
+        <h4 style="color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
+            <i class="fas fa-id-card"></i> Personal Details
+        </h4>
+        <div class="info-grid">
+            {% if student_profile.phone_number %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-phone"></i> Phone Number</div>
+                <div>{{ student_profile.phone_number }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.date_of_birth %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-birthday-cake"></i> Date of Birth</div>
+                <div>{{ student_profile.date_of_birth|date:"F d, Y" }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.gender %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-venus-mars"></i> Gender</div>
+                <div>{{ student_profile.get_gender_display }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.nationality %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-flag"></i> Nationality</div>
+                <div>{{ student_profile.nationality }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.address %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label"><i class="fas fa-map-marker-alt"></i> Address</div>
+                <div>{{ student_profile.address }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if student_profile.father_name or student_profile.mother_name %}
+    <div style="margin-top: 1.5rem;">
+        <h4 style="color: #0284c7; border-bottom: 2px solid #0284c7; padding-bottom: 0.5rem;">
+            <i class="fas fa-users"></i> Parents/Guardian Details
+        </h4>
+        <div class="info-grid">
+            {% if student_profile.father_name %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-male"></i> Father's Name</div>
+                <div>{{ student_profile.father_name }}</div>
+                {% if student_profile.father_phone %}
+                <div style="margin-top: 0.5rem;"><strong>Phone:</strong> {{ student_profile.father_phone }}</div>
+                {% endif %}
+                {% if student_profile.father_email %}
+                <div><strong>Email:</strong> {{ student_profile.father_email }}</div>
+                {% endif %}
+                {% if student_profile.father_occupation %}
+                <div><strong>Occupation:</strong> {{ student_profile.father_occupation }}</div>
                 {% endif %}
             </div>
             {% endif %}
+            {% if student_profile.mother_name %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-female"></i> Mother's Name</div>
+                <div>{{ student_profile.mother_name }}</div>
+                {% if student_profile.mother_phone %}
+                <div style="margin-top: 0.5rem;"><strong>Phone:</strong> {{ student_profile.mother_phone }}</div>
+                {% endif %}
+                {% if student_profile.mother_email %}
+                <div><strong>Email:</strong> {{ student_profile.mother_email }}</div>
+                {% endif %}
+                {% if student_profile.mother_occupation %}
+                <div><strong>Occupation:</strong> {{ student_profile.mother_occupation }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
-            <!-- Application Information -->
+    {% if student_profile.olevel_school or student_profile.alevel_school %}
+    <div style="margin-top: 1.5rem;">
+        <h4 style="color: #f59e0b; border-bottom: 2px solid #f59e0b; padding-bottom: 0.5rem;">
+            <i class="fas fa-graduation-cap"></i> Academic Qualifications
+        </h4>
+        {% if student_profile.olevel_school %}
+        <div style="margin-bottom: 1.2rem;">
+            <h5 style="color: var(--muted); margin-bottom: 0.5rem;"><i class="fas fa-book"></i> O-Level Education</h5>
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label"><i class="fas fa-user-graduate"></i> Student Information</div>
-                    <div><strong>Name:</strong> {{ application.student.get_full_name|default:application.student.username }}</div>
-                    <div><strong>Email:</strong> {{ application.student.email }}</div>
-                    <div><strong>Username:</strong> {{ application.student.username }}</div>
+                    <div class="info-label">School</div>
+                    <div>{{ student_profile.olevel_school }}</div>
                 </div>
-
+                {% if student_profile.olevel_school_country %}
                 <div class="info-item">
-                    <div class="info-label"><i class="fas fa-route"></i> Submission Source</div>
-                    {% if partner_intake and partner_intake.created_by and partner_intake.created_by.userprofile.role == 'partner' %}
-                    <div style="margin-bottom: 0.4rem;"><strong style="color: #1b5e20;">Partner Submitted Application</strong></div>
-                    <div><strong>Partner Name:</strong> {{ partner_intake.created_by.get_full_name|default:partner_intake.created_by.username }}</div>
-                    <div><strong>Partner Email:</strong> {{ partner_intake.created_by.email }}</div>
-                    {% if partner_intake.created_by.userprofile.phone_number %}
-                    <div><strong>Partner Phone:</strong> {{ partner_intake.created_by.userprofile.phone_number }}</div>
-                    {% endif %}
-                    <div><strong>Partner Intake Date:</strong> {{ partner_intake.created_at|date:"M d, Y H:i" }}</div>
-                    {% elif partner_intake and partner_intake.created_by %}
-                    <div><strong>Offline Entry by Staff:</strong> {{ partner_intake.created_by.get_full_name|default:partner_intake.created_by.username }}</div>
-                    <div><strong>Entry Date:</strong> {{ partner_intake.created_at|date:"M d, Y H:i" }}</div>
-                    {% else %}
-                    <div><strong>Student Portal Direct Submission</strong></div>
-                    <div style="color: #666;">Submitted directly by the student account.</div>
-                    {% endif %}
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label"><i class="fas fa-money-bill-wave"></i> Payment Information</div>
-                    <div><strong>Status:</strong> 
-                        {% if application.payment_status == 'paid' %}
-                        <span class="verified-badge"><i class="fas fa-check-circle"></i> Paid & Verified</span>
-                        {% elif application.payment_status == 'pending_verification' %}
-                        <span class="pending-badge"><i class="fas fa-clock"></i> Pending Verification</span>
-                        {% elif application.payment_status == 'rejected' %}
-                        <span style="background: #dc3545; color: white; padding: 0.3rem 0.8rem; border-radius: 15px;">
-                            <i class="fas fa-times-circle"></i> Payment Rejected
-                        </span>
-                        {% else %}
-                        <span class="pending-badge"><i class="fas fa-exclamation-circle"></i> Unpaid</span>
-                        {% endif %}
-                    </div>
-                    {% if application.payment_amount %}
-                    <div><strong>Amount:</strong> TZS {{ application.payment_amount|floatformat:0 }}</div>
-                    {% endif %}
-                    {% if application.mpesa_account_name %}
-                    <div><strong>M-PESA Account Name:</strong> {{ application.mpesa_account_name }}</div>
-                    {% endif %}
-                    {% if application.payment_verified_at %}
-                    <div><strong>Verified:</strong> {{ application.payment_verified_at|date:"M d, Y H:i" }}</div>
-                    {% endif %}
-                    {% if application.payment_verified_by %}
-                    <div><strong>Verified By:</strong> {{ application.payment_verified_by.get_full_name }}</div>
-                    {% endif %}
-                    <div><strong>Submitted:</strong> {{ application.submission_date|date:"M d, Y" }}</div>
-                    
-                    <!-- Payment Verification Actions -->
-                    {% if application.payment_status == 'pending_verification' and application.mpesa_reference %}
-                    <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
-                        <strong><i class="fas fa-exclamation-triangle"></i> Action Required:</strong>
-                        <p style="margin: 0.5rem 0;">Student has submitted M-PESA payment details. Please verify and confirm.</p>
-                        <form method="POST" action="{% url 'employee:verify_payment' application.id %}" style="display: inline-block; margin-right: 0.5rem;">
-                            {% csrf_token %}<input type="hidden" name="action" value="verify">
-                            <button type="submit" class="btn btn-success" onclick="return confirm('Confirm that you have verified the M-PESA payment?')">
-                                <i class="fas fa-check"></i> Verify Payment
-                            </button>
-                        </form>
-                        <button type="button" class="btn" style="background: #dc3545; color: white;" onclick="showRejectModal()">
-                            <i class="fas fa-times"></i> Reject Payment
-                        </button>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <a href="#" class="btn btn-primary">
-                    <i class="fas fa-envelope"></i> Contact Student
-                </a>
-                <a href="#" class="btn btn-secondary">
-                    <i class="fas fa-print"></i> Print Application
-                </a>
-                <a href="#" class="btn btn-success">
-                    <i class="fas fa-download"></i> Export Details
-                </a>
-                <form method="post" action="{% url 'employee:delete_student_application' application.id %}" style="display:inline; margin:0;" onsubmit="return confirm('Are you sure you want to delete this student application? This action cannot be undone.');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Delete Application
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Student Profile Section -->
-        {% if student_profile %}
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <h3 style="margin:0"><i class="fas fa-user-circle"></i> Student Profile Information</h3>
-                <a href="{% url 'employee:edit_student_application' application.id %}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-edit"></i> Edit Profile
-                </a>
-            </div>
-            
-            <!-- Profile Picture and Basic Info -->
-            <div style="display: flex; gap: 2rem; margin: 1.5rem 0; flex-wrap: wrap; align-items: flex-start;">
-                <!-- Profile Picture -->
-                <div style="flex-shrink: 0; text-align: center;">
-                    {% if student_profile.profile_picture %}
-                    <img src="{{ student_profile.profile_picture.url }}" alt="{{ application.student.get_full_name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px;">
-                    {% else %}
-                    <div class="profile-placeholder">
-                        <i class="fas fa-user" style="font-size: 3.5rem; color: white;"></i>
-                    </div>
-                    {% endif %}
-                    <div style="margin-top: 1rem; text-align: center;">
-                        <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">{{ application.student.get_full_name|default:application.student.username }}</strong>
-                        <small style="color: #666;">{{ application.student.email }}</small>
-                    </div>
-                </div>
-                
-                <!-- Quick Info Sidebar -->
-                <div class="flex-fill-min">
-                    <h4 style="margin-top: 0; color: #28a745; margin-bottom: 1rem;">
-                        <i class="fas fa-info-circle"></i> Quick Information
-                    </h4>
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #28a745;">
-                            <strong style="font-size: 0.85rem; color: #666; text-transform: uppercase;">Username</strong>
-                            <div>{{ application.student.username }}</div>
-                        </div>
-                        
-                        {% if student_profile.phone_number %}
-                        <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #17a2b8;">
-                            <strong style="font-size: 0.85rem; color: #666; text-transform: uppercase;"><i class="fas fa-phone"></i> Phone</strong>
-                            <div>{{ student_profile.phone_number }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if student_profile.date_of_birth %}
-                        <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #ffc107;">
-                            <strong style="font-size: 0.85rem; color: #666; text-transform: uppercase;"><i class="fas fa-birthday-cake"></i> Date of Birth</strong>
-                            <div>{{ student_profile.date_of_birth|date:"F d, Y" }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if student_profile.nationality %}
-                        <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #e91e63;">
-                            <strong style="font-size: 0.85rem; color: #666; text-transform: uppercase;"><i class="fas fa-flag"></i> Nationality</strong>
-                            <div>{{ student_profile.nationality }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #9c27b0;">
-                            <strong style="font-size: 0.85rem; color: #666; text-transform: uppercase;"><i class="fas fa-chart-pie"></i> Profile Completion</strong>
-                            <div style="font-size: 1.3rem; color: #28a745; font-weight: bold;">{{ student_profile.get_completion_percentage }}%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e9ecef;">
-            
-            <!-- Personal Details -->
-            <div style="margin-top: 1.5rem;">
-                <h4 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 0.5rem;">
-                    <i class="fas fa-id-card"></i> Personal Details
-                </h4>
-                <div class="info-grid">
-                    {% if student_profile.phone_number %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-phone"></i> Phone Number</div>
-                        <div>{{ student_profile.phone_number }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.date_of_birth %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-birthday-cake"></i> Date of Birth</div>
-                        <div>{{ student_profile.date_of_birth|date:"F d, Y" }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.gender %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-venus-mars"></i> Gender</div>
-                        <div>{{ student_profile.get_gender_display }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.nationality %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-flag"></i> Nationality</div>
-                        <div>{{ student_profile.nationality }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.address %}
-                    <div class="info-item" style="grid-column: span 2;">
-                        <div class="info-label"><i class="fas fa-map-marker-alt"></i> Address</div>
-                        <div>{{ student_profile.address }}</div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Parents Details -->
-            {% if student_profile.father_name or student_profile.mother_name %}
-            <div style="margin-top: 2rem;">
-                <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 0.5rem;">
-                    <i class="fas fa-users"></i> Parents/Guardian Details
-                </h4>
-                <div class="info-grid">
-                    {% if student_profile.father_name %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-male"></i> Father's Name</div>
-                        <div>{{ student_profile.father_name }}</div>
-                        {% if student_profile.father_phone %}
-                        <div style="margin-top: 0.5rem;"><strong>Phone:</strong> {{ student_profile.father_phone }}</div>
-                        {% endif %}
-                        {% if student_profile.father_email %}
-                        <div><strong>Email:</strong> {{ student_profile.father_email }}</div>
-                        {% endif %}
-                        {% if student_profile.father_occupation %}
-                        <div><strong>Occupation:</strong> {{ student_profile.father_occupation }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.mother_name %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-female"></i> Mother's Name</div>
-                        <div>{{ student_profile.mother_name }}</div>
-                        {% if student_profile.mother_phone %}
-                        <div style="margin-top: 0.5rem;"><strong>Phone:</strong> {{ student_profile.mother_phone }}</div>
-                        {% endif %}
-                        {% if student_profile.mother_email %}
-                        <div><strong>Email:</strong> {{ student_profile.mother_email }}</div>
-                        {% endif %}
-                        {% if student_profile.mother_occupation %}
-                        <div><strong>Occupation:</strong> {{ student_profile.mother_occupation }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Academic Qualifications -->
-            {% if student_profile.olevel_school or student_profile.alevel_school %}
-            <div style="margin-top: 2rem;">
-                <h4 style="color: #ff9800; border-bottom: 2px solid #ff9800; padding-bottom: 0.5rem;">
-                    <i class="fas fa-graduation-cap"></i> Academic Qualifications
-                </h4>
-                
-                <!-- O-Level -->
-                {% if student_profile.olevel_school %}
-                <div style="margin-bottom: 1.5rem;">
-                    <h5 style="color: #666; margin-bottom: 0.5rem;"><i class="fas fa-book"></i> O-Level Education</h5>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">School</div>
-                            <div>{{ student_profile.olevel_school }}</div>
-                        </div>
-                        {% if student_profile.olevel_school_country %}
-                        <div class="info-item">
-                            <div class="info-label">Country</div>
-                            <div>{{ student_profile.olevel_school_country }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.olevel_completed_year %}
-                        <div class="info-item">
-                            <div class="info-label">Year Completed</div>
-                            <div>{{ student_profile.olevel_completed_year }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.olevel_gpa %}
-                        <div class="info-item">
-                            <div class="info-label">GPA/Grade</div>
-                            <div>{{ student_profile.olevel_gpa }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.olevel_candidate_no %}
-                        <div class="info-item">
-                            <div class="info-label">Candidate Number</div>
-                            <div>{{ student_profile.olevel_candidate_no }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.olevel_school_region %}
-                        <div class="info-item">
-                            <div class="info-label">Region</div>
-                            <div>{{ student_profile.olevel_school_region }}</div>
-                        </div>
-                        {% endif %}
-                    </div>
+                    <div class="info-label">Country</div>
+                    <div>{{ student_profile.olevel_school_country }}</div>
                 </div>
                 {% endif %}
-                
-                <!-- A-Level -->
-                {% if student_profile.alevel_school %}
-                <div>
-                    <h5 style="color: #666; margin-bottom: 0.5rem;"><i class="fas fa-book"></i> A-Level Education</h5>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">School</div>
-                            <div>{{ student_profile.alevel_school }}</div>
-                        </div>
-                        {% if student_profile.alevel_school_country %}
-                        <div class="info-item">
-                            <div class="info-label">Country</div>
-                            <div>{{ student_profile.alevel_school_country }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.alevel_completed_year %}
-                        <div class="info-item">
-                            <div class="info-label">Year Completed</div>
-                            <div>{{ student_profile.alevel_completed_year }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.alevel_gpa %}
-                        <div class="info-item">
-                            <div class="info-label">GPA/Grade</div>
-                            <div>{{ student_profile.alevel_gpa }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.alevel_candidate_no %}
-                        <div class="info-item">
-                            <div class="info-label">Candidate Number</div>
-                            <div>{{ student_profile.alevel_candidate_no }}</div>
-                        </div>
-                        {% endif %}
-                        {% if student_profile.alevel_school_region %}
-                        <div class="info-item">
-                            <div class="info-label">Region</div>
-                            <div>{{ student_profile.alevel_school_region }}</div>
-                        </div>
-                        {% endif %}
-                    </div>
+                {% if student_profile.olevel_completed_year %}
+                <div class="info-item">
+                    <div class="info-label">Year Completed</div>
+                    <div>{{ student_profile.olevel_completed_year }}</div>
                 </div>
                 {% endif %}
-            </div>
-            {% endif %}
-
-            <!-- Study Preferences -->
-            {% if student_profile.preferred_country_1 or student_profile.preferred_program_1 %}
-            <div style="margin-top: 2rem;">
-                <h4 style="color: #9c27b0; border-bottom: 2px solid #9c27b0; padding-bottom: 0.5rem;">
-                    <i class="fas fa-compass"></i> Study Preferences
-                </h4>
-                <div class="info-grid">
-                    {% if student_profile.preferred_country_1 %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (1st Choice)</div>
-                        <div>{{ student_profile.preferred_country_1 }}</div>
-                        {% if student_profile.preferred_program_1 %}
-                        <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_1 }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.preferred_country_2 %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (2nd Choice)</div>
-                        <div>{{ student_profile.preferred_country_2 }}</div>
-                        {% if student_profile.preferred_program_2 %}
-                        <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_2 }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.preferred_country_3 %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (3rd Choice)</div>
-                        <div>{{ student_profile.preferred_country_3 }}</div>
-                        {% if student_profile.preferred_program_3 %}
-                        <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_3 }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.preferred_country_4 %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (4th Choice)</div>
-                        <div>{{ student_profile.preferred_country_4 }}</div>
-                        {% if student_profile.preferred_program_4 %}
-                        <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_4 }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
+                {% if student_profile.olevel_gpa %}
+                <div class="info-item">
+                    <div class="info-label">GPA/Grade</div>
+                    <div>{{ student_profile.olevel_gpa }}</div>
                 </div>
-            </div>
-            {% endif %}
-
-            <!-- Emergency Contact -->
-            {% if student_profile.emergency_contact %}
-            <div style="margin-top: 2rem;">
-                <h4 style="color: #e91e63; border-bottom: 2px solid #e91e63; padding-bottom: 0.5rem;">
-                    <i class="fas fa-exclamation-circle"></i> Emergency Contact Information
-                </h4>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-user"></i> Contact Name</div>
-                        <div>{{ student_profile.emergency_contact }}</div>
-                    </div>
-                    
-                    {% if student_profile.emergency_relation %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-link"></i> Relation</div>
-                        <div>{{ student_profile.emergency_relation }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if student_profile.emergency_occupation %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-briefcase"></i> Occupation</div>
-                        <div>{{ student_profile.emergency_occupation }}</div>
-                    </div>
-                    {% endif %}
-
-                    {% if student_profile.emergency_phone %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-phone"></i> Phone</div>
-                        <div>{{ student_profile.emergency_phone }}</div>
-                    </div>
-                    {% endif %}
-
-                    {% if student_profile.emergency_email %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
-                        <div>{{ student_profile.emergency_email }}</div>
-                    </div>
-                    {% endif %}
-
-                    {% if student_profile.emergency_relationship_status %}
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-tag"></i> Relationship Status</div>
-                        <div>{{ student_profile.emergency_relationship_status }}</div>
-                    </div>
-                    {% endif %}
-
-                    {% if student_profile.emergency_remarks %}
-                    <div class="info-item" style="grid-column: span 2;">
-                        <div class="info-label"><i class="fas fa-comment"></i> Remarks</div>
-                        <div>{{ student_profile.emergency_remarks }}</div>
-                    </div>
-                    {% endif %}
+                {% endif %}
+                {% if student_profile.olevel_candidate_no %}
+                <div class="info-item">
+                    <div class="info-label">Candidate Number</div>
+                    <div>{{ student_profile.olevel_candidate_no }}</div>
                 </div>
-            </div>
-            {% endif %}
-
-            <!-- Profile Completion Status -->
-            <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px;">
-                <h4 style="margin-top: 0;"><i class="fas fa-chart-pie"></i> Profile Completion Status</h4>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Completion Percentage</div>
-                        <div style="font-size: 1.8rem; color: #28a745; font-weight: bold;">
-                            {{ completion_summary.percentage }}%
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-check-circle"></i> Personal Details</div>
-                        <div>
-                            {% if completion_summary.personal_details_complete %}
-                            <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
-                            {% else %}
-                            <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-check-circle"></i> Parents Details</div>
-                        <div>
-                            {% if completion_summary.parents_details_complete %}
-                            <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
-                            {% else %}
-                            <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-check-circle"></i> Academic Qualifications</div>
-                        <div>
-                            {% if completion_summary.academic_qualifications_complete %}
-                            <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
-                            {% else %}
-                            <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-check-circle"></i> Study Preferences</div>
-                        <div>
-                            {% if completion_summary.study_preferences_complete %}
-                            <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
-                            {% else %}
-                            <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-check-circle"></i> Emergency Contact</div>
-                        <div>
-                            {% if completion_summary.emergency_contact_complete %}
-                            <span style="color: #28a745; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>
-                            {% else %}
-                            <span style="color: #dc3545; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>
-                            {% endif %}
-                        </div>
-                    </div>
+                {% endif %}
+                {% if student_profile.olevel_school_region %}
+                <div class="info-item">
+                    <div class="info-label">Region</div>
+                    <div>{{ student_profile.olevel_school_region }}</div>
                 </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="card" style="background: #fff3cd; border-left: 4px solid #ffc107;">
-            <div style="display: flex; align-items: center; gap: 1rem; color: #856404;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
-                <div>
-                    <strong>No Student Profile Found</strong>
-                    <p style="margin: 0.25rem 0 0 0;">This student has not yet completed their profile information. Information will appear here once they fill out their student profile.</p>
-                </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
-
-        <!-- Documents Section -->
-        <div class="card">
-            <h3><i class="fas fa-file-upload"></i> Uploaded Documents</h3>
-            {% if documents %}
-            <div style="margin-top: 1rem;">
-                {% for doc in documents %}
-                <div class="document-item">
-                    <div>
-                        <strong>{{ doc.get_document_type_display }}</strong><br>
-                        <small><i class="far fa-calendar"></i> Uploaded: {{ doc.uploaded_at|date:"M d, Y" }}</small><br>
-                        {% if doc.description %}<small>{{ doc.description }}</small>{% endif %}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        {% if doc.is_verified %}
-                        <span class="verified-badge">Verified</span>
-                        {% else %}
-                        <span class="pending-badge">Pending Verification</span>
-                        {% endif %}
-                        <a href="{{ doc.file.url|safe_href }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
-                            <i class="fas fa-eye"></i> View
-                        </a>
-                        <a href="{{ doc.file.url|safe_href }}" download rel="noopener noreferrer" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
+        {% if student_profile.alevel_school %}
+        <div>
+            <h5 style="color: var(--muted); margin-bottom: 0.5rem;"><i class="fas fa-book"></i> A-Level Education</h5>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">School</div>
+                    <div>{{ student_profile.alevel_school }}</div>
                 </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p style="text-align: center; color: #666; padding: 2rem;">
-                <i class="fas fa-file-exclamation" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-                No documents uploaded for this application.
-            </p>
-            {% endif %}
-        </div>
-
-        <!-- Payment History -->
-        {% if payments %}
-        <div class="card">
-            <h3><i class="fas fa-history"></i> Payment History</h3>
-            <div style="margin-top: 1rem;">
-                {% for payment in payments %}
-                <div class="payment-item">
-                    <div><strong>Payment #{{ payment.id }}</strong></div>
-                    <div><i class="fas fa-money-bill"></i> Amount: TZS {{ payment.amount }}</div>
-                    <div><i class="fas fa-credit-card"></i> Method: {{ payment.payment_method }}</div>
-                    <div><i class="far fa-calendar"></i> Date: {{ payment.payment_date|date:"M d, Y H:i" }}</div>
-                    <div><i class="fas fa-receipt"></i> Transaction ID: {{ payment.transaction_id }}</div>
+                {% if student_profile.alevel_school_country %}
+                <div class="info-item">
+                    <div class="info-label">Country</div>
+                    <div>{{ student_profile.alevel_school_country }}</div>
                 </div>
-                {% endfor %}
+                {% endif %}
+                {% if student_profile.alevel_completed_year %}
+                <div class="info-item">
+                    <div class="info-label">Year Completed</div>
+                    <div>{{ student_profile.alevel_completed_year }}</div>
+                </div>
+                {% endif %}
+                {% if student_profile.alevel_gpa %}
+                <div class="info-item">
+                    <div class="info-label">GPA/Grade</div>
+                    <div>{{ student_profile.alevel_gpa }}</div>
+                </div>
+                {% endif %}
+                {% if student_profile.alevel_candidate_no %}
+                <div class="info-item">
+                    <div class="info-label">Candidate Number</div>
+                    <div>{{ student_profile.alevel_candidate_no }}</div>
+                </div>
+                {% endif %}
+                {% if student_profile.alevel_school_region %}
+                <div class="info-item">
+                    <div class="info-label">Region</div>
+                    <div>{{ student_profile.alevel_school_region }}</div>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
+    </div>
+    {% endif %}
 
-        <!-- Application Timeline -->
-        <div class="card">
-            <h3><i class="fas fa-stream"></i> Application Timeline</h3>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-date">{{ application.created_at|date:"M d, Y" }}</div>
-                    <div><strong>Application Submitted</strong></div>
-                    <div>Student submitted the application form</div>
-                </div>
-                {% if application.submission_date %}
-                <div class="timeline-item">
-                    <div class="timeline-date">{{ application.submission_date|date:"M d, Y" }}</div>
-                    <div><strong>Application Processed</strong></div>
-                    <div>Application moved to review stage</div>
-                </div>
+    {% if student_profile.preferred_country_1 or student_profile.preferred_program_1 %}
+    <div style="margin-top: 1.5rem;">
+        <h4 style="color: #7c3aed; border-bottom: 2px solid #7c3aed; padding-bottom: 0.5rem;">
+            <i class="fas fa-compass"></i> Study Preferences
+        </h4>
+        <div class="info-grid">
+            {% if student_profile.preferred_country_1 %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (1st Choice)</div>
+                <div>{{ student_profile.preferred_country_1 }}</div>
+                {% if student_profile.preferred_program_1 %}
+                <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_1 }}</div>
                 {% endif %}
-                <!-- Add more timeline items based on status changes -->
+            </div>
+            {% endif %}
+            {% if student_profile.preferred_country_2 %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (2nd Choice)</div>
+                <div>{{ student_profile.preferred_country_2 }}</div>
+                {% if student_profile.preferred_program_2 %}
+                <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_2 }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if student_profile.preferred_country_3 %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (3rd Choice)</div>
+                <div>{{ student_profile.preferred_country_3 }}</div>
+                {% if student_profile.preferred_program_3 %}
+                <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_3 }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% if student_profile.preferred_country_4 %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-globe"></i> Preferred Country (4th Choice)</div>
+                <div>{{ student_profile.preferred_country_4 }}</div>
+                {% if student_profile.preferred_program_4 %}
+                <div style="margin-top: 0.5rem;"><strong>Program:</strong> {{ student_profile.preferred_program_4 }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if student_profile.emergency_contact %}
+    <div style="margin-top: 1.5rem;">
+        <h4 style="color: #e91e63; border-bottom: 2px solid #e91e63; padding-bottom: 0.5rem;">
+            <i class="fas fa-exclamation-circle"></i> Emergency Contact Information
+        </h4>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-user"></i> Contact Name</div>
+                <div>{{ student_profile.emergency_contact }}</div>
+            </div>
+            {% if student_profile.emergency_relation %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-link"></i> Relation</div>
+                <div>{{ student_profile.emergency_relation }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.emergency_occupation %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-briefcase"></i> Occupation</div>
+                <div>{{ student_profile.emergency_occupation }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.emergency_phone %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-phone"></i> Phone</div>
+                <div>{{ student_profile.emergency_phone }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.emergency_email %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                <div>{{ student_profile.emergency_email }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.emergency_relationship_status %}
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-tag"></i> Relationship Status</div>
+                <div>{{ student_profile.emergency_relationship_status }}</div>
+            </div>
+            {% endif %}
+            {% if student_profile.emergency_remarks %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label"><i class="fas fa-comment"></i> Remarks</div>
+                <div>{{ student_profile.emergency_remarks }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 1.5rem; padding: 1.2rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 14px;">
+        <h4 style="margin-top: 0;"><i class="fas fa-chart-pie"></i> Profile Completion Status</h4>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Completion Percentage</div>
+                <div style="font-size: 1.8rem; color: var(--primary); font-weight: bold;">{{ completion_summary.percentage }}%</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-check-circle"></i> Personal Details</div>
+                <div>{% if completion_summary.personal_details_complete %}<span style="color: #16a34a; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>{% else %}<span style="color: #dc2626; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>{% endif %}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-check-circle"></i> Parents Details</div>
+                <div>{% if completion_summary.parents_details_complete %}<span style="color: #16a34a; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>{% else %}<span style="color: #dc2626; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>{% endif %}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-check-circle"></i> Academic Qualifications</div>
+                <div>{% if completion_summary.academic_qualifications_complete %}<span style="color: #16a34a; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>{% else %}<span style="color: #dc2626; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>{% endif %}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-check-circle"></i> Study Preferences</div>
+                <div>{% if completion_summary.study_preferences_complete %}<span style="color: #16a34a; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>{% else %}<span style="color: #dc2626; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>{% endif %}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-check-circle"></i> Emergency Contact</div>
+                <div>{% if completion_summary.emergency_contact_complete %}<span style="color: #16a34a; font-weight: bold;"><i class="fas fa-check-circle"></i> Complete</span>{% else %}<span style="color: #dc2626; font-weight: bold;"><i class="fas fa-times-circle"></i> Incomplete</span>{% endif %}</div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add loading animation to cards
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                card.classList.add('loading');
-            });
-            
-            // Remove loading animation after a short delay
-            setTimeout(() => {
-                cards.forEach(card => {
-                    card.classList.remove('loading');
-                });
-            }, 1000);
-            
-            // Add click animation to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Add ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size/2;
-                    const y = e.clientY - rect.top - size/2;
-                    
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    ripple.classList.add('ripple');
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
-            });
-        });
-        
-        // Payment Rejection Modal
-        function showRejectModal() {
-            const modal = document.getElementById('rejectModal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
-        }
-        
-        function hideRejectModal() {
-            const modal = document.getElementById('rejectModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('rejectModal');
-            if (event.target == modal) {
-                hideRejectModal();
-            }
-        }
-    </script>
-    
-    <!-- Payment Rejection Modal -->
-    <div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
-            <h3 style="margin-top: 0; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Reject Payment</h3>
-            <p>Please provide a reason for rejecting this payment:</p>
-            <form method="POST" action="{% url 'employee:verify_payment' application.id %}">{% csrf_token %}
-                <input type="hidden" name="action" value="reject">
-                <textarea name="rejection_reason" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; margin-bottom: 1rem;" placeholder="E.g., Invalid transaction reference, Amount mismatch..." required></textarea>
-                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-                    <button type="button" class="btn btn-secondary" onclick="hideRejectModal()">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                    <button type="submit" class="btn" style="background: #dc3545; color: white;">
-                        <i class="fas fa-ban"></i> Reject Payment
-                    </button>
-                </div>
-            </form>
+</div>
+{% else %}
+<div class="detail-card" style="background: #fff3cd; border-left: 4px solid #f59e0b;">
+    <div style="display: flex; align-items: center; gap: 1rem; color: #92400e;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+        <div>
+            <strong>No Student Profile Found</strong>
+            <p style="margin: 0.25rem 0 0 0;">This student has not yet completed their profile information.</p>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endif %}
+
+<div class="detail-card">
+    <h3><i class="fas fa-file-upload"></i> Uploaded Documents</h3>
+    {% if documents %}
+    <div style="margin-top: 0.75rem;">
+        {% for doc in documents %}
+        <div class="document-item">
+            <div>
+                <strong>{{ doc.get_document_type_display }}</strong><br>
+                <small><i class="far fa-calendar"></i> Uploaded: {{ doc.uploaded_at|date:"M d, Y" }}</small>
+                {% if doc.description %}<br><small>{{ doc.description }}</small>{% endif %}
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                {% if doc.is_verified %}
+                <span class="verified-badge">Verified</span>
+                {% else %}
+                <span class="pending-badge">Pending Verification</span>
+                {% endif %}
+                <a href="{{ doc.file.url|safe_href }}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
+                <a href="{{ doc.file.url|safe_href }}" download class="btn btn-secondary btn-sm"><i class="fas fa-download"></i> Download</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-file-exclamation" style="font-size: 2rem; margin-bottom: 0.75rem; display: block; color: var(--muted);"></i>
+        No documents uploaded for this application.
+    </div>
+    {% endif %}
+</div>
+
+{% if payments %}
+<div class="detail-card">
+    <h3><i class="fas fa-history"></i> Payment History</h3>
+    <div style="margin-top: 0.75rem;">
+        {% for payment in payments %}
+        <div class="payment-item">
+            <div><strong>Payment #{{ payment.id }}</strong></div>
+            <div><i class="fas fa-money-bill"></i> Amount: TZS {{ payment.amount }}</div>
+            <div><i class="fas fa-credit-card"></i> Method: {{ payment.payment_method }}</div>
+            <div><i class="far fa-calendar"></i> Date: {{ payment.payment_date|date:"M d, Y H:i" }}</div>
+            <div><i class="fas fa-receipt"></i> Transaction ID: {{ payment.transaction_id }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="detail-card">
+    <h3><i class="fas fa-stream"></i> Application Timeline</h3>
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-date">{{ application.created_at|date:"M d, Y" }}</div>
+            <div><strong>Application Submitted</strong></div>
+            <div>Student submitted the application form</div>
+        </div>
+        {% if application.submission_date %}
+        <div class="timeline-item">
+            <div class="timeline-date">{{ application.submission_date|date:"M d, Y" }}</div>
+            <div><strong>Application Processed</strong></div>
+            <div>Application moved to review stage</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div id="rejectModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="margin-top: 0; color: #dc2626;"><i class="fas fa-exclamation-triangle"></i> Reject Payment</h3>
+        <p>Please provide a reason for rejecting this payment:</p>
+        <form method="POST" action="{% url 'employee:verify_payment' application.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reject">
+            <textarea name="rejection_reason" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid var(--line); border-radius: 12px; font-family: inherit; margin-bottom: 1rem;" placeholder="E.g., Invalid transaction reference, Amount mismatch..." required></textarea>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="hideRejectModal()"><i class="fas fa-times"></i> Cancel</button>
+                <button type="submit" class="btn btn-danger"><i class="fas fa-ban"></i> Reject Payment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showRejectModal() {
+        document.getElementById('rejectModal').style.display = 'flex';
+    }
+    function hideRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+    }
+    window.onclick = function(event) {
+        var modal = document.getElementById('rejectModal');
+        if (event.target == modal) {
+            hideRejectModal();
+        }
+    };
+</script>
+{% endblock %}

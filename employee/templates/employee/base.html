@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Employee Portal{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg: #f4f7fb;
@@ -208,6 +209,17 @@
             color: var(--text);
         }
 
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(22, 163, 74, 0.2);
+        }
+
+        .btn-warning {
+            background: #d97706;
+            color: #fff;
+        }
+
         .btn-danger {
             background: #fee2e2;
             color: #991b1b;
@@ -328,6 +340,272 @@
             flex: 1;
             min-width: 180px;
         }
+
+        /* === Shared Component Styles === */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid rgba(219, 227, 240, 0.9);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #0f4c81);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .section {
+            background: var(--surface);
+            border: 1px solid rgba(219, 227, 240, 0.9);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tr {
+            transition: background-color 0.15s ease;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-badge.status-pending_payment { background: #e2e8f0; color: #475569; }
+        .status-badge.status-submitted { background: #dbeafe; color: #1d4ed8; }
+        .status-badge.status-under_review { background: #fef3c7; color: #92400e; }
+        .status-badge.status-approved { background: #dcfce7; color: #166534; }
+        .status-badge.status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-badge.status-selected { background: #ede9fe; color: #5b21b6; }
+
+        .filters {
+            background: var(--surface);
+            border: 1px solid rgba(219, 227, 240, 0.9);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 160px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        .status-filters,
+        .doc-type-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .status-btn,
+        .filter-btn {
+            padding: 0.45rem 0.9rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .status-btn.active,
+        .filter-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .status-btn:hover,
+        .filter-btn:hover {
+            background: #eef4ff;
+            transform: translateY(-1px);
+        }
+
+        .status-btn.active:hover,
+        .filter-btn.active:hover {
+            background: var(--primary-dark);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .pagination .current {
+            background: linear-gradient(135deg, var(--primary) 0%, #0f4c81 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .pagination a:hover {
+            background: #eef4ff;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            color: var(--muted);
+        }
+
+        .empty-state h3 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .info-item {
+            padding: 1.2rem;
+            background: #f8fafc;
+            border-radius: 14px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(4px);
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -343,10 +621,10 @@
             </div>
             <nav class="nav">
                 <a href="{% url 'employee:employee_dashboard' %}" class="{% block nav_dashboard %}{% endblock %}">Dashboard</a>
-                <a href="{% url 'employee:student_application_list' %}">Applications</a>
+                <a href="{% url 'employee:student_application_list' %}" class="{% block nav_applications %}{% endblock %}">Applications</a>
                 <a href="{% url 'employee:update_management' %}" class="{% block nav_updates %}{% endblock %}">Updates</a>
-                <a href="{% url 'employee:document_list' %}">Documents</a>
-                <a href="{% url 'employee:contact_messages' %}">Messages</a>
+                <a href="{% url 'employee:document_list' %}" class="{% block nav_documents %}{% endblock %}">Documents</a>
+                <a href="{% url 'employee:contact_messages' %}" class="{% block nav_messages %}{% endblock %}">Messages</a>
                 <a href="{% url 'admin:index' %}">Admin</a>
                 <a href="{% url 'employee:employee_logout' %}">Logout</a>
             </nav>
