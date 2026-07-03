@@ -231,13 +231,16 @@ def _supplemental_widget_overrides(field_names):
             widgets[fname] = forms.Textarea(attrs={'class': 'form-input', 'rows': 3})
         elif fname in ('english_is_primary_language', 'has_valid_visa',
                        'scholarship_applied', 'has_medical_condition',
-                       'needs_special_assistance', 'declaration_agreed'):
+                       'needs_special_assistance'):
             widgets[fname] = forms.Select(attrs={'class': 'form-input'}, choices=[
-                ('', '---------'), (True, 'Yes'), (False, 'No'),
+                ('', '---------'), ('True', 'Yes'), ('False', 'No'),
             ])
-        elif fname in ('program_level', 'accommodation_preference', 'preferred_intake',
-                       'english_test_name'):
-            pass  
+        elif fname == 'declaration_agreed':
+            widgets[fname] = forms.CheckboxInput()
+        elif fname in ('program_level', 'accommodation_preference', 'preferred_intake'):
+            widgets[fname] = forms.Select(attrs={'class': 'form-input'})
+        elif fname == 'english_test_name':
+            pass
         elif fname.endswith('_start_year') or fname.endswith('_completed_year'):
             widgets[fname] = forms.NumberInput(attrs={
                 'class': 'form-input', 'min': 1900, 'max': 2100,

@@ -8,7 +8,7 @@ from django.utils.html import strip_tags
 from urllib.parse import urlparse
 
 from global_agency.models import StudentApplication
-from student_portal.models import ApplicationSupplementalProfile, StudentProfile, Document
+from student_portal.models import SECONDARY_DIVISION_CHOICES, ApplicationSupplementalProfile, StudentProfile, Document
 
 from .models import PortalUpdate, PortalUpdateAttachment, PortalUpdateImage
 
@@ -136,9 +136,8 @@ SUPPLEMENTAL_FIELD_NAMES = [
 ]
 
 class SupportingDocumentForm(forms.Form):
-    document_type = forms.ChoiceField(
-        choices=Document.DOCUMENT_TYPES,
-        widget=forms.Select(attrs={'class': 'form-select'}),
+    document_type = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-select', 'placeholder': 'e.g. Passport Copy, Degree Certificate'}),
         label='Document Type',
     )
     file = forms.FileField(
@@ -550,6 +549,11 @@ class OfflineStudentIntakeForm(forms.ModelForm):
         for field_name in self.Meta.fields:
             self.fields[field_name].required = False
 
+        if 'olevel_gpa' in self.fields:
+            self.fields['olevel_gpa'].label = 'O-Level Division'
+        if 'alevel_gpa' in self.fields:
+            self.fields['alevel_gpa'].label = 'A-Level Division'
+
         self.current_profile_picture = getattr(self.student_profile_instance, 'profile_picture', None)
         if self.student_profile_instance and getattr(self.student_profile_instance, 'date_of_birth', None):
             self.initial['date_of_birth'] = self.student_profile_instance.date_of_birth
@@ -634,7 +638,12 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             if field_name in self.fields:
                 continue
             is_mtaa_select = field_name in MTAA_SELECT_FIELD_NAMES
-            label = field_name.replace('_', ' ').title()
+            if field_name == 'olevel_gpa':
+                label = 'O-Level Division'
+            elif field_name == 'alevel_gpa':
+                label = 'A-Level Division'
+            else:
+                label = field_name.replace('_', ' ').title()
             if is_mtaa_select:
                 self.fields[field_name] = forms.CharField(
                     required=False,
@@ -806,7 +815,7 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             'olevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year e.g. 2016'}),
             'olevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year completed e.g. 2020'}),
             'olevel_candidate_no': forms.TextInput(attrs={'class': 'form-input'}),
-            'olevel_gpa': forms.TextInput(attrs={'class': 'form-input'}),
+            'olevel_gpa': forms.Select(choices=SECONDARY_DIVISION_CHOICES, attrs={'class': 'form-input'}),
             'olevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School type'}),
             'olevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam board'}),
             'olevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate no.'}),
@@ -815,7 +824,7 @@ class OfflineStudentIntakeForm(forms.ModelForm):
             'alevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year e.g. 2020'}),
             'alevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year completed e.g. 2022'}),
             'alevel_candidate_no': forms.TextInput(attrs={'class': 'form-input'}),
-            'alevel_gpa': forms.TextInput(attrs={'class': 'form-input'}),
+            'alevel_gpa': forms.Select(choices=SECONDARY_DIVISION_CHOICES, attrs={'class': 'form-input'}),
             'alevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School type'}),
             'alevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam board'}),
             'alevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate no.'}),

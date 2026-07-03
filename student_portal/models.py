@@ -28,6 +28,14 @@ except Exception:  # pragma: no cover
 
 COUNTRY_DEFAULT = "Tanzania"
 
+SECONDARY_DIVISION_CHOICES = [
+    ("Division I", "Division I"),
+    ("Division II", "Division II"),
+    ("Division III", "Division III"),
+    ("Division IV", "Division IV"),
+    ("Zero", "Zero"),
+]
+
 
 class LocationHelper:
     """Small wrapper around the mtaa package.
@@ -441,7 +449,7 @@ class StudentProfile(models.Model):
     olevel_start_year = models.CharField(max_length=10, blank=True)
     olevel_completed_year = models.CharField(max_length=10, blank=True)
     olevel_candidate_no = models.CharField(max_length=50, blank=True)
-    olevel_gpa = models.CharField(max_length=20, blank=True)
+    olevel_gpa = models.CharField(max_length=20, blank=True, choices=SECONDARY_DIVISION_CHOICES)
     olevel_school_type = models.CharField(max_length=100, blank=True)
     olevel_exam_board = models.CharField(max_length=100, blank=True)
     olevel_certificate_no = models.CharField(max_length=100, blank=True)
@@ -462,7 +470,7 @@ class StudentProfile(models.Model):
     alevel_start_year = models.CharField(max_length=10, blank=True)
     alevel_completed_year = models.CharField(max_length=10, blank=True)
     alevel_candidate_no = models.CharField(max_length=50, blank=True)
-    alevel_gpa = models.CharField(max_length=20, blank=True)
+    alevel_gpa = models.CharField(max_length=20, blank=True, choices=SECONDARY_DIVISION_CHOICES)
     alevel_school_type = models.CharField(max_length=100, blank=True)
     alevel_exam_board = models.CharField(max_length=100, blank=True)
     alevel_certificate_no = models.CharField(max_length=100, blank=True)
@@ -1777,14 +1785,14 @@ class Document(models.Model):
     ]
 
     student = models.ForeignKey(User, on_delete=models.CASCADE)
-    document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES)
+    document_type = models.CharField(max_length=100)
     file = models.FileField(upload_to="documents/")
     description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.get_document_type_display()} - {self.student.username}"
+        return f"{self.document_type} - {self.student.username}"
 
 
 class Message(models.Model):

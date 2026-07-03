@@ -6,7 +6,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 import logging
-from .models import StudentProfile, Application, Document, WorkExperience
+from .models import SECONDARY_DIVISION_CHOICES, StudentProfile, Application, Document, WorkExperience
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -405,7 +405,7 @@ class AcademicQualificationsForm(forms.ModelForm):
             'olevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year (e.g., 2016)'}),
             'olevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2020)'}),
             'olevel_candidate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Candidate Number'}),
-            'olevel_gpa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'GPA/Division'}),
+            'olevel_gpa': forms.Select(choices=SECONDARY_DIVISION_CHOICES, attrs={'class': 'form-input'}),
             'olevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Type'}),
             'olevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam Board'}),
             'olevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate No.'}),
@@ -424,7 +424,7 @@ class AcademicQualificationsForm(forms.ModelForm):
             'alevel_start_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Start year (e.g., 2020)'}),
             'alevel_completed_year': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Year Completed (e.g., 2022)'}),
             'alevel_candidate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Candidate Number'}),
-            'alevel_gpa': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'GPA/Division/Points'}),
+            'alevel_gpa': forms.Select(choices=SECONDARY_DIVISION_CHOICES, attrs={'class': 'form-input'}),
             'alevel_school_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'School Type'}),
             'alevel_exam_board': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Exam Board'}),
             'alevel_certificate_no': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Certificate No.'}),
@@ -445,7 +445,7 @@ class AcademicQualificationsForm(forms.ModelForm):
             'olevel_start_year': 'Start Year',
             'olevel_completed_year': 'Year Completed',
             'olevel_candidate_no': 'Index Number',
-            'olevel_gpa': 'GPA/Division',
+            'olevel_gpa': 'O-Level Division',
             'olevel_school_type': 'School Type',
             'olevel_exam_board': 'Exam Board',
             'olevel_certificate_no': 'Certificate No.',
@@ -464,7 +464,7 @@ class AcademicQualificationsForm(forms.ModelForm):
             'alevel_start_year': 'Start Year',
             'alevel_completed_year': 'Year Completed',
             'alevel_candidate_no': 'Index Number',
-            'alevel_gpa': 'GPA/Division/Points',
+            'alevel_gpa': 'A-Level Division',
             'alevel_school_type': 'School Type',
             'alevel_exam_board': 'Exam Board',
             'alevel_certificate_no': 'Certificate No.',
@@ -726,7 +726,7 @@ class DocumentForm(forms.ModelForm):
         model = Document
         fields = ['document_type', 'file', 'description']
         widgets = {
-            'document_type': forms.Select(attrs={'class': 'form-input'}),
+            'document_type': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Passport Copy, Degree Certificate'}),
             'file': forms.FileInput(attrs={'class': 'form-input'}),
             'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3, 'placeholder': 'Optional description'}),
         }

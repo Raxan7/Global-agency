@@ -30,26 +30,12 @@
                 <label for="id_document_type" class="block text-sm font-medium text-gray-700 mb-2">
                     Document Type <span class="text-red-500">*</span>
                 </label>
-                <select name="document_type" 
-                        id="id_document_type" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                        required>
-                    <option value="">Select Document Type</option>
-                    <option value="passport">Passport Copy</option>
-                    <option value="passport_photo">Passport Photo</option>
-                    <option value="ordinary_level">Ordinary Level Certificate</option>
-                    <option value="advanced_level">Advanced Level Certificate</option>
-                    <option value="academic_transcript">Academic Transcript</option>
-                    <option value="degree_certificate">Degree / Diploma Certificate</option>
-                    <option value="application_form">Application Form</option>
-                    <option value="recommendation_letter">Recommendation Letter</option>
-                    <option value="sop">Statement of Purpose / Motivation Letter</option>
-                    <option value="cv">CV / Resume</option>
-                    <option value="language_test">English Proficiency Test (IELTS / TOEFL)</option>
-                    <option value="proof_of_funds">Proof of Funds</option>
-                    <option value="health_insurance">Health Insurance</option>
-                    <option value="financial_documents">Financial Documents (Legacy)</option>
-                </select>
+                <input type="text" 
+                       name="document_type" 
+                       id="id_document_type" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                       placeholder="e.g. Passport Copy, Degree Certificate"
+                       required>
             </div>
 
             <!-- File Upload -->
@@ -114,7 +100,7 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900 mb-1">
-                                    {{ document.get_document_type_display }}
+                                    {{ document.document_type }}
                                 </h4>
                                 <div class="space-y-1 text-sm text-gray-600">
                                     <p>

@@ -374,7 +374,7 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Passport Number": _as_text(_safe_get(supplemental_profile, "passport_number")),
             "Form Four School Name": _as_text(_safe_get(student_profile, "olevel_school")),
             "Form Four School Address": _as_text(_safe_get(student_profile, "olevel_school_street")),
-            "Form Four Division / GPA": _as_text(_safe_get(student_profile, "olevel_gpa")),
+            "Form Four Division": _as_text(_safe_get(student_profile, "olevel_gpa")),
             "Application ID / Serial Number": serial,
             "Student Photo": _photo_source(student_profile),
         },
@@ -412,14 +412,14 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
                 "School Name": _as_text(_safe_get(student_profile, "olevel_school")),
                 "Index Number": _as_text(_safe_get(student_profile, "olevel_candidate_no")),
                 "Year Completed": _year_text(_safe_get(student_profile, "olevel_completed_year")),
-                "Division / GPA": _as_text(_safe_get(student_profile, "olevel_gpa")),
+                "Division": _as_text(_safe_get(student_profile, "olevel_gpa")),
             },
             {
                 "Level": "Form Six (A-Level)",
                 "School Name": _as_text(_safe_get(student_profile, "alevel_school")),
                 "Index Number": _as_text(_safe_get(student_profile, "alevel_candidate_no")),
                 "Year Completed": _year_text(_safe_get(student_profile, "alevel_completed_year")),
-                "Division / GPA": _as_text(_safe_get(student_profile, "alevel_gpa")),
+                "Division": _as_text(_safe_get(student_profile, "alevel_gpa")),
             },
         ],
         "higher_education": [],
@@ -564,7 +564,7 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
         ("Passport Number", personal.get("Passport Number")),
         ("Form Four School Name", personal.get("Form Four School Name")),
         ("Form Four School Address", personal.get("Form Four School Address")),
-        ("Form Four Division / GPA", personal.get("Form Four Division / GPA")),
+        ("Form Four Division", personal.get("Form Four Division")),
         ("Application ID / Serial Number", personal.get("Application ID / Serial Number")),
     ], styles)
     story.append(Table([[personal_table, _photo_flowable(student_profile, styles)]], colWidths=[148 * mm, 38 * mm], style=TableStyle([
@@ -605,8 +605,8 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
     story.append(Paragraph("SECTION 4: EDUCATION BACKGROUND DETAILS", styles["section"]))
     education_rows = [
         [Paragraph("<b>Level</b>", styles["body"]), Paragraph("<b>School Name</b>", styles["body"]), Paragraph("<b>Index Number</b>", styles["body"]), Paragraph("<b>Year Completed</b>", styles["body"]), Paragraph("<b>Division / GPA</b>", styles["body"])],
-        [Paragraph("Form Four (O-Level)", styles["body"]), Paragraph(escape(data["education_background"][0]["School Name"]), styles["body"]), Paragraph(escape(data["education_background"][0]["Index Number"]), styles["body"]), Paragraph(escape(data["education_background"][0]["Year Completed"]), styles["body"]), Paragraph(escape(data["education_background"][0]["Division / GPA"]), styles["body"])],
-        [Paragraph("Form Six (A-Level)", styles["body"]), Paragraph(escape(data["education_background"][1]["School Name"]), styles["body"]), Paragraph(escape(data["education_background"][1]["Index Number"]), styles["body"]), Paragraph(escape(data["education_background"][1]["Year Completed"]), styles["body"]), Paragraph(escape(data["education_background"][1]["Division / GPA"]), styles["body"])],
+        [Paragraph("Form Four (O-Level)", styles["body"]), Paragraph(escape(data["education_background"][0]["School Name"]), styles["body"]), Paragraph(escape(data["education_background"][0]["Index Number"]), styles["body"]), Paragraph(escape(data["education_background"][0]["Year Completed"]), styles["body"]), Paragraph(escape(data["education_background"][0]["Division"]), styles["body"])],
+        [Paragraph("Form Six (A-Level)", styles["body"]), Paragraph(escape(data["education_background"][1]["School Name"]), styles["body"]), Paragraph(escape(data["education_background"][1]["Index Number"]), styles["body"]), Paragraph(escape(data["education_background"][1]["Year Completed"]), styles["body"]), Paragraph(escape(data["education_background"][1]["Division"]), styles["body"])],
     ]
     story.append(_boxed_table(education_rows, [34 * mm, 64 * mm, 30 * mm, 28 * mm, 28 * mm], header_rows=1))
     story.append(PageBreak())

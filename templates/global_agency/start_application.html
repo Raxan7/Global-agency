@@ -284,6 +284,26 @@
       cursor: pointer;
       margin-bottom: 0;
     }
+    .add-btn {
+      margin: 1rem 0;
+      background: transparent;
+      border: 2px dashed #1a56db;
+      color: #1a56db;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .add-btn:hover {
+      background: #eff6ff;
+      border-color: #2563eb;
+    }
+    .remove-btn {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.8rem;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -641,10 +661,9 @@
           </div>
           <div class="field-group">
             {{ form.olevel_gpa.errors }}
-            <label for="{{ form.olevel_gpa.id_for_label }}">GPA/Division</label>
+            <label for="{{ form.olevel_gpa.id_for_label }}">O-Level Division</label>
             {{ form.olevel_gpa }}
-            <div class="field-hint">e.g., 3.5, Division I</div>
-            <div class="field-error" id="olevel_gpa_error">Please enter GPA/Division</div>
+            <div class="field-error" id="olevel_gpa_error">Please select Division</div>
           </div>
         </div>
 
@@ -714,10 +733,9 @@
           </div>
           <div class="field-group">
             {{ form.alevel_gpa.errors }}
-            <label for="{{ form.alevel_gpa.id_for_label }}">GPA/Division</label>
+            <label for="{{ form.alevel_gpa.id_for_label }}">A-Level Division</label>
             {{ form.alevel_gpa }}
-            <div class="field-hint">e.g., 3.5, Division I</div>
-            <div class="field-error" id="alevel_gpa_error">Please enter GPA/Division</div>
+            <div class="field-error" id="alevel_gpa_error">Please select Division</div>
           </div>
         </div>
 
@@ -806,7 +824,13 @@
           {{ form.profq1_award_certificate }}
         </div>
 
-        <div class="subsection-title">QUALIFICATION 2</div>
+        <button type="button" class="btn add-btn" id="addQ2Btn" onclick="document.getElementById('qualification-2').style.display='block'; this.style.display='none'; document.getElementById('addQ3Btn').style.display='';">+ Add Qualification 2</button>
+
+        <div id="qualification-2" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="subsection-title" style="margin-top:0;">QUALIFICATION 2</div>
+            <button type="button" class="btn secondary remove-btn" onclick="document.getElementById('qualification-2').style.display='none'; document.getElementById('addQ2Btn').style.display='inline-block'; document.getElementById('addQ3Btn').style.display='none'; document.getElementById('qualification-3').style.display='none';">&times; Remove</button>
+          </div>
 
         <div class="field-row">
           <div class="field-group">
@@ -860,7 +884,14 @@
           {{ form.profq2_award_certificate }}
         </div>
 
-        <div class="subsection-title">QUALIFICATION 3</div>
+          <button type="button" class="btn add-btn" id="addQ3Btn" onclick="document.getElementById('qualification-3').style.display='block'; this.style.display='none';">+ Add Qualification 3</button>
+        </div>
+
+        <div id="qualification-3" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="subsection-title" style="margin-top:0;">QUALIFICATION 3</div>
+            <button type="button" class="btn secondary remove-btn" onclick="document.getElementById('qualification-3').style.display='none'; document.getElementById('addQ3Btn').style.display='inline-block';">&times; Remove</button>
+          </div>
 
         <div class="field-row">
           <div class="field-group">
@@ -912,6 +943,7 @@
           {{ form.profq3_award_certificate.errors }}
           <label for="{{ form.profq3_award_certificate.id_for_label }}">Award/Certificate No.</label>
           {{ form.profq3_award_certificate }}
+        </div>
         </div>
       </div>
 
@@ -1025,7 +1057,13 @@
           {{ form.work1_remarks }}
         </div>
 
-        <div class="subsection-title">WORK EXPERIENCE 2</div>
+        <button type="button" class="btn add-btn" id="addWork2Btn" onclick="document.getElementById('work-experience-2').style.display='block'; this.style.display='none';">+ Add Work Experience 2</button>
+
+        <div id="work-experience-2" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="subsection-title" style="margin-top:0;">WORK EXPERIENCE 2</div>
+            <button type="button" class="btn secondary remove-btn" onclick="document.getElementById('work-experience-2').style.display='none'; document.getElementById('addWork2Btn').style.display='inline-block';">&times; Remove</button>
+          </div>
 
         <div class="field-row">
           <div class="field-group">
@@ -1129,6 +1167,7 @@
           {{ form.work2_remarks.errors }}
           <label for="{{ form.work2_remarks.id_for_label }}">Remarks</label>
           {{ form.work2_remarks }}
+        </div>
         </div>
       </div>
 
@@ -1545,6 +1584,44 @@
       }
     }
   });
+
+  // Show work2 section if it has pre-filled data (edit mode)
+  (function() {
+    const work2 = document.getElementById('work-experience-2');
+    const addBtn = document.getElementById('addWork2Btn');
+    if (work2 && addBtn) {
+      const hasData = Array.from(work2.querySelectorAll('input, select, textarea')).some(el => el.value.trim() !== '');
+      if (hasData) {
+        work2.style.display = 'block';
+        addBtn.style.display = 'none';
+      }
+    }
+  })();
+
+  // Show qualification sections if pre-filled (edit mode)
+  (function() {
+    const q2 = document.getElementById('qualification-2');
+    const addQ2 = document.getElementById('addQ2Btn');
+    if (q2 && addQ2) {
+      const hasData = Array.from(q2.querySelectorAll('input, select, textarea')).some(el => el.value.trim() !== '');
+      if (hasData) {
+        q2.style.display = 'block';
+        addQ2.style.display = 'none';
+      }
+    }
+    const q3 = document.getElementById('qualification-3');
+    const addQ3 = document.getElementById('addQ3Btn');
+    if (q3 && addQ3) {
+      const hasData = Array.from(q3.querySelectorAll('input, select, textarea')).some(el => el.value.trim() !== '');
+      if (hasData) {
+        q3.style.display = 'block';
+        addQ3.style.display = 'none';
+        // Also ensure Q2 is visible if Q3 has data
+        if (q2) q2.style.display = 'block';
+        if (addQ2) addQ2.style.display = 'none';
+      }
+    }
+  })();
 
   // Show first step
   show(current);

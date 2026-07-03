@@ -434,7 +434,7 @@
                 {% for document in documents %}
                 <div class="document-item">
                     <div class="document-info">
-                        <div class="document-name">{{ document.get_document_type_display }}</div>
+                        <div class="document-name">{{ document.document_type }}</div>
                         <div class="document-meta">
                             Uploaded: {{ document.uploaded_at|date:"M d, Y" }} | 
                             File: {{ document.file.name|slice:"-20:" }}

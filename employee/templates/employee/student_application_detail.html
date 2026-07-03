@@ -608,7 +608,7 @@
                 {% endif %}
                 {% if student_profile.olevel_gpa %}
                 <div class="info-item">
-                    <div class="info-label">GPA/Grade</div>
+                    <div class="info-label">O-Level Division</div>
                     <div>{{ student_profile.olevel_gpa }}</div>
                 </div>
                 {% endif %}
@@ -649,7 +649,7 @@
                 {% endif %}
                 {% if student_profile.alevel_gpa %}
                 <div class="info-item">
-                    <div class="info-label">GPA/Grade</div>
+                    <div class="info-label">A-Level Division</div>
                     <div>{{ student_profile.alevel_gpa }}</div>
                 </div>
                 {% endif %}
@@ -816,7 +816,7 @@
         {% for doc in documents %}
         <div class="document-item">
             <div>
-                <strong>{{ doc.get_document_type_display }}</strong><br>
+                <strong>{{ doc.document_type }}</strong><br>
                 <small><i class="far fa-calendar"></i> Uploaded: {{ doc.uploaded_at|date:"M d, Y" }}</small>
                 {% if doc.description %}<br><small>{{ doc.description }}</small>{% endif %}
             </div>

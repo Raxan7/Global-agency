@@ -368,7 +368,7 @@
                             {% for document_type, document in existing_documents.items %}
                             <a href="{{ document.file.url|safe_href }}" target="_blank" rel="noopener noreferrer">
                                 <span>View</span>
-                                <span>{{ document.get_document_type_display }}</span>
+                                <span>{{ document.document_type }}</span>
                             </a>
                             {% endfor %}
                         </div>
@@ -383,7 +383,7 @@
                         {% if section.key == 'uploads' %}
                         <div class="section-divider"></div>
                         <h4 style="margin: 1rem 0 0.5rem; font-size: 1.1rem;">Upload New Documents</h4>
-                        <p style="color: var(--muted); margin-bottom: 1rem;">Select a document type and upload the file. Click "Add Document" to upload more files.</p>
+                        <p style="color: var(--muted); margin-bottom: 1rem;">Enter a document type and upload the file. Click "Add Document" to upload more files.</p>
                         {{ document_formset.management_form }}
                         <div id="document-formset-container">
                             {% for doc_form in document_formset %}

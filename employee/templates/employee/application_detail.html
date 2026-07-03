@@ -121,7 +121,7 @@
         <div class="detail-field"><div class="label">Region</div><div class="value">{{ application.olevel_school_region|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Year</div><div class="value">{{ application.olevel_completed_year|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Candidate No</div><div class="value">{{ application.olevel_candidate_no|default:"Not provided" }}</div></div>
-        <div class="detail-field"><div class="label">GPA</div><div class="value">{{ application.olevel_gpa|default:"Not provided" }}</div></div>
+        <div class="detail-field"><div class="label">O-Level Division</div><div class="value">{{ application.olevel_gpa|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">School Type</div><div class="value">{{ application.olevel_school_type|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Exam Board</div><div class="value">{{ application.olevel_exam_board|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Certificate No</div><div class="value">{{ application.olevel_certificate_no|default:"Not provided" }}</div></div>
@@ -135,7 +135,7 @@
         <div class="detail-field"><div class="label">Region</div><div class="value">{{ application.alevel_school_region|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Year</div><div class="value">{{ application.alevel_completed_year|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Candidate No</div><div class="value">{{ application.alevel_candidate_no|default:"Not provided" }}</div></div>
-        <div class="detail-field"><div class="label">GPA</div><div class="value">{{ application.alevel_gpa|default:"Not provided" }}</div></div>
+        <div class="detail-field"><div class="label">A-Level Division</div><div class="value">{{ application.alevel_gpa|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">School Type</div><div class="value">{{ application.alevel_school_type|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Exam Board</div><div class="value">{{ application.alevel_exam_board|default:"Not provided" }}</div></div>
         <div class="detail-field"><div class="label">Certificate No</div><div class="value">{{ application.alevel_certificate_no|default:"Not provided" }}</div></div>
@@ -180,7 +180,7 @@
         {% for doc in documents %}
         <div class="doc-card">
             <div>
-                <strong>{{ doc.get_document_type_display }}</strong><br>
+                <strong>{{ doc.document_type }}</strong><br>
                 <small style="color: var(--muted);">Uploaded: {{ doc.uploaded_at|date:"M d, Y H:i" }}{% if doc.description %} — {{ doc.description }}{% endif %}</small>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">

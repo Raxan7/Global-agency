@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+SECONDARY_DIVISION_CHOICES = [
+    ("Division I", "Division I"),
+    ("Division II", "Division II"),
+    ("Division III", "Division III"),
+    ("Division IV", "Division IV"),
+    ("Zero", "Zero"),
+]
+
 class StudentManager(models.Manager):
     def create_student_from_application(self, application):
         """Create a student user from application data"""
@@ -135,7 +143,7 @@ class StudentApplication(models.Model):
     olevel_start_year = models.CharField(max_length=10, blank=True, null=True)
     olevel_completed_year = models.CharField(max_length=10, blank=True, null=True)
     olevel_candidate_no = models.CharField(max_length=50, blank=True, null=True)
-    olevel_gpa = models.CharField(max_length=20, blank=True, null=True)
+    olevel_gpa = models.CharField(max_length=20, blank=True, null=True, choices=SECONDARY_DIVISION_CHOICES)
     olevel_school_type = models.CharField(max_length=100, blank=True, null=True)
     olevel_exam_board = models.CharField(max_length=100, blank=True, null=True)
     olevel_certificate_no = models.CharField(max_length=100, blank=True, null=True)
@@ -146,7 +154,7 @@ class StudentApplication(models.Model):
     alevel_start_year = models.CharField(max_length=10, blank=True, null=True)
     alevel_completed_year = models.CharField(max_length=10, blank=True, null=True)
     alevel_candidate_no = models.CharField(max_length=50, blank=True, null=True)
-    alevel_gpa = models.CharField(max_length=20, blank=True, null=True)
+    alevel_gpa = models.CharField(max_length=20, blank=True, null=True, choices=SECONDARY_DIVISION_CHOICES)
     alevel_school_type = models.CharField(max_length=100, blank=True, null=True)
     alevel_exam_board = models.CharField(max_length=100, blank=True, null=True)
     alevel_certificate_no = models.CharField(max_length=100, blank=True, null=True)

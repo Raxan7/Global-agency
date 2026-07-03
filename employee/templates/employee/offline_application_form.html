@@ -365,7 +365,7 @@
                     {% for document_type, document in existing_documents.items %}
                     <a href="{{ document.file.url|safe_href }}" target="_blank" rel="noopener noreferrer">
                         <span>View</span>
-                        <span>{{ document.get_document_type_display }}</span>
+                        <span>{{ document.document_type }}</span>
                     </a>
                     {% endfor %}
                 </div>
@@ -550,7 +550,7 @@
                     {% elif section.key == 'uploads' %}
                     <div class="section-divider"></div>
                     <h4 style="margin: 1rem 0 0.5rem; font-size: 1.1rem;">Upload New Documents</h4>
-                    <p style="color: var(--muted); margin-bottom: 1rem;">Select a document type and upload the file. Click "Add Document" to upload more files.</p>
+                    <p style="color: var(--muted); margin-bottom: 1rem;">Enter a document type and upload the file. Click "Add Document" to upload more files.</p>
                     {{ document_formset.management_form }}
                     <div id="document-formset-container">
                         {% for doc_form in document_formset %}
@@ -774,6 +774,124 @@
 
         updateDeleteVisibility();
     });
+
+    // ---------- Toggle sections (Q2, Q3, Work2) ----------
+    (function() {
+        // Wrap siblings from startEl (inclusive) up to endEl (exclusive) into a hidden container
+        // with an Add button before it and a Remove button in its header.
+        // Returns { wrapper, addBtn } or null.
+        function wrapSection(startEl, endEl, wrapperId, btnText, onRemove) {
+            var el = startEl;
+            var items = [];
+            while (el && el !== endEl) {
+                items.push(el);
+                el = el.nextElementSibling;
+            }
+            if (items.length === 0) return null;
+            var parent = items[0].parentNode;
+            var wrapper = document.createElement('div');
+            wrapper.id = wrapperId;
+            wrapper.style.display = 'none';
+            // Build header: take the first item if it's an H4, else create one
+            var headingEl = items[0];
+            var isHeading = headingEl.tagName === 'H4';
+            var header = document.createElement('div');
+            header.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn secondary';
+            removeBtn.style.cssText = 'font-size:0.8rem; padding:0.3rem 0.8rem;';
+            removeBtn.innerHTML = '&times; Remove';
+            if (!isHeading) {
+                var title = document.createElement('h4');
+                title.className = 'subsection-heading';
+                title.style.marginTop = '0';
+                title.textContent = btnText;
+                header.appendChild(title);
+            }
+            header.appendChild(removeBtn);
+            wrapper.appendChild(header);
+            // Insert wrapper before the first item (items[0] must still be in parent)
+            parent.insertBefore(wrapper, items[0]);
+            // Move heading into header (removes from original position)
+            if (isHeading) {
+                headingEl.style.marginTop = '0';
+                header.appendChild(headingEl);
+            }
+            // Move remaining items into wrapper with dividers
+            for (var i = isHeading ? 1 : 0; i < items.length; i++) {
+                var s = items[i];
+                if (s.classList && s.classList.contains('section-divider')) { s.parentNode.removeChild(s); continue; }
+                var div = document.createElement('div');
+                div.className = 'section-divider';
+                wrapper.appendChild(div);
+                wrapper.appendChild(s);
+            }
+            // Add button
+            var addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn';
+            addBtn.style.cssText = 'margin:0.75rem 0; background:transparent; border:2px dashed #1a56db; color:#1a56db; padding:0.6rem 1.2rem; border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:600;';
+            addBtn.textContent = '+ Add ' + (isHeading ? headingEl.textContent.trim() : btnText);
+            parent.insertBefore(addBtn, wrapper);
+            addBtn.onclick = function() {
+                wrapper.style.display = 'block';
+                addBtn.style.display = 'none';
+            };
+            removeBtn.onclick = function() {
+                wrapper.style.display = 'none';
+                addBtn.style.display = 'inline-block';
+                if (onRemove) onRemove();
+            };
+            // Auto-show if pre-filled
+            var hasData = Array.from(wrapper.querySelectorAll('input, select, textarea')).some(function(el) { return el.value.trim() !== ''; });
+            if (hasData) {
+                wrapper.style.display = 'block';
+                addBtn.style.display = 'none';
+            }
+            return { wrapper: wrapper, addBtn: addBtn };
+        }
+
+        // --- Professional Qualifications ---
+        var profqGrid = document.querySelector('[data-section-key="professional_qualifications"] .form-grid');
+        if (profqGrid) {
+            var q2 = null, q3 = null, eng = null;
+            for (var i = 0; i < profqGrid.children.length; i++) {
+                var c = profqGrid.children[i];
+                if (c.tagName === 'H4') {
+                    var t = c.textContent.trim();
+                    if (t === 'QUALIFICATION 2') q2 = c;
+                    else if (t === 'QUALIFICATION 3') q3 = c;
+                    else if (t === 'ENGLISH LANGUAGE PROFICIENCY') eng = c;
+                }
+            }
+            var q2r, q3r;
+            if (q2 && q3) {
+                q2r = wrapSection(q2, q3, 'q2-wrapper', 'Qualification 2', function() {
+                    if (q3r) { q3r.wrapper.style.display = 'none'; q3r.addBtn.style.display = 'none'; }
+                    var q3w = document.getElementById('q3-wrapper'); if (q3w) q3w.style.display = 'none';
+                });
+            }
+            if (q3 && eng) {
+                q3r = wrapSection(q3, eng, 'q3-wrapper', 'Qualification 3', null);
+                // If Q3 auto-showed, ensure Q2 is also visible
+                if (q3r && q3r.wrapper.style.display === 'block' && q2r) {
+                    q2r.wrapper.style.display = 'block';
+                    q2r.addBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // --- Employment History ---
+        var empGrid = document.querySelector('[data-section-key="employment_history"] .form-grid');
+        if (empGrid) {
+            var w2 = null;
+            for (var i = 0; i < empGrid.children.length; i++) {
+                if (empGrid.children[i].tagName === 'H4' && empGrid.children[i].textContent.trim() === 'WORK EXPERIENCE 2') w2 = empGrid.children[i];
+            }
+            if (w2) wrapSection(w2, null, 'work2-wrapper', 'Work Experience 2', null);
+        }
+    })();
 </script>
 {% include 'student_portal/includes/mtaa_setup.html' %}
 {% endblock %}

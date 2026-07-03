@@ -441,7 +441,7 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
         ('Passport Number', getattr(supplemental_profile, 'passport_number', None)),
         ('Form Four School Name', getattr(student_profile, 'olevel_school', None) if student_profile else None),
         ('Form Four School Address', getattr(student_profile, 'olevel_school_street', None) if student_profile else None),
-        ('Form Four Division / GPA', getattr(student_profile, 'olevel_gpa', None) if student_profile else None),
+        ('Form Four Division', getattr(student_profile, 'olevel_gpa', None) if student_profile else None),
         ('Application ID', serial),
     ]
     page_one_data = [
@@ -536,7 +536,7 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
                     Paragraph('<b>School Name</b>', styles['body']),
                     Paragraph('<b>Index Number</b>', styles['body']),
                     Paragraph('<b>Year Completed</b>', styles['body']),
-                    Paragraph('<b>Division / GPA</b>', styles['body']),
+                    Paragraph('<b>Division</b>', styles['body']),
                 ],
                 [
                     Paragraph('Form Four (O-Level)', styles['body']),

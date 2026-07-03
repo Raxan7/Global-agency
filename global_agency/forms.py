@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import ContactMessage, StudentApplication
+from .models import SECONDARY_DIVISION_CHOICES, ContactMessage, StudentApplication
 
 class SimpleRegistrationForm(forms.Form):
     """Simple registration form - just email, password, and name"""
@@ -136,9 +136,8 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'S1234/2020/0001'
             }),
-            'olevel_gpa': forms.TextInput(attrs={
+            'olevel_gpa': forms.Select(choices=SECONDARY_DIVISION_CHOICES, attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., 3.5 or Division I'
             }),
             'olevel_school_type': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -175,9 +174,8 @@ class StudentApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'S1234/2022/0001'
             }),
-            'alevel_gpa': forms.TextInput(attrs={
+            'alevel_gpa': forms.Select(choices=SECONDARY_DIVISION_CHOICES, attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., 3.5 or Division I'
             }),
             'alevel_school_type': forms.TextInput(attrs={
                 'class': 'form-control',

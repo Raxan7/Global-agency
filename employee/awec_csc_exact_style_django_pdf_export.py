@@ -273,7 +273,7 @@ DEFAULT_DATA: Dict[str, Any] = {
             "Index Number": "S0123/0456",
             "Start Year": "2017",
             "Completed Year": "2020",
-            "Division / GPA": "Division I",
+            "Division": "Division I",
             "Country": "Tanzania",
             "Region": "Morogoro",
             "Region Post Code": "67000",
@@ -290,7 +290,7 @@ DEFAULT_DATA: Dict[str, Any] = {
             "Index Number": "S0456/0789",
             "Start Year": "2021",
             "Completed Year": "2023",
-            "Division / GPA": "Division II",
+            "Division": "Division II",
             "Country": "Tanzania",
             "Region": "Dar es Salaam",
             "Region Post Code": "11100",
@@ -790,7 +790,7 @@ def draw_education_school_block(c: canvas.Canvas, y: float, school_data: Dict[st
         [
             ("Starting Year", school_data.get("Start Year"), CONTENT_W / 3),
             ("Completed Year", school_data.get("Completed Year"), CONTENT_W / 3),
-            ("Division / GPA", school_data.get("Division / GPA"), CONTENT_W / 3),
+            ("Division", school_data.get("Division"), CONTENT_W / 3),
         ],
     ]
     for row in rows:
@@ -1745,7 +1745,7 @@ def draw_education_school_block_flow(
         [
             ("Starting Year", school_data.get("Start Year"), CONTENT_W / 3),
             ("Completed Year", school_data.get("Completed Year"), CONTENT_W / 3),
-            ("Division / GPA", school_data.get("Division / GPA"), CONTENT_W / 3),
+            ("Division", school_data.get("Division"), CONTENT_W / 3),
         ],
     ]:
         page_no, y = ensure_flow_space(c, data, page_no, y, row_h)
@@ -1817,7 +1817,7 @@ def draw_education_side_panel(
         ([
             ("Start Year", school_data.get("Start Year"), 25),
             ("Completed Year", school_data.get("Completed Year"), 35),
-            ("Division / GPA", school_data.get("Division / GPA"), 40),
+            ("Division", school_data.get("Division"), 40),
         ], main_h),
         ([
             ("Country", school_data.get("Country"), 30),
@@ -2710,7 +2710,7 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Index Number": val(_safe_get(student_profile, "olevel_candidate_no")),
             "Start Year": _year_text(_safe_get(student_profile, "olevel_start_year")),
             "Completed Year": _year_text(_safe_get(student_profile, "olevel_completed_year")),
-            "Division / GPA": val(_safe_get(student_profile, "olevel_gpa")),
+            "Division": val(_safe_get(student_profile, "olevel_gpa")),
             "Country": val(_safe_get(student_profile, "olevel_school_country") or "Tanzania"),
             "Region": val(_safe_get(student_profile, "olevel_school_region")),
             "Region Post Code": val(_safe_get(student_profile, "olevel_school_region_post_code")),
@@ -2732,7 +2732,7 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Index Number": val(_safe_get(student_profile, "alevel_candidate_no")),
             "Start Year": _year_text(_safe_get(student_profile, "alevel_start_year")),
             "Completed Year": _year_text(_safe_get(student_profile, "alevel_completed_year")),
-            "Division / GPA": val(_safe_get(student_profile, "alevel_gpa")),
+            "Division": val(_safe_get(student_profile, "alevel_gpa")),
             "Country": val(_safe_get(student_profile, "alevel_school_country") or "Tanzania"),
             "Region": val(_safe_get(student_profile, "alevel_school_region")),
             "Region Post Code": val(_safe_get(student_profile, "alevel_school_region_post_code")),

@@ -66,19 +66,24 @@
         {% endif %}
     </form>
 
-    <div class="doc-type-filters">
+    <div class="doc-type-filters" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
         <strong>Filter by Document Type:</strong>
-        <a href="{% url 'employee:document_list' %}" class="filter-btn {% if not doc_type_filter %}active{% endif %}">All</a>
-        <a href="?doc_type=passport" class="filter-btn {% if doc_type_filter == 'passport' %}active{% endif %}">Passport</a>
-        <a href="?doc_type=passport_photo" class="filter-btn {% if doc_type_filter == 'passport_photo' %}active{% endif %}">Passport Photos</a>
-        <a href="?doc_type=academic_transcript" class="filter-btn {% if doc_type_filter == 'academic_transcript' %}active{% endif %}">Transcripts</a>
-        <a href="?doc_type=degree_certificate" class="filter-btn {% if doc_type_filter == 'degree_certificate' %}active{% endif %}">Degree Certificates</a>
-        <a href="?doc_type=application_form" class="filter-btn {% if doc_type_filter == 'application_form' %}active{% endif %}">Application Forms</a>
-        <a href="?doc_type=recommendation_letter" class="filter-btn {% if doc_type_filter == 'recommendation_letter' %}active{% endif %}">Recommendation Letters</a>
-        <a href="?doc_type=proof_of_funds" class="filter-btn {% if doc_type_filter == 'proof_of_funds' %}active{% endif %}">Proof of Funds</a>
-        <a href="?doc_type=health_insurance" class="filter-btn {% if doc_type_filter == 'health_insurance' %}active{% endif %}">Health Insurance</a>
-        <a href="?doc_type=financial_documents" class="filter-btn {% if doc_type_filter == 'financial_documents' %}active{% endif %}">Legacy Financial Docs</a>
+        <input type="text" name="doc_type" form="filter-form" value="{{ doc_type_filter|default:'' }}" placeholder="Type document type..." style="padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; font-size: 0.85rem; width: 200px;">
+        <button type="submit" form="filter-form" class="btn btn-sm btn-success" style="padding: 0.4rem 0.8rem;"><i class="fas fa-filter"></i> Filter</button>
+        {% if doc_type_filter %}
+        <a href="{% url 'employee:document_list' %}" class="btn btn-sm btn-secondary" style="padding: 0.4rem 0.8rem;"><i class="fas fa-times"></i> Clear</a>
+        {% endif %}
     </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchForm = document.querySelector('.search-box');
+        if (searchForm) {
+            searchForm.id = 'filter-form';
+        }
+    });
+</script>
 </div>
 
 <div class="section">
@@ -104,19 +109,8 @@
                 </td>
                 <td>
                     <div class="doc-type-cell">
-                        <span class="doc-type-icon">
-                            {% if doc.document_type == 'passport' %}P
-                            {% elif doc.document_type == 'passport_photo' %}PP
-                            {% elif doc.document_type == 'academic_transcript' %}T
-                            {% elif doc.document_type == 'degree_certificate' %}D
-                            {% elif doc.document_type == 'application_form' %}AF
-                            {% elif doc.document_type == 'recommendation_letter' %}R
-                            {% elif doc.document_type == 'proof_of_funds' %}PF
-                            {% elif doc.document_type == 'health_insurance' %}HI
-                            {% elif doc.document_type == 'financial_documents' %}F
-                            {% else %}D{% endif %}
-                        </span>
-                        <strong>{{ doc.get_document_type_display }}</strong>
+                        <span class="doc-type-icon">{{ doc.document_type|first|upper }}</span>
+                        <strong>{{ doc.document_type }}</strong>
                     </div>
                 </td>
                 <td>

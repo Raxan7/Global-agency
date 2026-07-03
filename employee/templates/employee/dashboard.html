@@ -257,7 +257,7 @@
             {% for doc in documents %}
             <tr>
                 <td>{{ doc.student.get_full_name|default:doc.student.username }}</td>
-                <td>{{ doc.get_document_type_display }}</td>
+                <td>{{ doc.document_type }}</td>
                 <td>{{ doc.file.name|slice:"20:" }}</td>
                 <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
                 <td>
