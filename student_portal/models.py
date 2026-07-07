@@ -1785,6 +1785,13 @@ class Document(models.Model):
     ]
 
     student = models.ForeignKey(User, on_delete=models.CASCADE)
+    application = models.ForeignKey(
+        'Application',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='documents',
+    )
     document_type = models.CharField(max_length=100)
     file = models.FileField(upload_to="documents/")
     description = models.TextField(blank=True)

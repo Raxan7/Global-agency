@@ -78,10 +78,6 @@
         <div class="stat-label">Contact Messages</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number">{{ documents_count }}</div>
-        <div class="stat-label">Documents</div>
-    </div>
-    <div class="stat-card">
         <div class="stat-number">{{ updates_count }}</div>
         <div class="stat-label">Website Updates</div>
     </div>
@@ -236,43 +232,4 @@
     {% endif %}
 </div>
 
-<div class="section">
-    <div class="section-header">
-        <h3>Recent Documents</h3>
-        <a href="{% url 'employee:document_list' %}" class="btn btn-success">View All Documents</a>
-    </div>
-
-    {% if documents %}
-    <table>
-        <thead>
-            <tr>
-                <th>Student</th>
-                <th>Document Type</th>
-                <th>File Name</th>
-                <th>Uploaded</th>
-                <th>Verified</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for doc in documents %}
-            <tr>
-                <td>{{ doc.student.get_full_name|default:doc.student.username }}</td>
-                <td>{{ doc.document_type }}</td>
-                <td>{{ doc.file.name|slice:"20:" }}</td>
-                <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
-                <td>
-                    {% if doc.is_verified %}
-                    <span style="color: #16a34a; font-weight: bold;">✓ Verified</span>
-                    {% else %}
-                    <span style="color: #dc2626; font-weight: bold;">Pending</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="empty-state">No documents found.</div>
-    {% endif %}
-</div>
 {% endblock %}

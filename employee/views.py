@@ -98,7 +98,6 @@ def employee_dashboard(request):
     applications = StudentApplication.objects.all().order_by('-created_at')
     student_applications = Application.objects.all().order_by('-created_at')
     contact_messages = ContactMessage.objects.all().order_by('-created_at')
-    documents = Document.objects.all().order_by('-uploaded_at')[:10]
     updates = (
         PortalUpdate.objects.select_related('author')
         .prefetch_related('gallery_images', 'attachments')
@@ -115,10 +114,8 @@ def employee_dashboard(request):
         'applications': applications,
         'student_applications': student_applications,
         'contact_messages': contact_messages,
-        'documents': documents,
         'applications_count': applications.count() + student_applications.count(),
         'messages_count': contact_messages.count(),
-        'documents_count': Document.objects.count(),
         'pending_reviews': student_applications.filter(status='submitted').count(),
         'updates_count': updates.count(),
         'published_updates_count': updates.filter(status='published').count(),
@@ -204,13 +201,12 @@ def employee_logout(request):
 def application_detail(request, pk):
     application = get_object_or_404(StudentApplication, pk=pk)
     profile = UserProfile.objects.get(user=request.user)
-    document_owner = application.student_user
-    if document_owner is None and application.portal_application:
-        document_owner = application.portal_application.student
-    documents = (
-        Document.objects.filter(student=document_owner).order_by('-uploaded_at')
-        if document_owner is not None else Document.objects.none()
-    )
+    target_application = application.portal_application or None
+    documents = Document.objects.none()
+    if target_application:
+        documents = Document.objects.filter(application=target_application).order_by('-uploaded_at')
+    if not documents and application.student_user:
+        documents = Document.objects.filter(student=application.student_user).order_by('-uploaded_at')
 
     context = {
         'application': application,
@@ -294,7 +290,7 @@ def student_application_detail(request, application_id):
         .first()
     )
 
-    documents = Document.objects.filter(student=application.student)
+    documents = Document.objects.filter(application=application)
     payments = Payment.objects.filter(application=application)
 
     try:
@@ -345,6 +341,7 @@ def edit_student_application(request, application_id):
         'current_country': forms.TextInput(attrs={'class': 'form-input'}),
         'current_postal_code': forms.TextInput(attrs={'class': 'form-input'}),
         'current_house_no': forms.TextInput(attrs={'class': 'form-input'}),
+        'permanent_country': forms.TextInput(attrs={'class': 'form-input'}),
         'permanent_region': forms.Select(attrs={'class': 'form-input'}),
         'permanent_district': forms.Select(attrs={'class': 'form-input'}),
         'permanent_ward': forms.Select(attrs={'class': 'form-input'}),
@@ -353,6 +350,7 @@ def edit_student_application(request, application_id):
         'permanent_house_no': forms.TextInput(attrs={'class': 'form-input'}),
         'permanent_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
         'residential_email': forms.EmailInput(attrs={'class': 'form-input'}),
+        'has_valid_visa': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
         'current_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
         'valid_visa_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
         'professional_qualifications': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
@@ -365,16 +363,23 @@ def edit_student_application(request, application_id):
         'professional_qualification_mtaa': forms.TextInput(attrs={'class': 'form-input'}),
         'professional_qualification_start_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
         'professional_qualification_completed_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
-        'professional_qualification_certificate_awarded': forms.Select(attrs={'class': 'form-select'}),
+        'professional_qualification_certificate_awarded': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
+        'scholarship_applied': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
         'scholarship_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+        'has_medical_condition': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
         'medical_condition_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+        'needs_special_assistance': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
         'special_assistance_details': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+        'declaration_agreed': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
+        'english_is_primary_language': forms.NullBooleanSelect(attrs={'class': 'form-select'}),
+        'program_level': forms.Select(attrs={'class': 'form-select'}),
+        'preferred_intake': forms.Select(attrs={'class': 'form-select'}),
+        'accommodation_preference': forms.Select(attrs={'class': 'form-select'}),
 
         'english_test_name': forms.TextInput(attrs={'class': 'form-input'}),
         'english_test_institution': forms.TextInput(attrs={'class': 'form-input'}),
         'english_test_score': forms.TextInput(attrs={'class': 'form-input'}),
         'english_test_year': forms.TextInput(attrs={'class': 'form-input'}),
-        'english_is_primary_language': forms.Select(attrs={'class': 'form-select'}),
         'certificate_start_year': forms.NumberInput(attrs={'class': 'form-input', 'min': 1900, 'max': 2100}),
         'certificate_completed_year': forms.NumberInput(attrs={'class': 'form-input', 'min': 1900, 'max': 2100}),
         'diploma_start_year': forms.NumberInput(attrs={'class': 'form-input', 'min': 1900, 'max': 2100}),
@@ -414,9 +419,67 @@ def edit_student_application(request, application_id):
         'profq3_country', 'profq3_period', 'profq3_start_date', 'profq3_finished_date', 'profq3_award_certificate',
     ]
 
+    OFFLINE_INTAKE_EDIT_WIDGETS = {
+        'declaration_applicant_name': forms.TextInput(attrs={'class': 'form-input'}),
+        'declaration_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'declaration_signature_name': forms.TextInput(attrs={'class': 'form-input'}),
+        'terms_accepted': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+        'work1_company_name': forms.TextInput(attrs={'class': 'form-input'}),
+        'work1_position': forms.TextInput(attrs={'class': 'form-input'}),
+        'work1_worked_from': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'work1_worked_to': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'work1_country': forms.TextInput(attrs={'class': 'form-input'}),
+        'work1_region': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work1_district': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work1_ward': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work1_street': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work1_employment_type': forms.TextInput(attrs={'class': 'form-input'}),
+        'work1_duties': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+        'work1_supervisor': forms.TextInput(attrs={'class': 'form-input'}),
+        'work1_remarks': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
+        'work2_company_name': forms.TextInput(attrs={'class': 'form-input'}),
+        'work2_position': forms.TextInput(attrs={'class': 'form-input'}),
+        'work2_worked_from': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'work2_worked_to': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'work2_country': forms.TextInput(attrs={'class': 'form-input'}),
+        'work2_region': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work2_district': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work2_ward': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work2_street': forms.Select(attrs={'class': 'form-input'}, choices=[('', '--- Select ---')]),
+        'work2_employment_type': forms.TextInput(attrs={'class': 'form-input'}),
+        'work2_duties': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 3}),
+        'work2_supervisor': forms.TextInput(attrs={'class': 'form-input'}),
+        'work2_remarks': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
+        'profq1_title': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq1_institution': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq1_institution_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
+        'profq1_country': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq1_period': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq1_start_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'profq1_finished_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'profq1_award_certificate': forms.Select(attrs={'class': 'form-select'}, choices=[('', '---------'), ('yes', 'Yes'), ('no', 'No')]),
+        'profq2_title': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq2_institution': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq2_institution_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
+        'profq2_country': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq2_period': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq2_start_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'profq2_finished_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'profq2_award_certificate': forms.Select(attrs={'class': 'form-select'}, choices=[('', '---------'), ('yes', 'Yes'), ('no', 'No')]),
+        'profq3_title': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq3_institution': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq3_institution_address': forms.Textarea(attrs={'class': 'form-input form-textarea', 'rows': 2}),
+        'profq3_country': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq3_period': forms.TextInput(attrs={'class': 'form-input'}),
+        'profq3_start_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'profq3_finished_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+        'profq3_award_certificate': forms.Select(attrs={'class': 'form-select'}, choices=[('', '---------'), ('yes', 'Yes'), ('no', 'No')]),
+    }
+
     OfflineIntakeEditForm = modelform_factory(
         StudentApplication,
         fields=OFFLINE_INTAKE_EDIT_FIELDS,
+        widgets=OFFLINE_INTAKE_EDIT_WIDGETS,
     )
 
     if request.method == 'POST':
@@ -518,7 +581,7 @@ def edit_student_application(request, application_id):
         'profq3_country', 'profq3_period', 'profq3_start_date', 'profq3_finished_date', 'profq3_award_certificate',
     ]
 
-    STUDY_PREFERENCES_SUPPLEMENTAL = ['program_level', 'preferred_intake', 'accommodation_preference']
+    STUDY_PREFERENCES_SUPPLEMENTAL = ['program_level', 'accommodation_preference']
 
     STUDENT_ADDRESS_FIELDS = [
         'permanent_country', 'permanent_region', 'permanent_district', 'permanent_ward',
@@ -989,10 +1052,12 @@ def _create_or_update_student_portal_records(
                 persist_field_file(existing_doc.file, uploaded_document, f'documents/{document_type}')
                 existing_doc.description = f'Uploaded through the {uploader_label} intake workflow.'
                 existing_doc.is_verified = False
-                existing_doc.save(update_fields=['file', 'description', 'is_verified'])
+                existing_doc.application = portal_application
+                existing_doc.save(update_fields=['file', 'description', 'is_verified', 'application'])
             else:
                 document = Document(
                     student=user,
+                    application=portal_application,
                     document_type=document_type,
                     description=f'Uploaded through the {uploader_label} intake workflow.',
                 )
@@ -1789,8 +1854,8 @@ def partner_application_edit(request, pk):
         if application.student_user else None
     )
     existing_documents = (
-        Document.objects.filter(student=application.student_user).order_by('-uploaded_at')
-        if application.student_user else Document.objects.none()
+        Document.objects.filter(application=application.portal_application).order_by('-uploaded_at')
+        if application.portal_application else Document.objects.none()
     )
 
     document_formset = SupportingDocumentFormSet(request.POST or None, request.FILES or None, prefix='documents')

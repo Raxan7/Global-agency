@@ -1166,13 +1166,23 @@ def documents(request):
     """Documents view"""
     # Ensure student profile exists
     StudentProfile.objects.get_or_create(user=request.user)
-    
+
+    application_id = request.GET.get('application') or request.POST.get('application')
+    application = None
+    if application_id:
+        try:
+            application = Application.objects.get(id=application_id, student=request.user)
+        except Application.DoesNotExist:
+            application = None
+
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 document = form.save(commit=False)
                 document.student = request.user
+                if application:
+                    document.application = application
                 document.save()
                 messages.success(request, 'Document uploaded successfully!')
                 return redirect('student_portal:documents')
@@ -1182,7 +1192,7 @@ def documents(request):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = DocumentForm()
-    
+
     documents_list = Document.objects.filter(student=request.user).order_by('-uploaded_at')
     
     # Add cache control
