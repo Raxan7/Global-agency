@@ -223,11 +223,8 @@ DEFAULT_DATA: Dict[str, Any] = {
             "Email": "joseph.mwandu@example.com",
             "Country": "Tanzania",
             "Region": "Dar es Salaam",
-            "Region Post Code": "14100",
             "District": "Kinondoni",
-            "District Post Code": "14128",
             "Ward": "Mbezi Beach",
-            "Ward Post Code": "14128",
             "Street": "Mbezi Beach Street",
             "Place / Neighbourhood": "Mbezi Beach",
             "House No.": "House 18",
@@ -239,11 +236,8 @@ DEFAULT_DATA: Dict[str, Any] = {
             "Email": "neema.mwandu@example.com",
             "Country": "Tanzania",
             "Region": "Dar es Salaam",
-            "Region Post Code": "14100",
             "District": "Kinondoni",
-            "District Post Code": "14128",
             "Ward": "Mbezi Beach",
-            "Ward Post Code": "14128",
             "Street": "Mbezi Beach Street",
             "Place / Neighbourhood": "Mbezi Beach",
             "House No.": "House 18",
@@ -257,11 +251,8 @@ DEFAULT_DATA: Dict[str, Any] = {
         "Email Address": "daniel.komba@example.com",
         "Country": "Tanzania",
         "Region": "Dar es Salaam",
-        "Region Post Code": "14100",
         "District": "Kinondoni",
-        "District Post Code": "14128",
         "Ward": "Kinondoni",
-        "Ward Post Code": "14128",
         "Street": "Kinondoni Street",
         "Place / Neighbourhood": "Kinondoni",
         "House No.": "House 22",
@@ -276,11 +267,8 @@ DEFAULT_DATA: Dict[str, Any] = {
             "Division": "Division I",
             "Country": "Tanzania",
             "Region": "Morogoro",
-            "Region Post Code": "67000",
             "District": "Morogoro Urban",
-            "District Post Code": "67100",
             "Ward": "Mlimani",
-            "Ward Post Code": "67101",
             "Street": "Mlimani Road",
             "Place / Neighbourhood": "Mlimani",
         },
@@ -293,11 +281,8 @@ DEFAULT_DATA: Dict[str, Any] = {
             "Division": "Division II",
             "Country": "Tanzania",
             "Region": "Dar es Salaam",
-            "Region Post Code": "11100",
             "District": "Ilala",
-            "District Post Code": "11101",
             "Ward": "Jangwani",
-            "Ward Post Code": "11102",
             "Street": "Jangwani Street",
             "Place / Neighbourhood": "Jangwani",
         },
@@ -356,11 +341,8 @@ DEFAULT_DATA: Dict[str, Any] = {
             "End Date": "Present",
             "Country": "Tanzania",
             "Region": "Dar es Salaam",
-            "Region Post Code": "14100",
             "District": "Kinondoni",
-            "District Post Code": "14128",
             "Ward": "Mikocheni",
-            "Ward Post Code": "14112",
             "Street": "Mikocheni Street",
             "Place / Neighbourhood": "Mikocheni",
             "House No.": "-",
@@ -372,11 +354,8 @@ DEFAULT_DATA: Dict[str, Any] = {
             "End Date": "30/11/2022",
             "Country": "Tanzania",
             "Region": "Mwanza",
-            "Region Post Code": "33100",
             "District": "Nyamagana",
-            "District Post Code": "33101",
             "Ward": "Nyamagana",
-            "Ward Post Code": "33102",
             "Street": "Nyamagana Street",
             "Place / Neighbourhood": "Nyamagana",
             "House No.": "-",
@@ -391,21 +370,15 @@ DEFAULT_DATA: Dict[str, Any] = {
     "addresses": {
         "Current Country": "Tanzania",
         "Current Region": "Dar es Salaam",
-        "Current Region Post Code": "14100",
         "Current District": "Kinondoni",
-        "Current District Post Code": "14128",
         "Current Ward": "Mbezi Beach",
-        "Current Ward Post Code": "14128",
         "Current Street": "Mbezi Beach Street",
         "Current Place / Neighbourhood": "Mbezi Beach",
         "Current House No.": "House 18",
         "Permanent Country": "Tanzania",
         "Permanent Region": "Mwanza",
-        "Permanent Region Post Code": "33100",
         "Permanent District": "Nyamagana",
-        "Permanent District Post Code": "33101",
         "Permanent Ward": "Nyamagana",
-        "Permanent Ward Post Code": "33102",
         "Permanent Street": "Nyamagana Street",
         "Permanent Place / Neighbourhood": "Nyamagana District",
         "Permanent House No.": "-",
@@ -575,9 +548,12 @@ def draw_row(c: canvas.Canvas, y_top: float, cells: Sequence[Tuple[str, Any, flo
     """Draw a row as separated, individually bordered cells."""
     if not cells:
         return y_top
-    widths = _scaled_cell_widths([cell[2] for cell in cells], CELL_X_GAP)
+    active_cells = [(l, v, w) for l, v, w in cells if v is not None and str(v or "").strip() not in ("", MISSING)]
+    if not active_cells:
+        return y_top
+    widths = _scaled_cell_widths([cell[2] for cell in active_cells], CELL_X_GAP)
     x = LEFT
-    for (label, value, _original_width), width in zip(cells, widths):
+    for (label, value, _original_width), width in zip(active_cells, widths):
         draw_label_value(c, x, y_top, width, h, label, value)
         x += width + CELL_X_GAP
     return y_top - h - CELL_Y_GAP
@@ -602,12 +578,15 @@ def draw_cells_at(
     """
     if not cells:
         return y_top
-    raw_widths = [cell[2] for cell in cells]
+    active_cells = [(l, v, w) for l, v, w in cells if v is not None and str(v or "").strip() not in ("", MISSING)]
+    if not active_cells:
+        return y_top
+    raw_widths = [cell[2] for cell in active_cells]
     total_raw = float(sum(raw_widths)) or 1.0
-    usable_w = total_w - CELL_X_GAP * max(0, len(cells) - 1)
+    usable_w = total_w - CELL_X_GAP * max(0, len(active_cells) - 1)
     widths = [usable_w * w / total_raw for w in raw_widths]
     cx = x
-    for (label, value, _), width in zip(cells, widths):
+    for (label, value, _), width in zip(active_cells, widths):
         draw_label_value(c, cx, y_top, width, h, label, value, label_size=label_size, value_size=value_size)
         cx += width + CELL_X_GAP
     return y_top - h - CELL_Y_GAP
@@ -650,15 +629,12 @@ def draw_parent_side_panel(
         ([
             ("Country", parent_data.get("Country"), 30),
             ("Region", parent_data.get("Region"), 36),
-            ("Region Post Code", parent_data.get("Region Post Code"), 34),
         ], compact_h),
         ([
             ("District", parent_data.get("District"), 34),
-            ("District Post Code", parent_data.get("District Post Code"), 34),
             ("Ward", parent_data.get("Ward"), 32),
         ], compact_h),
         ([
-            ("Ward Post Code", parent_data.get("Ward Post Code"), 32),
             ("Street", parent_data.get("Street"), 38),
             ("House No.", parent_data.get("House No."), 30),
         ], compact_h),
@@ -718,11 +694,8 @@ def draw_parents_side_by_side_flow(
 ADDRESS_LABELS = [
     "Country",
     "Region",
-    "Region Post Code",
     "District",
-    "District Post Code",
     "Ward",
-    "Ward Post Code",
     "Street",
     "Place / Neighbourhood",
     "House No.",
@@ -744,15 +717,10 @@ def draw_address_hierarchy_rows(
         [
             ("Country", g("Country"), CONTENT_W / 3),
             ("Region", g("Region"), CONTENT_W / 3),
-            ("Region Post Code", g("Region Post Code"), CONTENT_W / 3),
-        ],
-        [
             ("District", g("District"), CONTENT_W / 3),
-            ("District Post Code", g("District Post Code"), CONTENT_W / 3),
-            ("Ward", g("Ward"), CONTENT_W / 3),
         ],
         [
-            ("Ward Post Code", g("Ward Post Code"), CONTENT_W / 3),
+            ("Ward", g("Ward"), CONTENT_W / 3),
             ("Street", g("Street"), CONTENT_W / 3),
             ("Place / Neighbourhood", g("Place / Neighbourhood"), CONTENT_W / 3),
         ],
@@ -1306,14 +1274,11 @@ def draw_employment_experience_card(
             ("Region", item.get("Region"), 22),
         ], main_h),
         ([
-            ("Region Post Code", item.get("Region Post Code"), 25),
             ("District", item.get("District"), 25),
-            ("District Post Code", item.get("District Post Code"), 25),
             ("Ward", item.get("Ward"), 25),
+            ("Street", item.get("Street"), 42),
         ], compact_h),
         ([
-            ("Ward Post Code", item.get("Ward Post Code"), 28),
-            ("Street", item.get("Street"), 42),
             ("Employment Type", item.get("Employment Type") or item.get("Type"), 30),
         ], compact_h),
         ([
@@ -1739,15 +1704,10 @@ def draw_address_hierarchy_rows_flow(
         [
             ("Country", g("Country"), CONTENT_W / 3),
             ("Region", g("Region"), CONTENT_W / 3),
-            ("Region Post Code", g("Region Post Code"), CONTENT_W / 3),
-        ],
-        [
             ("District", g("District"), CONTENT_W / 3),
-            ("District Post Code", g("District Post Code"), CONTENT_W / 3),
-            ("Ward", g("Ward"), CONTENT_W / 3),
         ],
         [
-            ("Ward Post Code", g("Ward Post Code"), CONTENT_W / 3),
+            ("Ward", g("Ward"), CONTENT_W / 3),
             ("Street", g("Street"), CONTENT_W / 3),
             ("Place / Neighbourhood", g("Place / Neighbourhood"), CONTENT_W / 3),
         ],
@@ -1883,15 +1843,12 @@ def draw_education_side_panel(
         ([
             ("Country", school_data.get("Country"), 30),
             ("Region", school_data.get("Region"), 38),
-            ("Region Post Code", school_data.get("Region Post Code"), 32),
         ], compact_h),
         ([
             ("District", school_data.get("District"), 36),
-            ("District Post Code", school_data.get("District Post Code"), 34),
             ("Ward", school_data.get("Ward"), 30),
         ], compact_h),
         ([
-            ("Ward Post Code", school_data.get("Ward Post Code"), 32),
             ("Street", school_data.get("Street"), 38),
             ("Place / Neighbourhood", school_data.get("Place / Neighbourhood"), 30),
         ], compact_h),
@@ -2101,13 +2058,10 @@ def draw_emergency_contact_flow(
         ([
             ("Country", e.get("Country"), 27),
             ("Region", e.get("Region"), 28),
-            ("Region Post Code", e.get("Region Post Code"), 23),
-            ("District", e.get("District"), 22),
+            ("District", e.get("District"), 28),
         ], address_h),
         ([
-            ("District Post Code", e.get("District Post Code"), 26),
             ("Ward", e.get("Ward"), 24),
-            ("Ward Post Code", e.get("Ward Post Code"), 25),
             ("Street", e.get("Street"), 25),
         ], address_h),
         ([
@@ -2178,15 +2132,10 @@ def draw_student_address_side_panel(
         ([
             ("Country", g("Country"), 32),
             ("Region", g("Region"), 36),
-            ("Region Post Code", g("Region Post Code"), 32),
+            ("District", g("District"), 32),
         ], row_h),
         ([
-            ("District", g("District"), 34),
-            ("District Post Code", g("District Post Code"), 34),
             ("Ward", g("Ward"), 32),
-        ], row_h),
-        ([
-            ("Ward Post Code", g("Ward Post Code"), 30),
             ("Street", g("Street"), 38),
             ("House No.", g("House No."), 32),
         ], row_h),
@@ -2269,15 +2218,10 @@ def draw_parent_details_block_flow(
         [
             ("Country", parent_data.get("Country"), CONTENT_W / 3),
             ("Region", parent_data.get("Region"), CONTENT_W / 3),
-            ("Region Post Code", parent_data.get("Region Post Code"), CONTENT_W / 3),
-        ],
-        [
             ("District", parent_data.get("District"), CONTENT_W / 3),
-            ("District Post Code", parent_data.get("District Post Code"), CONTENT_W / 3),
-            ("Ward", parent_data.get("Ward"), CONTENT_W / 3),
         ],
         [
-            ("Ward Post Code", parent_data.get("Ward Post Code"), CONTENT_W / 3),
+            ("Ward", parent_data.get("Ward"), CONTENT_W / 3),
             ("Street", parent_data.get("Street"), CONTENT_W / 3),
             ("Place / Neighbourhood", parent_data.get("Place / Neighbourhood"), CONTENT_W / 3),
         ],
@@ -2715,11 +2659,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Email": val(_safe_get(student_profile, "father_email")),
             "Country": val(_safe_get(student_profile, "father_country") or "Tanzania"),
             "Region": val(_safe_get(student_profile, "father_region")),
-            "Region Post Code": val(_safe_get(student_profile, "father_region_post_code")),
             "District": val(_safe_get(student_profile, "father_district")),
-            "District Post Code": val(_safe_get(student_profile, "father_district_post_code")),
             "Ward": val(_safe_get(student_profile, "father_ward")),
-            "Ward Post Code": val(_safe_get(student_profile, "father_ward_post_code")),
             "Street": val(_safe_get(student_profile, "father_street")),
             "Place / Neighbourhood": val(_safe_get(student_profile, "father_place_neighbourhood")),
             "House No.": val(_safe_get(student_profile, "father_house_no")),
@@ -2733,11 +2674,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Email": val(_safe_get(student_profile, "mother_email")),
             "Country": val(_safe_get(student_profile, "mother_country") or "Tanzania"),
             "Region": val(_safe_get(student_profile, "mother_region")),
-            "Region Post Code": val(_safe_get(student_profile, "mother_region_post_code")),
             "District": val(_safe_get(student_profile, "mother_district")),
-            "District Post Code": val(_safe_get(student_profile, "mother_district_post_code")),
             "Ward": val(_safe_get(student_profile, "mother_ward")),
-            "Ward Post Code": val(_safe_get(student_profile, "mother_ward_post_code")),
             "Street": val(_safe_get(student_profile, "mother_street")),
             "Place / Neighbourhood": val(_safe_get(student_profile, "mother_place_neighbourhood")),
             "House No.": val(_safe_get(student_profile, "mother_house_no")),
@@ -2755,11 +2693,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
         "Alternative Phone": val(_safe_get(student_profile, "emergency_alternative_phone")),
         "Country": val(_safe_get(student_profile, "emergency_country") or "Tanzania"),
         "Region": val(_safe_get(student_profile, "emergency_region")),
-        "Region Post Code": val(_safe_get(student_profile, "emergency_region_post_code")),
         "District": val(_safe_get(student_profile, "emergency_district")),
-        "District Post Code": val(_safe_get(student_profile, "emergency_district_post_code")),
         "Ward": val(_safe_get(student_profile, "emergency_ward")),
-        "Ward Post Code": val(_safe_get(student_profile, "emergency_ward_post_code")),
         "Street": val(_safe_get(student_profile, "emergency_street")),
         "Place / Neighbourhood": val(_safe_get(student_profile, "emergency_place_neighbourhood")),
         "House No.": val(_safe_get(student_profile, "emergency_house_no")),
@@ -2777,11 +2712,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Division": val(_safe_get(student_profile, "olevel_gpa")),
             "Country": val(_safe_get(student_profile, "olevel_school_country") or "Tanzania"),
             "Region": val(_safe_get(student_profile, "olevel_school_region")),
-            "Region Post Code": val(_safe_get(student_profile, "olevel_school_region_post_code")),
             "District": val(_safe_get(student_profile, "olevel_school_district")),
-            "District Post Code": val(_safe_get(student_profile, "olevel_school_district_post_code")),
             "Ward": val(_safe_get(student_profile, "olevel_school_ward")),
-            "Ward Post Code": val(_safe_get(student_profile, "olevel_school_ward_post_code")),
             "Street": val(_safe_get(student_profile, "olevel_school_street")),
             "Place / Neighbourhood": val(_safe_get(student_profile, "olevel_school_place_neighbourhood")),
             "House No.": val(_safe_get(student_profile, "olevel_school_house_no")),
@@ -2799,11 +2731,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "Division": val(_safe_get(student_profile, "alevel_gpa")),
             "Country": val(_safe_get(student_profile, "alevel_school_country") or "Tanzania"),
             "Region": val(_safe_get(student_profile, "alevel_school_region")),
-            "Region Post Code": val(_safe_get(student_profile, "alevel_school_region_post_code")),
             "District": val(_safe_get(student_profile, "alevel_school_district")),
-            "District Post Code": val(_safe_get(student_profile, "alevel_school_district_post_code")),
             "Ward": val(_safe_get(student_profile, "alevel_school_ward")),
-            "Ward Post Code": val(_safe_get(student_profile, "alevel_school_ward_post_code")),
             "Street": val(_safe_get(student_profile, "alevel_school_street")),
             "Place / Neighbourhood": val(_safe_get(student_profile, "alevel_school_place_neighbourhood")),
             "House No.": val(_safe_get(student_profile, "alevel_school_house_no")),
@@ -2886,11 +2815,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
             "End Date": end,
             "Country": val(_first_attr(exp, ["country"], "Tanzania")),
             "Region": val(_safe_get(exp, "region")),
-            "Region Post Code": val(_safe_get(exp, "region_post_code")),
             "District": val(_safe_get(exp, "district")),
-            "District Post Code": val(_safe_get(exp, "district_post_code")),
             "Ward": val(_safe_get(exp, "ward")),
-            "Ward Post Code": val(_safe_get(exp, "ward_post_code")),
             "Street": val(_safe_get(exp, "street")),
             "Place / Neighbourhood": val(_first_attr(exp, ["place_neighbourhood", "neighbourhood", "location"])),
             "House No.": val(_safe_get(exp, "house_no")),
@@ -2910,11 +2836,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
     data["addresses"] = {
         "Current Country": val(_first_attr(supplemental_profile, ["current_country"], "Tanzania")),
         "Current Region": val(_safe_get(supplemental_profile, "current_region")),
-        "Current Region Post Code": val(_first_attr(supplemental_profile, ["current_region_post_code", "current_postal_code"])),
         "Current District": val(_safe_get(supplemental_profile, "current_district")),
-        "Current District Post Code": val(_safe_get(supplemental_profile, "current_district_post_code")),
         "Current Ward": val(_safe_get(supplemental_profile, "current_ward")),
-        "Current Ward Post Code": val(_safe_get(supplemental_profile, "current_ward_post_code")),
         "Current Street": val(_safe_get(supplemental_profile, "current_street")),
         "Current Place / Neighbourhood": val(_first_attr(supplemental_profile, ["current_place_neighbourhood", "current_neighbourhood", "current_address"])),
         "Current House No.": val(_safe_get(supplemental_profile, "current_house_no")),
@@ -2925,11 +2848,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
         "Current Remarks": val(_safe_get(supplemental_profile, "current_address_remarks")),
         "Permanent Country": val(_first_attr(supplemental_profile, ["permanent_country"], _safe_get(student_profile, "nationality"))),
         "Permanent Region": val(_safe_get(supplemental_profile, "permanent_region")),
-        "Permanent Region Post Code": val(_first_attr(supplemental_profile, ["permanent_region_post_code", "permanent_postal_code"])),
         "Permanent District": val(_safe_get(supplemental_profile, "permanent_district")),
-        "Permanent District Post Code": val(_safe_get(supplemental_profile, "permanent_district_post_code")),
         "Permanent Ward": val(_safe_get(supplemental_profile, "permanent_ward")),
-        "Permanent Ward Post Code": val(_safe_get(supplemental_profile, "permanent_ward_post_code")),
         "Permanent Street": val(_safe_get(supplemental_profile, "permanent_street")),
         "Permanent Place / Neighbourhood": val(_first_attr(supplemental_profile, ["permanent_place_neighbourhood", "permanent_neighbourhood", "permanent_address"]) or _safe_get(student_profile, "address")),
         "Permanent House No.": val(_safe_get(supplemental_profile, "permanent_house_no")),

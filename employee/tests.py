@@ -1159,25 +1159,25 @@ class PDFExportAllFieldsTests(TestCase):
         data = self._build_data()
         self.assertEqual(data['parents']['Father']['Region'], 'Dar es Salaam')
 
-    def test_father_region_post_code_appears_in_export(self):
+    def test_father_region_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['parents']['Father']['Region Post Code'], '14100')
+        self.assertNotIn('Region Post Code', data['parents']['Father'])
 
     def test_father_district_appears_in_export(self):
         data = self._build_data()
         self.assertEqual(data['parents']['Father']['District'], 'Kinondoni')
 
-    def test_father_district_post_code_appears_in_export(self):
+    def test_father_district_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['parents']['Father']['District Post Code'], '14128')
+        self.assertNotIn('District Post Code', data['parents']['Father'])
 
     def test_father_ward_appears_in_export(self):
         data = self._build_data()
         self.assertEqual(data['parents']['Father']['Ward'], 'Mbezi Beach')
 
-    def test_father_ward_post_code_appears_in_export(self):
+    def test_father_ward_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['parents']['Father']['Ward Post Code'], '14129')
+        self.assertNotIn('Ward Post Code', data['parents']['Father'])
 
     def test_father_street_appears_in_export(self):
         data = self._build_data()
@@ -1279,25 +1279,25 @@ class PDFExportAllFieldsTests(TestCase):
         data = self._build_data()
         self.assertEqual(data['emergency']['Region'], 'Dar es Salaam')
 
-    def test_emergency_region_post_code_appears_in_export(self):
+    def test_emergency_region_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['emergency']['Region Post Code'], '14100')
+        self.assertNotIn('Region Post Code', data['emergency'])
 
     def test_emergency_district_appears_in_export(self):
         data = self._build_data()
         self.assertEqual(data['emergency']['District'], 'Kinondoni')
 
-    def test_emergency_district_post_code_appears_in_export(self):
+    def test_emergency_district_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['emergency']['District Post Code'], '14120')
+        self.assertNotIn('District Post Code', data['emergency'])
 
     def test_emergency_ward_appears_in_export(self):
         data = self._build_data()
         self.assertEqual(data['emergency']['Ward'], 'Kinondoni')
 
-    def test_emergency_ward_post_code_appears_in_export(self):
+    def test_emergency_ward_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['emergency']['Ward Post Code'], '14121')
+        self.assertNotIn('Ward Post Code', data['emergency'])
 
     def test_emergency_street_appears_in_export(self):
         data = self._build_data()
@@ -1611,9 +1611,9 @@ class PDFExportAllFieldsTests(TestCase):
         data = self._build_data()
         self.assertEqual(data['addresses']['Current Region'], 'Dar es Salaam')
 
-    def test_current_region_post_code_appears_in_export(self):
+    def test_current_region_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['addresses']['Current Region Post Code'], '14100')
+        self.assertNotIn('Current Region Post Code', data['addresses'])
 
     def test_current_city_appears_in_export(self):
         data = self._build_data()
@@ -1623,17 +1623,17 @@ class PDFExportAllFieldsTests(TestCase):
         data = self._build_data()
         self.assertEqual(data['addresses']['Current District'], 'Kinondoni')
 
-    def test_current_district_post_code_appears_in_export(self):
+    def test_current_district_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['addresses']['Current District Post Code'], '14128')
+        self.assertNotIn('Current District Post Code', data['addresses'])
 
     def test_current_ward_appears_in_export(self):
         data = self._build_data()
         self.assertEqual(data['addresses']['Current Ward'], 'Mbezi Beach')
 
-    def test_current_ward_post_code_appears_in_export(self):
+    def test_current_ward_post_code_removed_from_export(self):
         data = self._build_data()
-        self.assertEqual(data['addresses']['Current Ward Post Code'], '14129')
+        self.assertNotIn('Current Ward Post Code', data['addresses'])
 
     def test_current_street_appears_in_export(self):
         data = self._build_data()
@@ -2203,3 +2203,315 @@ class ExportDocumentsTests(TestCase):
         self.assertEqual(len(data['documents']), 1)
         self.assertIn('MY CV', data['documents'][0]['Description'].upper())
         self.assertNotIn('OTHER STUDENT', data['documents'][0]['Description'].upper())
+
+
+# ---------------------------------------------------------------------------
+# PDF Export - Post Code Removal, Reference Format, Empty Field Hiding
+# ---------------------------------------------------------------------------
+
+@override_settings(
+    ALLOWED_HOSTS=['testserver'],
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    SECURE_SSL_REDIRECT=False,
+    PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'],
+    STORAGES=TEST_FILE_STORAGES,
+)
+class PDFExportPostCodeRemovalTests(TestCase):
+    """Verify that Region/District/Ward Post Code fields are removed from
+    the PDF export, reference number format is consistent, and empty fields
+    are hidden in the rendered output."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='postcodetest@example.com',
+            email='postcodetest@example.com',
+            password='PostCode123!',
+            first_name='PostCode',
+            last_name='Test',
+        )
+        UserProfile.objects.create(
+            user=self.user,
+            role='employee',
+            registration_method='admin',
+        )
+        self.portal_application = Application.objects.create(
+            student=self.user,
+            status='submitted',
+            is_paid=True,
+            payment_status='paid',
+        )
+        self.student_profile = StudentProfile.objects.create(
+            user=self.user,
+            phone_number='0711111111',
+            email='postcodetest@example.com',
+            city='Dar es Salaam',
+            region='Dar es Salaam',
+            ward='Mbezi Beach',
+            street='Test Street',
+            house_no='1',
+            mtaa='Test',
+            village='Test Village',
+            father_name='Test Father',
+            father_country='Tanzania',
+            father_region='Dar es Salaam',
+            father_district='Kinondoni',
+            father_ward='Mbezi Beach',
+            father_street='Father Street',
+            father_house_no='2',
+            father_place_neighbourhood='Father Place',
+            father_region_post_code='14100',
+            father_district_post_code='14128',
+            father_ward_post_code='14129',
+            mother_name='Test Mother',
+            mother_country='Tanzania',
+            mother_region='Mwanza',
+            mother_district='Nyamagana',
+            mother_ward='Mkolani',
+            mother_street='Mother Street',
+            mother_house_no='3',
+            mother_place_neighbourhood='Mother Place',
+            emergency_contact='Test Emergency',
+            emergency_relation='Uncle',
+            emergency_country='Tanzania',
+            emergency_region='Dar es Salaam',
+            emergency_district='Kinondoni',
+            emergency_ward='Kinondoni',
+            emergency_street='Emergency Street',
+            emergency_place_neighbourhood='Emergency Place',
+            emergency_house_no='4',
+            emergency_region_post_code='14100',
+            emergency_district_post_code='14120',
+            emergency_ward_post_code='14121',
+            olevel_school='Mlimani Secondary',
+            olevel_start_year='2016',
+            olevel_completed_year='2019',
+            olevel_gpa='Division I',
+            olevel_school_country='Tanzania',
+            olevel_school_region='Mwanza',
+            olevel_school_district='Nyamagana',
+            olevel_school_ward='Mkolani',
+            olevel_school_street='O-Level Street',
+            olevel_school_house_no='5',
+            olevel_school_place_neighbourhood='O-Level Place',
+            olevel_school_region_post_code='31000',
+            olevel_school_district_post_code='31101',
+            olevel_school_ward_post_code='31102',
+            alevel_school='Jangwani Secondary',
+            alevel_start_year='2020',
+            alevel_completed_year='2022',
+            alevel_gpa='Division II',
+            alevel_school_country='Tanzania',
+            alevel_school_region='Dar es Salaam',
+            alevel_school_district='Ilala',
+            alevel_school_ward='Upanga',
+            alevel_school_street='A-Level Street',
+            alevel_school_house_no='6',
+            alevel_school_place_neighbourhood='A-Level Place',
+            alevel_school_region_post_code='14100',
+            alevel_school_district_post_code='14110',
+            alevel_school_ward_post_code='14111',
+        )
+        self.supplemental_profile = ApplicationSupplementalProfile.objects.create(
+            application=self.portal_application,
+            full_name_passport='PostCode Test',
+            current_country='Tanzania',
+            current_region='Dar es Salaam',
+            current_district='Kinondoni',
+            current_ward='Mbezi Beach',
+            current_street='Current Street',
+            current_house_no='7',
+            current_mtaa='Current Place',
+            current_postal_code='14100',
+            current_region_post_code='14100',
+            current_district_post_code='14128',
+            current_ward_post_code='14129',
+            permanent_country='Tanzania',
+            permanent_region='Mwanza',
+            permanent_district='Nyamagana',
+            permanent_ward='Mkolani',
+            permanent_street='Permanent Street',
+            permanent_house_no='8',
+            permanent_mtaa='Permanent Place',
+            permanent_postal_code='31000',
+            permanent_region_post_code='31000',
+            permanent_district_post_code='31101',
+            permanent_ward_post_code='31102',
+        )
+
+        WorkExperience.objects.create(
+            student=self.student_profile,
+            company_name='Test Corp',
+            position='Developer',
+            start_date=date(2023, 1, 1),
+            end_date=date(2024, 6, 30),
+            country='Tanzania',
+            region='Dar es Salaam',
+            district='Kinondoni',
+            ward='Mikocheni',
+            street='Work Street',
+            region_post_code='14100',
+            district_post_code='14128',
+            ward_post_code='14112',
+        )
+
+    def _build_data(self):
+        return application_to_awec_csc_style_data(
+            self.portal_application,
+            self.student_profile,
+            self.supplemental_profile,
+        )
+
+    def _export_pdf(self):
+        self.client.login(username='postcodetest@example.com', password='PostCode123!')
+        return self.client.get(
+            reverse('employee:export_single_application_pdf',
+                    kwargs={'application_id': self.portal_application.id})
+        )
+
+    def _extract_pdf_text(self, response):
+        import pypdf
+        buf = BytesIO(response.content)
+        reader = pypdf.PdfReader(buf)
+        text = ''
+        for page in reader.pages:
+            text += (page.extract_text() or '').upper()
+        buf.close()
+        return text
+
+    # --- Post Code Removal Tests ---
+
+    def test_father_post_codes_not_in_data(self):
+        data = self._build_data()
+        self.assertNotIn('Region Post Code', data['parents']['Father'])
+        self.assertNotIn('District Post Code', data['parents']['Father'])
+        self.assertNotIn('Ward Post Code', data['parents']['Father'])
+
+    def test_mother_post_codes_not_in_data(self):
+        data = self._build_data()
+        self.assertNotIn('Region Post Code', data['parents']['Mother'])
+        self.assertNotIn('District Post Code', data['parents']['Mother'])
+        self.assertNotIn('Ward Post Code', data['parents']['Mother'])
+
+    def test_emergency_post_codes_not_in_data(self):
+        data = self._build_data()
+        self.assertNotIn('Region Post Code', data['emergency'])
+        self.assertNotIn('District Post Code', data['emergency'])
+        self.assertNotIn('Ward Post Code', data['emergency'])
+
+    def test_olevel_post_codes_not_in_data(self):
+        data = self._build_data()
+        olevel = data['education_background'][0]
+        self.assertNotIn('Region Post Code', olevel)
+        self.assertNotIn('District Post Code', olevel)
+        self.assertNotIn('Ward Post Code', olevel)
+
+    def test_alevel_post_codes_not_in_data(self):
+        data = self._build_data()
+        alevel = data['education_background'][1]
+        self.assertNotIn('Region Post Code', alevel)
+        self.assertNotIn('District Post Code', alevel)
+        self.assertNotIn('Ward Post Code', alevel)
+
+    def test_work_experience_post_codes_not_in_data(self):
+        data = self._build_data()
+        work = data['employment_history'][0]
+        self.assertNotIn('Region Post Code', work)
+        self.assertNotIn('District Post Code', work)
+        self.assertNotIn('Ward Post Code', work)
+
+    def test_addresses_post_codes_not_in_data(self):
+        data = self._build_data()
+        self.assertNotIn('Current Region Post Code', data['addresses'])
+        self.assertNotIn('Current District Post Code', data['addresses'])
+        self.assertNotIn('Current Ward Post Code', data['addresses'])
+        self.assertNotIn('Permanent Region Post Code', data['addresses'])
+        self.assertNotIn('Permanent District Post Code', data['addresses'])
+        self.assertNotIn('Permanent Ward Post Code', data['addresses'])
+
+    def test_post_code_text_absent_from_pdf(self):
+        response = self._export_pdf()
+        pdf_text = self._extract_pdf_text(response)
+        self.assertNotIn('REGION POST CODE', pdf_text)
+        self.assertNotIn('DISTRICT POST CODE', pdf_text)
+        self.assertNotIn('WARD POST CODE', pdf_text)
+
+    def test_father_region_still_present_in_data(self):
+        data = self._build_data()
+        self.assertEqual(data['parents']['Father']['Region'], 'Dar es Salaam')
+        self.assertEqual(data['parents']['Father']['District'], 'Kinondoni')
+        self.assertEqual(data['parents']['Father']['Ward'], 'Mbezi Beach')
+
+    # --- Reference Number Format Tests ---
+
+    def test_reference_number_format_matches_expected(self):
+        data = self._build_data()
+        ref = data['meta']['application_id']
+        import re
+        self.assertRegex(ref, r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
+
+    def test_reference_number_auto_generated_on_save(self):
+        app = Application.objects.create(
+            student=self.user,
+            status='draft',
+        )
+        self.assertIsNotNone(app.reference_number)
+        self.assertTrue(app.reference_number.startswith('AWECO/INT/REG/TZ/DSM/'))
+        import re
+        self.assertRegex(app.reference_number, r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
+
+    def test_reference_number_appears_in_pdf(self):
+        response = self._export_pdf()
+        pdf_text = self._extract_pdf_text(response)
+        self.assertIn('AWECO', pdf_text)
+
+    # --- Empty Field Hiding Tests ---
+
+    def test_empty_fields_hidden_in_row_filtering(self):
+        from employee.awec_csc_exact_style_django_pdf_export import draw_row, MISSING
+        from reportlab.pdfgen import canvas as canvas_mod
+        import io
+        buf = io.BytesIO()
+        c = canvas_mod.Canvas(buf, pagesize=(800, 600))
+        cells = [
+            ("Country", "Tanzania", 100),
+            ("Region", "", 100),
+            ("District", None, 100),
+            ("Ward", MISSING, 100),
+        ]
+        y = draw_row(c, 500, cells, h=15)
+        self.assertLess(y, 500)
+        c.save()
+        buf.close()
+
+    def test_all_empty_row_returns_same_y(self):
+        from employee.awec_csc_exact_style_django_pdf_export import draw_row, MISSING
+        from reportlab.pdfgen import canvas as canvas_mod
+        import io
+        buf = io.BytesIO()
+        c = canvas_mod.Canvas(buf, pagesize=(800, 600))
+        cells = [
+            ("Region", "", 100),
+            ("District", None, 100),
+            ("Ward", MISSING, 100),
+        ]
+        y_before = 500.0
+        y_after = draw_row(c, y_before, cells, h=15)
+        self.assertEqual(y_before, y_after)
+        c.save()
+        buf.close()
+
+    def test_populated_fields_render_normally(self):
+        from employee.awec_csc_exact_style_django_pdf_export import draw_row
+        from reportlab.pdfgen import canvas as canvas_mod
+        import io
+        buf = io.BytesIO()
+        c = canvas_mod.Canvas(buf, pagesize=(800, 600))
+        cells = [
+            ("Country", "Tanzania", 100),
+            ("Region", "Dar es Salaam", 100),
+        ]
+        y_before = 500.0
+        y_after = draw_row(c, y_before, cells, h=15)
+        self.assertLess(y_after, y_before)
+        c.save()
+        buf.close()
