@@ -1033,9 +1033,8 @@ def _create_or_update_student_portal_records(
         supplemental_profile.current_address = text_value('address')
     if not supplemental_profile.current_country:
         supplemental_profile.current_country = text_value('nationality') or 'Tanzania'
-    if not supplemental_profile.serial_number:
-        year = portal_application.created_at.year if portal_application.created_at else timezone.now().year
-        supplemental_profile.serial_number = f'AWECO/INT/REG/TZ/DSM/{year}8{portal_application.id:03d}'
+    year = portal_application.created_at.year if portal_application.created_at else timezone.now().year
+    supplemental_profile.serial_number = f'AWECO/INT/REG/TZ/DSM/{year}8{portal_application.id:03d}'
 
     if document_formset:
         for doc_form in document_formset:

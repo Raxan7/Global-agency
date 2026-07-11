@@ -1282,18 +1282,21 @@ class Application(models.Model):
     def __str__(self):
         return f"Application - {self.student.username}"
 
+    @staticmethod
+    def _expected_reference_number(year, app_id):
+        return f"AWECO/INT/REG/TZ/DSM/{year}8{app_id:03d}"
+
     def get_registration_number(self):
-        if self.reference_number:
-            return self.reference_number
         year = self.created_at.year if self.created_at else timezone.now().year
-        return f"AWECO/INT/REG/TZ/DSM/{year}8{self.id:03d}"
+        return self._expected_reference_number(year, self.id)
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
         super().save(*args, **kwargs)
-        if is_new and not self.reference_number:
-            year = self.created_at.year if self.created_at else timezone.now().year
-            self.reference_number = f"AWECO/INT/REG/TZ/DSM/{year}8{self.id:03d}"
+        year = self.created_at.year if self.created_at else timezone.now().year
+        expected = self._expected_reference_number(year, self.id)
+        if self.reference_number != expected:
+            self.reference_number = expected
             super().save(update_fields=['reference_number'])
 
 

@@ -2428,6 +2428,21 @@ def _safe_get(obj: Any, attr: str, default: Any = None) -> Any:
     return getattr(obj, attr, default)
 
 
+import re as _re
+_REFERENCE_RE = _re.compile(r'^AWECO/INT/REG/TZ/DSM/(\d{4})8(\d{3,})$')
+
+
+def _normalize_reference_number(serial: Any, app_id: Any, year: int) -> str:
+    """Ensure the serial matches the canonical format AWECO/INT/REG/TZ/DSM/{year}8{id:03d}."""
+    if serial and _REFERENCE_RE.match(str(serial)):
+        return str(serial)
+    try:
+        numeric_id = int(app_id)
+    except (ValueError, TypeError):
+        numeric_id = 1
+    return f"AWECO/INT/REG/TZ/DSM/{year}8{numeric_id:03d}"
+
+
 
 def _first_attr(obj: Any, names: Sequence[str], default: Any = None) -> Any:
     """Return the first non-empty attribute value from a list of possible Django field names."""
@@ -2609,13 +2624,8 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
         except (AttributeError, TypeError):
             pass # Ignore errors and proceed to generate if serial is still None
 
-    if not serial: # If serial is still None or empty after all attempts, generate one
-        gen_year = getattr(generated_at_source, 'year', today_val.year)
-        try:
-            numeric_id = int(app_id)
-            serial = f"AWECO/INT/REG/TZ/DSM/{gen_year}8{numeric_id:03d}"
-        except (ValueError, TypeError):
-            serial = f"AWECO/INT/REG/TZ/DSM/{gen_year}8{app_id}"
+    gen_year = getattr(generated_at_source, 'year', today_val.year)
+    serial = _normalize_reference_number(serial, app_id, gen_year)
 
     generated_date = generated_at_source.strftime("%Y-%m-%d") if hasattr(generated_at_source, "strftime") else str(generated_at_source)
     application_date = _date_text(generated_at_source, today_val.strftime("%d/%m/%Y"))

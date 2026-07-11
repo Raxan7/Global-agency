@@ -2459,6 +2459,41 @@ class PDFExportPostCodeRemovalTests(TestCase):
         import re
         self.assertRegex(app.reference_number, r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
 
+    def test_reference_number_wrong_format_normalized_on_save(self):
+        """Even if reference_number is set to a wrong format, save() normalizes it."""
+        app = Application.objects.create(
+            student=self.user,
+            status='draft',
+        )
+        original_ref = app.reference_number
+        self.assertRegex(original_ref, r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
+        app.reference_number = 'AWECO/Tz/DSM/047'
+        app.save()
+        self.assertRegex(app.reference_number, r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
+        self.assertEqual(app.reference_number, original_ref)
+
+    def test_get_registration_number_always_returns_correct_format(self):
+        """get_registration_number() never returns a wrong format."""
+        app = Application.objects.create(
+            student=self.user,
+            status='draft',
+        )
+        app.reference_number = 'WRONG-FORMAT'
+        app.save()
+        reg = app.get_registration_number()
+        import re
+        self.assertRegex(reg, r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
+
+    def test_pdf_export_normalizes_wrong_reference_number(self):
+        """Even if DB has wrong reference_number, the PDF export normalizes it."""
+        Application.objects.filter(pk=self.portal_application.pk).update(
+            reference_number='AWECO/Tz/DSM/047'
+        )
+        self.portal_application.refresh_from_db()
+        self.assertEqual(self.portal_application.reference_number, 'AWECO/Tz/DSM/047')
+        data = self._build_data()
+        self.assertRegex(data['meta']['application_id'], r'^AWECO/INT/REG/TZ/DSM/\d{4}8\d{3}$')
+
     def test_reference_number_appears_in_pdf(self):
         response = self._export_pdf()
         pdf_text = self._extract_pdf_text(response)

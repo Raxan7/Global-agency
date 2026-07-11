@@ -77,6 +77,20 @@ DECLARATION_LINES = [
 # Placeholder for genuinely missing data – no empty cells
 MISSING = '\u2014'  # em dash
 
+import re as _re
+_REFERENCE_RE = _re.compile(r'^AWECO/INT/REG/TZ/DSM/(\d{4})8(\d{3,})$')
+
+
+def _normalize_reference_number(serial: Any, app_id: Any, year: int) -> str:
+    """Ensure the serial matches the canonical format AWECO/INT/REG/TZ/DSM/{year}8{id:03d}."""
+    if serial and _REFERENCE_RE.match(str(serial)):
+        return str(serial)
+    try:
+        numeric_id = int(app_id)
+    except (ValueError, TypeError):
+        numeric_id = 1
+    return f"AWECO/INT/REG/TZ/DSM/{year}8{numeric_id:03d}"
+
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
@@ -378,11 +392,10 @@ def build_csc_style_application_pdf(application, student_profile=None, supplemen
         except (AttributeError, TypeError):
             pass
 
-    if not serial:
-        app_date = application.created_at if application.created_at else timezone.now()
-        year = app_date.year
-        app_id = application.id if application.id else 1
-        serial = f"AWECO/INT/REG/TZ/DSM/{year}8{app_id:03d}"
+    app_date = application.created_at if application.created_at else timezone.now()
+    year = app_date.year
+    app_id = application.id if application.id else 1
+    serial = _normalize_reference_number(serial, app_id, year)
 
     generated_source = getattr(supplemental_profile, 'generated_at', None) or timezone.now()
     generated_date = (

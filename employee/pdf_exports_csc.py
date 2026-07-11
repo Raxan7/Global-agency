@@ -230,6 +230,21 @@ def _safe_get(obj: Any, attr: str, default: Any = None) -> Any:
     return getattr(obj, attr, default)
 
 
+import re as _re
+_REFERENCE_RE = _re.compile(r'^AWECO/INT/REG/TZ/DSM/(\d{4})8(\d{3,})$')
+
+
+def _normalize_reference_number(serial: Any, app_id: Any, year: int) -> str:
+    """Ensure the serial matches the canonical format AWECO/INT/REG/TZ/DSM/{year}8{id:03d}."""
+    if serial and _REFERENCE_RE.match(str(serial)):
+        return str(serial)
+    try:
+        numeric_id = int(app_id)
+    except (ValueError, TypeError):
+        numeric_id = 1
+    return f"AWECO/INT/REG/TZ/DSM/{year}8{numeric_id:03d}"
+
+
 def _call_or_value(value: Any, default: Any = None) -> Any:
     if value is None:
         return default
@@ -330,10 +345,9 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
         except Exception:
             serial = None
 
-    if not serial:
-        app_date = _safe_get(application, "created_at") or timezone.now()
-        year = app_date.year if hasattr(app_date, "year") else timezone.now().year
-        serial = f"AWECO/INT/REG/TZ/DSM/{year}8{str(application_id).zfill(3) if str(application_id).isdigit() else application_id}"
+    app_date = _safe_get(application, "created_at") or timezone.now()
+    year = app_date.year if hasattr(app_date, "year") else timezone.now().year
+    serial = _normalize_reference_number(serial, application_id, year)
 
     generated_source = _safe_get(supplemental_profile, "generated_at") or timezone.now()
     if timezone.is_aware(generated_source):
