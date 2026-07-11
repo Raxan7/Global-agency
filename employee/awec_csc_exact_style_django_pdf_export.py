@@ -428,6 +428,7 @@ DEFAULT_DATA: Dict[str, Any] = {
     "declaration": {
         "Applicant Full Name": "Amina Grace Mwandu", "Date": date.today().strftime("%d/%m/%Y"), "Signature": "", "Declaration Agreed": "Yes",
     },
+    "documents": [],
 }
 
 DECLARATION_LINES = [
@@ -1607,6 +1608,66 @@ def draw_office_use_only_box(
     return page_no, y_bottom - 4.0 * mm
 
 
+def draw_documents_section(
+    c: canvas.Canvas,
+    data: Dict[str, Any],
+    page_no: int,
+    y: float,
+    documents: List[Dict[str, Any]],
+) -> Tuple[int, float]:
+    """Draw the attached documents section as the final page of the form."""
+    page_no, y = next_flow_page(c, data, page_no)
+
+    page_no, y = draw_section_flow(c, data, page_no, y, "ATTACHED DOCUMENTS", 20 * mm)
+
+    if not documents:
+        page_no, y = ensure_flow_space(c, data, page_no, y, 15 * mm)
+        c.setFont(FONT, 10.0)
+        c.setFillColor(BLACK)
+        c.drawString(LEFT + 4 * mm, y - 5 * mm, "No documents attached to this application.")
+        y -= 15 * mm
+        return page_no, y
+
+    headers = ["#", "Document Type", "File Name", "Uploaded Date", "Description", "Verified"]
+    col_widths = [
+        CONTENT_W * 0.05,
+        CONTENT_W * 0.20,
+        CONTENT_W * 0.25,
+        CONTENT_W * 0.14,
+        CONTENT_W * 0.26,
+        CONTENT_W * 0.10,
+    ]
+
+    rows = [headers]
+    for idx, doc in enumerate(documents, start=1):
+        rows.append([
+            str(idx),
+            doc.get("Document Type", "-"),
+            doc.get("File Name", "-"),
+            doc.get("Uploaded Date", "-"),
+            doc.get("Description", "-"),
+            doc.get("Verified", "No"),
+        ])
+
+    row_heights = [10 * mm] + [12 * mm] * (len(rows) - 1)
+    total_table_height = sum(row_heights) + CELL_Y_GAP * len(row_heights)
+
+    page_no, y = ensure_flow_space(c, data, page_no, y, total_table_height + 5 * mm)
+
+    y = draw_table(
+        c,
+        LEFT,
+        y,
+        col_widths,
+        row_heights,
+        rows,
+        font_size=7.8,
+    )
+    y -= 4 * mm
+
+    return page_no, y
+
+
 
 # ---------------------------------------------------------------------------
 # Dynamic page-flow helpers
@@ -2406,6 +2467,9 @@ def generate_pdf(output: str, data: Dict[str, Any]) -> None:
 
     page, y = draw_office_use_only_box(c, data, page, y)
 
+    documents = data.get("documents", [])
+    page, y = draw_documents_section(c, data, page, y, documents)
+
     end_page(c, data, page)
     c.save()
 
@@ -2564,7 +2628,7 @@ def _photo_source(student_profile: Any) -> Any:
 def _get_work_experiences(student_profile: Any) -> List[Any]:
     if student_profile is None:
         return []
-    manager = getattr(student_profile, "workexperience_set", None)
+    manager = getattr(student_profile, "work_experiences", None) or getattr(student_profile, "workexperience_set", None)
     if manager is None:
         return []
     try:
@@ -2576,7 +2640,7 @@ def _get_work_experiences(student_profile: Any) -> List[Any]:
             return []
 
 
-def application_to_awec_csc_style_data(application: Any, student_profile: Any = None, supplemental_profile: Any = None) -> Dict[str, Any]:
+def application_to_awec_csc_style_data(application: Any, student_profile: Any = None, supplemental_profile: Any = None, documents: Any = None) -> Dict[str, Any]:
     """
     Convert your existing Django Application, StudentProfile, and
     ApplicationSupplementalProfile objects into the dictionary used by the
@@ -2901,10 +2965,30 @@ def application_to_awec_csc_style_data(application: Any, student_profile: Any = 
         "Signature": "",
         "Declaration Agreed": _bool_text(_safe_get(supplemental_profile, "declaration_agreed"), "Yes"),
     }
+
+    doc_list = []
+    if documents is not None:
+        for doc in documents:
+            doc_name = _safe_get(doc, "file")
+            if hasattr(doc_name, "name"):
+                doc_name = doc_name.name
+            elif doc_name:
+                doc_name = str(doc_name)
+            else:
+                doc_name = "-"
+            doc_list.append({
+                "Document Type": val(_safe_get(doc, "document_type")),
+                "File Name": val(doc_name.split("/")[-1] if doc_name else "-"),
+                "Uploaded Date": _date_text(_safe_get(doc, "uploaded_at")),
+                "Description": val(_safe_get(doc, "description")) or "-",
+                "Verified": "Yes" if _safe_get(doc, "is_verified") else "No",
+            })
+    data["documents"] = doc_list
+
     return data
 
 
-def build_awec_csc_style_application_pdf_response(application: Any, student_profile: Any = None, supplemental_profile: Any = None):
+def build_awec_csc_style_application_pdf_response(application: Any, student_profile: Any = None, supplemental_profile: Any = None, documents: Any = None):
     """
     Django-ready PDF response. Put this file in your app, then call this function
     from a Django view after fetching the Application object.
@@ -2912,7 +2996,7 @@ def build_awec_csc_style_application_pdf_response(application: Any, student_prof
     from io import BytesIO
     from django.http import HttpResponse
 
-    data = application_to_awec_csc_style_data(application, student_profile, supplemental_profile)
+    data = application_to_awec_csc_style_data(application, student_profile, supplemental_profile, documents=documents)
     buffer = BytesIO()
     generate_pdf(buffer, data)
     pdf_bytes = buffer.getvalue()

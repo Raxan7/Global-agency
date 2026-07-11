@@ -2916,10 +2916,24 @@ def export_single_application_pdf(request, application_id):
 
     supplemental_profile = ApplicationSupplementalProfile.objects.filter(application=application).first()
 
+    documents = Document.objects.filter(
+        student=application.student,
+    ).filter(
+        application=application,
+    ).order_by('uploaded_at')
+
+    documents_without_app = Document.objects.filter(
+        student=application.student,
+        application__isnull=True,
+    ).order_by('uploaded_at')
+
+    all_documents = list(documents) + list(documents_without_app)
+
     return build_awec_csc_style_application_pdf_response(
         application=application,
         student_profile=student_profile,
         supplemental_profile=supplemental_profile,
+        documents=all_documents,
     )
 
 
